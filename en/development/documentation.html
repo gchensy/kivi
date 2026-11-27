@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Writing documentation &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=d005c095" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=25d9e9fd"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'development/documentation';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Releasing to PyPI" href="releasing.html" />
+    <link rel="prev" title="Development" href="index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="1.9.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 1.9.0">1.9.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    Tutorial
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/development/documentation.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    Tutorial
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/development/documentation.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">Writing documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="releasing.html">Releasing to PyPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="legacy_review.html">Legacy review</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Development</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Writing documentation</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="writing-documentation">
+<h1>Writing documentation<a class="headerlink" href="#writing-documentation" title="Link to this heading">#</a></h1>
+<p>The English and the simplified Chinese editions are built from the same pages and docstrings. This page describes how they are organized and written. <a class="reference internal" href="index.html"><span class="doc">Development</span></a> covers the checks that every pull request runs.</p>
+<section id="kinds-of-pages">
+<h2>Kinds of pages<a class="headerlink" href="#kinds-of-pages" title="Link to this heading">#</a></h2>
+<p>Apart from the home page and the index page of each section, every page is one of five kinds, and its kind decides what it contains.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 20.0%" />
+<col style="width: 30.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Kind</p></th>
+<th class="head"><p>Pages</p></th>
+<th class="head"><p>Contents</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Tutorial</p></td>
+<td><p>The pages of the getting started section and of the tutorial section, and <a class="reference internal" href="../user_guide/risk_workflow.html"><span class="doc">Risk modeling workflow</span></a></p></td>
+<td><p>The installation, and worked examples on the bundled data from start to finish. They link to the topic guides for the details instead of repeating them.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Topic guide</p></td>
+<td><p>The other pages of the user guide</p></td>
+<td><p>One step of a risk model: what it measures, an example and how to read the result. <a class="reference internal" href="../user_guide/datasets.html"><span class="doc">Example data</span></a> describes the example data in the same way.</p></td>
+</tr>
+<tr class="row-even"><td><p>Reference</p></td>
+<td><p>The pages of the API reference</p></td>
+<td><p><a class="reference internal" href="../api/conventions.html"><span class="doc">Conventions</span></a>, the rules that every function follows; <a class="reference internal" href="../api/compatibility.html"><span class="doc">Compatibility</span></a>, what a release may change; <a class="reference internal" href="../api/glossary.html"><span class="doc">Glossary</span></a>, the terms of the guides; and one page per public module, generated from its docstrings.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Release notes</p></td>
+<td><p><a class="reference internal" href="../release/index.html"><span class="doc">Release notes</span></a> and <a class="reference internal" href="../release/migration.html"><span class="doc">Migration guide</span></a></p></td>
+<td><p>What changed in each version, and how to move code from 0.9 to 1.0 and from the 0.2.x classes to their replacements. The notes of a released version are not edited. The migration guide is revised whenever a release changes what it describes.</p></td>
+</tr>
+<tr class="row-even"><td><p>Contributor guide</p></td>
+<td><p>The pages of this section</p></td>
+<td><p>How to work on kivi. <a class="reference internal" href="legacy_review.html"><span class="doc">Legacy review</span></a> records the review of the 0.2.x code that preceded the rewrite.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="where-pages-live">
+<h2>Where pages live<a class="headerlink" href="#where-pages-live" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>A public module <code class="docutils literal notranslate"><span class="pre">kivi.&lt;module&gt;</span></code> has an API page <code class="docutils literal notranslate"><span class="pre">docs/api/&lt;module&gt;.rst</span></code> and usually a topic guide <code class="docutils literal notranslate"><span class="pre">docs/user_guide/&lt;topic&gt;.rst</span></code>. The toctrees of the API reference and of the user guide list their pages in the order of a project and end with a glob, so a new page appears at the end without editing them. The integration moves it to its place, as Entry points below describes.</p></li>
+<li><p>The tutorial section, <code class="docutils literal notranslate"><span class="pre">docs/tutorial</span></code>, follows one project over several chapters, listed in the order of the project by the toctree of its index page. Each chapter starts with a collapsed <code class="docutils literal notranslate"><span class="pre">dropdown</span></code> that repeats the code of the earlier chapters that it needs, so that the page runs on its own. Results that only simulated data can give, such as the outcomes of rejected applicants, go in an <code class="docutils literal notranslate"><span class="pre">admonition</span></code> titled <code class="docutils literal notranslate"><span class="pre">Simulation</span> <span class="pre">check</span></code> with the class <code class="docutils literal notranslate"><span class="pre">kivi-check</span></code>, and the steps of the project never depend on them.</p></li>
+<li><p>The conventions, the compatibility promises and the glossary are <code class="docutils literal notranslate"><span class="pre">docs/api/conventions.rst</span></code>, <code class="docutils literal notranslate"><span class="pre">docs/api/compatibility.rst</span></code> and <code class="docutils literal notranslate"><span class="pre">docs/api/glossary.rst</span></code>. They come first in the API reference, and the index of the user guide links to the conventions and the glossary.</p></li>
+<li><p>Page names are part of the URLs, and the language switch links each page to the page of the same name in the other edition. Change the title of a page rather than renaming or removing it.</p></li>
+<li><p>The API page of a module and its topic guide have the same title. Its cards and its rows in the README use that title or a short form of it, such as WOE and IV.</p></li>
+</ul>
+</section>
+<section id="topic-guides">
+<h2>Topic guides<a class="headerlink" href="#topic-guides" title="Link to this heading">#</a></h2>
+<p>A topic guide follows the order of an analysis, so that readers can stop as soon as they have what they need. Its sections come in the order of the table below, with the titles that the table gives in inline code:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 75.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Section</p></th>
+<th class="head"><p>Contents</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Opening, without a heading</p></td>
+<td><p>The question that the step answers and where it sits in a risk model, with links to the guides of the steps before and after it in the order of the user guide. The public functions that the page covers, each linked to its API entry. The opening has no examples.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Definition</span></code></p></td>
+<td><p>The measure and its formula in a math block, before any example. Title it <code class="docutils literal notranslate"><span class="pre">Definitions</span></code> when it defines several measures, and leave it out when each tool of the page is defined in its own section.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">A</span> <span class="pre">worked</span> <span class="pre">example</span></code></p></td>
+<td><p>A few values that readers can check by hand, right after the definition.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Body sections</p></td>
+<td><p>One section for each task, tool or question of the step, in the order of a project, with an example on the bundled data and how to read its result. Title a body section with a noun phrase, such as <code class="docutils literal notranslate"><span class="pre">Gains</span> <span class="pre">table</span></code>, or a gerund phrase, such as <code class="docutils literal notranslate"><span class="pre">Choosing</span> <span class="pre">a</span> <span class="pre">cut-off</span></code>; imperative titles are for the steps of a tutorial. A body section may have subsections.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Reading</span> <span class="pre">the</span> <span class="pre">result</span></code></p></td>
+<td><p>A table of the columns of the page’s main result, the direction of the measure, its usual thresholds and what to check next. It follows the body sections whose examples print that result and comes before the body sections about other tools. On a page whose tools each return their own table, each body section describes its table instead.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Special</span> <span class="pre">values</span></code></p></td>
+<td><p>How codes such as <code class="docutils literal notranslate"><span class="pre">-1</span></code> for “not applicable” are passed in <code class="docutils literal notranslate"><span class="pre">special</span></code>, and which group they end up in.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Missing</span> <span class="pre">values</span></code></p></td>
+<td><p>How missing values are counted, grouped or rejected.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Sample</span> <span class="pre">weights</span></code></p></td>
+<td><p>What <code class="docutils literal notranslate"><span class="pre">weights</span></code> changes and what it leaves unchanged, and where weighted results differ from repeated rows.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Limits</span></code></p></td>
+<td><p>What the method cannot tell, and what kivi leaves out.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Errors</span> <span class="pre">and</span> <span class="pre">warnings</span></code></p></td>
+<td><p>The errors and warnings that readers are likely to meet, and how to resolve them.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Leave out the sections that do not apply, but keep the order and the titles of the others, so that the guides read alike. A variant that one or two sentences explain can stay in the body section that it belongs to, and an error that belongs to one task can be shown where that task is; a section of its own is for a variant or error that needs an example.</p>
+<p>Section anchors are part of the URLs as well, and the READMEs link to some of them. Keep the title of a section that a README links to, and keep a label when its section moves.</p>
+</section>
+<section id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Examples are doctests, and the <code class="docutils literal notranslate"><span class="pre">build</span></code> check runs them. Their output is real: when a change alters a printed table, run the code again and paste the new output instead of editing the numbers.</p></li>
+<li><p>Examples use the data described in <a class="reference internal" href="../user_guide/datasets.html"><span class="doc">Example data</span></a>, or a few values that readers can check by hand. Random data comes from a generator with a fixed seed.</p></li>
+<li><p>Import each function from its module, as in <code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">kivi.woe</span> <span class="pre">import</span> <span class="pre">woe_table</span></code>.</p></li>
+<li><p>Examples must not warn: a warning raised by a doctest, or by a chart or diagram recipe in docs/_plotting.py, docs/_diagrams.py or docs/_tutorial.py, fails the build. When an example is about a warning, catch it with <code class="docutils literal notranslate"><span class="pre">warnings.catch_warnings(record=True)</span></code> and print the message.</p></li>
+<li><p>All the examples of a page share one namespace, so a section can use what an earlier section defined. When sections move, check that every name is still defined before it is used.</p></li>
+</ul>
+</section>
+<section id="charts">
+<h2>Charts<a class="headerlink" href="#charts" title="Link to this heading">#</a></h2>
+<p>Charts and diagrams are drawn when the documentation is built. A <code class="docutils literal notranslate"><span class="pre">plot</span></code> directive calls a <code class="docutils literal notranslate"><span class="pre">figure_*</span></code> function, which recomputes the example shown just above it, so change the two together:</p>
+<ul class="simple">
+<li><p>A chart, from <code class="docutils literal notranslate"><span class="pre">docs/_plotting.py</span></code> and called as <code class="docutils literal notranslate"><span class="pre">kp.figure_*()</span></code>, plots a result on the bundled data, such as the WOE of each group or the vintage curves.</p></li>
+<li><p>A chart of the tutorial, from <code class="docutils literal notranslate"><span class="pre">docs/_tutorial.py</span></code> and called as <code class="docutils literal notranslate"><span class="pre">kt.figure_*()</span></code>, rebuilds the state of the project once and draws it with the functions of <code class="docutils literal notranslate"><span class="pre">docs/_plotting.py</span></code>.</p></li>
+<li><p>A chart of <a class="reference internal" href="../user_guide/plotting.html"><span class="doc">Charts</span></a>, the guide to <a class="reference internal" href="../api/plotting.html#module-kivi.plotting" title="kivi.plotting"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.plotting</span></code></a>, calls the public chart function in the <code class="docutils literal notranslate"><span class="pre">plot</span></code> directive itself, after the lines that recompute its table, because the code a reader would write is what that guide shows.</p></li>
+<li><p>A diagram, from <code class="docutils literal notranslate"><span class="pre">docs/_diagrams.py</span></code> and called as <code class="docutils literal notranslate"><span class="pre">kd.figure_*()</span></code>, shows how a function computes its result: the input rows, the call and the result table, with the numbers that kivi returns. A topic guide shows its main computation in a diagram right after the worked example, or after the first example of the body section that the computation belongs to.</p></li>
+</ul>
+<p>Text inside a chart or a diagram is limited to kivi’s column and parameter names, data values and formulas written with them, so that one image serves both editions. The caption explains the image and the alternative text describes it; both are translated. A recipe that computes numbers apart from the function it shows checks them against that function, so that a change of the function fails the build instead of leaving the image out of date.</p>
+<p>Every diagram gives a color the same meaning:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 40.0%" />
+<col style="width: 60.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Color</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>One tint per category, a blue ramp from light to dark for intervals, gray for missing values</p></td>
+<td><p>Groups and bins, in the input and in the result</p></td>
+</tr>
+<tr class="row-odd"><td><p>Red</p></td>
+<td><p>Events, the rows with target 1</p></td>
+</tr>
+<tr class="row-even"><td><p>Amber</p></td>
+<td><p>The result that the diagram is about, and the edges and thresholds</p></td>
+</tr>
+<tr class="row-odd"><td><p>Blue and teal</p></td>
+<td><p>The reference sample and the current sample</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>A pull request that adds a module describes the charts and diagrams for its page in its description. They are added when the page is integrated, together with the entry points.</p>
+</section>
+<section id="names-and-links">
+<h2>Names and links<a class="headerlink" href="#names-and-links" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Write argument and column names as inline code, such as <code class="docutils literal notranslate"><span class="pre">special</span></code> or <code class="docutils literal notranslate"><span class="pre">event_rate</span></code>.</p></li>
+<li><p>In the topic guides and the tutorials, link the first mention of a kivi function, class or module in each section to its API entry. Use the <code class="docutils literal notranslate"><span class="pre">:func:</span></code>, <code class="docutils literal notranslate"><span class="pre">:class:</span></code>, <code class="docutils literal notranslate"><span class="pre">:exc:</span></code>, <code class="docutils literal notranslate"><span class="pre">:meth:</span></code> and <code class="docutils literal notranslate"><span class="pre">:mod:</span></code> roles with the full name and a leading tilde, such as <code class="docutils literal notranslate"><span class="pre">:func:`~kivi.woe.woe_table`</span></code>, so that only the name is shown. Keep the module in the text where it tells two functions apart, as in <code class="docutils literal notranslate"><span class="pre">:func:`kivi.binning.cut`</span></code> next to <code class="docutils literal notranslate"><span class="pre">pandas.cut</span></code>. Later mentions in the same section stay inline code.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">woe</span></code>, <code class="docutils literal notranslate"><span class="pre">iv</span></code>, <code class="docutils literal notranslate"><span class="pre">psi</span></code>, <code class="docutils literal notranslate"><span class="pre">ks</span></code> and <code class="docutils literal notranslate"><span class="pre">gini</span></code> are the names of functions and of columns. Link them only where they mean the function.</p></li>
+<li><p>Names inside examples are code and are not linked.</p></li>
+<li><p>Link to another page with the <code class="docutils literal notranslate"><span class="pre">:doc:</span></code> role and to a section of another page with the <code class="docutils literal notranslate"><span class="pre">:ref:</span></code> role. Give a section a label only when a link points to it.</p></li>
+</ul>
+</section>
+<section id="api-reference">
+<h2>API reference<a class="headerlink" href="#api-reference" title="Link to this heading">#</a></h2>
+<ul>
+<li><p><a class="reference internal" href="../api.html"><span class="doc">API reference</span></a> lists the conventions, the compatibility page, the glossary and then the module pages in the order of the user guide, and ends with a glob for the pages that are not integrated yet. <code class="docutils literal notranslate"><span class="pre">api/datasets</span></code> comes last through the glob, so that the glob always matches a page.</p></li>
+<li><p>A module page starts with its title, a <code class="docutils literal notranslate"><span class="pre">module</span></code> directive, which gives <code class="docutils literal notranslate"><span class="pre">:mod:</span></code> links their target, and an introduction: one or two sentences on what the module is for, with links to its main functions, and a sentence that links to its topic guide. The entries follow. For example:</p>
+<div class="highlight-rst notranslate"><div class="highlight"><pre><span></span><span class="gh">Binning</span>
+<span class="gh">=======</span>
+
+<span class="p">..</span> <span class="ow">module</span><span class="p">::</span> kivi.binning
+
+Fit bin edges on a reference sample and group every sample with the same edges.
+<span class="na">:func:</span><span class="nv">`~kivi.binning.bin_edges`</span> fits them from the values alone, ...
+
+See <span class="na">:doc:</span><span class="nv">`/user_guide/binning`</span> for examples and how to choose the edges.
+
+<span class="p">..</span> <span class="ow">autosummary</span><span class="p">::</span>
+
+   bin_edges
+   cut
+
+<span class="p">..</span> <span class="ow">autofunction</span><span class="p">::</span> bin_edges
+
+<span class="p">..</span> <span class="ow">autofunction</span><span class="p">::</span> cut
+</pre></div>
+</div>
+</li>
+<li><p>The API page of a module documents every name in the module’s <code class="docutils literal notranslate"><span class="pre">__all__</span></code>: first in an <code class="docutils literal notranslate"><span class="pre">autosummary</span></code> table, then each with its own <code class="docutils literal notranslate"><span class="pre">autofunction</span></code>, <code class="docutils literal notranslate"><span class="pre">autoclass</span></code>, <code class="docutils literal notranslate"><span class="pre">autoexception</span></code> or <code class="docutils literal notranslate"><span class="pre">automethod</span></code> entry, in the same order. <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">docs/build.py</span></code> stops when a name has no such entry.</p></li>
+<li><p>Docstrings follow the numpydoc conventions and are validated with every check enabled, so a missing section, such as See Also or Examples, fails the build. Their paragraphs are translated like those of the pages.</p></li>
+<li><p><a class="reference internal" href="../api/conventions.html"><span class="doc">Conventions</span></a> holds the rules that every module follows, such as the order of the arguments and the meaning of <code class="docutils literal notranslate"><span class="pre">weights</span></code>. A guide or a docstring states a rule of its own module and links to the conventions for the shared ones. <a class="reference internal" href="../api/glossary.html"><span class="doc">Glossary</span></a> defines each term once and links to the guide that uses it.</p></li>
+</ul>
+</section>
+<section id="translations">
+<h2>Translations<a class="headerlink" href="#translations" title="Link to this heading">#</a></h2>
+<p>The Chinese edition is generated from <code class="docutils literal notranslate"><span class="pre">docs/locale/zh_CN/LC_MESSAGES/kivi.po</span></code>. Every paragraph of the English pages and of the public docstrings is one entry in that file. <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">docs/build.py</span></code> stops when an entry is missing, fuzzy or no longer used.</p>
+<p>After changing English text:</p>
+<ol class="arabic simple">
+<li><p>Run <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">docs/build.py</span> <span class="pre">--update-po</span></code>. New strings are added with an empty translation, and changed strings keep their old translation marked as fuzzy.</p></li>
+<li><p>Translate the empty entries, review the fuzzy ones and delete their <code class="docutils literal notranslate"><span class="pre">#,</span> <span class="pre">fuzzy</span></code> line.</p></li>
+<li><p>Run <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">docs/build.py</span></code> again.</p></li>
+</ol>
+<p>In a translation, put a space or Chinese punctuation on both sides of inline markup such as inline code and links, or the markup is not recognized. Translate each term as the catalog already translates it, so that the edition keeps one vocabulary.</p>
+<p>A change that only replaces markup, such as inline code by a link, leaves the translations valid. Apply it to the source strings and to their translations in <code class="docutils literal notranslate"><span class="pre">kivi.po</span></code> before step 1, so that the entries do not turn fuzzy.</p>
+</section>
+<section id="entry-points">
+<h2>Entry points<a class="headerlink" href="#entry-points" title="Link to this heading">#</a></h2>
+<p>Some pages describe the library as a whole: <code class="docutils literal notranslate"><span class="pre">README.md</span></code> and <code class="docutils literal notranslate"><span class="pre">README.zh-CN.md</span></code>, the home page, the index of the user guide and <a class="reference internal" href="../user_guide/risk_workflow.html"><span class="doc">Risk modeling workflow</span></a>. A pull request that adds a module leaves them alone. They are updated together after a group of such pull requests has merged, and that update rewrites them for the library as it now is instead of only appending to them:</p>
+<ul class="simple">
+<li><p>the title, the introduction and the steps on the home page;</p></li>
+<li><p>the cards on the home page and on the index of the user guide, and the order of the user guide;</p></li>
+<li><p>the order of the API reference;</p></li>
+<li><p>the links to the previous and the next step in the openings of the guides next to a new one;</p></li>
+<li><p>the terms of <a class="reference internal" href="../api/glossary.html"><span class="doc">Glossary</span></a> and the rules of <a class="reference internal" href="../api/conventions.html"><span class="doc">Conventions</span></a> that a new module adds;</p></li>
+<li><p>the tables and the roadmap of both READMEs;</p></li>
+<li><p>any sentence in <a class="reference internal" href="../release/migration.html"><span class="doc">Migration guide</span></a> about functionality that is not ported yet.</p></li>
+</ul>
+<p>A pull request that adds a module lists in its description the glossary terms and the conventions that it needs, as it does for its charts.</p>
+<p><code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">docs/build.py</span></code> lists every public function that the API tables of the READMEs leave out, and every user guide page without a card on the index of the user guide or a link in the READMEs. <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">docs/build.py</span> <span class="pre">--release</span></code> refuses to run until the list is empty.</p>
+</section>
+<section id="publishing-the-documentation">
+<h2>Publishing the documentation<a class="headerlink" href="#publishing-the-documentation" title="Link to this heading">#</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">Documentation</span></code> workflow on GitHub Actions runs the tests and builds both editions for every pull request. On the master branch it also publishes docs/_build/html to the gh-pages branch, which serves <a class="reference external" href="https://gchensy.github.io/kivi/">https://gchensy.github.io/kivi/</a>.</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="index.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Development</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="releasing.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Releasing to PyPI</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kinds-of-pages">Kinds of pages</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#where-pages-live">Where pages live</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#topic-guides">Topic guides</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#examples">Examples</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#charts">Charts</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#names-and-links">Names and links</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#api-reference">API reference</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#translations">Translations</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#entry-points">Entry points</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#publishing-the-documentation">Publishing the documentation</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1.
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Model validation &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=d005c095" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=25d9e9fd"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/validation';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Regulatory capital" href="capital.html" />
+    <link rel="prev" title="Model monitoring" href="monitoring.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="1.9.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 1.9.0">1.9.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    Tutorial
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/user_guide/validation.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    Tutorial
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/user_guide/validation.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="risk_workflow.html">Risk modeling workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">Time-window features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="univariate.html">Univariate profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="binning.html">Binning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="woe_iv.html">Weight of evidence and information value</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selection.html">Variable selection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reject_inference.html">Reject inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scorecard.html">Scorecard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="expert.html">Expert scorecards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">Model performance</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lgd.html">LGD and EAD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">Credit strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rules.html">Policy rules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spec.html">Binning specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="psi.html">Population stability index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">Model monitoring</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">Model validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="capital.html">Regulatory capital</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vintage.html">Vintage and roll-rate analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lifetime.html">Lifetime PD and expected credit loss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html">Charts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">Example data</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">User guide</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Model validation</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="model-validation">
+<h1>Model validation<a class="headerlink" href="#model-validation" title="Link to this heading">#</a></h1>
+<p>A bank that sets its capital requirements with internal ratings validates each model at least once a year and reports the results to its supervisor. For the PD, LGD and CCF models of the IRB approach, the European Central Bank prescribes the quantitative tools of that report in its “Instructions for reporting the validation results of internal models” of February 2019: back-tests of the estimates, the discriminatory power against that of the initial validation, and the stability of the ratings. This guide maps each tool to a kivi function and computes them on simulated data, in the order of the report.</p>
+<p>A validation reviews once a year a model that <a class="reference internal" href="monitoring.html"><span class="doc">Model monitoring</span></a> follows period by period, and <a class="reference internal" href="capital.html"><span class="doc">Regulatory capital</span></a>, the next guide, turns the validated PDs into the capital that they require, before <a class="reference internal" href="vintage.html"><span class="doc">Vintage and roll-rate analysis</span></a> follows the loans that the model approves. The tools belong to several steps of a model: <a class="reference internal" href="calibration.html"><span class="doc">Calibration</span></a> back-tests the estimates, <a class="reference internal" href="metrics.html"><span class="doc">Model performance</span></a> measures the ranking and <a class="reference internal" href="vintage.html"><span class="doc">Vintage and roll-rate analysis</span></a> follows the migrations between grades, and those guides explain each function in detail. <a class="reference internal" href="../api/calibration.html#kivi.calibration.jeffreys_test" title="kivi.calibration.jeffreys_test"><code class="xref py py-func docutils literal notranslate"><span class="pre">jeffreys_test()</span></code></a>, <a class="reference internal" href="../api/metrics.html#kivi.metrics.roc_auc_interval" title="kivi.metrics.roc_auc_interval"><code class="xref py py-func docutils literal notranslate"><span class="pre">roc_auc_interval()</span></code></a>, <a class="reference internal" href="../api/vintage.html#kivi.vintage.migration_bandwidth" title="kivi.vintage.migration_bandwidth"><code class="xref py py-func docutils literal notranslate"><span class="pre">migration_bandwidth()</span></code></a>, <a class="reference internal" href="../api/vintage.html#kivi.vintage.migration_test" title="kivi.vintage.migration_test"><code class="xref py py-func docutils literal notranslate"><span class="pre">migration_test()</span></code></a>, <a class="reference internal" href="../api/calibration.html#kivi.calibration.concentration_test" title="kivi.calibration.concentration_test"><code class="xref py py-func docutils literal notranslate"><span class="pre">concentration_test()</span></code></a>, <a class="reference internal" href="../api/calibration.html#kivi.calibration.backtest_table" title="kivi.calibration.backtest_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">backtest_table()</span></code></a> and <a class="reference internal" href="../api/metrics.html#kivi.metrics.generalized_auc" title="kivi.metrics.generalized_auc"><code class="xref py py-func docutils literal notranslate"><span class="pre">generalized_auc()</span></code></a> compute the statistics of the report, <a class="reference internal" href="../api/vintage.html#kivi.vintage.default_rate_table" title="kivi.vintage.default_rate_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">default_rate_table()</span></code></a> counts the customers and the defaults of each grade from a monthly panel, and <a class="reference internal" href="../api/calibration.html#kivi.calibration.spiegelhalter_test" title="kivi.calibration.spiegelhalter_test"><code class="xref py py-func docutils literal notranslate"><span class="pre">spiegelhalter_test()</span></code></a> and <a class="reference internal" href="../api/calibration.html#kivi.calibration.brier_decomposition" title="kivi.calibration.brier_decomposition"><code class="xref py py-func docutils literal notranslate"><span class="pre">brier_decomposition()</span></code></a> add two checks that it does not ask for.</p>
+<section id="the-tools-of-the-report">
+<h2>The tools of the report<a class="headerlink" href="#the-tools-of-the-report" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 18.0%" />
+<col style="width: 42.0%" />
+<col style="width: 40.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Section</p></th>
+<th class="head"><p>Tool</p></th>
+<th class="head"><p>kivi</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>2.5.3.1</p></td>
+<td><p>Back-testing of the PD of each grade and of the portfolio with the Jeffreys test</p></td>
+<td><p><a class="reference internal" href="../api/calibration.html#kivi.calibration.jeffreys_test" title="kivi.calibration.jeffreys_test"><code class="xref py py-func docutils literal notranslate"><span class="pre">jeffreys_test()</span></code></a> on the counts of <a class="reference internal" href="../api/calibration.html#kivi.calibration.calibration_table" title="kivi.calibration.calibration_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">calibration_table()</span></code></a>, or of <a class="reference internal" href="../api/vintage.html#kivi.vintage.default_rate_table" title="kivi.vintage.default_rate_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">default_rate_table()</span></code></a> for the grades of a monthly panel</p></td>
+</tr>
+<tr class="row-odd"><td><p>2.5.4.1, annex 3.1</p></td>
+<td><p>Current AUC against the AUC of the initial validation</p></td>
+<td><p>The estimate and the standard error of <a class="reference internal" href="../api/metrics.html#kivi.metrics.roc_auc_interval" title="kivi.metrics.roc_auc_interval"><code class="xref py py-func docutils literal notranslate"><span class="pre">roc_auc_interval()</span></code></a>, as below</p></td>
+</tr>
+<tr class="row-even"><td><p>2.5.5.1</p></td>
+<td><p>Customer migrations: the upper and lower MWB</p></td>
+<td><p><a class="reference internal" href="../api/vintage.html#kivi.vintage.migration_bandwidth" title="kivi.vintage.migration_bandwidth"><code class="xref py py-func docutils literal notranslate"><span class="pre">migration_bandwidth()</span></code></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>2.5.5.2</p></td>
+<td><p>Stability of the migration matrix: a z test for each off-diagonal cell</p></td>
+<td><p><a class="reference internal" href="../api/vintage.html#kivi.vintage.migration_test" title="kivi.vintage.migration_test"><code class="xref py py-func docutils literal notranslate"><span class="pre">migration_test()</span></code></a></p></td>
+</tr>
+<tr class="row-even"><td><p>2.5.5.3</p></td>
+<td><p>Concentration in rating grades: the HI and a test of the coefficient of variation</p></td>
+<td><p><a class="reference internal" href="../api/calibration.html#kivi.calibration.concentration_test" title="kivi.calibration.concentration_test"><code class="xref py py-func docutils literal notranslate"><span class="pre">concentration_test()</span></code></a>; <a class="reference internal" href="../api/calibration.html#kivi.calibration.herfindahl_index" title="kivi.calibration.herfindahl_index"><code class="xref py py-func docutils literal notranslate"><span class="pre">herfindahl_index()</span></code></a> gives the Herfindahl-Hirschman index itself</p></td>
+</tr>
+<tr class="row-odd"><td><p>2.6.2.1, 2.8.2.1, 2.9.3.1, 2.9.3.2</p></td>
+<td><p>Back-testing of the LGD, the LGD in-default, the CCF and the EAD of facilities with an EAD approach with a one-sided t-test</p></td>
+<td><p><a class="reference internal" href="../api/calibration.html#kivi.calibration.backtest_table" title="kivi.calibration.backtest_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">backtest_table()</span></code></a></p></td>
+</tr>
+<tr class="row-even"><td><p>2.7.2.1</p></td>
+<td><p>Back-testing of the ELBE with a two-sided t-test</p></td>
+<td><p><a class="reference internal" href="../api/calibration.html#kivi.calibration.backtest_table" title="kivi.calibration.backtest_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">backtest_table()</span></code></a>, with the p-value <code class="docutils literal notranslate"><span class="pre">2</span> <span class="pre">*</span> <span class="pre">min(p_value,</span> <span class="pre">1</span> <span class="pre">-</span> <span class="pre">p_value)</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>2.6.3.1, 2.9.4.1, annex 3.2</p></td>
+<td><p>Current gAUC of the LGD or the CCF against the gAUC of the initial validation</p></td>
+<td><p>The estimate and the standard error of <a class="reference internal" href="../api/metrics.html#kivi.metrics.generalized_auc" title="kivi.metrics.generalized_auc"><code class="xref py py-func docutils literal notranslate"><span class="pre">generalized_auc()</span></code></a>, as below</p></td>
+</tr>
+<tr class="row-even"><td><p>none</p></td>
+<td><p>Calibration of the probabilities of single customers</p></td>
+<td><p><a class="reference internal" href="../api/calibration.html#kivi.calibration.spiegelhalter_test" title="kivi.calibration.spiegelhalter_test"><code class="xref py py-func docutils literal notranslate"><span class="pre">spiegelhalter_test()</span></code></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>none</p></td>
+<td><p>Reliability and resolution of the Brier score</p></td>
+<td><p><a class="reference internal" href="../api/calibration.html#kivi.calibration.brier_decomposition" title="kivi.calibration.brier_decomposition"><code class="xref py py-func docutils literal notranslate"><span class="pre">brier_decomposition()</span></code></a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The report also asks for counts that need no statistics, such as those of the customers with missing or overridden ratings, and for qualitative assessments. kivi leaves these, and the reporting templates, to the bank.</p>
+</section>
+<section id="pd-models">
+<h2>PD models<a class="headerlink" href="#pd-models" title="Link to this heading">#</a></h2>
+<p>The examples use the PDs of the incumbent scorecard of <a class="reference internal" href="../api/datasets.html#kivi.datasets.make_applications" title="kivi.datasets.make_applications"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_applications()</span></code></a>, described in <a class="reference internal" href="datasets.html"><span class="doc">Example data</span></a>, on the approved applicants of two samples: one stands for the initial validation of the model and the other for the current observation period.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_applications</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">initial</span> <span class="o">=</span> <span class="n">make_applications</span><span class="p">(</span><span class="n">n_applicants</span><span class="o">=</span><span class="mi">5000</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">"approved"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">current</span> <span class="o">=</span> <span class="n">make_applications</span><span class="p">(</span><span class="n">n_applicants</span><span class="o">=</span><span class="mi">5000</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">"approved"</span><span class="p">)</span>
+</pre></div>
+</div>
+<section id="back-testing-the-grades">
+<h3>Back-testing the grades<a class="headerlink" href="#back-testing-the-grades" title="Link to this heading">#</a></h3>
+<p>The PDs are mapped to the grades of a master scale, and <a class="reference internal" href="../api/calibration.html#kivi.calibration.jeffreys_test" title="kivi.calibration.jeffreys_test"><code class="xref py py-func docutils literal notranslate"><span class="pre">jeffreys_test()</span></code></a> tests the PD of each grade against its defaults. The test is one-sided: a small p-value means that the grade has more defaults than its PD predicts. <a class="reference internal" href="calibration.html"><span class="doc">Calibration</span></a> describes the scale and the test.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">assign_grades</span><span class="p">,</span> <span class="n">calibration_table</span><span class="p">,</span> <span class="n">jeffreys_test</span><span class="p">,</span> <span class="n">master_scale</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">scale</span> <span class="o">=</span> <span class="n">master_scale</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">geomspace</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.16</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">labels</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="s2">"ABCDE"</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">grades</span> <span class="o">=</span> <span class="n">assign_grades</span><span class="p">(</span><span class="n">current</span><span class="p">[</span><span class="s2">"incumbent_pd"</span><span class="p">],</span> <span class="n">scale</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span> <span class="o">=</span> <span class="n">calibration_table</span><span class="p">(</span><span class="n">grades</span><span class="p">,</span> <span class="n">current</span><span class="p">[</span><span class="s2">"target"</span><span class="p">],</span> <span class="n">current</span><span class="p">[</span><span class="s2">"incumbent_pd"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">scale</span><span class="p">[</span><span class="s2">"probability"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">jeffreys</span><span class="o">=</span><span class="n">jeffreys_test</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s2">"event"</span><span class="p">],</span> <span class="n">table</span><span class="p">[</span><span class="s2">"total"</span><span class="p">],</span> <span class="n">table</span><span class="p">[</span><span class="s2">"probability"</span><span class="p">])</span>
+<span class="gp">... </span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">     total  event  event_rate  mean_probability  probability  jeffreys</span>
+<span class="go">bin</span>
+<span class="go">A        5      0       0.000             0.012         0.01     0.255</span>
+<span class="go">B      138      1       0.007             0.023         0.02     0.865</span>
+<span class="go">C      809     37       0.046             0.045         0.04     0.200</span>
+<span class="go">D     1713    180       0.105             0.083         0.08     0.000</span>
+<span class="go">E      664    117       0.176             0.131         0.16     0.128</span>
+</pre></div>
+</div>
+<p>The report also tests the whole portfolio, at its mean PD. Count it as one group:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">portfolio</span> <span class="o">=</span> <span class="n">calibration_table</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="s2">"all"</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">current</span><span class="p">),</span> <span class="n">current</span><span class="p">[</span><span class="s2">"target"</span><span class="p">],</span> <span class="n">current</span><span class="p">[</span><span class="s2">"incumbent_pd"</span><span class="p">]</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">jeffreys_test</span><span class="p">(</span><span class="n">portfolio</span><span class="p">[</span><span class="s2">"event"</span><span class="p">],</span> <span class="n">portfolio</span><span class="p">[</span><span class="s2">"total"</span><span class="p">],</span> <span class="n">portfolio</span><span class="p">[</span><span class="s2">"mean_probability"</span><span class="p">])</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
+<span class="go">bin</span>
+<span class="go">all    0.000022</span>
+<span class="go">dtype: float64</span>
+</pre></div>
+</div>
+<p>The incumbent PDs understate the default rate of the current period: grade D defaults at 10.5% against a PD of 8%, and the portfolio at 10.1% against a mean PD of 8.1%.</p>
+<p>The report defines its counts at the beginning of the observation period: N holds the customers of a grade that are not in default then, D those of them that default at least once during the period, also after they move to another grade or model, and the PD is that of the grade at the beginning (section 2.3). Where the grades come from a monthly panel, <a class="reference internal" href="../api/vintage.html#kivi.vintage.default_rate_table" title="kivi.vintage.default_rate_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">default_rate_table()</span></code></a> with the month before the observation period as its only start month gives N as <code class="docutils literal notranslate"><span class="pre">total</span></code>, D as <code class="docutils literal notranslate"><span class="pre">event</span></code> and, with <code class="docutils literal notranslate"><span class="pre">probability</span></code>, the PD of each grade at that month as <code class="docutils literal notranslate"><span class="pre">mean_probability</span></code>. Here the loans of the simulated loan book of <a class="reference internal" href="vintage.html"><span class="doc">Vintage and roll-rate analysis</span></a> are pooled by their delinquency status, each pool with one PD, and the observation period is 2025, so the start month is December 2024:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_loan_panel</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.vintage</span><span class="w"> </span><span class="kn">import</span> <span class="n">default_rate_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">panel</span> <span class="o">=</span> <span class="n">make_loan_panel</span><span class="p">(</span><span class="n">rng</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pool_pd</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">({</span><span class="s2">"current"</span><span class="p">:</span> <span class="mf">0.04</span><span class="p">,</span> <span class="s2">"1-29"</span><span class="p">:</span> <span class="mf">0.25</span><span class="p">,</span> <span class="s2">"30-59"</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s2">"60-89"</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">counts</span> <span class="o">=</span> <span class="n">default_rate_table</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">panel</span><span class="p">[</span><span class="s2">"loan_id"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">panel</span><span class="p">[</span><span class="s2">"month"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">panel</span><span class="p">[</span><span class="s2">"status"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">panel</span><span class="p">[</span><span class="s2">"status"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"90+"</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">starts</span><span class="o">=</span><span class="p">[</span><span class="s2">"2024-12"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">probability</span><span class="o">=</span><span class="n">panel</span><span class="p">[</span><span class="s2">"status"</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">pool_pd</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">),</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">counts</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">jeffreys</span><span class="o">=</span><span class="n">jeffreys_test</span><span class="p">(</span><span class="n">counts</span><span class="p">[</span><span class="s2">"event"</span><span class="p">],</span> <span class="n">counts</span><span class="p">[</span><span class="s2">"total"</span><span class="p">],</span> <span class="n">counts</span><span class="p">[</span><span class="s2">"mean_probability"</span><span class="p">])</span>
+<span class="gp">... </span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">                 total  event  exited  event_rate  mean_probability  jeffreys</span>
+<span class="go">start   grade</span>
+<span class="go">2024-12 current   2146     73     413       0.034              0.04     0.924</span>
+<span class="go">        1-29        65     17      12       0.262              0.25     0.406</span>
+<span class="go">        30-59       23     16       0       0.696              0.50     0.029</span>
+<span class="go">        60-89       15     11       0       0.733              0.80     0.753</span>
+</pre></div>
+</div>
+<p>The loans already in default in December, the 90+ pool, belong to no grade, so their missing PD does not matter. The 30-59 pool defaults at 69.6% against a PD of 50%, which the test rejects at the 5% level; the other pools pass. The 413 loans of the <code class="docutils literal notranslate"><span class="pre">current</span></code> pool that left the book during 2025 without a default stay in N, as the report counts them.</p>
+</section>
+<section id="current-auc-against-the-initial-auc">
+<h3>Current AUC against the initial AUC<a class="headerlink" href="#current-auc-against-the-initial-auc" title="Link to this heading">#</a></h3>
+<p>The report compares the AUC of the current period with the AUC of the initial validation, which it takes as known, under the null hypothesis that the AUC has not fallen:</p>
+<div class="math notranslate nohighlight">
+\[S = \frac{\mathrm{AUC}_\mathrm{init} - \mathrm{AUC}_\mathrm{curr}}{s}, \qquad p = 1 - \Phi(S),\]</div>
+<p>where <span class="math notranslate nohighlight">\(s\)</span> is the standard error of the current AUC, which <a class="reference internal" href="../api/metrics.html#kivi.metrics.roc_auc_interval" title="kivi.metrics.roc_auc_interval"><code class="xref py py-func docutils literal notranslate"><span class="pre">roc_auc_interval()</span></code></a> estimates by the method of annex 3.1. Two lines compute the test from the two AUCs:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">roc_auc_interval</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">initial_auc</span> <span class="o">=</span> <span class="n">roc_auc_interval</span><span class="p">(</span><span class="n">initial</span><span class="p">[</span><span class="s2">"incumbent_pd"</span><span class="p">],</span> <span class="n">initial</span><span class="p">[</span><span class="s2">"target"</span><span class="p">])</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">"auc"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">current_auc</span> <span class="o">=</span> <span class="n">roc_auc_interval</span><span class="p">(</span><span class="n">current</span><span class="p">[</span><span class="s2">"incumbent_pd"</span><span class="p">],</span> <span class="n">current</span><span class="p">[</span><span class="s2">"target"</span><span class="p">])</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">"auc"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <span class="p">(</span><span class="n">initial_auc</span><span class="p">[</span><span class="s2">"estimate"</span><span class="p">]</span> <span class="o">-</span> <span class="n">current_auc</span><span class="p">[</span><span class="s2">"estimate"</span><span class="p">])</span> <span class="o">/</span> <span class="n">current_auc</span><span class="p">[</span><span class="s2">"se"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"S = </span><span class="si">{</span><span class="n">s</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">, p = </span><span class="si">{</span><span class="mf">0.5</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">math</span><span class="o">.</span><span class="n">erfc</span><span class="p">(</span><span class="n">s</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">S = -0.29, p = 0.616</span>
+</pre></div>
+</div>
+<p>The current AUC of 0.658 is a little higher than the initial AUC of 0.654, so the ranking has not deteriorated. Only the standard error of the current AUC enters the test, because the report treats the initial AUC as fixed.</p>
+</section>
+<section id="migrations-and-concentration">
+<h3>Migrations and concentration<a class="headerlink" href="#migrations-and-concentration" title="Link to this heading">#</a></h3>
+<p>The stability tools take the grade of each customer at the beginning and at the end of the observation period. <a class="reference internal" href="../api/vintage.html#kivi.vintage.migration_bandwidth" title="kivi.vintage.migration_bandwidth"><code class="xref py py-func docutils literal notranslate"><span class="pre">migration_bandwidth()</span></code></a> gives the upper and lower MWB of the migrations to worse and to better grades, and <a class="reference internal" href="../api/vintage.html#kivi.vintage.migration_test" title="kivi.vintage.migration_test"><code class="xref py py-func docutils literal notranslate"><span class="pre">migration_test()</span></code></a> the z test of every off-diagonal cell of the migration matrix. The customers who defaulted, moved to another rating system or ended their relationship with the bank take a status of their own, such as <code class="docutils literal notranslate"><span class="pre">&quot;default&quot;</span></code>, and count only among the customers of their grade at the beginning, as the report defines the migration matrix:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.vintage</span><span class="w"> </span><span class="kn">import</span> <span class="n">migration_bandwidth</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">before</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"A"</span><span class="p">,</span> <span class="s2">"A"</span><span class="p">,</span> <span class="s2">"A"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"C"</span><span class="p">,</span> <span class="s2">"C"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">after</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"A"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"C"</span><span class="p">,</span> <span class="s2">"A"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"C"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">migration_bandwidth</span><span class="p">(</span><span class="n">before</span><span class="p">,</span> <span class="n">after</span><span class="p">,</span> <span class="n">grades</span><span class="o">=</span><span class="p">[</span><span class="s2">"A"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"C"</span><span class="p">])</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">statistic</span>
+<span class="go">upper    0.7500</span>
+<span class="go">lower    0.6667</span>
+<span class="go">dtype: float64</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id1">
+<img alt="The moves of the eight customers between the grades A, B and C and to default, with the distance of each move and the furthest move from each grade, and the computation of the upper and the lower MWB" class="plot-directive" src="../_images/validation-1.svg" />
+<figcaption>
+<p><span class="caption-text">How <code class="docutils literal notranslate"><span class="pre">migration_bandwidth</span></code> weighs the moves. Each move to a worse grade, above the diagonal, adds its distance <code class="docutils literal notranslate"><span class="pre">|i</span> <span class="pre">-</span> <span class="pre">j|</span></code> to the numerator of the upper MWB and the furthest move from its grade, in either direction, to the denominator. The moves to better grades make up the lower MWB in the same way, and the customer who defaulted counts in neither.</span><a class="headerlink" href="#id1" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p><a class="reference internal" href="vintage.html"><span class="doc">Vintage and roll-rate analysis</span></a> explains both functions on a simulated portfolio of five grades.</p>
+<p><a class="reference internal" href="../api/calibration.html#kivi.calibration.concentration_test" title="kivi.calibration.concentration_test"><code class="xref py py-func docutils literal notranslate"><span class="pre">concentration_test()</span></code></a> gives the HI of the grades and tests whether their coefficient of variation has risen since the initial validation. Count every grade of the scale, empty or not, in both samples:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">concentration_test</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">initial_grades</span> <span class="o">=</span> <span class="n">assign_grades</span><span class="p">(</span><span class="n">initial</span><span class="p">[</span><span class="s2">"incumbent_pd"</span><span class="p">],</span> <span class="n">scale</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">concentration_test</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">grades</span><span class="o">.</span><span class="n">value_counts</span><span class="p">(</span><span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span> <span class="n">initial_counts</span><span class="o">=</span><span class="n">initial_grades</span><span class="o">.</span><span class="n">value_counts</span><span class="p">(</span><span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="gp">... </span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">statistic</span>
+<span class="go">hi            0.3744</span>
+<span class="go">cv            0.9092</span>
+<span class="go">initial_hi    0.3825</span>
+<span class="go">initial_cv    0.9223</span>
+<span class="go">statistic    -0.0250</span>
+<span class="go">p_value       0.5100</span>
+<span class="go">dtype: float64</span>
+</pre></div>
+</div>
+<p>The grades are as concentrated as at the initial validation.</p>
+<p>The report asks for the HI of the numbers of customers with this test, and for the HI of their exposures alone, which <code class="docutils literal notranslate"><span class="pre">concentration_test</span></code> gives for the exposure of each grade without <code class="docutils literal notranslate"><span class="pre">initial_counts</span></code>.</p>
+</section>
+</section>
+<section id="lgd-and-ccf-models">
+<h2>LGD and CCF models<a class="headerlink" href="#lgd-and-ccf-models" title="Link to this heading">#</a></h2>
+<p>The LGD tools work on the facilities whose recovery process closed in the observation period. Here 1,500 closed defaults in five facility grades realize LGDs that scatter widely around the LGD of their grade, as recoveries do. The LGDs of grade F4 are drawn around 68% instead of its LGD of 60%:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">grade_lgd</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mf">0.10</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.40</span><span class="p">,</span> <span class="mf">0.60</span><span class="p">,</span> <span class="mf">0.80</span><span class="p">],</span> <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="s2">"F1"</span><span class="p">,</span> <span class="s2">"F2"</span><span class="p">,</span> <span class="s2">"F3"</span><span class="p">,</span> <span class="s2">"F4"</span><span class="p">,</span> <span class="s2">"F5"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">facility_grade</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Categorical</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">rng</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">grade_lgd</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">1500</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="p">[</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">]),</span>
+<span class="gp">... </span>    <span class="n">categories</span><span class="o">=</span><span class="n">grade_lgd</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">ordered</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="gp">... </span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">"grade"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">estimated</span> <span class="o">=</span> <span class="n">facility_grade</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">grade_lgd</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mean</span> <span class="o">=</span> <span class="n">estimated</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">facility_grade</span> <span class="o">==</span> <span class="s2">"F4"</span><span class="p">,</span> <span class="mf">0.08</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">realized</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">rng</span><span class="o">.</span><span class="n">beta</span><span class="p">(</span><span class="mf">1.5</span> <span class="o">*</span> <span class="n">mean</span><span class="p">,</span> <span class="mf">1.5</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">mean</span><span class="p">)),</span> <span class="n">name</span><span class="o">=</span><span class="s2">"realized"</span><span class="p">)</span>
+</pre></div>
+</div>
+<section id="back-testing-the-estimates">
+<h3>Back-testing the estimates<a class="headerlink" href="#back-testing-the-estimates" title="Link to this heading">#</a></h3>
+<p><a class="reference internal" href="../api/calibration.html#kivi.calibration.backtest_table" title="kivi.calibration.backtest_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">backtest_table()</span></code></a> gives, for each grade, the mean estimated and realized LGD, the variance of their difference and the t-test of the report, whose small p-values mean that the estimates are too low:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">backtest_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">backtest_table</span><span class="p">(</span><span class="n">facility_grade</span><span class="p">,</span> <span class="n">realized</span><span class="p">,</span> <span class="n">estimated</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">     total  estimated  realized  difference  variance  statistic  p_value</span>
+<span class="go">bin</span>
+<span class="go">F1     363       0.10    0.1114      0.0114    0.0409     1.0767   0.1412</span>
+<span class="go">F2     427       0.25    0.2223     -0.0277    0.0690    -2.1822   0.9852</span>
+<span class="go">F3     311       0.40    0.3863     -0.0137    0.1006    -0.7602   0.7762</span>
+<span class="go">F4     251       0.60    0.7064      0.1064    0.0793     5.9874   0.0000</span>
+<span class="go">F5     148       0.80    0.8016      0.0016    0.0662     0.0758   0.4698</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id3">
+<img alt="Mean estimated and realized LGD of the five facility grades, with the p-value of each grade and the realized LGD of grade F4 in red" class="plot-directive" src="../_images/validation-2.svg" />
+<figcaption>
+<p><span class="caption-text">The mean realized LGD of grade F4 exceeds its estimate of 60%, and only its p-value lies below 5%.</span><a class="headerlink" href="#id3" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>Only grade F4 is rejected. The report tests the portfolio as well; pass one group for every facility:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">backtest_table</span><span class="p">([</span><span class="s2">"all"</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">realized</span><span class="p">),</span> <span class="n">realized</span><span class="p">,</span> <span class="n">estimated</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">     total  estimated  realized  difference  variance  statistic  p_value</span>
+<span class="go">bin</span>
+<span class="go">all   1500     0.3576    0.3676        0.01    0.0721     1.4422   0.0747</span>
+</pre></div>
+</div>
+<p>At the level of the portfolio, the shortfall of grade F4 is diluted by the other grades and is no longer significant at 5%. The same table back-tests the LGD in-default and the CCF, with their estimates and realized values in place of the LGDs, and the EAD estimates of facilities with an EAD approach, with the amount drawn at default as the realized value. The ELBE is tested two-sided, so its p-value is <code class="docutils literal notranslate"><span class="pre">2</span> <span class="pre">*</span> <span class="pre">min(p_value,</span> <span class="pre">1</span> <span class="pre">-</span> <span class="pre">p_value)</span></code>.</p>
+</section>
+<section id="generalized-auc">
+<h3>Generalized AUC<a class="headerlink" href="#generalized-auc" title="Link to this heading">#</a></h3>
+<p>The discriminatory power of an LGD model is measured by the gAUC of <a class="reference internal" href="../api/metrics.html#kivi.metrics.generalized_auc" title="kivi.metrics.generalized_auc"><code class="xref py py-func docutils literal notranslate"><span class="pre">generalized_auc()</span></code></a> on a contingency table of estimated and realized segments. For a model with at most 20 facility grades, the rows are the grades, ordered by their LGD, and the realized LGDs fall into one class per grade: the first class holds the realized LGDs up to the smallest LGD of the grades, the next those up to the second smallest, and the last those above the largest. These classes are closed on the right, as <code class="docutils literal notranslate"><span class="pre">pandas.cut</span></code> makes them by default:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">realized_class</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">realized</span><span class="p">,</span> <span class="p">[</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="o">*</span><span class="n">grade_lgd</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">],</span> <span class="n">labels</span><span class="o">=</span><span class="p">[</span><span class="s2">"R1"</span><span class="p">,</span> <span class="s2">"R2"</span><span class="p">,</span> <span class="s2">"R3"</span><span class="p">,</span> <span class="s2">"R4"</span><span class="p">,</span> <span class="s2">"R5"</span><span class="p">,</span> <span class="s2">"R6"</span><span class="p">]</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pd</span><span class="o">.</span><span class="n">crosstab</span><span class="p">(</span><span class="n">facility_grade</span><span class="p">,</span> <span class="n">realized_class</span><span class="p">)</span>
+<span class="go">realized   R1  R2  R3  R4  R5   R6</span>
+<span class="go">grade</span>
+<span class="go">F1        266  35  25  17  13    7</span>
+<span class="go">F2        200  90  42  44  27   24</span>
+<span class="go">F3         77  64  41  38  38   53</span>
+<span class="go">F4         10  16  18  30  52  125</span>
+<span class="go">F5          2   7  10   9  23   97</span>
+</pre></div>
+</div>
+<p>The estimated segments come first and the realized ones second:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">generalized_auc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gauc</span> <span class="o">=</span> <span class="n">generalized_auc</span><span class="p">(</span><span class="n">facility_grade</span><span class="p">,</span> <span class="n">realized_class</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gauc</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">           estimate      se   lower   upper</span>
+<span class="go">statistic</span>
+<span class="go">gauc           0.77  0.0072  0.7559  0.7841</span>
+<span class="go">somers_d       0.54  0.0144  0.5117  0.5683</span>
+</pre></div>
+</div>
+<p>Like the AUC, the current gAUC is compared with the gAUC of the initial validation, taken as known. With an initial gAUC of 0.78:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.78</span> <span class="o">-</span> <span class="n">gauc</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">"gauc"</span><span class="p">,</span> <span class="s2">"estimate"</span><span class="p">])</span> <span class="o">/</span> <span class="n">gauc</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">"gauc"</span><span class="p">,</span> <span class="s2">"se"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"S = </span><span class="si">{</span><span class="n">s</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">, p = </span><span class="si">{</span><span class="mf">0.5</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">math</span><span class="o">.</span><span class="n">erfc</span><span class="p">(</span><span class="n">s</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">S = 1.39, p = 0.083</span>
+</pre></div>
+</div>
+<p>The gAUC has fallen by one point, which is not significant at 5%. Half of the facilities of grade F4 realize LGDs above 80%, the LGD of grade F5, so the shortfall of F4 also blurs the ranking of the two grades.</p>
+</section>
+<section id="continuous-models">
+<h3>Continuous models<a class="headerlink" href="#continuous-models" title="Link to this heading">#</a></h3>
+<p>A model with more than 20 facility grades or pools, or with a continuous LGD, is tested in the twelve LGD segments of the report: from 0% to 5%, from 5% to 10%, then in steps of 10% up to 100%, and 100% or more. Each segment includes its lower bound, so cut with <code class="docutils literal notranslate"><span class="pre">right=False</span></code>:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">segments</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model_lgd</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">rng</span><span class="o">.</span><span class="n">beta</span><span class="p">(</span><span class="mf">1.2</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">1500</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">outcome</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">rng</span><span class="o">.</span><span class="n">beta</span><span class="p">(</span><span class="mf">1.5</span> <span class="o">*</span> <span class="n">model_lgd</span><span class="p">,</span> <span class="mf">1.5</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">model_lgd</span><span class="p">)))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">estimated_segment</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">model_lgd</span><span class="p">,</span> <span class="n">segments</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">backtest</span> <span class="o">=</span> <span class="n">backtest_table</span><span class="p">(</span><span class="n">estimated_segment</span><span class="p">,</span> <span class="n">outcome</span><span class="p">,</span> <span class="n">model_lgd</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">backtest</span><span class="p">[[</span><span class="s2">"total"</span><span class="p">,</span> <span class="s2">"estimated"</span><span class="p">,</span> <span class="s2">"realized"</span><span class="p">,</span> <span class="s2">"statistic"</span><span class="p">,</span> <span class="s2">"p_value"</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">             total  estimated  realized  statistic  p_value</span>
+<span class="go">bin</span>
+<span class="go">[0.0, 0.05)     84      0.028     0.029      0.020    0.492</span>
+<span class="go">[0.05, 0.1)     98      0.075     0.079      0.241    0.405</span>
+<span class="go">[0.1, 0.2)     263      0.150     0.137     -1.037    0.850</span>
+<span class="go">[0.2, 0.3)     212      0.249     0.259      0.524    0.300</span>
+<span class="go">[0.3, 0.4)     215      0.345     0.351      0.272    0.393</span>
+<span class="go">[0.4, 0.5)     186      0.448     0.424     -1.119    0.868</span>
+<span class="go">[0.5, 0.6)     166      0.550     0.593      1.817    0.036</span>
+<span class="go">[0.6, 0.7)     125      0.648     0.643     -0.186    0.574</span>
+<span class="go">[0.7, 0.8)      85      0.746     0.740     -0.190    0.575</span>
+<span class="go">[0.8, 0.9)      44      0.842     0.816     -0.720    0.762</span>
+<span class="go">[0.9, 1.0)      22      0.922     0.930      0.208    0.419</span>
+</pre></div>
+</div>
+<p>The model is calibrated by construction, and still one segment of eleven has a p-value below 5%, as chance allows. No estimate reaches 100%, so the last segment is empty and left out.</p>
+<p>The realized LGDs are cut into the same segments for the gAUC. A realized LGD below 0, from recoveries that exceed the exposure, falls outside the first segment and would be missing, so clip the realized values at 0 before cutting them:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">realized_segment</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">outcome</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">lower</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">segments</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">generalized_auc</span><span class="p">(</span><span class="n">estimated_segment</span><span class="p">,</span> <span class="n">realized_segment</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">           estimate      se   lower   upper</span>
+<span class="go">statistic</span>
+<span class="go">gauc         0.7614  0.0067  0.7482  0.7745</span>
+<span class="go">somers_d     0.5228  0.0134  0.4964  0.5491</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="beyond-the-report">
+<h2>Beyond the report<a class="headerlink" href="#beyond-the-report" title="Link to this heading">#</a></h2>
+<p>The report tests the PD of each grade on its own. <a class="reference internal" href="../api/calibration.html#kivi.calibration.spiegelhalter_test" title="kivi.calibration.spiegelhalter_test"><code class="xref py py-func docutils literal notranslate"><span class="pre">spiegelhalter_test()</span></code></a> tests the PDs of all customers at once, without grouping them. Every incumbent PD lies below 1/2, so a positive statistic means more defaults than the PDs predict, and its value of 4.09 confirms that they understate the risk of the current period:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">brier_decomposition</span><span class="p">,</span> <span class="n">spiegelhalter_test</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">statistic</span><span class="p">,</span> <span class="n">pvalue</span> <span class="o">=</span> <span class="n">spiegelhalter_test</span><span class="p">(</span><span class="n">current</span><span class="p">[</span><span class="s2">"incumbent_pd"</span><span class="p">],</span> <span class="n">current</span><span class="p">[</span><span class="s2">"target"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"z = </span><span class="si">{</span><span class="n">statistic</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">, p = </span><span class="si">{</span><span class="n">pvalue</span><span class="si">:</span><span class="s2">.1e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">z = 4.09, p = 4.3e-05</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="../api/calibration.html#kivi.calibration.brier_decomposition" title="kivi.calibration.brier_decomposition"><code class="xref py py-func docutils literal notranslate"><span class="pre">brier_decomposition()</span></code></a> splits the Brier score of the PDs by grade into the reliability, which the understated PDs raise, the resolution, which measures how far the default rates of the grades differ, and the uncertainty of the outcomes:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">brier_decomposition</span><span class="p">(</span><span class="n">grades</span><span class="p">,</span> <span class="n">current</span><span class="p">[</span><span class="s2">"target"</span><span class="p">],</span> <span class="n">current</span><span class="p">[</span><span class="s2">"incumbent_pd"</span><span class="p">])</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">statistic</span>
+<span class="go">brier                0.0887</span>
+<span class="go">reliability          0.0007</span>
+<span class="go">resolution           0.0023</span>
+<span class="go">uncertainty          0.0905</span>
+<span class="go">within_variance      0.0002</span>
+<span class="go">within_covariance    0.0004</span>
+<span class="go">dtype: float64</span>
+</pre></div>
+</div>
+</section>
+<section id="sample-weights">
+<h2>Sample weights<a class="headerlink" href="#sample-weights" title="Link to this heading">#</a></h2>
+<p>The report counts customers and facilities, so run its tests without weights. The functions take <code class="docutils literal notranslate"><span class="pre">weights</span></code> as frequency weights, for data aggregated into counts: integer weights give the same result as repeating rows, and the tests count the total weight as the number of observations. Weights that correct for sampling, such as inverse sampling rates, therefore make the standard errors too small and the p-values too low. <a class="reference internal" href="../api/calibration.html#kivi.calibration.concentration_test" title="kivi.calibration.concentration_test"><code class="xref py py-func docutils literal notranslate"><span class="pre">concentration_test()</span></code></a> takes the counts or the exposures of the grades instead.</p>
+</section>
+<section id="limits">
+<h2>Limits<a class="headerlink" href="#limits" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Every test assumes independent observations. Defaults and recoveries that move together, as in a downturn, make the back-tests reject more often than their nominal level.</p></li>
+<li><p>The concentration test compares the coefficients of variation of <span class="math notranslate nohighlight">\(K\)</span> grades, and its variance depends on <span class="math notranslate nohighlight">\(K\)</span> rather than on the number of customers, so a scale with few grades leaves it little power. Read the HI and its change as well as the p-value.</p></li>
+<li><p>The migration test gives one p-value for each of the <span class="math notranslate nohighlight">\(K (K - 1)\)</span> off-diagonal cells, so some fall below 5% by chance alone.</p></li>
+<li><p>For a portfolio with few defaults, annex 3.1 pools the observation periods after replacing each rating by the share of the period’s customers rated the same or worse, for ratings that are higher for better customers. For a PD, which rises with the risk, these are the customers with the same or a higher PD, <code class="docutils literal notranslate"><span class="pre">score.groupby(period).rank(method=&quot;max&quot;,</span> <span class="pre">ascending=False,</span> <span class="pre">pct=True)</span></code>. That share falls as the risk rises, so pass its negative, <code class="docutils literal notranslate"><span class="pre">-score.groupby(period).rank(method=&quot;max&quot;,</span> <span class="pre">ascending=False,</span> <span class="pre">pct=True)</span></code>, to <a class="reference internal" href="../api/metrics.html#kivi.metrics.roc_auc_interval" title="kivi.metrics.roc_auc_interval"><code class="xref py py-func docutils literal notranslate"><span class="pre">roc_auc_interval()</span></code></a>, which takes the pooled values. With tied grades, the share rated the same or better, <code class="docutils literal notranslate"><span class="pre">rank(method=&quot;max&quot;,</span> <span class="pre">pct=True)</span></code> without <code class="docutils literal notranslate"><span class="pre">ascending=False</span></code>, gives another AUC.</p></li>
+<li><p>kivi computes the statistics of the report, not its data exclusions, its counts of overrides and missing ratings, or its templates.</p></li>
+</ul>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="monitoring.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Model monitoring</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="capital.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Regulatory capital</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-tools-of-the-report">The tools of the report</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pd-models">PD models</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#back-testing-the-grades">Back-testing the grades</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#current-auc-against-the-initial-auc">Current AUC against the initial AUC</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#migrations-and-concentration">Migrations and concentration</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#lgd-and-ccf-models">LGD and CCF models</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#back-testing-the-estimates">Back-testing the estimates</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#generalized-auc">Generalized AUC</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#continuous-models">Continuous models</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#beyond-the-report">Beyond the report</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sample-weights">Sample weights</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#limits">Limits</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1.
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>群体稳定性指标 &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=d005c095" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=14f9d491"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script src="../_static/translations.js?v=540d3cec"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/stability';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="next" title="模型监控" href="monitoring.html" />
+    <link rel="prev" title="分箱方案" href="spec.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+  <meta name="docsearch:version" content="1.9.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">跳转至主要内容</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>回到顶部</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="版本警告"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="网页导航" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 1.9.0">1.9.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    教程
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../../en/api/stability.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="当前页面" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    教程
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../../en/api/stability.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="章节导航">
+  <p class="bd-links__title" role="heading" aria-level="1">章节导航</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="conventions.html">约定</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compatibility.html">兼容性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">术语表</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">时间窗特征</a></li>
+<li class="toctree-l1"><a class="reference internal" href="univariate.html">单变量概况</a></li>
+<li class="toctree-l1"><a class="reference internal" href="binning.html">分箱</a></li>
+<li class="toctree-l1"><a class="reference internal" href="woe.html">证据权重与信息值</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selection.html">变量筛选</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reject_inference.html">拒绝推断</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scorecard.html">评分卡</a></li>
+<li class="toctree-l1"><a class="reference internal" href="expert.html">专家评分卡</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">模型表现</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">校准</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lgd.html">LGD 与 EAD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">信贷策略</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rules.html">政策规则</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spec.html">分箱方案</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">群体稳定性指标</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">模型监控</a></li>
+<li class="toctree-l1"><a class="reference internal" href="capital.html">监管资本</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vintage.html">Vintage 与滚动率分析</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lifetime.html">存续期 PD 与预期信用损失</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html">图表</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">示例数据</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="初始页面">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../api.html" class="nav-link">API 参考</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">群体稳定性指标</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="module-kivi.stability">
+<span id="population-stability-index"></span><h1>群体稳定性指标<a class="headerlink" href="#module-kivi.stability" title="链接到此标题。">#</a></h1>
+<p>衡量分布在两个样本之间偏移了多少。 <a class="reference internal" href="#kivi.stability.psi_table" title="kivi.stability.psi_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">psi_table()</span></code></a> 和 <a class="reference internal" href="#kivi.stability.psi" title="kivi.stability.psi"><code class="xref py py-func docutils literal notranslate"><span class="pre">psi()</span></code></a> 给出群体稳定性指标， <a class="reference internal" href="#kivi.stability.csi_table" title="kivi.stability.csi_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">csi_table()</span></code></a> 给出这种偏移使评分卡平均分值发生的变化。</p>
+<p>示例和常用阈值见 <a class="reference internal" href="../user_guide/psi.html"><span class="doc">群体稳定性指标</span></a> 。</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.stability.psi_table" title="kivi.stability.psi_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">psi_table</span></code></a>(reference, current, *[, ...])</p></td>
+<td><p>通过群体稳定性指标（PSI）比较两个样本的分布。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.stability.psi" title="kivi.stability.psi"><code class="xref py py-obj docutils literal notranslate"><span class="pre">psi</span></code></a>(reference_counts, current_counts, *[, ...])</p></td>
+<td><p>根据每组的计数计算群体稳定性指标（PSI）。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.stability.csi_table" title="kivi.stability.csi_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">csi_table</span></code></a>(reference, current, points, *[, ...])</p></td>
+<td><p>衡量变量分布的变化使平均分数移动了多少。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.stability.psi_table">
+<span class="sig-prename descclassname"><span class="pre">kivi.stability.</span></span><span class="sig-name descname"><span class="pre">psi_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reference</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">smoothing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.stability.psi_table" title="链接到此定义。">#</a></dt>
+<dd><p>通过群体稳定性指标（PSI）比较两个样本的分布。</p>
+<p>比较每组在当前样本中的占比与在基准样本中的占比。将 <code class="docutils literal notranslate"><span class="pre">psi</span></code> 列求和即得到该指数。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>reference, current</strong><span class="classifier">array_like</span></dt><dd><p>类别标签或按相同边界分箱的数值。保留缺失值以及仅出现在一侧的类别。</p>
+</dd>
+<dt><strong>smoothing</strong><span class="classifier">float，默认 0.5</span></dt><dd><p>计算占比时，用这个正数替代零计数。</p>
+</dd>
+<dt><strong>reference_weights, current_weights</strong><span class="classifier">array_like，可选</span></dt><dd><p>基准样本和当前样本中每个观测的非负权重，对应方式与样本相同。此时计数为权重之和，在两个样本中权重之和都为零的组会被排除，且 <cite>smoothing</cite> 以权重为单位。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.DataFrame</dt><dd><p>各组的原始计数、归一化占比和 PSI 贡献。对 psi 列求和即得到总体 PSI。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果任一样本为空或不是一维，或者 <cite>smoothing</cite> 不是有限正数。此外，如果某个权重数组不是数值、没有为对应样本的每个观测给出一个有限非负的权重、权重总和不为正，或其索引与对应样本不同，也会引发此异常。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.stability.psi" title="kivi.stability.psi"><code class="xref py py-obj docutils literal notranslate"><span class="pre">psi</span></code></a></dt><dd><p>根据每组计数计算同一指标。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.stability.csi_table" title="kivi.stability.csi_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">csi_table</span></code></a></dt><dd><p>以分组分值为权重衡量每组占比的变化。</p>
+</dd>
+<dt><a class="reference internal" href="binning.html#kivi.binning.bin_edges" title="kivi.binning.bin_edges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.binning.bin_edges</span></code></a></dt><dd><p>在基准样本上拟合分箱边界。</p>
+</dd>
+<dt><a class="reference internal" href="woe.html#kivi.woe.woe_table" title="kivi.woe.woe_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.woe.woe_table</span></code></a></dt><dd><p>将分组与二分类目标关联起来。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>对第 <span class="math notranslate nohighlight">\(i\)</span> 组，令 <span class="math notranslate nohighlight">\(q_i\)</span> 为其在基准样本中的占比，<span class="math notranslate nohighlight">\(p_i\)</span> 为其在当前样本中的占比，则</p>
+<div class="math notranslate nohighlight">
+\[\mathrm{PSI}_i = (p_i - q_i) \ln \frac{p_i}{q_i}, \qquad
+\mathrm{PSI} = \sum_i \mathrm{PSI}_i.\]</div>
+<p>在归一化占比之前，每个零计数都会被替换为 <cite>smoothing</cite>，因此只在一个样本中出现的组也有有限的贡献值。 <code class="docutils literal notranslate"><span class="pre">reference</span></code> 和 <code class="docutils literal notranslate"><span class="pre">current</span></code> 列始终报告实际观测到的计数。</p>
+<p>如果两个样本都是分类型且 dtype 相同，各行按类别顺序排列，缺失值排在最后。否则按分组首次出现的次序排列，先看基准样本，再看当前样本。</p>
+<p class="rubric">参考文献</p>
+<div role="list" class="citation-list">
+<div class="citation" id="rb11431c5e9a8-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<p>N. Siddiqi, &quot;Credit Risk Scorecards: Developing and Implementing
+Intelligent Credit Scoring&quot;, Wiley, 2006.</p>
+</div>
+</div>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.stability</span><span class="w"> </span><span class="kn">import</span> <span class="n">psi_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">reference</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="s2">"x"</span><span class="p">,</span> <span class="s2">"x"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">current</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="s2">"x"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">psi_table</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">current</span><span class="p">)[[</span><span class="s2">"reference"</span><span class="p">,</span> <span class="s2">"current"</span><span class="p">,</span> <span class="s2">"psi"</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">     reference  current     psi</span>
+<span class="go">bin</span>
+<span class="go">x            2        1  0.1733</span>
+<span class="go">y            2        3  0.1014</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.stability.psi">
+<span class="sig-prename descclassname"><span class="pre">kivi.stability.</span></span><span class="sig-name descname"><span class="pre">psi</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reference_counts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_counts</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">smoothing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.stability.psi" title="链接到此定义。">#</a></dt>
+<dd><p>根据每组的计数计算群体稳定性指标（PSI）。</p>
+<p>适用于样本已经汇总的情况，例如监控报表中按分数段统计的月度计数。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>reference_counts, current_counts</strong><span class="classifier">array_like</span></dt><dd><p>基准样本和当前样本中每组的一维非负计数，两者的分组顺序须一致。两个 Series 的索引必须相同。加权计数不必是整数。</p>
+</dd>
+<dt><strong>smoothing</strong><span class="classifier">float，默认 0.5</span></dt><dd><p>计算占比时，用这个正数替代零计数。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>float</dt><dd><p>群体稳定性指标。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果计数不是一维、不是数值、不是有限非负数，两组计数长度不同或总和为零，或者是索引不同的两个 Series，或者 <cite>smoothing</cite> 不是有限正数。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.stability.psi_table" title="kivi.stability.psi_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">psi_table</span></code></a></dt><dd><p>根据分组标签计算该指标及各组贡献。</p>
+</dd>
+<dt><a class="reference internal" href="woe.html#kivi.woe.iv" title="kivi.woe.iv"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.woe.iv</span></code></a></dt><dd><p>事件与非事件之间的同一种散度。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>记 <span class="math notranslate nohighlight">\(q_i\)</span> 和 <span class="math notranslate nohighlight">\(p_i\)</span> 为第 <span class="math notranslate nohighlight">\(i\)</span> 组在基准样本和当前样本中平滑后的占比，则</p>
+<div class="math notranslate nohighlight">
+\[\mathrm{PSI} = \sum_i (p_i - q_i) \ln \frac{p_i}{q_i},\]</div>
+<p>它等于相同分组下 <cite>psi_table</cite> 中 <code class="docutils literal notranslate"><span class="pre">psi</span></code> 列之和。</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.stability</span><span class="w"> </span><span class="kn">import</span> <span class="n">psi</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">round</span><span class="p">(</span><span class="n">psi</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">]),</span> <span class="mi">4</span><span class="p">)</span>
+<span class="go">0.2747</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.stability.csi_table">
+<span class="sig-prename descclassname"><span class="pre">kivi.stability.</span></span><span class="sig-name descname"><span class="pre">csi_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reference</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">points</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">unseen_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.stability.csi_table" title="链接到此定义。">#</a></dt>
+<dd><p>衡量变量分布的变化使平均分数移动了多少。</p>
+<p>特征稳定性指标（CSI）以每组的评分卡分值为权重，衡量各组占比从基准样本到当前样本的变化。将 <code class="docutils literal notranslate"><span class="pre">csi</span></code> 列求和，即得到该变量平均分值的变化。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>reference, current</strong><span class="classifier">array_like</span></dt><dd><p>类别标签或按相同边界分箱的数值，与 <cite>psi_table</cite> 相同。保留缺失值以及仅出现在一个样本中的分组。</p>
+</dd>
+<dt><strong>points</strong><span class="classifier">pandas.DataFrame、pandas.Series 或 mapping</span></dt><dd><p>每个分组的分值。DataFrame 把一个变量的分组放在 <code class="docutils literal notranslate"><span class="pre">bin</span></code> 列中（没有该列时放在索引中），把分值放在 <code class="docutils literal notranslate"><span class="pre">points</span></code> 列中，例如 <cite>kivi.scorecard.points_table</cite> 结果的 <code class="docutils literal notranslate"><span class="pre">table.loc[[variable]]</span></code> 。变量名可以在索引中，也可以在 <code class="docutils literal notranslate"><span class="pre">variable</span></code> 列中（如 <code class="docutils literal notranslate"><span class="pre">reset_index()</span></code> 之后），但只能出现一个变量。Series 或映射按分组给出分值。缺失标签给出缺失值的分值。</p>
+</dd>
+<dt><strong>unseen_points</strong><span class="classifier">float，可选</span></dt><dd><p><cite>points</cite> 中缺少的已观测分组的分值，例如 <cite>kivi.woe.woe_transform</cite> 用 <code class="docutils literal notranslate"><span class="pre">unseen</span></code> 编码的新类别。这些申请人得到的是对该 WOE 调用 <cite>kivi.scorecard.woe_to_points</cite> 的结果，而不是 WOE 本身；参见“说明”。默认情况下，这样的分组会引发错误。</p>
+</dd>
+<dt><strong>reference_weights, current_weights</strong><span class="classifier">array_like，可选</span></dt><dd><p>基准样本和当前样本中每个观测的非负权重，对应方式与样本相同。此时计数和占比都基于权重之和，在两个样本中权重之和都为零的组会被排除。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.DataFrame</dt><dd><p>每个观测到的分组一行，以 <code class="docutils literal notranslate"><span class="pre">bin</span></code> 为索引，列出计数 <code class="docutils literal notranslate"><span class="pre">reference</span></code> 和 <code class="docutils literal notranslate"><span class="pre">current</span></code> 、占比 <code class="docutils literal notranslate"><span class="pre">reference_share</span></code> 和 <code class="docutils literal notranslate"><span class="pre">current_share</span></code> 、该组的 <code class="docutils literal notranslate"><span class="pre">points</span></code> 及其贡献 <code class="docutils literal notranslate"><span class="pre">csi</span></code> 。将 csi 列求和即得到该指标。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果任一样本为空或不是一维的， <cite>points</cite> 不是 DataFrame、Series 或映射，包含多个变量、重复某个分组或含有不是有限数的值， <cite>unseen_points</cite> 不是有限数，或者某个观测到的分组没有分值且未给出 <cite>unseen_points</cite> 。此外，权重数组无效时也会引发错误，与 <cite>psi_table</cite> 相同。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.stability.psi_table" title="kivi.stability.psi_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">psi_table</span></code></a></dt><dd><p>相同分组的群体稳定性指标。</p>
+</dd>
+<dt><a class="reference internal" href="scorecard.html#kivi.scorecard.points_table" title="kivi.scorecard.points_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.scorecard.points_table</span></code></a></dt><dd><p>评分卡每个分组的分值。</p>
+</dd>
+<dt><a class="reference internal" href="binning.html#kivi.binning.bin_edges" title="kivi.binning.bin_edges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.binning.bin_edges</span></code></a></dt><dd><p>在基准样本上拟合分箱边界。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>对分值为 <span class="math notranslate nohighlight">\(s_i\)</span> 的第 <span class="math notranslate nohighlight">\(i\)</span> 组，令 <span class="math notranslate nohighlight">\(q_i\)</span> 为其在基准样本中的占比， <span class="math notranslate nohighlight">\(p_i\)</span> 为其在当前样本中的占比，则</p>
+<div class="math notranslate nohighlight">
+\[\mathrm{CSI}_i = (p_i - q_i)\, s_i, \qquad
+\mathrm{CSI} = \sum_i \mathrm{CSI}_i
+= \sum_i p_i s_i - \sum_i q_i s_i,\]</div>
+<p>即该变量在当前样本中的平均分值减去在基准样本中的平均分值 <a class="reference internal" href="#r05dcc8ea5547-1" id="id2">[1]</a> 。两个样本的占比之和都为 1，因此给每组的分值加上同一个数不会改变 CSI：起作用的只是各组之间的差别，而不是 <cite>kivi.scorecard.points_table</cite> 分摊给每个变量的截距和偏移量份额。对评分卡的所有变量，CSI 之和就是平均分数的变化。</p>
+<p>与 <cite>psi_table</cite> 不同，这里的占比不做平滑。贡献中没有对数，因此空组不经平滑也只有有限的贡献；而平滑后的占比会让空组拥有它并没有的申请人，求和结果也就不再是平均分值的变化。</p>
+<p><cite>unseen_points</cite> 与 <cite>points</cite> 一样以分值为单位。对 <code class="docutils literal notranslate"><span class="pre">woe_transform(...,</span> <span class="pre">unseen=woe)</span></code> 编码的申请人，它是对包含该 WOE 的单行数据调用 <code class="docutils literal notranslate"><span class="pre">woe_to_points</span></code> 的结果；WOE 为 0 时得到该变量分摊的截距和偏移量份额，每个变量都相同。如果直接传入 WOE 本身，会在没有任何报错的情况下得到错误的 CSI。</p>
+<p>有些文献也把单个变量的 PSI 称为它的 CSI，那就是对该变量的分组调用 <cite>psi_table</cite> 的结果。各行顺序与 <cite>psi_table</cite> 相同； <cite>points</cite> 中在两个样本里都没有出现的分组不计入，因为它们没有贡献。</p>
+<p class="rubric">参考文献</p>
+<div role="list" class="citation-list">
+<div class="citation" id="r05dcc8ea5547-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">1</a><span class="fn-bracket">]</span></span>
+<p>N. Siddiqi, &quot;Credit Risk Scorecards: Developing and Implementing
+Intelligent Credit Scoring&quot;, Wiley, 2006.</p>
+</div>
+</div>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.stability</span><span class="w"> </span><span class="kn">import</span> <span class="n">csi_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">reference</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="s2">"x"</span><span class="p">,</span> <span class="s2">"x"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">current</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="s2">"x"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">csi_table</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">current</span><span class="p">,</span> <span class="p">{</span><span class="s2">"x"</span><span class="p">:</span> <span class="mf">40.0</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">:</span> <span class="mf">25.0</span><span class="p">})</span>
+<span class="go">     reference  current  reference_share  current_share  points    csi</span>
+<span class="go">bin</span>
+<span class="go">x            2        1              0.5           0.25    40.0 -10.00</span>
+<span class="go">y            2        3              0.5           0.75    25.0   6.25</span>
+</pre></div>
+</div>
+<p>平均分值从 32.5 降到 28.75，降幅即 <code class="docutils literal notranslate"><span class="pre">csi</span></code> 列之和 -3.75。</p>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="spec.html"
+       title="上一页">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">上一页</p>
+        <p class="prev-next-title">分箱方案</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="monitoring.html"
+       title="下一页">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">下一页</p>
+        <p class="prev-next-title">模型监控</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 当前页面
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.stability.psi_table"><code class="docutils literal notranslate"><span class="pre">psi_table()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.stability.psi"><code class="docutils literal notranslate"><span class="pre">psi()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.stability.csi_table"><code class="docutils literal notranslate"><span class="pre">csi_table()</span></code></a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    由 <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1创建。
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

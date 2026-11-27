@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Population stability index &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=d005c095" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=25d9e9fd"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/psi';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Model monitoring" href="monitoring.html" />
+    <link rel="prev" title="Binning specifications" href="spec.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="1.9.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 1.9.0">1.9.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    Tutorial
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/user_guide/psi.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    Tutorial
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/user_guide/psi.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="risk_workflow.html">Risk modeling workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">Time-window features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="univariate.html">Univariate profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="binning.html">Binning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="woe_iv.html">Weight of evidence and information value</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selection.html">Variable selection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reject_inference.html">Reject inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scorecard.html">Scorecard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="expert.html">Expert scorecards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">Model performance</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lgd.html">LGD and EAD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">Credit strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rules.html">Policy rules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spec.html">Binning specifications</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">Population stability index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">Model monitoring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="validation.html">Model validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="capital.html">Regulatory capital</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vintage.html">Vintage and roll-rate analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lifetime.html">Lifetime PD and expected credit loss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html">Charts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">Example data</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">User guide</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Population stability index</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="population-stability-index">
+<h1>Population stability index<a class="headerlink" href="#population-stability-index" title="Link to this heading">#</a></h1>
+<p><a class="reference internal" href="../api/stability.html#kivi.stability.psi_table" title="kivi.stability.psi_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">psi_table()</span></code></a> compares the distribution of a variable in two samples, typically the development sample and a later monitoring sample. Group both samples with the same edges or labels before calling it. <a class="reference internal" href="../api/stability.html#kivi.stability.csi_table" title="kivi.stability.csi_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">csi_table()</span></code></a> measures how much such a change moves a scorecard’s score; see <a class="reference internal" href="#characteristic-stability"><span class="std std-ref">Characteristic stability index</span></a>.</p>
+<p>Stability is monitored once a model is in use, on samples grouped as its <a class="reference internal" href="spec.html"><span class="doc">binning specification</span></a> groups them. <a class="reference internal" href="monitoring.html"><span class="doc">Model monitoring</span></a> then repeats the PSI and the measures of <a class="reference internal" href="metrics.html"><span class="doc">Model performance</span></a> period by period.</p>
+<section id="definition">
+<h2>Definition<a class="headerlink" href="#definition" title="Link to this heading">#</a></h2>
+<p>For group <span class="math notranslate nohighlight">\(i\)</span>, let <span class="math notranslate nohighlight">\(q_i\)</span> be its share of the reference sample and <span class="math notranslate nohighlight">\(p_i\)</span> its share of the current sample. Then</p>
+<div class="math notranslate nohighlight">
+\[\mathrm{PSI}_i = (p_i - q_i) \ln \frac{p_i}{q_i}, \qquad
+\mathrm{PSI} = \sum_i \mathrm{PSI}_i.\]</div>
+<p>Each contribution is zero or positive. PSI describes distribution change; it does not use the outcome label.</p>
+</section>
+<section id="a-worked-example">
+<h2>A worked example<a class="headerlink" href="#a-worked-example" title="Link to this heading">#</a></h2>
+<p>Missing values form their own group, and categories appearing in only one sample are retained. Their empty cells are smoothed exactly as in <a class="reference internal" href="woe_iv.html"><span class="doc">Weight of evidence and information value</span></a>, so every contribution stays finite.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.stability</span><span class="w"> </span><span class="kn">import</span> <span class="n">psi_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">reference</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="s2">"A"</span><span class="p">,</span> <span class="s2">"A"</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">current</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="s2">"B"</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">psi_table</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">current</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">     reference  current  reference_share  current_share     psi</span>
+<span class="go">bin</span>
+<span class="go">A            2        0           0.5714         0.1429  0.5941</span>
+<span class="go">NaN          1        2           0.2857         0.5714  0.1980</span>
+<span class="go">B            0        1           0.1429         0.2857  0.0990</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id1">
+<img alt="The reference and current samples, and the psi_table result with counts, shares and PSI per group" class="plot-directive" src="../_images/psi-1.svg" />
+<figcaption>
+<p><span class="caption-text">How <code class="docutils literal notranslate"><span class="pre">psi_table</span></code> computes the example. Missing values form a group of their own. A group that is empty in one sample (outlined) counts as 0.5 before the shares are taken, so that its contribution stays finite.</span><a class="headerlink" href="#id1" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>When only the counts per group are available, for example from a monitoring report, <a class="reference internal" href="../api/stability.html#kivi.stability.psi" title="kivi.stability.psi"><code class="xref py py-func docutils literal notranslate"><span class="pre">psi()</span></code></a> gives the total from the counts of each sample in the same group order:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.stability</span><span class="w"> </span><span class="kn">import</span> <span class="n">psi</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">round</span><span class="p">(</span><span class="n">psi</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]),</span> <span class="mi">4</span><span class="p">)</span>
+<span class="go">0.8912</span>
+</pre></div>
+</div>
+</section>
+<section id="stable-and-shifted-samples">
+<h2>Stable and shifted samples<a class="headerlink" href="#stable-and-shifted-samples" title="Link to this heading">#</a></h2>
+<p>Two samples from the same population give a PSI close to zero. When the population changes, the bins that moved stand out. Below, the current sample is replaced by single customers only, who are much younger than the reference.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.binning</span><span class="w"> </span><span class="kn">import</span> <span class="n">bin_edges</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_bank</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">load_bank</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sample</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="mi">3000</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">edges</span> <span class="o">=</span> <span class="n">bin_edges</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="s2">"age"</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">before</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="s2">"age"</span><span class="p">],</span> <span class="n">edges</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">single</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s2">"marital"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"single"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">shifted</span> <span class="o">=</span> <span class="n">psi_table</span><span class="p">(</span><span class="n">before</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">single</span><span class="p">[</span><span class="s2">"age"</span><span class="p">],</span> <span class="n">edges</span><span class="p">))</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">shifted</span><span class="p">[[</span><span class="s2">"reference_share"</span><span class="p">,</span> <span class="s2">"current_share"</span><span class="p">,</span> <span class="s2">"psi"</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">              reference_share  current_share    psi</span>
+<span class="go">bin</span>
+<span class="go">(-inf, 32.0]            0.234          0.521  0.230</span>
+<span class="go">(32.0, 36.0]            0.177          0.194  0.002</span>
+<span class="go">(36.0, 42.0]            0.196          0.154  0.010</span>
+<span class="go">(42.0, 51.0]            0.213          0.099  0.087</span>
+<span class="go">(51.0, inf]             0.180          0.032  0.258</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"PSI = </span><span class="si">{</span><span class="n">shifted</span><span class="p">[</span><span class="s1">'psi'</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">PSI = 0.586</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id3">
+<img alt="Reference and current age distributions for a random split and for single customers" class="plot-directive" src="../_images/psi-2.svg" />
+<figcaption>
+<p><span class="caption-text">Left: the remaining customers look like the reference sample. Right: single customers crowd into the youngest bin, and the youngest and oldest bins contribute most of the PSI.</span><a class="headerlink" href="#id3" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="reading-the-result">
+<h2>Reading the result<a class="headerlink" href="#reading-the-result" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 70.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Column</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">reference</span></code>, <code class="docutils literal notranslate"><span class="pre">current</span></code></p></td>
+<td><p>Observed counts in each group.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">reference_share</span></code>, <code class="docutils literal notranslate"><span class="pre">current_share</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(q_i\)</span> and <span class="math notranslate nohighlight">\(p_i\)</span> after smoothing; each column sums to 1.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">psi</span></code></p></td>
+<td><p>The group’s contribution. Sum the column to obtain total drift.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>A common convention reads a PSI below 0.1 as a small shift, 0.1 to 0.25 as a moderate shift and above 0.25 as a large shift. The thresholds depend on the number of bins and on the smoothing rule, so recheck them when moving analyses from 0.2.x.</p>
+</div>
+</section>
+<section id="monitoring-over-time">
+<h2>Monitoring over time<a class="headerlink" href="#monitoring-over-time" title="Link to this heading">#</a></h2>
+<p>In production, PSI is computed for every period against the development sample and compared with the conventions above. The bank data record the month of the last contact but not the year, so the months below mix several years; read them as an example of a monitoring report.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">psi_by_month</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="n">month</span><span class="p">:</span> <span class="n">psi_table</span><span class="p">(</span><span class="n">before</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">group</span><span class="p">[</span><span class="s2">"age"</span><span class="p">],</span> <span class="n">edges</span><span class="p">))[</span><span class="s2">"psi"</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+<span class="gp">... </span>    <span class="k">for</span> <span class="n">month</span><span class="p">,</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">"month"</span><span class="p">)</span>
+<span class="gp">... </span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">psi_by_month</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">dec    0.753</span>
+<span class="go">mar    0.226</span>
+<span class="go">oct    0.217</span>
+<span class="go">sep    0.179</span>
+<span class="go">dtype: float64</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span><span class="p">[</span><span class="s2">"month"</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()[[</span><span class="s2">"dec"</span><span class="p">,</span> <span class="s2">"mar"</span><span class="p">,</span> <span class="s2">"oct"</span><span class="p">,</span> <span class="s2">"sep"</span><span class="p">]]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<span class="go">[20, 49, 80, 52]</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id5">
+<img alt="PSI of age for each contact month, with the 0.1 and 0.25 thresholds and the sample size of each month" class="plot-directive" src="../_images/psi-3.svg" />
+<figcaption>
+<p><span class="caption-text">PSI of age for each contact month against the reference sample, with the number of customers under each month.</span><a class="headerlink" href="#id5" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>The months that cross the thresholds are also the smallest. With 20 customers, the December value mostly reflects sampling noise. Set a minimum sample size before a high PSI raises an alert.</p>
+<p>For a model in production, <a class="reference internal" href="../api/monitoring.html#kivi.monitoring.stability_table" title="kivi.monitoring.stability_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">stability_table()</span></code></a> computes this table for every variable at once, and <a class="reference internal" href="../api/monitoring.html#kivi.monitoring.monitoring_table" title="kivi.monitoring.monitoring_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">monitoring_table()</span></code></a> the PSI of the score together with the outcomes and the discrimination of each period; see <a class="reference internal" href="monitoring.html"><span class="doc">Model monitoring</span></a>.</p>
+</section>
+<section id="characteristic-stability-index">
+<span id="characteristic-stability"></span><h2>Characteristic stability index<a class="headerlink" href="#characteristic-stability-index" title="Link to this heading">#</a></h2>
+<p>PSI shows that a distribution has moved, but not what the move does to the score. The characteristic stability index (CSI) weights the change of each group’s share with the scorecard points <span class="math notranslate nohighlight">\(s_i\)</span> of the group:</p>
+<div class="math notranslate nohighlight">
+\[\mathrm{CSI}_i = (p_i - q_i)\, s_i, \qquad
+\mathrm{CSI} = \sum_i \mathrm{CSI}_i = \sum_i p_i s_i - \sum_i q_i s_i.\]</div>
+<p>The CSI is the change of the variable’s average points from the reference to the current sample: a negative CSI means that the variable now gives fewer points on average. Over all the variables of a scorecard, the CSI values add up to the change of the average score. Since the shares of each sample sum to 1, adding the same number to the points of every group leaves the CSI unchanged, so only the differences between the groups matter.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Some texts call the PSI of a single variable its CSI. kivi follows the score-weighted definition of the characteristic analysis report; for the PSI of a variable, use <a class="reference internal" href="../api/stability.html#kivi.stability.psi_table" title="kivi.stability.psi_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">psi_table()</span></code></a> on its groups as above.</p>
+</div>
+<p>The example uses the scorecard of <a class="reference internal" href="scorecard.html"><span class="doc">Scorecard</span></a>. Fit the WOE of four variables on the development sample and turn the model into points:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.scorecard</span><span class="w"> </span><span class="kn">import</span> <span class="n">points_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.stability</span><span class="w"> </span><span class="kn">import</span> <span class="n">csi_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.woe</span><span class="w"> </span><span class="kn">import</span> <span class="n">woe_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">development</span><span class="p">,</span> <span class="n">monitoring</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="mi">3000</span><span class="p">],</span> <span class="n">data</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">3000</span><span class="p">:]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">age_edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">35</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">55</span><span class="p">,</span> <span class="mi">65</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">to_groups</span><span class="p">(</span><span class="n">frame</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">groups</span> <span class="o">=</span> <span class="n">frame</span><span class="p">[[</span><span class="s2">"poutcome"</span><span class="p">,</span> <span class="s2">"contact"</span><span class="p">,</span> <span class="s2">"housing"</span><span class="p">]]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="gp">... </span>    <span class="n">groups</span><span class="p">[</span><span class="s2">"age"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">frame</span><span class="p">[</span><span class="s2">"age"</span><span class="p">],</span> <span class="n">age_edges</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">groups</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dev_groups</span><span class="p">,</span> <span class="n">mon_groups</span> <span class="o">=</span> <span class="n">to_groups</span><span class="p">(</span><span class="n">development</span><span class="p">),</span> <span class="n">to_groups</span><span class="p">(</span><span class="n">monitoring</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tables</span> <span class="o">=</span> <span class="p">{</span><span class="n">column</span><span class="p">:</span> <span class="n">woe_table</span><span class="p">(</span><span class="n">dev_groups</span><span class="p">[</span><span class="n">column</span><span class="p">],</span> <span class="n">development</span><span class="p">[</span><span class="s2">"target"</span><span class="p">])</span> <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">dev_groups</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">coefficients</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"poutcome"</span><span class="p">:</span> <span class="mf">0.899</span><span class="p">,</span> <span class="s2">"contact"</span><span class="p">:</span> <span class="mf">0.658</span><span class="p">,</span> <span class="s2">"housing"</span><span class="p">:</span> <span class="mf">0.691</span><span class="p">,</span> <span class="s2">"age"</span><span class="p">:</span> <span class="mf">0.714</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">scale</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">pdo</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">base_score</span><span class="o">=</span><span class="mi">600</span><span class="p">,</span> <span class="n">base_odds</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span> <span class="o">=</span> <span class="n">points_table</span><span class="p">(</span><span class="n">tables</span><span class="p">,</span> <span class="n">coefficients</span><span class="p">,</span> <span class="o">-</span><span class="mf">2.028</span><span class="p">,</span> <span class="o">**</span><span class="n">scale</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="../api/stability.html#kivi.stability.csi_table" title="kivi.stability.csi_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">csi_table()</span></code></a> takes the groups of both samples and the points of the variable’s groups, here the rows of the points table for age:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">age</span> <span class="o">=</span> <span class="n">csi_table</span><span class="p">(</span><span class="n">dev_groups</span><span class="p">[</span><span class="s2">"age"</span><span class="p">],</span> <span class="n">mon_groups</span><span class="p">[</span><span class="s2">"age"</span><span class="p">],</span> <span class="n">table</span><span class="o">.</span><span class="n">loc</span><span class="p">[[</span><span class="s2">"age"</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">age</span><span class="p">[[</span><span class="s2">"reference_share"</span><span class="p">,</span> <span class="s2">"current_share"</span><span class="p">,</span> <span class="s2">"points"</span><span class="p">,</span> <span class="s2">"csi"</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">              reference_share  current_share    points     csi</span>
+<span class="go">bin</span>
+<span class="go">(-inf, 25.0]           0.0267         0.0204  120.0498 -0.7546</span>
+<span class="go">(25.0, 35.0]           0.3460         0.3307  137.0775 -2.0968</span>
+<span class="go">(35.0, 45.0]           0.3067         0.3077  139.8369  0.1434</span>
+<span class="go">(45.0, 55.0]           0.2127         0.2288  136.4122  2.2004</span>
+<span class="go">(55.0, 65.0]           0.0917         0.0901  135.6178 -0.2162</span>
+<span class="go">(65.0, inf]            0.0163         0.0224  113.4475  0.6830</span>
+</pre></div>
+</div>
+<p>The shares are not smoothed, unlike those of <code class="docutils literal notranslate"><span class="pre">psi_table</span></code>. A contribution has no logarithm, so an empty group contributes a finite amount as it is, and a smoothed share would credit an empty group with customers it does not have: the sum would no longer be the change of the average points.</p>
+<p>A characteristic analysis report lists both indices for every variable of the scorecard. The CSI column adds up to the change of the average score, here less than a fifth of a point:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">stability_report</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">current</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>        <span class="n">column</span><span class="p">:</span> <span class="p">{</span>
+<span class="gp">... </span>            <span class="s2">"psi"</span><span class="p">:</span> <span class="n">psi_table</span><span class="p">(</span><span class="n">reference</span><span class="p">[</span><span class="n">column</span><span class="p">],</span> <span class="n">current</span><span class="p">[</span><span class="n">column</span><span class="p">])[</span><span class="s2">"psi"</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span>
+<span class="gp">... </span>            <span class="s2">"csi"</span><span class="p">:</span> <span class="n">csi_table</span><span class="p">(</span><span class="n">reference</span><span class="p">[</span><span class="n">column</span><span class="p">],</span> <span class="n">current</span><span class="p">[</span><span class="n">column</span><span class="p">],</span> <span class="n">table</span><span class="o">.</span><span class="n">loc</span><span class="p">[[</span><span class="n">column</span><span class="p">]])[</span>
+<span class="gp">... </span>                <span class="s2">"csi"</span>
+<span class="gp">... </span>            <span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span>
+<span class="gp">... </span>        <span class="p">}</span>
+<span class="gp">... </span>        <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">coefficients</span>
+<span class="gp">... </span>    <span class="p">})</span><span class="o">.</span><span class="n">T</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">report</span> <span class="o">=</span> <span class="n">stability_report</span><span class="p">(</span><span class="n">dev_groups</span><span class="p">,</span> <span class="n">mon_groups</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">report</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">             psi     csi</span>
+<span class="go">poutcome  0.0031 -0.4595</span>
+<span class="go">contact   0.0082  0.3520</span>
+<span class="go">housing   0.0000 -0.0381</span>
+<span class="go">age       0.0055 -0.0408</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"change of the average score: </span><span class="si">{</span><span class="n">report</span><span class="p">[</span><span class="s1">'csi'</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> points"</span><span class="p">)</span>
+<span class="go">change of the average score: -0.19 points</span>
+</pre></div>
+</div>
+<p>The two indices answer different questions. Single customers, from the shifted sample above, have a very different age distribution, but the age bands they crowd into have about the same points as the others, so age lowers their average score by less than half a point:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">stability_report</span><span class="p">(</span><span class="n">dev_groups</span><span class="p">,</span> <span class="n">to_groups</span><span class="p">(</span><span class="n">single</span><span class="p">))</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">             psi     csi</span>
+<span class="go">poutcome  0.0050 -0.6173</span>
+<span class="go">contact   0.0119 -0.9260</span>
+<span class="go">housing   0.0050 -0.4637</span>
+<span class="go">age       0.5311 -0.4126</span>
+</pre></div>
+</div>
+<p>A group without points, such as a category that the development sample did not have, raises an error unless <code class="docutils literal notranslate"><span class="pre">unseen_points</span></code> gives the points that its customers receive. These are points, not a WOE: if <a class="reference internal" href="../api/woe.html#kivi.woe.woe_transform" title="kivi.woe.woe_transform"><code class="xref py py-func docutils literal notranslate"><span class="pre">woe_transform()</span></code></a> encoded the category with <code class="docutils literal notranslate"><span class="pre">unseen=0.0</span></code>, pass the points of a WOE of 0, <a class="reference internal" href="../api/scorecard.html#kivi.scorecard.woe_to_points" title="kivi.scorecard.woe_to_points"><code class="xref py py-func docutils literal notranslate"><span class="pre">woe_to_points()</span></code></a> of a one-row frame of zeros, which are the same for every variable.</p>
+</section>
+<section id="sample-weights">
+<h2>Sample weights<a class="headerlink" href="#sample-weights" title="Link to this heading">#</a></h2>
+<p>For weighted samples, pass <code class="docutils literal notranslate"><span class="pre">reference_weights</span></code> and <code class="docutils literal notranslate"><span class="pre">current_weights</span></code> to <a class="reference internal" href="../api/stability.html#kivi.stability.psi_table" title="kivi.stability.psi_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">psi_table()</span></code></a>; the counts are then sums of weights. <a class="reference internal" href="../api/stability.html#kivi.stability.csi_table" title="kivi.stability.csi_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">csi_table()</span></code></a> takes the same two arguments, and its shares are then shares of the total weight of each sample.</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="spec.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Binning specifications</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="monitoring.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Model monitoring</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#definition">Definition</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-worked-example">A worked example</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#stable-and-shifted-samples">Stable and shifted samples</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#reading-the-result">Reading the result</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#monitoring-over-time">Monitoring over time</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#characteristic-stability-index">Characteristic stability index</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sample-weights">Sample weights</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1.
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

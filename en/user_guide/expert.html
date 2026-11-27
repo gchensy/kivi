@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Expert scorecards &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=d005c095" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=25d9e9fd"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/expert';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Model performance" href="metrics.html" />
+    <link rel="prev" title="Scorecard" href="scorecard.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="1.9.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 1.9.0">1.9.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    Tutorial
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/user_guide/expert.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    Tutorial
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/user_guide/expert.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="risk_workflow.html">Risk modeling workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">Time-window features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="univariate.html">Univariate profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="binning.html">Binning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="woe_iv.html">Weight of evidence and information value</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selection.html">Variable selection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reject_inference.html">Reject inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scorecard.html">Scorecard</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">Expert scorecards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">Model performance</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lgd.html">LGD and EAD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">Credit strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rules.html">Policy rules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spec.html">Binning specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="psi.html">Population stability index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">Model monitoring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="validation.html">Model validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="capital.html">Regulatory capital</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vintage.html">Vintage and roll-rate analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lifetime.html">Lifetime PD and expected credit loss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html">Charts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">Example data</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">User guide</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Expert scorecards</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="expert-scorecards">
+<h1>Expert scorecards<a class="headerlink" href="#expert-scorecards" title="Link to this heading">#</a></h1>
+<p>An expert scorecard sets its weights by judgment instead of fitting them to data. It is the tool for a portfolio with too few defaults for a statistical model, such as large corporates, small businesses or a new product, where credit analysts score a handful of factors and a committee decides how much each factor counts. The analytic hierarchy process (AHP) makes that decision less arbitrary: the committee compares the factors two at a time, and the comparisons give the weights together with a check that the comparisons agree with each other.</p>
+<p>An expert scorecard replaces the fitting steps of <a class="reference internal" href="selection.html"><span class="doc">Variable selection</span></a> and <a class="reference internal" href="scorecard.html"><span class="doc">Scorecard</span></a> when there is no data to fit to. Once outcomes exist, its score is evaluated with <a class="reference internal" href="metrics.html"><span class="doc">Model performance</span></a> and its grades are calibrated to default rates with <a class="reference internal" href="calibration.html"><span class="doc">Calibration</span></a>. <a class="reference internal" href="../api/expert.html#kivi.expert.ahp_weights" title="kivi.expert.ahp_weights"><code class="xref py py-func docutils literal notranslate"><span class="pre">ahp_weights()</span></code></a> turns a matrix of pairwise comparisons into weights, <a class="reference internal" href="../api/expert.html#kivi.expert.ahp_consistency" title="kivi.expert.ahp_consistency"><code class="xref py py-func docutils literal notranslate"><span class="pre">ahp_consistency()</span></code></a> measures how well the comparisons agree, and <a class="reference internal" href="../api/expert.html#kivi.expert.combine_weights" title="kivi.expert.combine_weights"><code class="xref py py-func docutils literal notranslate"><span class="pre">combine_weights()</span></code></a> joins the weights of factors and sub-factors into global weights.</p>
+<section id="definitions">
+<h2>Definitions<a class="headerlink" href="#definitions" title="Link to this heading">#</a></h2>
+<p>A comparison is a judgment on Saaty’s scale. For two factors <span class="math notranslate nohighlight">\(i\)</span> and <span class="math notranslate nohighlight">\(j\)</span>, <span class="math notranslate nohighlight">\(a_{ij}\)</span> says how many times more important <span class="math notranslate nohighlight">\(i\)</span> is than <span class="math notranslate nohighlight">\(j\)</span>, and <span class="math notranslate nohighlight">\(a_{ji} = 1 / a_{ij}\)</span> says the same the other way round:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 20.0%" />
+<col style="width: 80.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p><span class="math notranslate nohighlight">\(a_{ij}\)</span></p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1</p></td>
+<td><p>Equally important</p></td>
+</tr>
+<tr class="row-odd"><td><p>3</p></td>
+<td><p>Moderately more important</p></td>
+</tr>
+<tr class="row-even"><td><p>5</p></td>
+<td><p>Strongly more important</p></td>
+</tr>
+<tr class="row-odd"><td><p>7</p></td>
+<td><p>Very strongly more important</p></td>
+</tr>
+<tr class="row-even"><td><p>9</p></td>
+<td><p>Extremely more important</p></td>
+</tr>
+<tr class="row-odd"><td><p>2, 4, 6, 8</p></td>
+<td><p>Intermediate values</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The <span class="math notranslate nohighlight">\(n \times n\)</span> matrix <span class="math notranslate nohighlight">\(A = (a_{ij})\)</span> of all comparisons has a diagonal of 1 and reciprocal entries. If the judgments agree with each other, so that <span class="math notranslate nohighlight">\(a_{ij} a_{jk} = a_{ik}\)</span> for every three factors, then <span class="math notranslate nohighlight">\(a_{ij} = w_i / w_j\)</span> for weights <span class="math notranslate nohighlight">\(w\)</span> that sum to 1, and the matrix is <em>consistent</em>. Judgments are rarely quite consistent, so <a class="reference internal" href="../api/expert.html#kivi.expert.ahp_weights" title="kivi.expert.ahp_weights"><code class="xref py py-func docutils literal notranslate"><span class="pre">ahp_weights()</span></code></a> estimates the weights in one of two ways, which agree on a consistent matrix. Saaty’s estimate is the principal eigenvector,</p>
+<div class="math notranslate nohighlight">
+\[A w = \lambda_{\max} w, \qquad \sum_i w_i = 1,\]</div>
+<p>and the geometric method scales the geometric means of the rows of the matrix to sum to 1:</p>
+<div class="math notranslate nohighlight">
+\[w_i = \frac{\left(\prod_j a_{ij}\right)^{1/n}}{\sum_k \left(\prod_j a_{kj}\right)^{1/n}}.\]</div>
+<p>For a reciprocal matrix, <span class="math notranslate nohighlight">\(\lambda_{\max} \ge n\)</span>, with equality exactly when the matrix is consistent. <a class="reference internal" href="../api/expert.html#kivi.expert.ahp_consistency" title="kivi.expert.ahp_consistency"><code class="xref py py-func docutils literal notranslate"><span class="pre">ahp_consistency()</span></code></a> therefore measures the inconsistency by the consistency index and compares it with the index that random judgments give on average, the random index <span class="math notranslate nohighlight">\(\mathrm{RI}\)</span>, which depends only on the number of factors:</p>
+<div class="math notranslate nohighlight">
+\[\mathrm{CI} = \frac{\lambda_{\max} - n}{n - 1}, \qquad
+\mathrm{CR} = \frac{\mathrm{CI}}{\mathrm{RI}}.\]</div>
+<p>The ratio <span class="math notranslate nohighlight">\(\mathrm{CR}\)</span> is the consistency ratio. Saaty’s rule of thumb is that judgments with a ratio of 0.1 or less are consistent enough to use, and Saaty (1994) later tightened the limit to 0.05 for three factors and 0.08 for four. For three to fifteen factors the random index, in the table of Tone (1986) that Obata and Shiraishi list, is 0.58, 0.90, 1.12, 1.24, 1.32, 1.41, 1.45, 1.49, 1.51, 1.53, 1.56, 1.57 and 1.59. Saaty’s books print 1.48 for twelve factors, which is generally taken for a typographical error. Every comparison of one or two factors is consistent, so their ratio is 0.</p>
+</section>
+<section id="a-worked-example">
+<h2>A worked example<a class="headerlink" href="#a-worked-example" title="Link to this heading">#</a></h2>
+<p>Three factors of a corporate scorecard are compared. The analyst judges sales to be twice as important as margin and four times as important as leverage, and margin to be twice as important as leverage:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.expert</span><span class="w"> </span><span class="kn">import</span> <span class="n">ahp_consistency</span><span class="p">,</span> <span class="n">ahp_weights</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">factors</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"sales"</span><span class="p">,</span> <span class="s2">"margin"</span><span class="p">,</span> <span class="s2">"leverage"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">matrix</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]],</span> <span class="n">index</span><span class="o">=</span><span class="n">factors</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">factors</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ahp_weights</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">factor</span>
+<span class="go">sales       0.5714</span>
+<span class="go">margin      0.2857</span>
+<span class="go">leverage    0.1429</span>
+<span class="go">Name: weight, dtype: float64</span>
+</pre></div>
+</div>
+<p>The judgments agree, since 2 × 2 = 4, so the weights are 4, 2 and 1 parts of 7 and the consistency ratio is 0:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ahp_consistency</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">statistic</span>
+<span class="go">lambda_max    3.00</span>
+<span class="go">ci            0.00</span>
+<span class="go">ri            0.58</span>
+<span class="go">cr            0.00</span>
+<span class="go">dtype: float64</span>
+</pre></div>
+</div>
+<p>If the analyst judges margin to be four times as important as leverage instead, the judgments contradict each other, because sales would then have to be eight times as important as leverage and not four:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">inconsistent</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">]],</span> <span class="n">index</span><span class="o">=</span><span class="n">factors</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">factors</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">statistics</span> <span class="o">=</span> <span class="n">ahp_consistency</span><span class="p">(</span><span class="n">inconsistent</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">statistics</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">statistic</span>
+<span class="go">lambda_max    3.0536</span>
+<span class="go">ci            0.0268</span>
+<span class="go">ri            0.5800</span>
+<span class="go">cr            0.0462</span>
+<span class="go">dtype: float64</span>
+</pre></div>
+</div>
+<p>Here <span class="math notranslate nohighlight">\(\mathrm{CI} = (3.0536 - 3) / 2 = 0.0268\)</span> and <span class="math notranslate nohighlight">\(\mathrm{CR} = 0.0268 / 0.58 = 0.0462\)</span>: the judgments are still consistent enough to use. The weights shift towards margin:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ahp_weights</span><span class="p">(</span><span class="n">inconsistent</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">factor</span>
+<span class="go">sales       0.5469</span>
+<span class="go">margin      0.3445</span>
+<span class="go">leverage    0.1085</span>
+<span class="go">Name: weight, dtype: float64</span>
+</pre></div>
+</div>
+<p>For two or three factors, the eigenvector and the geometric method give the same weights for every reciprocal matrix, so here <code class="docutils literal notranslate"><span class="pre">method=&quot;geometric&quot;</span></code> changes nothing. From four factors on they differ slightly where the judgments are inconsistent.</p>
+</section>
+<section id="weighing-five-factors">
+<h2>Weighing five factors<a class="headerlink" href="#weighing-five-factors" title="Link to this heading">#</a></h2>
+<p>The credit committee of a lender to mid-sized companies compares five factors: <code class="docutils literal notranslate"><span class="pre">leverage</span></code> (debt to equity), <code class="docutils literal notranslate"><span class="pre">coverage</span></code> (interest cover), <code class="docutils literal notranslate"><span class="pre">liquidity</span></code>, <code class="docutils literal notranslate"><span class="pre">profitability</span></code> and <code class="docutils literal notranslate"><span class="pre">industry</span></code> (the outlook of the borrower’s industry). A helper puts the names on the rows and columns of a matrix. Only the entries above the diagonal are judgments; each entry below it is the reciprocal:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">factors</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"leverage"</span><span class="p">,</span> <span class="s2">"coverage"</span><span class="p">,</span> <span class="s2">"liquidity"</span><span class="p">,</span> <span class="s2">"profitability"</span><span class="p">,</span> <span class="s2">"industry"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">comparison</span><span class="p">(</span><span class="n">rows</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">factors</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">factors</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">matrix</span> <span class="o">=</span> <span class="n">comparison</span><span class="p">([</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+<span class="gp">... </span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">weights</span> <span class="o">=</span> <span class="n">ahp_weights</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">weights</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">factor</span>
+<span class="go">leverage         0.403</span>
+<span class="go">coverage         0.209</span>
+<span class="go">liquidity        0.111</span>
+<span class="go">profitability    0.209</span>
+<span class="go">industry         0.068</span>
+<span class="go">Name: weight, dtype: float64</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ahp_consistency</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">statistic</span>
+<span class="go">lambda_max    5.0182</span>
+<span class="go">ci            0.0046</span>
+<span class="go">ri            1.1200</span>
+<span class="go">cr            0.0041</span>
+<span class="go">dtype: float64</span>
+</pre></div>
+</div>
+<p>The weights sum to 1, and a consistency ratio of 0.004 is far below 0.1. <a class="reference internal" href="../api/expert.html#kivi.expert.ahp_weights" title="kivi.expert.ahp_weights"><code class="xref py py-func docutils literal notranslate"><span class="pre">ahp_weights()</span></code></a> takes the eigenvector method by default; <code class="docutils literal notranslate"><span class="pre">method=&quot;geometric&quot;</span></code> gives almost the same weights here, because the matrix is nearly consistent.</p>
+<figure class="align-default" id="id1">
+<img alt="The comparison matrix of the five factors with the judgments above the diagonal, the weights, the matrix times the weights, which is 5.0182 times each weight, and the four statistics of ahp_consistency" class="plot-directive" src="../_images/expert-1.svg" />
+<figcaption>
+<p><span class="caption-text">How <code class="docutils literal notranslate"><span class="pre">ahp_weights</span></code> and <code class="docutils literal notranslate"><span class="pre">ahp_consistency</span></code> compute the example. The entries above the diagonal are the committee’s judgments and those below them their reciprocals. The weights are the principal eigenvector of the matrix: the matrix times the weights gives <code class="docutils literal notranslate"><span class="pre">lambda_max</span></code> times each weight, and <code class="docutils literal notranslate"><span class="pre">lambda_max</span></code> gives <code class="docutils literal notranslate"><span class="pre">ci</span></code> and <code class="docutils literal notranslate"><span class="pre">cr</span></code>.</span><a class="headerlink" href="#id1" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="revising-judgments">
+<h2>Revising judgments<a class="headerlink" href="#revising-judgments" title="Link to this heading">#</a></h2>
+<p>A second analyst judges leverage to be four times as important as liquidity and liquidity four times as important as profitability, yet profitability three times as important as leverage. The judgments run in a circle, and the consistency ratio is far above 0.1:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">second</span> <span class="o">=</span> <span class="n">comparison</span><span class="p">([</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+<span class="gp">... </span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ahp_consistency</span><span class="p">(</span><span class="n">second</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">statistic</span>
+<span class="go">lambda_max    6.481</span>
+<span class="go">ci            0.370</span>
+<span class="go">ri            1.120</span>
+<span class="go">cr            0.331</span>
+<span class="go">dtype: float64</span>
+</pre></div>
+</div>
+<p>The statistics do not say which judgment to revise. Dividing each entry by the ratio of the weights that it should equal, <span class="math notranslate nohighlight">\(w_i / w_j\)</span>, shows it: a ratio near 1 means that the judgment agrees with the weights, and the judgments that are furthest from 1 are the ones to discuss first.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">second_weights</span> <span class="o">=</span> <span class="n">ahp_weights</span><span class="p">(</span><span class="n">second</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">(</span><span class="n">second</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">second_weights</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">second_weights</span><span class="p">))</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">               leverage  coverage  liquidity  profitability  industry</span>
+<span class="go">leverage           1.00      1.24       3.02           0.27      0.96</span>
+<span class="go">coverage           0.81      1.00       2.45           1.29      0.93</span>
+<span class="go">liquidity          0.33      0.41       1.00           4.23      0.51</span>
+<span class="go">profitability      3.75      0.77       0.24           1.00      0.72</span>
+<span class="go">industry           1.04      1.07       1.97           1.39      1.00</span>
+</pre></div>
+</div>
+<p>The largest entries, 4.23 for liquidity against profitability, 3.75 for profitability against leverage and 3.02 for leverage against liquidity, are the three comparisons that make the circle, and their reciprocals are the smallest, so these are the comparisons for the analysts to settle. The function does not raise for a ratio above 0.1, because the committee decides what to do with it.</p>
+<figure class="align-default" id="id3">
+<img alt="The ratio of each judgment of the second analyst to the ratio of the weights, with the three largest ratios and their reciprocals outlined, and the three judgments of leverage over liquidity, liquidity over profitability and profitability over leverage drawn as a circle of arrows" class="plot-directive" src="../_images/expert-2.svg" />
+<figcaption>
+<p><span class="caption-text">The ratios of the second analyst. The further a judgment lies from the ratio of the weights, the darker its cell. The three largest ratios, outlined with their reciprocals, are the judgments that run in a circle: leverage over liquidity, liquidity over profitability and profitability over leverage.</span><a class="headerlink" href="#id3" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="scoring-borrowers">
+<h2>Scoring borrowers<a class="headerlink" href="#scoring-borrowers" title="Link to this heading">#</a></h2>
+<p>An analyst scores each borrower on every factor, on a scale of 0 (weak) to 100 (strong), and the score of the borrower is the weighted sum of the factor scores. A frame times the weights does that, and aligns the columns with the factors by name, so a missing or misspelled factor raises an error instead of being dropped:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">factor_scores</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">{</span>
+<span class="gp">... </span>        <span class="s2">"leverage"</span><span class="p">:</span> <span class="p">[</span><span class="mi">80</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">65</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="s2">"coverage"</span><span class="p">:</span> <span class="p">[</span><span class="mi">70</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">90</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="s2">"liquidity"</span><span class="p">:</span> <span class="p">[</span><span class="mi">60</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">85</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="s2">"profitability"</span><span class="p">:</span> <span class="p">[</span><span class="mi">75</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">55</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="s2">"industry"</span><span class="p">:</span> <span class="p">[</span><span class="mi">50</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">70</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">},</span>
+<span class="gp">... </span>    <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="s2">"Acme"</span><span class="p">,</span> <span class="s2">"Borel"</span><span class="p">,</span> <span class="s2">"Cirrus"</span><span class="p">],</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">(</span><span class="n">factor_scores</span> <span class="o">@</span> <span class="n">weights</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">Acme      72.6</span>
+<span class="go">Borel     43.4</span>
+<span class="go">Cirrus    70.7</span>
+<span class="go">dtype: float64</span>
+</pre></div>
+</div>
+<p>The score rises with creditworthiness, while <a class="reference internal" href="../api/metrics.html#module-kivi.metrics" title="kivi.metrics"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.metrics</span></code></a> and <a class="reference internal" href="../api/strategy.html#module-kivi.strategy" title="kivi.strategy"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.strategy</span></code></a> expect scores that rise with risk. Pass <code class="docutils literal notranslate"><span class="pre">-score</span></code> when you evaluate it, as <a class="reference internal" href="metrics.html"><span class="doc">Model performance</span></a> says for points. The score ranks borrowers; it is not a probability of default. Calibrate it to default rates, for example with the master scale of <a class="reference internal" href="calibration.html"><span class="doc">Calibration</span></a>, once the lender has outcomes.</p>
+</section>
+<section id="sub-factors">
+<h2>Sub-factors<a class="headerlink" href="#sub-factors" title="Link to this heading">#</a></h2>
+<p>A hierarchy compares the factors of each level on their own: first the groups of factors, then the factors within each group. <a class="reference internal" href="../api/expert.html#kivi.expert.combine_weights" title="kivi.expert.combine_weights"><code class="xref py py-func docutils literal notranslate"><span class="pre">combine_weights()</span></code></a> multiplies the weight of a group by the weight of each of its factors within the group, so the global weights still sum to 1:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.expert</span><span class="w"> </span><span class="kn">import</span> <span class="n">combine_weights</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">compare</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">rows</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">labels</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">groups</span> <span class="o">=</span> <span class="n">ahp_weights</span><span class="p">(</span><span class="n">compare</span><span class="p">([</span><span class="s2">"financial"</span><span class="p">,</span> <span class="s2">"business"</span><span class="p">],</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">finance</span> <span class="o">=</span> <span class="n">ahp_weights</span><span class="p">(</span><span class="n">compare</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="s2">"leverage"</span><span class="p">,</span> <span class="s2">"coverage"</span><span class="p">,</span> <span class="s2">"liquidity"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]],</span>
+<span class="gp">... </span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">business</span> <span class="o">=</span> <span class="n">ahp_weights</span><span class="p">(</span><span class="n">compare</span><span class="p">([</span><span class="s2">"industry"</span><span class="p">,</span> <span class="s2">"management"</span><span class="p">],</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">global_weights</span> <span class="o">=</span> <span class="n">combine_weights</span><span class="p">(</span><span class="n">groups</span><span class="p">,</span> <span class="p">{</span><span class="s2">"financial"</span><span class="p">:</span> <span class="n">finance</span><span class="p">,</span> <span class="s2">"business"</span><span class="p">:</span> <span class="n">business</span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">global_weights</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">factor     sub_factor</span>
+<span class="go">financial  leverage      0.4286</span>
+<span class="go">           coverage      0.2143</span>
+<span class="go">           liquidity     0.1071</span>
+<span class="go">business   industry      0.1667</span>
+<span class="go">           management    0.0833</span>
+<span class="go">Name: weight, dtype: float64</span>
+</pre></div>
+</div>
+<p>Financial factors weigh 0.75 against 0.25 for business factors, and leverage carries 4 / 7 of the financial weight, so its global weight is 0.75 × 4 / 7 = 0.4286. The index has two levels, <code class="docutils literal notranslate"><span class="pre">factor</span></code> and <code class="docutils literal notranslate"><span class="pre">sub_factor</span></code>, so the same sub-factor name may appear under two factors. Dropping the first level indexes a frame of scores by sub-factor name, if the names are distinct:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sub_factor_scores</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">{</span>
+<span class="gp">... </span>        <span class="s2">"leverage"</span><span class="p">:</span> <span class="p">[</span><span class="mi">80</span><span class="p">,</span> <span class="mi">40</span><span class="p">],</span> <span class="s2">"coverage"</span><span class="p">:</span> <span class="p">[</span><span class="mi">70</span><span class="p">,</span> <span class="mi">50</span><span class="p">],</span> <span class="s2">"liquidity"</span><span class="p">:</span> <span class="p">[</span><span class="mi">60</span><span class="p">,</span> <span class="mi">30</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="s2">"industry"</span><span class="p">:</span> <span class="p">[</span><span class="mi">50</span><span class="p">,</span> <span class="mi">60</span><span class="p">],</span> <span class="s2">"management"</span><span class="p">:</span> <span class="p">[</span><span class="mi">90</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">},</span>
+<span class="gp">... </span>    <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="s2">"Acme"</span><span class="p">,</span> <span class="s2">"Borel"</span><span class="p">],</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">(</span><span class="n">sub_factor_scores</span> <span class="o">@</span> <span class="n">global_weights</span><span class="o">.</span><span class="n">droplevel</span><span class="p">(</span><span class="s2">"factor"</span><span class="p">))</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">Acme     71.5</span>
+<span class="go">Borel    42.7</span>
+<span class="go">dtype: float64</span>
+</pre></div>
+</div>
+<p>Every factor of the first argument needs an entry in <code class="docutils literal notranslate"><span class="pre">children</span></code>, and <code class="docutils literal notranslate"><span class="pre">children</span></code> has no other keys. A factor without sub-factors takes a Series with one label and the weight 1, such as <code class="docutils literal notranslate"><span class="pre">pd.Series({&quot;cash_flow&quot;:</span> <span class="pre">1.0})</span></code>.</p>
+<p><a class="reference internal" href="../api/expert.html#kivi.expert.combine_weights" title="kivi.expert.combine_weights"><code class="xref py py-func docutils literal notranslate"><span class="pre">combine_weights()</span></code></a> joins two levels, the factors and their sub-factors. For a hierarchy of three levels, combine them level by level: pass the global weights with their first index level dropped, <code class="docutils literal notranslate"><span class="pre">global_weights.droplevel(&quot;factor&quot;)</span></code>, as the first argument of a second call, together with the weights of the items of each sub-factor. That needs the sub-factors of different factors to have different names, because the labels of the first argument must be distinct.</p>
+</section>
+<section id="several-experts">
+<h2>Several experts<a class="headerlink" href="#several-experts" title="Link to this heading">#</a></h2>
+<p>When several experts compare the factors, a common choice is to combine their judgments entry by entry with the geometric mean, which keeps the diagonal at 1 and the matrix reciprocal, and then to weigh the combined matrix. Here the weight of each factor in the group lies between the weights of the two experts, although that does not hold in general:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">combined</span> <span class="o">=</span> <span class="n">comparison</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">matrix</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">second</span><span class="p">)],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">{</span><span class="s2">"first"</span><span class="p">:</span> <span class="n">weights</span><span class="p">,</span> <span class="s2">"second"</span><span class="p">:</span> <span class="n">second_weights</span><span class="p">,</span> <span class="s2">"group"</span><span class="p">:</span> <span class="n">ahp_weights</span><span class="p">(</span><span class="n">combined</span><span class="p">)}</span>
+<span class="gp">... </span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">               first  second  group</span>
+<span class="go">factor</span>
+<span class="go">leverage       0.403   0.297  0.355</span>
+<span class="go">coverage       0.209   0.184  0.208</span>
+<span class="go">liquidity      0.111   0.225  0.149</span>
+<span class="go">profitability  0.209   0.238  0.221</span>
+<span class="go">industry       0.068   0.057  0.067</span>
+</pre></div>
+</div>
+<p>The geometric mean of consistent matrices is consistent, so the consistency ratio of the group matrix does not tell whether the experts agree. Compare their weights, and discuss the comparisons where they differ most.</p>
+</section>
+<section id="reading-the-result">
+<h2>Reading the result<a class="headerlink" href="#reading-the-result" title="Link to this heading">#</a></h2>
+<p><a class="reference internal" href="../api/expert.html#kivi.expert.ahp_weights" title="kivi.expert.ahp_weights"><code class="xref py py-func docutils literal notranslate"><span class="pre">ahp_weights()</span></code></a> returns one weight per factor, positive, summing to 1 and in the order of the matrix. A larger weight means a factor that counts more in the weighted score; the weights are relative, so the ratio of two weights is the importance of one factor against the other that the judgments imply. <a class="reference internal" href="../api/expert.html#kivi.expert.ahp_consistency" title="kivi.expert.ahp_consistency"><code class="xref py py-func docutils literal notranslate"><span class="pre">ahp_consistency()</span></code></a> returns four statistics:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 75.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Statistic</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">lambda_max</span></code></p></td>
+<td><p>The principal eigenvalue of the matrix. It is at least the number of factors, and equals it for consistent judgments.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ci</span></code></p></td>
+<td><p>The consistency index, <code class="docutils literal notranslate"><span class="pre">(lambda_max</span> <span class="pre">-</span> <span class="pre">n)</span> <span class="pre">/</span> <span class="pre">(n</span> <span class="pre">-</span> <span class="pre">1)</span></code>. Zero for consistent judgments, larger for less consistent ones.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ri</span></code></p></td>
+<td><p>Saaty’s random index for <code class="docutils literal notranslate"><span class="pre">n</span></code> factors: the average <code class="docutils literal notranslate"><span class="pre">ci</span></code> of random judgments. It is 0 for one or two factors.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cr</span></code></p></td>
+<td><p>The consistency ratio <code class="docutils literal notranslate"><span class="pre">ci</span> <span class="pre">/</span> <span class="pre">ri</span></code>. At most 0.1 is the usual threshold, or 0.05 for three factors and 0.08 for four; above it, review the judgments, for example with the table of ratios above. It is 0 for one or two factors.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>A ratio below the threshold does not make the weights right. It says that the judgments do not contradict each other, not that they describe the borrowers correctly.</p>
+</section>
+<section id="missing-values">
+<h2>Missing values<a class="headerlink" href="#missing-values" title="Link to this heading">#</a></h2>
+<p>Every comparison must be given. A missing entry raises an error instead of being skipped, because the weights of the other factors depend on it. Factor scores with missing values give a missing weighted score for that borrower in <code class="docutils literal notranslate"><span class="pre">factor_scores</span> <span class="pre">&#64;</span> <span class="pre">weights</span></code>; decide what a missing factor means before scoring, for example by scoring it as the weakest grade or by renormalizing the weights of the other factors.</p>
+</section>
+<section id="limits">
+<h2>Limits<a class="headerlink" href="#limits" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>The weights are as subjective as the judgments. The process makes them explicit and checkable, and it does not make them right. Different committees give different weights, and the weights can be tested only once outcomes exist.</p></li>
+<li><p>A consistency ratio at or below 0.1 shows that the comparisons agree with each other. Judgments can agree and still be wrong, for example when every comparison repeats the same bias.</p></li>
+<li><p>The scale stops at 9 and its reciprocals, so a factor cannot count more than nine times as much as another in a single comparison. Large matrices are hard to judge: more than about nine factors are better split into a hierarchy, as in the section on sub-factors.</p></li>
+<li><p>The random index is tabulated for up to 15 factors, and <a class="reference internal" href="../api/expert.html#kivi.expert.ahp_consistency" title="kivi.expert.ahp_consistency"><code class="xref py py-func docutils literal notranslate"><span class="pre">ahp_consistency()</span></code></a> raises an error for more. Published tables differ slightly in their random indices, because they come from simulations of different sizes, and Saaty’s books print 1.48 for 12 factors where the table of the function, Tone’s, has 1.53.</p></li>
+<li><p><a class="reference internal" href="../api/expert.html#kivi.expert.combine_weights" title="kivi.expert.combine_weights"><code class="xref py py-func docutils literal notranslate"><span class="pre">combine_weights()</span></code></a> joins two levels at a time and needs a <code class="docutils literal notranslate"><span class="pre">children</span></code> entry for every factor; deeper hierarchies are combined level by level, as the section on sub-factors describes.</p></li>
+<li><p>The functions cover the weights. kivi does not score factors, set the scale of a factor score, calibrate the score to default rates or aggregate the judgments of a group beyond the example above.</p></li>
+</ul>
+</section>
+<section id="errors-and-warnings">
+<h2>Errors and warnings<a class="headerlink" href="#errors-and-warnings" title="Link to this heading">#</a></h2>
+<p>The comparison of a factor with another must be the reciprocal of the reverse comparison, within the relative tolerance <code class="docutils literal notranslate"><span class="pre">rtol</span></code>, which is 1e-3 by default; the 1 on the diagonal is checked to the same tolerance. Entries rounded to four decimals, such as 0.3333 for 1 / 3 and 0.1429 for 1 / 7, pass. Entries rounded to two decimals, such as 0.33, raise an error that shows the two entries:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ahp_weights</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.33</span><span class="p">,</span> <span class="mi">1</span><span class="p">]])</span>
+<span class="gt">Traceback (most recent call last):</span>
+<span class="c">...</span>
+<span class="gr">ValueError</span>: <span class="n">matrix must be reciprocal: the entries at [0, 1] and [1, 0] must multiply to 1, got 3.0 and 0.33</span>
+</pre></div>
+</div>
+<p>Write <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">/</span> <span class="pre">3</span></code> instead, or pass a larger <code class="docutils literal notranslate"><span class="pre">rtol</span></code> if two decimals are what the analysts meant. The matrix is used as it is given, so the weights follow the rounded entries:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s2">"rounded"</span><span class="p">:</span> <span class="n">ahp_weights</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">7</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.14</span><span class="p">,</span> <span class="mi">1</span><span class="p">]],</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">0.05</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="s2">"exact"</span><span class="p">:</span> <span class="n">ahp_weights</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">7</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]),</span>
+<span class="gp">... </span><span class="p">})</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">        rounded  exact</span>
+<span class="go">factor</span>
+<span class="go">0        0.8761  0.875</span>
+<span class="go">1        0.1239  0.125</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">rtol</span></code> must be finite and non-negative; <code class="docutils literal notranslate"><span class="pre">rtol=0</span></code> accepts exact reciprocals only.</p>
+<p>The diagonal must be 1, and every entry must be finite and positive; a DataFrame names the offending factors, and an array numbers them from 0:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bad</span> <span class="o">=</span> <span class="n">comparison</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">)))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bad</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">"coverage"</span><span class="p">,</span> <span class="s2">"coverage"</span><span class="p">]</span> <span class="o">=</span> <span class="mf">2.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ahp_weights</span><span class="p">(</span><span class="n">bad</span><span class="p">)</span>
+<span class="gt">Traceback (most recent call last):</span>
+<span class="c">...</span>
+<span class="gr">ValueError</span>: <span class="n">matrix must have 1 on its diagonal, got 2.0 at ['coverage', 'coverage']</span>
+</pre></div>
+</div>
+<p>The index of a DataFrame must be flat, and it and the columns must hold the same labels in the same order. <a class="reference internal" href="../api/expert.html#kivi.expert.combine_weights" title="kivi.expert.combine_weights"><code class="xref py py-func docutils literal notranslate"><span class="pre">combine_weights()</span></code></a> needs weights that sum to 1 and an entry in <code class="docutils literal notranslate"><span class="pre">children</span></code> for each factor of its first argument.</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="scorecard.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Scorecard</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="metrics.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Model performance</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#definitions">Definitions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-worked-example">A worked example</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#weighing-five-factors">Weighing five factors</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#revising-judgments">Revising judgments</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#scoring-borrowers">Scoring borrowers</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sub-factors">Sub-factors</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#several-experts">Several experts</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#reading-the-result">Reading the result</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#missing-values">Missing values</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#limits">Limits</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#errors-and-warnings">Errors and warnings</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1.
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

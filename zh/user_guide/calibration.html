@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>校准 &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=d005c095" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=14f9d491"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script src="../_static/translations.js?v=540d3cec"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/calibration';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="next" title="LGD 与 EAD" href="lgd.html" />
+    <link rel="prev" title="模型表现" href="metrics.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+  <meta name="docsearch:version" content="1.9.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">跳转至主要内容</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>回到顶部</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="版本警告"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="网页导航" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 1.9.0">1.9.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    教程
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../../en/user_guide/calibration.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="当前页面" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    教程
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../../en/user_guide/calibration.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="章节导航">
+  <p class="bd-links__title" role="heading" aria-level="1">章节导航</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="risk_workflow.html">风控建模流程</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">时间窗特征</a></li>
+<li class="toctree-l1"><a class="reference internal" href="univariate.html">单变量概况</a></li>
+<li class="toctree-l1"><a class="reference internal" href="binning.html">分箱</a></li>
+<li class="toctree-l1"><a class="reference internal" href="woe_iv.html">证据权重与信息值</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selection.html">变量筛选</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reject_inference.html">拒绝推断</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scorecard.html">评分卡</a></li>
+<li class="toctree-l1"><a class="reference internal" href="expert.html">专家评分卡</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">模型表现</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">校准</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lgd.html">LGD 与 EAD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">信贷策略</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rules.html">政策规则</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spec.html">分箱方案</a></li>
+<li class="toctree-l1"><a class="reference internal" href="psi.html">群体稳定性指标</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">模型监控</a></li>
+<li class="toctree-l1"><a class="reference internal" href="validation.html">模型验证</a></li>
+<li class="toctree-l1"><a class="reference internal" href="capital.html">监管资本</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vintage.html">Vintage 与滚动率分析</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lifetime.html">存续期 PD 与预期信用损失</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html">图表</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">示例数据</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="初始页面">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">用户指南</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">校准</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="calibration">
+<h1>校准<a class="headerlink" href="#calibration" title="链接到此标题。">#</a></h1>
+<p>如果 PD 模型给出的概率与之后观测到的违约率相符，就称模型是校准的。校准与排序是两个不同的问题：一个模型可以把申请人排得很好，却仍然对整个资产组合预测了过低的违约率。 <a class="reference internal" href="../api/calibration.html#module-kivi.calibration" title="kivi.calibration"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.calibration</span></code></a> 针对开发数据的抽样方式校正概率，构建主标尺，汇总其各个等级并进行检验，用 Platt 缩放或保序回归把评分映射为概率，还能把 PD 调整到长期平均违约率。</p>
+<p>校准位于 <a class="reference internal" href="metrics.html"><span class="doc">模型表现</span></a> 之后（后者衡量排序能力），位于 <a class="reference internal" href="lgd.html"><span class="doc">LGD 与 EAD</span></a> （估计同一批贷款的另外两个风险参数）和 <a class="reference internal" href="strategy.html"><span class="doc">信贷策略</span></a> （在校准后的 PD 上设定截断点）之前。 <a class="reference internal" href="../api/calibration.html#kivi.calibration.prior_correction" title="kivi.calibration.prior_correction"><code class="xref py py-func docutils literal notranslate"><span class="pre">prior_correction()</span></code></a> 和 <a class="reference internal" href="../api/calibration.html#kivi.calibration.corrected_intercept" title="kivi.calibration.corrected_intercept"><code class="xref py py-func docutils literal notranslate"><span class="pre">corrected_intercept()</span></code></a> 校正抽样的影响； <a class="reference internal" href="../api/calibration.html#kivi.calibration.master_scale" title="kivi.calibration.master_scale"><code class="xref py py-func docutils literal notranslate"><span class="pre">master_scale()</span></code></a> 、 <a class="reference internal" href="../api/calibration.html#kivi.calibration.fit_grade_pd" title="kivi.calibration.fit_grade_pd"><code class="xref py py-func docutils literal notranslate"><span class="pre">fit_grade_pd()</span></code></a> 和 <a class="reference internal" href="../api/calibration.html#kivi.calibration.assign_grades" title="kivi.calibration.assign_grades"><code class="xref py py-func docutils literal notranslate"><span class="pre">assign_grades()</span></code></a> 构建并应用主标尺； <a class="reference internal" href="../api/calibration.html#kivi.calibration.calibration_table" title="kivi.calibration.calibration_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">calibration_table()</span></code></a> 、 <a class="reference internal" href="../api/calibration.html#kivi.calibration.binomial_test" title="kivi.calibration.binomial_test"><code class="xref py py-func docutils literal notranslate"><span class="pre">binomial_test()</span></code></a> 、 <a class="reference internal" href="../api/calibration.html#kivi.calibration.jeffreys_test" title="kivi.calibration.jeffreys_test"><code class="xref py py-func docutils literal notranslate"><span class="pre">jeffreys_test()</span></code></a> 、 <a class="reference internal" href="../api/calibration.html#kivi.calibration.hosmer_lemeshow" title="kivi.calibration.hosmer_lemeshow"><code class="xref py py-func docutils literal notranslate"><span class="pre">hosmer_lemeshow()</span></code></a> 、 <a class="reference internal" href="../api/calibration.html#kivi.calibration.spiegelhalter_test" title="kivi.calibration.spiegelhalter_test"><code class="xref py py-func docutils literal notranslate"><span class="pre">spiegelhalter_test()</span></code></a> 、 <a class="reference internal" href="../api/calibration.html#kivi.calibration.brier_decomposition" title="kivi.calibration.brier_decomposition"><code class="xref py py-func docutils literal notranslate"><span class="pre">brier_decomposition()</span></code></a> 、 <a class="reference internal" href="../api/calibration.html#kivi.calibration.herfindahl_index" title="kivi.calibration.herfindahl_index"><code class="xref py py-func docutils literal notranslate"><span class="pre">herfindahl_index()</span></code></a> 和 <a class="reference internal" href="../api/calibration.html#kivi.calibration.concentration_test" title="kivi.calibration.concentration_test"><code class="xref py py-func docutils literal notranslate"><span class="pre">concentration_test()</span></code></a> 统计并检验各等级； <a class="reference internal" href="../api/calibration.html#kivi.calibration.backtest_table" title="kivi.calibration.backtest_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">backtest_table()</span></code></a> 回测 LGD 等连续型估计值； <a class="reference internal" href="../api/calibration.html#kivi.calibration.platt_fit" title="kivi.calibration.platt_fit"><code class="xref py py-func docutils literal notranslate"><span class="pre">platt_fit()</span></code></a> 、 <a class="reference internal" href="../api/calibration.html#kivi.calibration.platt_predict" title="kivi.calibration.platt_predict"><code class="xref py py-func docutils literal notranslate"><span class="pre">platt_predict()</span></code></a> 、 <a class="reference internal" href="../api/calibration.html#kivi.calibration.isotonic_fit" title="kivi.calibration.isotonic_fit"><code class="xref py py-func docutils literal notranslate"><span class="pre">isotonic_fit()</span></code></a> 和 <a class="reference internal" href="../api/calibration.html#kivi.calibration.isotonic_predict" title="kivi.calibration.isotonic_predict"><code class="xref py py-func docutils literal notranslate"><span class="pre">isotonic_predict()</span></code></a> 重新校准评分； <a class="reference internal" href="../api/calibration.html#kivi.calibration.central_tendency_shift" title="kivi.calibration.central_tendency_shift"><code class="xref py py-func docutils literal notranslate"><span class="pre">central_tendency_shift()</span></code></a> 和 <a class="reference internal" href="../api/calibration.html#kivi.calibration.quasi_moment_fit" title="kivi.calibration.quasi_moment_fit"><code class="xref py py-func docutils literal notranslate"><span class="pre">quasi_moment_fit()</span></code></a> 则把 PD 校准到中心趋势。 <a class="reference internal" href="validation.html"><span class="doc">模型验证</span></a> 汇集了欧洲央行在验证报告中要求的各项检验。</p>
+<section id="correcting-for-oversampling">
+<h2>过采样校正<a class="headerlink" href="#correcting-for-oversampling" title="链接到此标题。">#</a></h2>
+<p>开发模型时，常常对坏样本做过采样，例如使好坏样本数量相等。这样模型预测的是该样本上的概率，而不是资产组合上的概率。设开发样本的事件率为 <span class="math notranslate nohighlight">\(\bar y\)</span> ，资产组合的事件率为 <span class="math notranslate nohighlight">\(\tau\)</span> ，King 和 Zeng 的先验校正把每个概率的几率乘以</p>
+<div class="math notranslate nohighlight">
+\[\omega = \frac{\tau / (1 - \tau)}{\bar y / (1 - \bar y)}, \qquad
+\tilde p = \frac{\omega p}{\omega p + 1 - p}.\]</div>
+<p>如果模型在坏样本占 50% 的样本上开发，而资产组合的违约率为 2%，那么概率 0.5 会变为 0.02：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">corrected_intercept</span><span class="p">,</span> <span class="n">prior_correction</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">prior_correction</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">],</span> <span class="n">sample_rate</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">population_rate</span><span class="o">=</span><span class="mf">0.02</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">array([0.02  , 0.0051, 0.0011])</span>
+</pre></div>
+</div>
+<p>校正不改变概率的排序。对逻辑回归而言，它只是把截距平移 <span class="math notranslate nohighlight">\(\ln \omega\)</span> ，因此系数以及 <a class="reference internal" href="scorecard.html"><span class="doc">评分卡</span></a> 中每单位 WOE 对应的分值都保持不变：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">corrected_intercept</span><span class="p">(</span><span class="o">-</span><span class="mf">0.3</span><span class="p">,</span><span class="w"> </span><span class="n">sample_rate</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span><span class="w"> </span><span class="n">population_rate</span><span class="o">=</span><span class="mf">0.02</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">-4.1918</span>
+</pre></div>
+</div>
+</section>
+<section id="grades-of-a-master-scale">
+<h2>主标尺的等级<a class="headerlink" href="#grades-of-a-master-scale" title="链接到此标题。">#</a></h2>
+<p>主标尺把 PD 的取值范围划分为一组固定的等级，使不同模型给出的评级具有统一的含义。每个等级有一个 PD，等级之间的界限决定预测 PD 落入哪个等级。下面的示例使用 <a class="reference internal" href="scorecard.html"><span class="doc">评分卡</span></a> 中的评分卡在开发样本和监控样本上给出的 PD：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_bank</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.woe</span><span class="w"> </span><span class="kn">import</span> <span class="n">woe_table</span><span class="p">,</span> <span class="n">woe_transform</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">load_bank</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">development</span><span class="p">,</span> <span class="n">monitoring</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="mi">3000</span><span class="p">],</span> <span class="n">data</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">3000</span><span class="p">:]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">age_edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">35</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">55</span><span class="p">,</span> <span class="mi">65</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">to_groups</span><span class="p">(</span><span class="n">frame</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">groups</span> <span class="o">=</span> <span class="n">frame</span><span class="p">[[</span><span class="s2">"poutcome"</span><span class="p">,</span> <span class="s2">"contact"</span><span class="p">,</span> <span class="s2">"housing"</span><span class="p">]]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="gp">... </span>    <span class="n">groups</span><span class="p">[</span><span class="s2">"age"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">frame</span><span class="p">[</span><span class="s2">"age"</span><span class="p">],</span> <span class="n">age_edges</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">groups</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dev_groups</span> <span class="o">=</span> <span class="n">to_groups</span><span class="p">(</span><span class="n">development</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target</span> <span class="o">=</span> <span class="n">development</span><span class="p">[</span><span class="s2">"target"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tables</span> <span class="o">=</span> <span class="p">{</span><span class="n">column</span><span class="p">:</span> <span class="n">woe_table</span><span class="p">(</span><span class="n">dev_groups</span><span class="p">[</span><span class="n">column</span><span class="p">],</span> <span class="n">target</span><span class="p">)</span> <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">dev_groups</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">coefficients</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">{</span><span class="s2">"poutcome"</span><span class="p">:</span> <span class="mf">0.899</span><span class="p">,</span> <span class="s2">"contact"</span><span class="p">:</span> <span class="mf">0.658</span><span class="p">,</span> <span class="s2">"housing"</span><span class="p">:</span> <span class="mf">0.691</span><span class="p">,</span> <span class="s2">"age"</span><span class="p">:</span> <span class="mf">0.714</span><span class="p">}</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">predict</span><span class="p">(</span><span class="n">frame</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">groups</span> <span class="o">=</span> <span class="n">to_groups</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">woe</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+<span class="gp">... </span>        <span class="p">{</span><span class="n">column</span><span class="p">:</span> <span class="n">woe_transform</span><span class="p">(</span><span class="n">groups</span><span class="p">[</span><span class="n">column</span><span class="p">],</span> <span class="n">tables</span><span class="p">[</span><span class="n">column</span><span class="p">])</span> <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">groups</span><span class="p">}</span>
+<span class="gp">... </span>    <span class="p">)</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mf">2.028</span> <span class="o">-</span> <span class="n">woe</span> <span class="o">@</span> <span class="n">coefficients</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dev_prob</span><span class="p">,</span> <span class="n">probability</span> <span class="o">=</span> <span class="n">predict</span><span class="p">(</span><span class="n">development</span><span class="p">),</span> <span class="n">predict</span><span class="p">(</span><span class="n">monitoring</span><span class="p">)</span>
+</pre></div>
+</div>
+<section id="building-a-scale">
+<h3>构建标尺<a class="headerlink" href="#building-a-scale" title="链接到此标题。">#</a></h3>
+<p>主标尺的 PD 通常逐级按固定倍数增长。 <a class="reference internal" href="../api/calibration.html#kivi.calibration.master_scale" title="kivi.calibration.master_scale"><code class="xref py py-func docutils literal notranslate"><span class="pre">master_scale()</span></code></a> 接收每个等级的 PD，并加上各等级的界限。这里的 PD 是从 2% 到 64% 共六个等级的几何网格，每个等级的 PD 是前一个等级的两倍：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">assign_grades</span><span class="p">,</span> <span class="n">fit_grade_pd</span><span class="p">,</span> <span class="n">master_scale</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">scale</span> <span class="o">=</span> <span class="n">master_scale</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">geomspace</span><span class="p">(</span><span class="mf">0.02</span><span class="p">,</span> <span class="mf">0.64</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span> <span class="n">labels</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="s2">"ABCDEF"</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">scale</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">        lower  probability   upper</span>
+<span class="go">grade</span>
+<span class="go">A      0.0000         0.02  0.0283</span>
+<span class="go">B      0.0283         0.04  0.0566</span>
+<span class="go">C      0.0566         0.08  0.1131</span>
+<span class="go">D      0.1131         0.16  0.2263</span>
+<span class="go">E      0.2263         0.32  0.4525</span>
+<span class="go">F      0.4525         0.64  1.0000</span>
+</pre></div>
+</div>
+<p>每个界限是其两侧 PD 的几何平均数，即对数尺度上的中点，因此 PD 归入按比值更接近的那个等级。 <code class="docutils literal notranslate"><span class="pre">boundary=&quot;arithmetic&quot;</span></code> 改用算术平均数，与 kivi 0.2 版本相同。算术平均数高于几何平均数，因此每个等级向上延伸得比向下更远。这时等级 A 包含直到 3%（而不是 2.83%）的 PD。以 Series 给出的 PD 以其索引作为等级标签：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">arithmetic</span> <span class="o">=</span> <span class="n">master_scale</span><span class="p">(</span><span class="n">scale</span><span class="p">[</span><span class="s2">"probability"</span><span class="p">],</span> <span class="n">boundary</span><span class="o">=</span><span class="s2">"arithmetic"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">arithmetic</span><span class="p">[</span><span class="s2">"upper"</span><span class="p">]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">grade</span>
+<span class="go">A    0.03</span>
+<span class="go">B    0.06</span>
+<span class="go">C    0.12</span>
+<span class="go">D    0.24</span>
+<span class="go">E    0.48</span>
+<span class="go">F    1.00</span>
+<span class="go">Name: upper, dtype: float64</span>
+</pre></div>
+</div>
+<p>使用算术界限时，一个等级中的大多数 PD 高于该等级的 PD，因此校准良好的模型的观测违约率往往高于等级的 PD。</p>
+</section>
+<section id="assigning-the-grades">
+<h3>划分等级<a class="headerlink" href="#assigning-the-grades" title="链接到此标题。">#</a></h3>
+<p><a class="reference internal" href="../api/calibration.html#kivi.calibration.assign_grades" title="kivi.calibration.assign_grades"><code class="xref py py-func docutils literal notranslate"><span class="pre">assign_grades()</span></code></a> 为每个 PD 指定界限包含它的那个等级。恰好落在界限上的 PD 归入较低的等级，因为 <code class="docutils literal notranslate"><span class="pre">pandas.cut</span></code> 的区间是左开右闭的；PD 为 0 时归入第一个等级。等级是标签的有序分类变量，因此 <a class="reference internal" href="../api/calibration.html#kivi.calibration.calibration_table" title="kivi.calibration.calibration_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">calibration_table()</span></code></a> 比较每个等级的观测违约率与平均预测 PD 时，按标尺的顺序列出各等级。连接（join）标尺即可加入每个等级的 PD：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">calibration_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">grades</span> <span class="o">=</span> <span class="n">assign_grades</span><span class="p">(</span><span class="n">probability</span><span class="p">,</span> <span class="n">scale</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">scale_table</span> <span class="o">=</span> <span class="n">calibration_table</span><span class="p">(</span><span class="n">grades</span><span class="p">,</span> <span class="n">monitoring</span><span class="p">[</span><span class="s2">"target"</span><span class="p">],</span> <span class="n">probability</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">scale_table</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">scale</span><span class="p">[</span><span class="s2">"probability"</span><span class="p">])</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">     total  event  event_rate  mean_probability  probability</span>
+<span class="go">bin</span>
+<span class="go">B      328     13       0.040             0.042         0.04</span>
+<span class="go">C      459     36       0.078             0.080         0.08</span>
+<span class="go">D      632     72       0.114             0.136         0.16</span>
+<span class="go">E       56     21       0.375             0.267         0.32</span>
+<span class="go">F       46     31       0.674             0.636         0.64</span>
+</pre></div>
+</div>
+<p>模型没有给任何客户低于 2.83% 的 PD，因此等级 A 为空， <code class="docutils literal notranslate"><span class="pre">calibration_table</span></code> 将其略去。</p>
+</section>
+<section id="fitting-the-pds-of-the-grades">
+<h3>拟合各等级的 PD<a class="headerlink" href="#fitting-the-pds-of-the-grades" title="链接到此标题。">#</a></h3>
+<p>各等级的 PD 也可以来自其中观测到的违约率。 <a class="reference internal" href="../api/calibration.html#kivi.calibration.fit_grade_pd" title="kivi.calibration.fit_grade_pd"><code class="xref py py-func docutils literal notranslate"><span class="pre">fit_grade_pd()</span></code></a> 把违约率的对数拟合为等级编号的直线，使用以各等级观测数为权重的最小二乘法，因此拟合的 PD 同样逐级按固定倍数增长。没有违约的等级以半次违约参与拟合，没有观测的等级不参与拟合，但仍会得到 PD。按标尺的等级统计开发样本：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dev_counts</span> <span class="o">=</span> <span class="n">calibration_table</span><span class="p">(</span><span class="n">assign_grades</span><span class="p">(</span><span class="n">dev_prob</span><span class="p">,</span> <span class="n">scale</span><span class="p">),</span> <span class="n">target</span><span class="p">,</span> <span class="n">dev_prob</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dev_counts</span><span class="p">[</span><span class="s2">"event_rate"</span><span class="p">]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">bin</span>
+<span class="go">B    0.043</span>
+<span class="go">C    0.084</span>
+<span class="go">D    0.133</span>
+<span class="go">E    0.272</span>
+<span class="go">F    0.642</span>
+<span class="go">Name: event_rate, dtype: float64</span>
+</pre></div>
+</div>
+<p>等级按其在输入中的位置编号，因此拟合之前要把计数重新索引到标尺的所有等级。这样空的等级 A 会以计数 0 保留其位置：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dev_counts</span> <span class="o">=</span> <span class="n">dev_counts</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">scale</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fitted_pd</span> <span class="o">=</span> <span class="n">fit_grade_pd</span><span class="p">(</span><span class="n">dev_counts</span><span class="p">[</span><span class="s2">"event"</span><span class="p">],</span> <span class="n">dev_counts</span><span class="p">[</span><span class="s2">"total"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fitted</span> <span class="o">=</span> <span class="n">master_scale</span><span class="p">(</span><span class="n">fitted_pd</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fitted</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">        lower  probability   upper</span>
+<span class="go">grade</span>
+<span class="go">A      0.0000       0.0238  0.0321</span>
+<span class="go">B      0.0321       0.0432  0.0582</span>
+<span class="go">C      0.0582       0.0784  0.1056</span>
+<span class="go">D      0.1056       0.1423  0.1917</span>
+<span class="go">E      0.1917       0.2582  0.3477</span>
+<span class="go">F      0.3477       0.4683  1.0000</span>
+</pre></div>
+</div>
+<p>拟合的 PD 逐级增长为 1.81 倍，与等级 B 到 E 的违约率吻合得很好。等级 F 的违约率为 64%，远高于这条直线：它只有 81 个客户，因此在拟合中权重很小。下面的检验会说明这是否要紧。</p>
+<figure class="align-default" id="id1">
+<img alt="开发样本各等级的实际违约率、fit_grade_pd 拟合的 PD 以及标尺的几何网格，纵轴为对数刻度" class="plot-directive" src="../_images/calibration-11.svg" />
+<figcaption>
+<p><span class="caption-text">开发样本各等级的实际违约率、 <code class="docutils literal notranslate"><span class="pre">fit_grade_pd</span></code> 拟合的 PD 以及标尺的几何网格，纵轴为对数刻度。点越大，客户越多；等级 F 位于拟合线之上。</span><a class="headerlink" href="#id1" title="链接到此图片">#</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="grades-given-by-their-bounds">
+<h3>按界限给出的等级<a class="headerlink" href="#grades-given-by-their-bounds" title="链接到此标题。">#</a></h3>
+<p>标尺也可以只由其界限给出，例如来自现有的评级体系。用 <code class="docutils literal notranslate"><span class="pre">pandas.cut</span></code> 在这些界限处切分 PD，其区间与 <a class="reference internal" href="../api/calibration.html#kivi.calibration.assign_grades" title="kivi.calibration.assign_grades"><code class="xref py py-func docutils literal notranslate"><span class="pre">assign_grades()</span></code></a> 一样是左开右闭的； <code class="docutils literal notranslate"><span class="pre">include_lowest=True</span></code> 让恰好为 0 的 PD 留在第一个等级。本页其余部分使用这些等级：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pd_edges</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.08</span><span class="p">,</span> <span class="mf">0.12</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">grades</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">probability</span><span class="p">,</span> <span class="n">pd_edges</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="s2">"ABCDEF"</span><span class="p">),</span> <span class="n">include_lowest</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span> <span class="o">=</span> <span class="n">calibration_table</span><span class="p">(</span><span class="n">grades</span><span class="p">,</span> <span class="n">monitoring</span><span class="p">[</span><span class="s2">"target"</span><span class="p">],</span> <span class="n">probability</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">     total  event  event_rate  mean_probability</span>
+<span class="go">bin</span>
+<span class="go">A      328     13       0.040      0.042</span>
+<span class="go">B      234     13       0.056      0.071</span>
+<span class="go">C      276     28       0.101      0.093</span>
+<span class="go">D      572     66       0.115      0.136</span>
+<span class="go">E       65     22       0.338      0.260</span>
+<span class="go">F       46     31       0.674      0.636</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="../api/calibration.html#kivi.calibration.calibration_table" title="kivi.calibration.calibration_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">calibration_table()</span></code></a> 接受任意分组，例如分数段或 PD 的十分位组。它的计数方式与 <a class="reference internal" href="../api/woe.html#kivi.woe.woe_table" title="kivi.woe.woe_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">woe_table()</span></code></a> 相同：分类型分组保持类别顺序，没有观测值的等级会被略去。</p>
+</section>
+</section>
+<section id="testing-each-grade">
+<h2>逐个等级检验<a class="headerlink" href="#testing-each-grade" title="链接到此标题。">#</a></h2>
+<p>每个等级单独检验，原假设是其 PD 没有偏低。两种检验都是单侧的：p 值较小，说明该等级的违约数多于其 PD 的预测。</p>
+<ul class="simple">
+<li><p><strong>二项检验</strong> 把一个等级中的 <span class="math notranslate nohighlight">\(N\)</span> 个债务人视为相互独立，每人以概率 <span class="math notranslate nohighlight">\(p\)</span> 违约。其 p 值是至少出现观测到的 <span class="math notranslate nohighlight">\(d\)</span> 次违约的概率，即 <span class="math notranslate nohighlight">\(P(D \ge d)\)</span> 。</p></li>
+<li><p><strong>Jeffreys 检验</strong> 以 Jeffreys 先验 <span class="math notranslate nohighlight">\(\mathrm{Beta}(1/2, 1/2)\)</span> 作为违约率的先验分布。其 p 值是违约率不超过 <span class="math notranslate nohighlight">\(p\)</span> 的后验概率，即 <span class="math notranslate nohighlight">\(\mathrm{Beta}(d + 1/2, N - d + 1/2)\)</span> 在 <span class="math notranslate nohighlight">\(p\)</span> 处的分布函数值。欧洲央行在 PD 模型验证中要求使用这一检验。</p></li>
+</ul>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">binomial_test</span><span class="p">,</span> <span class="n">jeffreys_test</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">grade_tests</span><span class="p">(</span><span class="n">table</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">table</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+<span class="gp">... </span>        <span class="n">binomial</span><span class="o">=</span><span class="n">binomial_test</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s2">"event"</span><span class="p">],</span> <span class="n">table</span><span class="p">[</span><span class="s2">"total"</span><span class="p">],</span> <span class="n">table</span><span class="p">[</span><span class="s2">"mean_probability"</span><span class="p">]),</span>
+<span class="gp">... </span>        <span class="n">jeffreys</span><span class="o">=</span><span class="n">jeffreys_test</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s2">"event"</span><span class="p">],</span> <span class="n">table</span><span class="p">[</span><span class="s2">"total"</span><span class="p">],</span> <span class="n">table</span><span class="p">[</span><span class="s2">"mean_probability"</span><span class="p">]),</span>
+<span class="gp">... </span>    <span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">grade_tests</span><span class="p">(</span><span class="n">table</span><span class="p">)[[</span><span class="s2">"event_rate"</span><span class="p">,</span> <span class="s2">"mean_probability"</span><span class="p">,</span> <span class="s2">"binomial"</span><span class="p">,</span> <span class="s2">"jeffreys"</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">     event_rate  mean_probability  binomial  jeffreys</span>
+<span class="go">bin</span>
+<span class="go">A         0.040      0.042     0.609     0.554</span>
+<span class="go">B         0.056      0.071     0.858     0.825</span>
+<span class="go">C         0.101      0.093     0.352     0.315</span>
+<span class="go">D         0.115      0.136     0.937     0.928</span>
+<span class="go">E         0.338      0.260     0.098     0.077</span>
+<span class="go">F         0.674      0.636     0.356     0.300</span>
+</pre></div>
+</div>
+<p>在常用的 5% 水平下，没有等级被拒绝。为了观察检验的效果，把 PD 按资产组合违约率为 6%（而非开发样本的 11.6%）的情形调低。监控样本的违约率仍与开发样本相当，因此这些 PD 现在偏低：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">low</span> <span class="o">=</span> <span class="n">prior_correction</span><span class="p">(</span><span class="n">probability</span><span class="p">,</span> <span class="n">sample_rate</span><span class="o">=</span><span class="mf">0.116</span><span class="p">,</span> <span class="n">population_rate</span><span class="o">=</span><span class="mf">0.06</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">low_grades</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">low</span><span class="p">,</span> <span class="n">pd_edges</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="s2">"ABCDEF"</span><span class="p">),</span> <span class="n">include_lowest</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">low_table</span> <span class="o">=</span> <span class="n">calibration_table</span><span class="p">(</span><span class="n">low_grades</span><span class="p">,</span> <span class="n">monitoring</span><span class="p">[</span><span class="s2">"target"</span><span class="p">],</span> <span class="n">low</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">grade_tests</span><span class="p">(</span><span class="n">low_table</span><span class="p">)[[</span><span class="s2">"event_rate"</span><span class="p">,</span> <span class="s2">"mean_probability"</span><span class="p">,</span> <span class="s2">"binomial"</span><span class="p">,</span> <span class="s2">"jeffreys"</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">     event_rate  mean_probability  binomial  jeffreys</span>
+<span class="go">bin</span>
+<span class="go">A         0.062      0.032     0.000     0.000</span>
+<span class="go">B         0.112      0.067     0.000     0.000</span>
+<span class="go">C         0.124      0.095     0.224     0.177</span>
+<span class="go">D         0.385      0.145     0.000     0.000</span>
+<span class="go">E         0.412      0.315     0.269     0.193</span>
+<span class="go">F         0.735      0.501     0.005     0.003</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id3">
+<img alt="原始 PD 与下调后 PD 的各评级实际违约率对平均预测 PD" class="plot-directive" src="../_images/calibration-2.svg" />
+<figcaption>
+<p><span class="caption-text">原始 PD 的各评级贴近对角线，而下调后 PD 的各评级位于对角线上方：违约多于预测。点越大，客户越多。</span><a class="headerlink" href="#id3" title="链接到此图片">#</a></p>
+</figcaption>
+</figure>
+<p>对相同的计数，Jeffreys 检验的 p 值总是略低于二项检验，因此 Jeffreys 检验稍微更容易拒绝。两种检验都假定违约相互独立；经济下行期违约同涨同落，会使它们的拒绝频率高于名义水平。</p>
+<p>对于主标尺，还要用每个等级自身的 PD（即该等级的每个客户被赋予的 PD）对其进行检验。在监控样本上，上面拟合的标尺在等级 B 到 E 上通过了检验，但等级 F 的违约数多于其 47% 的 PD 所预测的数量：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fitted_table</span> <span class="o">=</span> <span class="n">calibration_table</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">assign_grades</span><span class="p">(</span><span class="n">probability</span><span class="p">,</span> <span class="n">fitted</span><span class="p">),</span> <span class="n">monitoring</span><span class="p">[</span><span class="s2">"target"</span><span class="p">],</span> <span class="n">probability</span>
+<span class="gp">... </span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fitted</span><span class="p">[</span><span class="s2">"probability"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fitted_table</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">binomial</span><span class="o">=</span><span class="n">binomial_test</span><span class="p">(</span>
+<span class="gp">... </span>        <span class="n">fitted_table</span><span class="p">[</span><span class="s2">"event"</span><span class="p">],</span> <span class="n">fitted_table</span><span class="p">[</span><span class="s2">"total"</span><span class="p">],</span> <span class="n">fitted_table</span><span class="p">[</span><span class="s2">"probability"</span><span class="p">]</span>
+<span class="gp">... </span>    <span class="p">),</span>
+<span class="gp">... </span>    <span class="n">jeffreys</span><span class="o">=</span><span class="n">jeffreys_test</span><span class="p">(</span>
+<span class="gp">... </span>        <span class="n">fitted_table</span><span class="p">[</span><span class="s2">"event"</span><span class="p">],</span> <span class="n">fitted_table</span><span class="p">[</span><span class="s2">"total"</span><span class="p">],</span> <span class="n">fitted_table</span><span class="p">[</span><span class="s2">"probability"</span><span class="p">]</span>
+<span class="gp">... </span>    <span class="p">),</span>
+<span class="gp">... </span><span class="p">)[[</span><span class="s2">"total"</span><span class="p">,</span> <span class="s2">"event"</span><span class="p">,</span> <span class="s2">"event_rate"</span><span class="p">,</span> <span class="s2">"probability"</span><span class="p">,</span> <span class="s2">"binomial"</span><span class="p">,</span> <span class="s2">"jeffreys"</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">     total  event  event_rate  probability  binomial  jeffreys</span>
+<span class="go">bin</span>
+<span class="go">B      328     13       0.040        0.043     0.664     0.611</span>
+<span class="go">C      456     36       0.079        0.078     0.509     0.474</span>
+<span class="go">D      620     70       0.113        0.142     0.986     0.984</span>
+<span class="go">E       70     23       0.329        0.258     0.115     0.092</span>
+<span class="go">F       47     31       0.660        0.468     0.006     0.004</span>
+</pre></div>
+</div>
+<p>这条直线低估了风险最高的等级。可以改用等级 F 自身的违约率作为其 PD，或把它并入等级 E，然后重新检验标尺。</p>
+</section>
+<section id="testing-all-grades-at-once">
+<h2>一次检验所有等级<a class="headerlink" href="#testing-all-grades-at-once" title="链接到此标题。">#</a></h2>
+<p>Hosmer-Lemeshow 检验把全部 <span class="math notranslate nohighlight">\(g\)</span> 个分组中观测违约数与预测违约数之差的平方累加起来：</p>
+<div class="math notranslate nohighlight">
+\[H = \sum_{k=1}^{g} \frac{(d_k - n_k \bar p_k)^2}{n_k \bar p_k (1 - \bar p_k)}.\]</div>
+<p>在拟合模型所用的样本上，把排序后的 PD 分成约十个大小相近的组，并将 <span class="math notranslate nohighlight">\(H\)</span> 与自由度为 <span class="math notranslate nohighlight">\(g - 2\)</span> 的卡方分布比较，这也是默认设置：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.binning</span><span class="w"> </span><span class="kn">import</span> <span class="n">bin_edges</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">hosmer_lemeshow</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">deciles</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">dev_prob</span><span class="p">,</span> <span class="n">bin_edges</span><span class="p">(</span><span class="n">dev_prob</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">10</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dev_table</span> <span class="o">=</span> <span class="n">calibration_table</span><span class="p">(</span><span class="n">deciles</span><span class="p">,</span> <span class="n">development</span><span class="p">[</span><span class="s2">"target"</span><span class="p">],</span> <span class="n">dev_prob</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">statistic</span><span class="p">,</span> <span class="n">pvalue</span> <span class="o">=</span> <span class="n">hosmer_lemeshow</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">dev_table</span><span class="p">[</span><span class="s2">"event"</span><span class="p">],</span> <span class="n">dev_table</span><span class="p">[</span><span class="s2">"total"</span><span class="p">],</span> <span class="n">dev_table</span><span class="p">[</span><span class="s2">"mean_probability"</span><span class="p">]</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"H = </span><span class="si">{</span><span class="n">statistic</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">, p = </span><span class="si">{</span><span class="n">pvalue</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">H = 3.42, p = 0.905</span>
+</pre></div>
+</div>
+<p>如果 PD 不是在被检验的样本上拟合的（例如监控样本的各等级），自由度不会减少，因此传入 <code class="docutils literal notranslate"><span class="pre">ddof=0</span></code> ：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">statistic</span><span class="p">,</span> <span class="n">pvalue</span> <span class="o">=</span> <span class="n">hosmer_lemeshow</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">table</span><span class="p">[</span><span class="s2">"event"</span><span class="p">],</span> <span class="n">table</span><span class="p">[</span><span class="s2">"total"</span><span class="p">],</span> <span class="n">table</span><span class="p">[</span><span class="s2">"mean_probability"</span><span class="p">],</span> <span class="n">ddof</span><span class="o">=</span><span class="mi">0</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"H = </span><span class="si">{</span><span class="n">statistic</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">, p = </span><span class="si">{</span><span class="n">pvalue</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">H = 5.60, p = 0.470</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">statistic</span><span class="p">,</span> <span class="n">pvalue</span> <span class="o">=</span> <span class="n">hosmer_lemeshow</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">low_table</span><span class="p">[</span><span class="s2">"event"</span><span class="p">],</span> <span class="n">low_table</span><span class="p">[</span><span class="s2">"total"</span><span class="p">],</span> <span class="n">low_table</span><span class="p">[</span><span class="s2">"mean_probability"</span><span class="p">],</span> <span class="n">ddof</span><span class="o">=</span><span class="mi">0</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"H = </span><span class="si">{</span><span class="n">statistic</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">, p = </span><span class="si">{</span><span class="n">pvalue</span><span class="si">:</span><span class="s2">.1e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">H = 74.1, p = 6.0e-14</span>
+</pre></div>
+</div>
+<p>Hosmer-Lemeshow 统计量取决于分组方式。Spiegelhalter 检验不需要分组：它把这些概率的 Brier 分数与假如它们就是真实概率时应有的分数相比较，并把差值标准化：</p>
+<div class="math notranslate nohighlight">
+\[z = \frac{\sum_i (y_i - p_i)(1 - 2 p_i)}{\sqrt{\sum_i (1 - 2 p_i)^2 \, p_i (1 - p_i)}}.\]</div>
+<p><a class="reference internal" href="../api/calibration.html#kivi.calibration.spiegelhalter_test" title="kivi.calibration.spiegelhalter_test"><code class="xref py py-func docutils literal notranslate"><span class="pre">spiegelhalter_test()</span></code></a> 返回 <span class="math notranslate nohighlight">\(z\)</span> 及其双侧 p 值。监控样本的 PD 通过检验，调低后的 PD 则明显不通过：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">spiegelhalter_test</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">pds</span> <span class="ow">in</span> <span class="p">(</span><span class="n">probability</span><span class="p">,</span> <span class="n">low</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">statistic</span><span class="p">,</span> <span class="n">pvalue</span> <span class="o">=</span> <span class="n">spiegelhalter_test</span><span class="p">(</span><span class="n">pds</span><span class="p">,</span> <span class="n">monitoring</span><span class="p">[</span><span class="s2">"target"</span><span class="p">])</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"z = </span><span class="si">{</span><span class="n">statistic</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">, p = </span><span class="si">{</span><span class="n">pvalue</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">z = -0.95, p = 0.343</span>
+<span class="go">z = 7.38, p = 0.000</span>
+</pre></div>
+</div>
+<p>正的 <span class="math notranslate nohighlight">\(z\)</span> 表示概率的 Brier 分数高于这些概率若为真实概率时应有的分数，负的 <span class="math notranslate nohighlight">\(z\)</span> 表示低于该分数；两者都否定这些概率。对于低于 1/2 的概率（PD 通常如此），正的 <span class="math notranslate nohighlight">\(z\)</span> 表示违约多于 PD 的预测，负的表示违约少于预测：调低后的 PD 几乎全部低于 1/2，因此偏低。该检验对概率接近 0 或 1 的观测赋予最大的权重，因此少数几个过于自信的错误就可能决定结果。</p>
+</section>
+<section id="decomposing-the-brier-score">
+<h2>分解 Brier 分数<a class="headerlink" href="#decomposing-the-brier-score" title="链接到此标题。">#</a></h2>
+<p><a class="reference internal" href="../api/metrics.html#kivi.metrics.brier_score" title="kivi.metrics.brier_score"><code class="xref py py-func docutils literal notranslate"><span class="pre">brier_score()</span></code></a> 的 Brier 分数把校准和区分能力混在一起。 <a class="reference internal" href="../api/calibration.html#kivi.calibration.brier_decomposition" title="kivi.calibration.brier_decomposition"><code class="xref py py-func docutils literal notranslate"><span class="pre">brier_decomposition()</span></code></a> 按分组（例如标尺的等级）把它分解。设第 <span class="math notranslate nohighlight">\(k\)</span> 组包含 <span class="math notranslate nohighlight">\(N\)</span> 个观测中的 <span class="math notranslate nohighlight">\(n_k\)</span> 个，平均概率为 <span class="math notranslate nohighlight">\(\bar f_k\)</span> ，事件率为 <span class="math notranslate nohighlight">\(\bar o_k\)</span> ，总体事件率为 <span class="math notranslate nohighlight">\(\bar o\)</span> ，则</p>
+<div class="math notranslate nohighlight">
+\[\mathrm{BS} = \mathrm{REL} - \mathrm{RES} + \mathrm{UNC} + \mathrm{WBV} - \mathrm{WBC}, \qquad
+\mathrm{REL} = \frac{1}{N} \sum_k n_k (\bar f_k - \bar o_k)^2, \qquad
+\mathrm{RES} = \frac{1}{N} \sum_k n_k (\bar o_k - \bar o)^2.\]</div>
+<p>各组校准得越好，可靠性 <code class="docutils literal notranslate"><span class="pre">REL</span></code> 越低；各组事件率差别越大，分辨力 <code class="docutils literal notranslate"><span class="pre">RES</span></code> 越高。不确定性 <span class="math notranslate nohighlight">\(\mathrm{UNC} = \bar o (1 - \bar o)\)</span> 只取决于结果。组内方差 <code class="docutils literal notranslate"><span class="pre">WBV</span></code> 和组内协方差 <code class="docutils literal notranslate"><span class="pre">WBC</span></code> 考虑组内取值不同的概率；同一组的所有观测概率相同时二者为 0。调低后的 PD 得分比模型 PD 差，是因为其可靠性是模型 PD 的九倍，而分辨力和不确定性几乎相同：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">brier_decomposition</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s2">"model"</span><span class="p">:</span> <span class="n">brier_decomposition</span><span class="p">(</span><span class="n">grades</span><span class="p">,</span> <span class="n">monitoring</span><span class="p">[</span><span class="s2">"target"</span><span class="p">],</span> <span class="n">probability</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="s2">"scaled_down"</span><span class="p">:</span> <span class="n">brier_decomposition</span><span class="p">(</span><span class="n">low_grades</span><span class="p">,</span> <span class="n">monitoring</span><span class="p">[</span><span class="s2">"target"</span><span class="p">],</span> <span class="n">low</span><span class="p">),</span>
+<span class="gp">... </span><span class="p">})</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">                    model  scaled_down</span>
+<span class="go">statistic</span>
+<span class="go">brier              0.0877       0.0915</span>
+<span class="go">reliability        0.0005       0.0045</span>
+<span class="go">resolution         0.0134       0.0135</span>
+<span class="go">uncertainty        0.1008       0.1008</span>
+<span class="go">within_variance    0.0004       0.0003</span>
+<span class="go">within_covariance  0.0006       0.0006</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id5">
+<img alt="模型的 PD 与调低后的 PD 的 Brier 分数分解各项，左侧是不确定性和 Brier 分数，右侧是较小的各项" class="plot-directive" src="../_images/calibration-3.svg" />
+<figcaption>
+<p><span class="caption-text">调低后的 PD 与模型的 PD 有相同的不确定性和几乎相同的分辨力，但可靠性是后者的九倍，这使它们的 Brier 分数更高。</span><a class="headerlink" href="#id5" title="链接到此图片">#</a></p>
+</figcaption>
+</figure>
+<p>在主标尺上，同一等级的每个客户都取该等级的 PD，因此组内项消失，只剩 Murphy 的三项。在拟合标尺的等级上比较模型 PD 与该标尺的 PD：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fitted_grades</span> <span class="o">=</span> <span class="n">assign_grades</span><span class="p">(</span><span class="n">probability</span><span class="p">,</span> <span class="n">fitted</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">grade_pd</span> <span class="o">=</span> <span class="n">fitted_grades</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">fitted</span><span class="p">[</span><span class="s2">"probability"</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s2">"model"</span><span class="p">:</span> <span class="n">brier_decomposition</span><span class="p">(</span><span class="n">fitted_grades</span><span class="p">,</span> <span class="n">monitoring</span><span class="p">[</span><span class="s2">"target"</span><span class="p">],</span> <span class="n">probability</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="s2">"grade_pd"</span><span class="p">:</span> <span class="n">brier_decomposition</span><span class="p">(</span><span class="n">fitted_grades</span><span class="p">,</span> <span class="n">monitoring</span><span class="p">[</span><span class="s2">"target"</span><span class="p">],</span> <span class="n">grade_pd</span><span class="p">),</span>
+<span class="gp">... </span><span class="p">})</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">                    model  grade_pd</span>
+<span class="go">statistic</span>
+<span class="go">brier              0.0877    0.0896</span>
+<span class="go">reliability        0.0005    0.0017</span>
+<span class="go">resolution         0.0129    0.0129</span>
+<span class="go">uncertainty        0.1008    0.1008</span>
+<span class="go">within_variance    0.0004    0.0000</span>
+<span class="go">within_covariance  0.0011    0.0000</span>
+</pre></div>
+</div>
+<p>分辨力相同，因为它只取决于等级和结果。等级 PD 失去了组内协方差（它奖励模型 PD 在等级内随违约率上升），可靠性约为模型 PD 的三倍，主要来自等级 F：其 PD 为 47%，低于 66% 的违约率。</p>
+</section>
+<section id="concentration-of-the-grades">
+<h2>等级的集中度<a class="headerlink" href="#concentration-of-the-grades" title="链接到此标题。">#</a></h2>
+<p>如果大多数债务人都落在少数几个等级，主标尺对风险的区分能力就较差。赫芬达尔-赫希曼指数是各等级占比的平方和： <span class="math notranslate nohighlight">\(k\)</span> 个等级人数相同时为 <span class="math notranslate nohighlight">\(1/k\)</span> ，所有人都在同一等级时为 1。设置 <code class="docutils literal notranslate"><span class="pre">normalize=True</span></code> 后，取值范围改为 0 到 1：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">herfindahl_index</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">herfindahl_index</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s1">'total'</span><span class="p">])</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">0.247</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">herfindahl_index</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s1">'total'</span><span class="p">],</span><span class="w"> </span><span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">0.097</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="../api/calibration.html#kivi.calibration.calibration_table" title="kivi.calibration.calibration_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">calibration_table()</span></code></a> 会略去空等级。如需把空等级计算在内，请传入标尺上每个等级的计数，例如 <code class="docutils literal notranslate"><span class="pre">grades.value_counts(sort=False)</span></code> 。</p>
+<p>欧洲央行则用 HI 衡量集中度，它是对 <span class="math notranslate nohighlight">\(K\)</span> 个等级的指数做对数变换， <span class="math notranslate nohighlight">\(\mathrm{HI} = 1 + \ln \mathrm{HHI} / \ln K\)</span> ，各等级人数相同时同样为 0，只有一个等级有人时为 1。 <a class="reference internal" href="../api/calibration.html#kivi.calibration.concentration_test" title="kivi.calibration.concentration_test"><code class="xref py py-func docutils literal notranslate"><span class="pre">concentration_test()</span></code></a> 同时计算它和各等级占比 <span class="math notranslate nohighlight">\(R_i\)</span> 的变异系数，并检验变异系数自模型初始验证以来是否上升：</p>
+<div class="math notranslate nohighlight">
+\[\mathrm{CV} = \sqrt{K \sum_{i=1}^{K} \left(R_i - \frac{1}{K}\right)^2}, \qquad
+S = \frac{\sqrt{K - 1}\,(\mathrm{CV} - \mathrm{CV}_\mathrm{init})}{\sqrt{\mathrm{CV}^2 (0.5 + \mathrm{CV}^2)}}, \qquad
+p = 1 - \Phi(S).\]</div>
+<p>把开发样本当作初始验证，并统计两个样本的每个等级，无论是否为空。监控样本各等级的集中度与开发时相同，而调低后的 PD 挤进了低等级，HI 增加了一倍多：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">concentration_test</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dev_grades</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">dev_prob</span><span class="p">,</span> <span class="n">pd_edges</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="s2">"ABCDEF"</span><span class="p">),</span> <span class="n">include_lowest</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">initial</span> <span class="o">=</span> <span class="n">dev_grades</span><span class="o">.</span><span class="n">value_counts</span><span class="p">(</span><span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s2">"model"</span><span class="p">:</span> <span class="n">concentration_test</span><span class="p">(</span><span class="n">grades</span><span class="o">.</span><span class="n">value_counts</span><span class="p">(</span><span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span> <span class="n">initial_counts</span><span class="o">=</span><span class="n">initial</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="s2">"scaled_down"</span><span class="p">:</span> <span class="n">concentration_test</span><span class="p">(</span>
+<span class="gp">... </span>        <span class="n">low_grades</span><span class="o">.</span><span class="n">value_counts</span><span class="p">(</span><span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span> <span class="n">initial_counts</span><span class="o">=</span><span class="n">initial</span>
+<span class="gp">... </span>    <span class="p">),</span>
+<span class="gp">... </span><span class="p">})</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">             model  scaled_down</span>
+<span class="go">statistic</span>
+<span class="go">hi          0.2202       0.4876</span>
+<span class="go">cv          0.6954       1.1814</span>
+<span class="go">initial_hi  0.2244       0.2244</span>
+<span class="go">initial_cv  0.7036       0.7036</span>
+<span class="go">statistic  -0.0264       0.6569</span>
+<span class="go">p_value     0.5105       0.2556</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id7">
+<img alt="开发样本、监控样本以及调低后的 PD 中 A 到 F 各等级的占比，以及各自的 HI" class="plot-directive" src="../_images/calibration-4.svg" />
+<figcaption>
+<p><span class="caption-text">监控样本各等级的分布与开发样本（此处作为初始验证）相近。调低后的 PD 集中在 A、B 两个等级，使 HI 增加了一倍多。</span><a class="headerlink" href="#id7" title="链接到此图片">#</a></p>
+</figcaption>
+</figure>
+<p>然而检验并没有拒绝调低后的等级：它的方差取决于等级数而非客户数，因此六个等级的标尺使检验的功效很低。除了 p 值，也要看 HI 及其变化。只知道初始验证时的变异系数时，把它作为 <code class="docutils literal notranslate"><span class="pre">initial_cv</span></code> 传入。欧洲央行还要求给出敞口的 HI，但不做检验；只传入每个等级的敞口即可，这里用账户余额代替敞口：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">exposure</span> <span class="o">=</span> <span class="n">monitoring</span><span class="p">[</span><span class="s2">"balance"</span><span class="p">]</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">lower</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">grades</span><span class="p">,</span> <span class="n">observed</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">concentration_test</span><span class="p">(</span><span class="n">exposure</span><span class="p">)[[</span><span class="s2">"hi"</span><span class="p">,</span> <span class="s2">"cv"</span><span class="p">,</span> <span class="s2">"p_value"</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">statistic</span>
+<span class="go">hi         0.2306</span>
+<span class="go">cv         0.7152</span>
+<span class="go">p_value       NaN</span>
+<span class="go">dtype: float64</span>
+</pre></div>
+</div>
+</section>
+<section id="back-testing-continuous-estimates">
+<h2>回测连续型估计值<a class="headerlink" href="#back-testing-continuous-estimates" title="链接到此标题。">#</a></h2>
+<p>LGD 和 CCF 模型估计的是金额比例而不是概率，因此校准表的计数并不适用。 <a class="reference internal" href="../api/calibration.html#kivi.calibration.backtest_table" title="kivi.calibration.backtest_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">backtest_table()</span></code></a> 按欧洲央行要求的配对观测单样本 t 检验，把每个观测的实际值 <span class="math notranslate nohighlight">\(r_i\)</span> 与其估计值 <span class="math notranslate nohighlight">\(e_i\)</span> 相比较。对一组中的 <span class="math notranslate nohighlight">\(N\)</span> 个观测，设差值为 <span class="math notranslate nohighlight">\(d_i = r_i - e_i\)</span> ，则</p>
+<div class="math notranslate nohighlight">
+\[T = \frac{\sqrt{N}\,\bar d}{s}, \qquad s^2 = \frac{1}{N - 1} \sum_{i=1}^{N} (d_i - \bar d)^2,\]</div>
+<p>p 值为自由度为 <span class="math notranslate nohighlight">\(N - 1\)</span> 的学生 t 分布的上尾概率。该检验是单侧的：p 值较小说明该组的估计值偏低。这里用七个已结案的违约检验 LGD 模型的两个债项等级：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">backtest_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lgd_grades</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"F1"</span><span class="p">,</span> <span class="s2">"F1"</span><span class="p">,</span> <span class="s2">"F1"</span><span class="p">,</span> <span class="s2">"F2"</span><span class="p">,</span> <span class="s2">"F2"</span><span class="p">,</span> <span class="s2">"F2"</span><span class="p">,</span> <span class="s2">"F2"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">realized</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.35</span><span class="p">,</span> <span class="mf">0.20</span><span class="p">,</span> <span class="mf">0.55</span><span class="p">,</span> <span class="mf">0.20</span><span class="p">,</span> <span class="mf">0.90</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">estimated</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.45</span><span class="p">,</span> <span class="mf">0.45</span><span class="p">,</span> <span class="mf">0.45</span><span class="p">,</span> <span class="mf">0.45</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">backtest_table</span><span class="p">(</span><span class="n">lgd_grades</span><span class="p">,</span> <span class="n">realized</span><span class="p">,</span> <span class="n">estimated</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">     total  estimated  realized  difference  variance  statistic  p_value</span>
+<span class="go">bin</span>
+<span class="go">F1       3       0.15       0.2        0.05    0.0225     0.5774   0.3110</span>
+<span class="go">F2       4       0.45       0.6        0.15    0.0917     0.9909   0.1974</span>
+</pre></div>
+</div>
+<p>在等级 F1 中，差值 -0.1、0.2 和 0.05 的均值为 0.05，方差为 0.0225，因此 <span class="math notranslate nohighlight">\(T = \sqrt{3} \cdot 0.05 / 0.15 = 0.577\)</span> 。两个等级的实际值都高于估计值，但七个违约太少，两者都不能拒绝。对整个资产组合检验时，为每个观测传入同一个分组，例如 <code class="docutils literal notranslate"><span class="pre">[&quot;all&quot;]</span> <span class="pre">*</span> <span class="pre">7</span></code> 。实际值可以在 [0, 1] 之外，例如扣除清收成本后的 LGD，或回收额超过敞口时的 LGD。 <a class="reference internal" href="validation.html"><span class="doc">模型验证</span></a> 回测了一个模拟的 LGD 资产组合，也包括欧洲央行的十二个 LGD 分段。</p>
+</section>
+<section id="calibrating-a-score">
+<h2>校准评分<a class="headerlink" href="#calibrating-a-score" title="链接到此标题。">#</a></h2>
+<p>能把申请人排好序的评分不一定是概率，模型的 PD 也可能需要在近期数据上重新校准。 <a class="reference internal" href="../api/calibration.html#module-kivi.calibration" title="kivi.calibration"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.calibration</span></code></a> 拟合两种常用的从评分到概率的映射。与 <a class="reference internal" href="../api/binning.html#kivi.binning.bin_edges" title="kivi.binning.bin_edges"><code class="xref py py-func docutils literal notranslate"><span class="pre">bin_edges()</span></code></a> 和 <a class="reference internal" href="../api/binning.html#kivi.binning.cut" title="kivi.binning.cut"><code class="xref py py-func docutils literal notranslate"><span class="pre">cut()</span></code></a> 一样，每种映射都成对出现：拟合函数在校准样本上拟合一次并返回普通的数值，预测函数再把它们应用到之后任何样本的评分上。</p>
+<section id="platt-scaling">
+<h3>Platt 缩放<a class="headerlink" href="#platt-scaling" title="链接到此标题。">#</a></h3>
+<p>Platt 缩放以评分 <span class="math notranslate nohighlight">\(s\)</span> 为自变量，对目标拟合逻辑回归：</p>
+<div class="math notranslate nohighlight">
+\[p(s) = \frac{1}{1 + \exp(-(a s + b))}.\]</div>
+<p>如果评分本身就是某个模型的对数几率，这就是 Cox 的逻辑再校准：斜率为 1、截距为 0 说明模型在该样本上是校准的。以上文按 6% 违约率调低的 PD 为例。在开发样本上，拟合得到的斜率仍为 1，截距则提高约 0.72，正是该校正所用优势比的对数：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">platt_fit</span><span class="p">,</span> <span class="n">platt_predict</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">log_odds</span><span class="p">(</span><span class="n">p</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">p</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">p</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dev_low</span> <span class="o">=</span> <span class="n">prior_correction</span><span class="p">(</span><span class="n">dev_prob</span><span class="p">,</span> <span class="n">sample_rate</span><span class="o">=</span><span class="mf">0.116</span><span class="p">,</span> <span class="n">population_rate</span><span class="o">=</span><span class="mf">0.06</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">slope</span><span class="p">,</span> <span class="n">intercept</span> <span class="o">=</span> <span class="n">platt_fit</span><span class="p">(</span><span class="n">log_odds</span><span class="p">(</span><span class="n">dev_low</span><span class="p">),</span> <span class="n">target</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"slope = </span><span class="si">{</span><span class="n">slope</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, intercept = </span><span class="si">{</span><span class="n">intercept</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">slope = 0.9996, intercept = 0.7192</span>
+</pre></div>
+</div>
+<p>把斜率和截距应用到监控样本中偏低的 PD 上。再校准后的各等级，其计数和事件率又与原始 PD 的等级相同：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">recalibrated</span> <span class="o">=</span> <span class="n">platt_predict</span><span class="p">(</span><span class="n">log_odds</span><span class="p">(</span><span class="n">low</span><span class="p">),</span> <span class="n">slope</span><span class="p">,</span> <span class="n">intercept</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">recal_grades</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">recalibrated</span><span class="p">,</span> <span class="n">pd_edges</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="s2">"ABCDEF"</span><span class="p">),</span> <span class="n">include_lowest</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">calibration_table</span><span class="p">(</span><span class="n">recal_grades</span><span class="p">,</span> <span class="n">monitoring</span><span class="p">[</span><span class="s2">"target"</span><span class="p">],</span> <span class="n">recalibrated</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">     total  event  event_rate  mean_probability</span>
+<span class="go">bin</span>
+<span class="go">A      328     13       0.040             0.042</span>
+<span class="go">B      234     13       0.056             0.071</span>
+<span class="go">C      276     28       0.101             0.093</span>
+<span class="go">D      572     66       0.115             0.136</span>
+<span class="go">E       65     22       0.338             0.260</span>
+<span class="go">F       46     31       0.674             0.636</span>
+</pre></div>
+</div>
+<p>评分不必是对数几率。Platt 缩放适用于任何评分；风险越高评分越低的评分（例如评分卡分值）会得到负的斜率。当评分把两类完全分开时，使似然最大的斜率为无穷大， <a class="reference internal" href="../api/calibration.html#kivi.calibration.platt_fit" title="kivi.calibration.platt_fit"><code class="xref py py-func docutils literal notranslate"><span class="pre">platt_fit()</span></code></a> 会引发 <a class="reference internal" href="../api/selection.html#kivi.selection.SeparationError" title="kivi.selection.SeparationError"><code class="xref py py-class docutils literal notranslate"><span class="pre">kivi.selection.SeparationError</span></code></a> 。</p>
+</section>
+<section id="isotonic-regression">
+<h3>保序回归<a class="headerlink" href="#isotonic-regression" title="链接到此标题。">#</a></h3>
+<p>保序回归只假定事件率随评分上升。相邻违序合并算法不断合并相邻的评分段，直到各段的事件率递增，每段取其事件率。 <a class="reference internal" href="../api/calibration.html#kivi.calibration.isotonic_fit" title="kivi.calibration.isotonic_fit"><code class="xref py py-func docutils literal notranslate"><span class="pre">isotonic_fit()</span></code></a> 返回分段边界（与 <a class="reference internal" href="../api/binning.html#kivi.binning.bin_edges" title="kivi.binning.bin_edges"><code class="xref py py-func docutils literal notranslate"><span class="pre">bin_edges()</span></code></a> 一样从 <code class="docutils literal notranslate"><span class="pre">-inf</span></code> 到 <code class="docutils literal notranslate"><span class="pre">inf</span></code> ）以及每个分段的概率：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">isotonic_fit</span><span class="p">,</span> <span class="n">isotonic_predict</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">scores</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">11</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">outcomes</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">edges</span><span class="p">,</span> <span class="n">probability</span> <span class="o">=</span> <span class="n">isotonic_fit</span><span class="p">(</span><span class="n">scores</span><span class="p">,</span> <span class="n">outcomes</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">edges</span>
+<span class="go">array([-inf,   1.,   4.,   6.,   9.,  inf])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">probability</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">array([0.   , 0.333, 0.5  , 0.667, 1.   ])</span>
+</pre></div>
+</div>
+<p>算法从最低评分到最高评分依次处理。每个评分先自成一段；只要某段的事件率高于其后一段，就把两段合并。这里评分 3 的结果 0 跟在评分 2 的事件之后，所以评分 2 和 3 合并为 0.5；评分 4 的 0 又使它们再次合并为 1/3。每个边界都是其分段中的最高评分：</p>
+<figure class="align-default" id="id9">
+<img alt="十个评分及其结果、每次合并后的分段，以及拟合出的概率和边界 1、4、6、9" class="plot-directive" src="../_images/calibration-5.svg" />
+<figcaption>
+<p><span class="caption-text">对十个评分执行相邻违序合并。每一行显示处理完左侧所标评分及之前所有评分后的分段；带边框的分段刚刚合并，灰色的结果尚未处理。最后一行是拟合出的概率。</span><a class="headerlink" href="#id9" title="链接到此图片">#</a></p>
+</figcaption>
+</figure>
+<p>在开发样本的 PD 上，拟合得到 16 个分段：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">edges</span><span class="p">,</span> <span class="n">probability</span> <span class="o">=</span> <span class="n">isotonic_fit</span><span class="p">(</span><span class="n">dev_low</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">probability</span><span class="p">)</span>
+<span class="go">16</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">probability</span><span class="p">[:</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">array([0.0397, 0.0459, 0.069 , 0.0805])</span>
+</pre></div>
+</div>
+<p>与 <code class="docutils literal notranslate"><span class="pre">pandas.cut</span></code> 一样，各分段为右闭区间，因此也可以用作等级。 <a class="reference internal" href="../api/calibration.html#kivi.calibration.isotonic_predict" title="kivi.calibration.isotonic_predict"><code class="xref py py-func docutils literal notranslate"><span class="pre">isotonic_predict()</span></code></a> 给监控样本的每个 PD 赋予其所在分段的概率，超出开发样本范围的评分取最低或最高分段的概率。落在两个分段的观测评分之间的评分取上方的分段；若 <code class="docutils literal notranslate"><span class="pre">increasing=False</span></code> （例如评分卡分值），这就是风险较低的分段：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">iso</span> <span class="o">=</span> <span class="n">isotonic_predict</span><span class="p">(</span><span class="n">low</span><span class="p">,</span> <span class="n">edges</span><span class="p">,</span> <span class="n">probability</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">iso_table</span> <span class="o">=</span> <span class="n">calibration_table</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">low</span><span class="p">,</span> <span class="n">edges</span><span class="p">),</span> <span class="n">monitoring</span><span class="p">[</span><span class="s2">"target"</span><span class="p">],</span> <span class="n">iso</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">statistic</span><span class="p">,</span> <span class="n">pvalue</span> <span class="o">=</span> <span class="n">hosmer_lemeshow</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">iso_table</span><span class="p">[</span><span class="s2">"event"</span><span class="p">],</span> <span class="n">iso_table</span><span class="p">[</span><span class="s2">"total"</span><span class="p">],</span> <span class="n">iso_table</span><span class="p">[</span><span class="s2">"mean_probability"</span><span class="p">],</span> <span class="n">ddof</span><span class="o">=</span><span class="mi">0</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"H = </span><span class="si">{</span><span class="n">statistic</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">, p = </span><span class="si">{</span><span class="n">pvalue</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">H = 13.94, p = 0.530</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">int</span><span class="p">(</span><span class="n">iso_table</span><span class="p">[</span><span class="s2">"total"</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">())</span>
+<span class="go">4</span>
+</pre></div>
+</div>
+<p>阶梯函数紧贴开发样本，因此有些分段很小：最小的分段只有监控样本中的四位客户。请在大样本上拟合保序回归，并像上面那样在另一个样本上检查其分段。没有事件的分段概率为 0，因此在不允许 PD 为零的场合，请为概率设定下限。</p>
+</section>
+</section>
+<section id="calibrating-to-a-central-tendency">
+<h2>校准到中心趋势<a class="headerlink" href="#calibrating-to-a-central-tendency" title="链接到此标题。">#</a></h2>
+<p>IRB 模型的 PD 必须与长期平均违约率相符，即在包含好年份和坏年份的期间上各一年违约率的平均，由 <a class="reference internal" href="vintage.html"><span class="doc">Vintage 与滚动率分析</span></a> 中的 <a class="reference internal" href="../api/vintage.html#kivi.vintage.default_rate_table" title="kivi.vintage.default_rate_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">default_rate_table()</span></code></a> 计算（EBA/GL/2017/16，第 5.3 节）。用近几年数据开发的模型预测的是这几年的违约率，所以要在与当前组合可比的校准样本上，把它的 PD 调整到长期水平，即中心趋势。按新样本的事件率重新校准是同一件事，只是目标不同。下面两种方法都出自 Tasche，都保持债务人的顺序，符合指引对校准分段内校准的要求（第 99 段），也都在加保守性边际和施加 PD 下限之前进行（第 89 段）。</p>
+<section id="shifting-the-log-odds">
+<h3>平移 log odds<a class="headerlink" href="#shifting-the-log-odds" title="链接到此标题。">#</a></h3>
+<p>给每个 PD 的 log odds 加上同一个数 <span class="math notranslate nohighlight">\(\Delta\)</span> ，模型的形状不变，平均 PD 随之移动。 <a class="reference internal" href="../api/calibration.html#kivi.calibration.central_tendency_shift" title="kivi.calibration.central_tendency_shift"><code class="xref py py-func docutils literal notranslate"><span class="pre">central_tendency_shift()</span></code></a> 求出使校准样本的平均 PD 等于中心趋势 <span class="math notranslate nohighlight">\(\tau\)</span> 的 <span class="math notranslate nohighlight">\(\Delta\)</span> ：</p>
+<div class="math notranslate nohighlight">
+\[\frac{\sum_i w_i \, \sigma(\operatorname{logit} p_i + \Delta)}{\sum_i w_i} = \tau,
+\qquad \sigma(z) = \frac{1}{1 + e^{-z}}.\]</div>
+<p>银行模型在开发样本上的平均 PD 为 11.6%，即该样本的事件率。假如长期平均违约率为 8%，平移量为：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">central_tendency_shift</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">shift</span> <span class="o">=</span> <span class="n">central_tendency_shift</span><span class="p">(</span><span class="n">dev_prob</span><span class="p">,</span> <span class="n">central_tendency</span><span class="o">=</span><span class="mf">0.08</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">shift</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">-0.4547</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">long_run_pd</span> <span class="o">=</span> <span class="n">dev_prob</span> <span class="o">/</span> <span class="p">(</span><span class="n">dev_prob</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">dev_prob</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">shift</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">long_run_pd</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">0.0800</span>
+</pre></div>
+</div>
+<p>函数返回的是平移量而不是 PD，因为平移量只在校准样本上拟合一次，之后应用于每一个新债务人：上面的公式把任何 PD 变为校准后的值，logistic 模型的截距变为 <code class="docutils literal notranslate"><span class="pre">intercept</span> <span class="pre">+</span> <span class="pre">shift</span></code> ， <a class="reference internal" href="scorecard.html"><span class="doc">评分卡</span></a> 中评分卡的分数减少 <code class="docutils literal notranslate"><span class="pre">factor</span> <span class="pre">*</span> <span class="pre">shift</span></code> 。PD 为 0 和 1 的保持不变。</p>
+<p>第一节的先验修正则是按两个事件率之比缩放 odds。它假设当前组合的评分服从模型在新事件率下隐含的分布；对从总体中重新抽取的样本是这样，对手头的校准样本却不一定。在开发样本上，它达不到目标值：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">prior_correction</span><span class="p">(</span><span class="n">dev_prob</span><span class="p">,</span><span class="w"> </span><span class="n">sample_rate</span><span class="o">=</span><span class="mf">0.116</span><span class="p">,</span><span class="w"> </span><span class="n">population_rate</span><span class="o">=</span><span class="mf">0.08</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">0.0829</span>
+</pre></div>
+</div>
+<p>Tasche 把这种平移称为缩放似然比：各等级的似然比，即某一等级存活的 odds 相对于整个组合存活的 odds，乘以同一个常数。在他对评级机构数据的比较中，这种做法的校准效果优于其他方法，也优于常见的做法——把所有 PD 乘以目标值与其平均值之比，那样结果可能超过 1，还会把开发期的违约率带进预测。EBA 的指引把这种“把近期样本的 PD 调整到校准分段长期平均”的做法列为可接受的校准理念之一。</p>
+</section>
+<section id="quasi-moment-matching">
+<h3>Quasi moment matching（准矩匹配）<a class="headerlink" href="#quasi-moment-matching" title="链接到此标题。">#</a></h3>
+<p>平移保持 PD 曲线的斜率不变。当 PD 来自少数几个等级、违约太少而无法拟合曲线，或者斜率本身也需要改变时，quasi moment matching 按两个目标拟合评分 <span class="math notranslate nohighlight">\(s\)</span> 的 logistic 曲线 <span class="math notranslate nohighlight">\(1 / (1 + \exp(-(a s + b)))\)</span> ：平均 PD 等于中心趋势，曲线隐含的准确性比率等于目标准确性比率。曲线对每个评分隐含了比例为 <span class="math notranslate nohighlight">\(p\)</span> 的事件和 <span class="math notranslate nohighlight">\(1 - p\)</span> 的非事件，它们的 Gini 系数（并列按一半计）就是 <a class="reference internal" href="../api/metrics.html#kivi.metrics.gini" title="kivi.metrics.gini"><code class="xref py py-func docutils literal notranslate"><span class="pre">gini()</span></code></a> 的准确性比率。与 PD 的方差不同，准确性比率不依赖违约者所占的比例，所以开发样本的准确性比率可以沿用到违约率不同的组合。</p>
+<p><a class="reference internal" href="../api/calibration.html#kivi.calibration.quasi_moment_fit" title="kivi.calibration.quasi_moment_fit"><code class="xref py py-func docutils literal notranslate"><span class="pre">quasi_moment_fit()</span></code></a> 返回斜率和截距，由 <a class="reference internal" href="../api/calibration.html#kivi.calibration.platt_predict" title="kivi.calibration.platt_predict"><code class="xref py py-func docutils literal notranslate"><span class="pre">platt_predict()</span></code></a> 应用。这里的评分是上文主标尺的等级序号，从最好的等级起计数；目标是这些等级在开发样本上的准确性比率，它低于 PD 本身的准确性比率，因为同一等级内的客户被视为并列：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">quasi_moment_fit</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">gini</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">number</span> <span class="o">=</span> <span class="n">assign_grades</span><span class="p">(</span><span class="n">dev_prob</span><span class="p">,</span> <span class="n">scale</span><span class="p">)</span><span class="o">.</span><span class="n">cat</span><span class="o">.</span><span class="n">codes</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">accuracy_ratio</span> <span class="o">=</span> <span class="n">gini</span><span class="p">(</span><span class="n">number</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">accuracy_ratio</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">0.3470</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">slope</span><span class="p">,</span> <span class="n">intercept</span> <span class="o">=</span> <span class="n">quasi_moment_fit</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">number</span><span class="p">,</span> <span class="n">central_tendency</span><span class="o">=</span><span class="mf">0.08</span><span class="p">,</span> <span class="n">accuracy_ratio</span><span class="o">=</span><span class="n">accuracy_ratio</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"slope = </span><span class="si">{</span><span class="n">slope</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, intercept = </span><span class="si">{</span><span class="n">intercept</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">slope = 0.7407, intercept = -5.1186</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">curve_pd</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">platt_predict</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">7</span><span class="p">),</span> <span class="n">slope</span><span class="p">,</span> <span class="n">intercept</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="n">scale</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"probability"</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">curve_pd</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">grade</span>
+<span class="go">A    0.0124</span>
+<span class="go">B    0.0257</span>
+<span class="go">C    0.0523</span>
+<span class="go">D    0.1038</span>
+<span class="go">E    0.1955</span>
+<span class="go">F    0.3376</span>
+<span class="go">Name: probability, dtype: float64</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">platt_predict</span><span class="p">(</span><span class="n">number</span><span class="p">,</span><span class="w"> </span><span class="n">slope</span><span class="p">,</span><span class="w"> </span><span class="n">intercept</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">0.0800</span>
+</pre></div>
+</div>
+<p>各等级的 PD 逐级大约翻一倍，与标尺的网格相同，它们在开发样本上的平均值就是 8% 的中心趋势。这里各等级等距；间距不同的评分（例如模型的 log odds）得到的曲线对该评分是 logistic 的。</p>
+<p>曲线对传入的评分是 logistic 的。对评级等级，Tasche 还拟合一个稳健版本，对等级中点分布的正态分位数是 logistic 的；中点分布是从最差的等级起计算的、不高于某一等级的债务人份额与低于该等级的份额的平均，已知违约时取存活者，否则取整个组合。先计算这个分位数，例如用 <code class="docutils literal notranslate"><span class="pre">statistics.NormalDist().inv_cdf</span></code> ，取负号使其随风险上升，再作为评分传入。在 2009 年标普的公司评级上，这样得到的结果在 17 个等级中有 15 个与 Tasche 公布的平滑 PD 在印出的精度上完全一致。</p>
+<p>平均 PD 固定时，准确性比率随斜率上升，上限是最陡曲线的准确性比率：最危险的评分 PD 为 1，其余为 0。并列使这个上限低于 1，目标达到或超过它时会报错，并给出这个上限。用开发样本的准确性比率作目标，是假设模型的区分能力可以沿用：在 Tasche 对 26 年评级机构数据的回测中，保持准确性比率不变是他比较的四种方法里最差的，而评级的准确性比率这些年来与违约率反向变动。平滑也不能替代数据：指引不允许用平滑的违约率或连续 PD 来弥补数据不足或排序能力弱的缺陷（第 96 段），所以要按上文的方法，逐等级用违约率检验校准后的 PD。</p>
+</section>
+</section>
+<section id="sample-weights">
+<h2>样本权重<a class="headerlink" href="#sample-weights" title="链接到此标题。">#</a></h2>
+<p>保留全部坏样本、只保留部分好样本的开发样本，可以用每个观测抽样比例的倒数作为权重，加权还原到资产组合。 <a class="reference internal" href="../api/calibration.html#kivi.calibration.calibration_table" title="kivi.calibration.calibration_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">calibration_table()</span></code></a> 、 <a class="reference internal" href="../api/calibration.html#kivi.calibration.platt_fit" title="kivi.calibration.platt_fit"><code class="xref py py-func docutils literal notranslate"><span class="pre">platt_fit()</span></code></a> 和 <a class="reference internal" href="../api/calibration.html#kivi.calibration.isotonic_fit" title="kivi.calibration.isotonic_fit"><code class="xref py py-func docutils literal notranslate"><span class="pre">isotonic_fit()</span></code></a> 通过 <code class="docutils literal notranslate"><span class="pre">weights</span></code> 接受这样的权重：计数变为权重之和，整数权重与重复相应行的结果相同。二项检验、Jeffreys 检验和 Hosmer-Lemeshow 检验需要整数的观测数和事件数，因此请在不加权的表上进行这些检验。</p>
+<p><a class="reference internal" href="../api/calibration.html#kivi.calibration.spiegelhalter_test" title="kivi.calibration.spiegelhalter_test"><code class="xref py py-func docutils literal notranslate"><span class="pre">spiegelhalter_test()</span></code></a> 、 <a class="reference internal" href="../api/calibration.html#kivi.calibration.brier_decomposition" title="kivi.calibration.brier_decomposition"><code class="xref py py-func docutils literal notranslate"><span class="pre">brier_decomposition()</span></code></a> 和 <a class="reference internal" href="../api/calibration.html#kivi.calibration.backtest_table" title="kivi.calibration.backtest_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">backtest_table()</span></code></a> 也接受 <code class="docutils literal notranslate"><span class="pre">weights</span></code> ，并视为频数权重：整数权重与重复相应行的结果相同，检验把总权重视为观测数，因此用抽样率的倒数作权重会使 p 值过小。 <a class="reference internal" href="../api/calibration.html#kivi.calibration.concentration_test" title="kivi.calibration.concentration_test"><code class="xref py py-func docutils literal notranslate"><span class="pre">concentration_test()</span></code></a> 接受的是各等级的计数或敞口，而不是权重。</p>
+<p><a class="reference internal" href="../api/calibration.html#kivi.calibration.central_tendency_shift" title="kivi.calibration.central_tendency_shift"><code class="xref py py-func docutils literal notranslate"><span class="pre">central_tendency_shift()</span></code></a> 和 <a class="reference internal" href="../api/calibration.html#kivi.calibration.quasi_moment_fit" title="kivi.calibration.quasi_moment_fit"><code class="xref py py-func docutils literal notranslate"><span class="pre">quasi_moment_fit()</span></code></a> 也接受频数权重，例如每个等级只出现一次时各等级的债务人数：整数权重与重复行得到相同的结果。中心趋势是按债务人的平均，不要按敞口加权（巴塞尔 CRE36.78）。</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="metrics.html"
+       title="上一页">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">上一页</p>
+        <p class="prev-next-title">模型表现</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="lgd.html"
+       title="下一页">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">下一页</p>
+        <p class="prev-next-title">LGD 与 EAD</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 当前页面
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#correcting-for-oversampling">过采样校正</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#grades-of-a-master-scale">主标尺的等级</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#building-a-scale">构建标尺</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#assigning-the-grades">划分等级</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fitting-the-pds-of-the-grades">拟合各等级的 PD</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#grades-given-by-their-bounds">按界限给出的等级</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#testing-each-grade">逐个等级检验</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#testing-all-grades-at-once">一次检验所有等级</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#decomposing-the-brier-score">分解 Brier 分数</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#concentration-of-the-grades">等级的集中度</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#back-testing-continuous-estimates">回测连续型估计值</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#calibrating-a-score">校准评分</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#platt-scaling">Platt 缩放</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#isotonic-regression">保序回归</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#calibrating-to-a-central-tendency">校准到中心趋势</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#shifting-the-log-odds">平移 log odds</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#quasi-moment-matching">Quasi moment matching（准矩匹配）</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sample-weights">样本权重</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    由 <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1创建。
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

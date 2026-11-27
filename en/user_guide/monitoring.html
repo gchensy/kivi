@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Model monitoring &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=d005c095" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=25d9e9fd"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/monitoring';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Model validation" href="validation.html" />
+    <link rel="prev" title="Population stability index" href="psi.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="1.9.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 1.9.0">1.9.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    Tutorial
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/user_guide/monitoring.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    Tutorial
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/user_guide/monitoring.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="risk_workflow.html">Risk modeling workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">Time-window features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="univariate.html">Univariate profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="binning.html">Binning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="woe_iv.html">Weight of evidence and information value</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selection.html">Variable selection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reject_inference.html">Reject inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scorecard.html">Scorecard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="expert.html">Expert scorecards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">Model performance</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lgd.html">LGD and EAD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">Credit strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rules.html">Policy rules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spec.html">Binning specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="psi.html">Population stability index</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">Model monitoring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="validation.html">Model validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="capital.html">Regulatory capital</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vintage.html">Vintage and roll-rate analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lifetime.html">Lifetime PD and expected credit loss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html">Charts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">Example data</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">User guide</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Model monitoring</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="model-monitoring">
+<h1>Model monitoring<a class="headerlink" href="#model-monitoring" title="Link to this heading">#</a></h1>
+<p>A model in use is checked every month or quarter: does it still see the population that it was developed on, and does it still rank the outcomes as it did? <a class="reference internal" href="../api/monitoring.html#kivi.monitoring.monitoring_table" title="kivi.monitoring.monitoring_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">monitoring_table()</span></code></a> answers both questions for a score in one table, with one row per period: the number of observations, the events among the known outcomes, the AUC, Gini and KS, and the PSI of the score against a reference sample. <a class="reference internal" href="../api/monitoring.html#kivi.monitoring.stability_table" title="kivi.monitoring.stability_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">stability_table()</span></code></a> gives the PSI of every variable of the model in every period, to find the variables behind a shift.</p>
+<p>Monitoring repeats the measures of <a class="reference internal" href="metrics.html"><span class="doc">Model performance</span></a> and of the <a class="reference internal" href="psi.html"><span class="doc">population stability index</span></a> period by period, once the model is in production with its <a class="reference internal" href="spec.html"><span class="doc">binning specification</span></a>. <a class="reference internal" href="validation.html"><span class="doc">Model validation</span></a> then reviews the model once a year, as supervisors ask of internal rating models, and <a class="reference internal" href="vintage.html"><span class="doc">Vintage and roll-rate analysis</span></a> follows the loans that the model approves.</p>
+<section id="definitions">
+<h2>Definitions<a class="headerlink" href="#definitions" title="Link to this heading">#</a></h2>
+<p>Each row of the table describes the observations of one period, such as the applications of a month. The outcome of an observation is known once its outcome window has ended, such as twelve months after the loan was granted, and only if a loan was granted at all. The event rate of period <span class="math notranslate nohighlight">\(t\)</span> is that of its known outcomes,</p>
+<div class="math notranslate nohighlight">
+\[\text{event rate}_t = \frac{\text{events}_t}{\text{known outcomes}_t},\]</div>
+<p>and the AUC, Gini and KS are those of <a class="reference internal" href="metrics.html"><span class="doc">Model performance</span></a>, computed on the known outcomes of the period alone. The stability of the score is the PSI over score bands whose edges are fitted once on the reference scores, so that every period is compared on the same bands. With <span class="math notranslate nohighlight">\(q_i\)</span> the share of the reference scores in band <span class="math notranslate nohighlight">\(i\)</span> and <span class="math notranslate nohighlight">\(p_{t,i}\)</span> that of the scores of period <span class="math notranslate nohighlight">\(t\)</span>, both smoothed as in <a class="reference internal" href="psi.html"><span class="doc">Population stability index</span></a>,</p>
+<div class="math notranslate nohighlight">
+\[\mathrm{PSI}_t = \sum_i (p_{t,i} - q_i) \ln \frac{p_{t,i}}{q_i}.\]</div>
+<p>The reference is either one of the periods, often the first after development, passed as <code class="docutils literal notranslate"><span class="pre">reference_period</span></code>, or a separate sample, usually the development sample itself, passed as <code class="docutils literal notranslate"><span class="pre">reference_score</span></code>. The PSI does not use the outcomes, so it is available as soon as the scores of a period are. As in <a class="reference internal" href="metrics.html"><span class="doc">Model performance</span></a>, the score rises with the risk: pass a PD as it is and negate scorecard points.</p>
+</section>
+<section id="a-worked-example">
+<h2>A worked example<a class="headerlink" href="#a-worked-example" title="Link to this heading">#</a></h2>
+<p>Three months of four scores each, where two outcomes of March are not known yet. With <code class="docutils literal notranslate"><span class="pre">bins=2</span></code>, the median of the January scores, 0.25, splits the scores into two bands:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.monitoring</span><span class="w"> </span><span class="kn">import</span> <span class="n">monitoring_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">score</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">period</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"2024-01"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">4</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"2024-02"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">4</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"2024-03"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">4</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span> <span class="o">=</span> <span class="n">monitoring_table</span><span class="p">(</span><span class="n">score</span><span class="p">,</span> <span class="n">period</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">reference_period</span><span class="o">=</span><span class="s2">"2024-01"</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span><span class="p">[[</span><span class="s2">"total"</span><span class="p">,</span> <span class="s2">"known"</span><span class="p">,</span> <span class="s2">"event"</span><span class="p">,</span> <span class="s2">"event_rate"</span><span class="p">]]</span>
+<span class="go">         total  known  event  event_rate</span>
+<span class="go">period</span>
+<span class="go">2024-01      4      4      2         0.5</span>
+<span class="go">2024-02      4      4      2         0.5</span>
+<span class="go">2024-03      4      2      1         0.5</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span><span class="p">[[</span><span class="s2">"auc"</span><span class="p">,</span> <span class="s2">"gini"</span><span class="p">,</span> <span class="s2">"ks"</span><span class="p">,</span> <span class="s2">"psi"</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">          auc  gini   ks     psi</span>
+<span class="go">period</span>
+<span class="go">2024-01  1.00   1.0  1.0  0.0000</span>
+<span class="go">2024-02  0.75   0.5  0.5  0.2747</span>
+<span class="go">2024-03  1.00   1.0  1.0  0.8087</span>
+</pre></div>
+</div>
+<p>January has two scores in each band, February one and three, and March none and four. The PSI of February is <span class="math notranslate nohighlight">\((0.25 - 0.5) \ln 0.5 + (0.75 - 0.5) \ln 1.5 = 0.2747\)</span>. The empty band of March is smoothed to 0.5, which gives the shares 0.5/4.5 and 4/4.5 and a PSI of 0.8087. In February, the events 0.3 and 0.7 score higher than the non-events 0.2 and 0.6 in three of the four pairs, so the AUC is 0.75. The two known outcomes of March, a non-event at 0.5 and an event at 0.8, are ranked correctly.</p>
+<figure class="align-default" id="id1">
+<img alt="Twelve scores and targets in three months, split into two bands by the median of the January scores, and the monitoring table with one row per month" class="plot-directive" src="../_images/monitoring-11.svg" />
+<figcaption>
+<p><span class="caption-text">The worked example. The median of the January scores splits every month into the same two bands, and each month becomes one row of the table.</span><a class="headerlink" href="#id1" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="a-monitoring-report">
+<h2>A monitoring report<a class="headerlink" href="#a-monitoring-report" title="Link to this heading">#</a></h2>
+<p>The examples on this page use the synthetic applications of <a class="reference internal" href="../api/datasets.html#kivi.datasets.make_applications" title="kivi.datasets.make_applications"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_applications()</span></code></a>, scored by an incumbent scorecard whose PD is <code class="docutils literal notranslate"><span class="pre">incumbent_pd</span></code>; see <a class="reference internal" href="datasets.html"><span class="doc">Example data</span></a>. One sample of 10,000 applications is the development sample, and a second one stands for the 24,000 applications of 2025, 2,000 a month. From October, a marketing campaign aimed at permanent employees ends, and half of them no longer apply, which changes the mix of applicants; the example leaves out half of the permanent employees of the last quarter:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_applications</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">development</span> <span class="o">=</span> <span class="n">make_applications</span><span class="p">(</span><span class="n">n_applicants</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">applications</span> <span class="o">=</span> <span class="n">make_applications</span><span class="p">(</span><span class="n">n_applicants</span><span class="o">=</span><span class="mi">24000</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">months</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">period_range</span><span class="p">(</span><span class="s2">"2025-01"</span><span class="p">,</span> <span class="n">periods</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="s2">"M"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">applications</span><span class="p">[</span><span class="s2">"month"</span><span class="p">]</span> <span class="o">=</span> <span class="n">months</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">24000</span><span class="p">)</span> <span class="o">*</span> <span class="mi">12</span> <span class="o">//</span> <span class="mi">24000</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">permanent</span> <span class="o">=</span> <span class="n">applications</span><span class="p">[</span><span class="s2">"employment"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"permanent"</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">left_out</span> <span class="o">=</span> <span class="p">(</span><span class="n">applications</span><span class="p">[</span><span class="s2">"month"</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">months</span><span class="p">[</span><span class="mi">9</span><span class="p">])</span> <span class="o">&amp;</span> <span class="n">permanent</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">rng</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="mi">24000</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">0.5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">applications</span> <span class="o">=</span> <span class="n">applications</span><span class="p">[</span><span class="o">~</span><span class="n">left_out</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>The outcome of an application is known only if it was approved, and only once its outcome window has ended. At the end of the year, the applications up to September have outcomes and those of the last quarter do not. Unknown outcomes are passed as missing values:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">known</span> <span class="o">=</span> <span class="n">applications</span><span class="p">[</span><span class="s2">"approved"</span><span class="p">]</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">applications</span><span class="p">[</span><span class="s2">"month"</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">months</span><span class="p">[</span><span class="mi">8</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">outcome</span> <span class="o">=</span> <span class="n">applications</span><span class="p">[</span><span class="s2">"target"</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">known</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">report</span> <span class="o">=</span> <span class="n">monitoring_table</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">applications</span><span class="p">[</span><span class="s2">"incumbent_pd"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">applications</span><span class="p">[</span><span class="s2">"month"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">outcome</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">reference_score</span><span class="o">=</span><span class="n">development</span><span class="p">[</span><span class="s2">"incumbent_pd"</span><span class="p">],</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">report</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">         total  known  event  event_rate    auc   gini     ks    psi</span>
+<span class="go">period</span>
+<span class="go">2025-01   2000   1361    131       0.096  0.642  0.284  0.227  0.002</span>
+<span class="go">2025-02   2000   1383    142       0.103  0.646  0.292  0.226  0.006</span>
+<span class="go">2025-03   2000   1384    140       0.101  0.631  0.263  0.227  0.005</span>
+<span class="go">2025-04   2000   1328    132       0.099  0.640  0.280  0.245  0.007</span>
+<span class="go">2025-05   2000   1391    132       0.095  0.681  0.361  0.312  0.005</span>
+<span class="go">2025-06   2000   1350    139       0.103  0.615  0.229  0.219  0.011</span>
+<span class="go">2025-07   2000   1323    127       0.096  0.619  0.238  0.190  0.005</span>
+<span class="go">2025-08   2000   1321    112       0.085  0.644  0.287  0.256  0.004</span>
+<span class="go">2025-09   2000   1367    158       0.116  0.628  0.256  0.205  0.008</span>
+<span class="go">2025-10   1371      0      0         NaN    NaN    NaN    NaN  0.019</span>
+<span class="go">2025-11   1329      0      0         NaN    NaN    NaN    NaN  0.021</span>
+<span class="go">2025-12   1370      0      0         NaN    NaN    NaN    NaN  0.032</span>
+</pre></div>
+</div>
+<p>The ten score bands are the deciles of the development scores, as <a class="reference internal" href="../api/binning.html#kivi.binning.bin_edges" title="kivi.binning.bin_edges"><code class="xref py py-func docutils literal notranslate"><span class="pre">bin_edges()</span></code></a> fits them, so the PSI of each month compares its scores with the development scores on the same bands.</p>
+<p>The volume falls in the last quarter, when fewer permanent employees apply. The event rate stays close to the 9.7% of the approved applications of the development sample, and the Gini coefficient scatters around their value of 0.31:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">gini</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">approved</span> <span class="o">=</span> <span class="n">development</span><span class="p">[</span><span class="n">development</span><span class="p">[</span><span class="s2">"approved"</span><span class="p">]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">round</span><span class="p">(</span><span class="n">gini</span><span class="p">(</span><span class="n">approved</span><span class="p">[</span><span class="s2">"incumbent_pd"</span><span class="p">],</span> <span class="n">approved</span><span class="p">[</span><span class="s2">"target"</span><span class="p">]),</span> <span class="mi">3</span><span class="p">)</span>
+<span class="go">0.309</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id3">
+<img alt="Three panels by month: applications and known outcomes, the Gini coefficient with the development value as a dashed line, and the PSI with the 0.1 and 0.25 thresholds" class="plot-directive" src="../_images/monitoring-21.svg" />
+<figcaption>
+<p><span class="caption-text">The monitoring report by month. Top: the applications and those with a known outcome; the last quarter has none yet. Middle: the Gini coefficient of each month against the 0.309 of the approved development applications. Bottom: the PSI against the development scores, far below the 0.1 and 0.25 thresholds also in the last quarter.</span><a class="headerlink" href="#id3" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>With about 130 events a month, the Gini coefficient of a single month moves by several points from sampling noise alone, so read a trend over several months rather than one low value. The last quarter has no known outcomes, and its discrimination is NaN.</p>
+<p>The PSI stays at about 0.01 or below up to September and rises to about 0.02 to 0.03 in the last quarter: still a small shift by the usual thresholds. The mix of applicants has changed, but employment is only one input of the score, so the score moves less than the population. The variable report below shows which variables moved.</p>
+<p>The reference can also be a period, such as the first month of the year. Its PSI is then 0, and the other months are compared with it:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">by_month</span> <span class="o">=</span> <span class="n">monitoring_table</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">applications</span><span class="p">[</span><span class="s2">"incumbent_pd"</span><span class="p">],</span> <span class="n">applications</span><span class="p">[</span><span class="s2">"month"</span><span class="p">],</span> <span class="n">outcome</span><span class="p">,</span> <span class="n">reference_period</span><span class="o">=</span><span class="s2">"2025-01"</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">by_month</span><span class="p">[</span><span class="s2">"psi"</span><span class="p">]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">tail</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">period</span>
+<span class="go">2025-09    0.009</span>
+<span class="go">2025-10    0.020</span>
+<span class="go">2025-11    0.017</span>
+<span class="go">2025-12    0.028</span>
+<span class="go">Freq: M, Name: psi, dtype: float64</span>
+</pre></div>
+</div>
+</section>
+<section id="reading-the-result">
+<h2>Reading the result<a class="headerlink" href="#reading-the-result" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 70.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Column</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">total</span></code></p></td>
+<td><p>Observations in the period, including those whose outcome is not known yet.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">known</span></code>, <code class="docutils literal notranslate"><span class="pre">event</span></code></p></td>
+<td><p>Observations with a known outcome, and the events among them.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">event_rate</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">event</span></code> divided by <code class="docutils literal notranslate"><span class="pre">known</span></code>, NaN without known outcomes.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">auc</span></code>, <code class="docutils literal notranslate"><span class="pre">gini</span></code>, <code class="docutils literal notranslate"><span class="pre">ks</span></code></p></td>
+<td><p>The discrimination of the score on the known outcomes of the period, NaN unless both classes are present.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">psi</span></code></p></td>
+<td><p>The PSI of the scores of the period against the reference scores, on bands fitted on the reference.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Read each column against the development sample rather than against a fixed number. The discrimination is measured on the approved applications only, whose scores the cut-off has truncated, so it is lower than on all applicants: compare it with the development value of the approved applications, as above. A falling Gini over several months means that the score ranks the new outcomes less well than it did.</p>
+<p>The PSI of the score follows the conventions of <a class="reference internal" href="psi.html"><span class="doc">Population stability index</span></a>: below 0.1 a small shift, from 0.1 to 0.25 a moderate one and above 0.25 a large one. A shift of the score asks which variables moved and whether the event rate moves with them. In a small period the PSI and the discrimination mostly reflect sampling noise, so read them together with <code class="docutils literal notranslate"><span class="pre">total</span></code> and <code class="docutils literal notranslate"><span class="pre">known</span></code>, and set a minimum size before a value raises an alert.</p>
+<p>The two functions of this page keep every category of a categorical period as a row, also one without observations, whose counts are 0 and whose other columns are NaN, so that the monthly reports of different samples line up even when a month has no applications. <a class="reference internal" href="../api/vintage.html#kivi.vintage.vintage_table" title="kivi.vintage.vintage_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">vintage_table()</span></code></a> and <a class="reference internal" href="../api/calibration.html#kivi.calibration.calibration_table" title="kivi.calibration.calibration_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">calibration_table()</span></code></a> leave such categories out, so join their tables to these by period label rather than by position. Periods that are not categorical are the distinct values that occur, sorted.</p>
+</section>
+<section id="variable-stability">
+<h2>Variable stability<a class="headerlink" href="#variable-stability" title="Link to this heading">#</a></h2>
+<p><a class="reference internal" href="../api/monitoring.html#kivi.monitoring.stability_table" title="kivi.monitoring.stability_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">stability_table()</span></code></a> takes the grouped variables of every period and gives the PSI of each against the groups of the reference sample. Group both samples with the binning specification fitted on the development sample, as in <a class="reference internal" href="spec.html"><span class="doc">Binning specifications</span></a>. <code class="docutils literal notranslate"><span class="pre">inquiries</span></code> gets explicit edges because 0 is the most common value:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.monitoring</span><span class="w"> </span><span class="kn">import</span> <span class="n">stability_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.spec</span><span class="w"> </span><span class="kn">import</span> <span class="n">fit_spec</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">features</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"age"</span><span class="p">,</span> <span class="s2">"income"</span><span class="p">,</span> <span class="s2">"debt_to_income"</span><span class="p">,</span> <span class="s2">"inquiries"</span><span class="p">,</span> <span class="s2">"housing"</span><span class="p">,</span> <span class="s2">"employment"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spec</span> <span class="o">=</span> <span class="n">fit_spec</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">development</span><span class="p">[</span><span class="n">features</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">development</span><span class="p">[</span><span class="s2">"target"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">bins</span><span class="o">=</span><span class="p">{</span><span class="s2">"inquiries"</span><span class="p">:</span> <span class="p">[</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">]},</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stability</span> <span class="o">=</span> <span class="n">stability_table</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">spec</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">applications</span><span class="p">[</span><span class="n">features</span><span class="p">]),</span>
+<span class="gp">... </span>    <span class="n">applications</span><span class="p">[</span><span class="s2">"month"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">reference_groups</span><span class="o">=</span><span class="n">spec</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">development</span><span class="p">[</span><span class="n">features</span><span class="p">]),</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stability</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">variable    age  income  debt_to_income  inquiries  housing  employment</span>
+<span class="go">period</span>
+<span class="go">2025-01   0.001   0.002           0.006      0.006    0.000       0.002</span>
+<span class="go">2025-02   0.001   0.002           0.003      0.000    0.001       0.001</span>
+<span class="go">2025-03   0.001   0.002           0.004      0.000    0.000       0.001</span>
+<span class="go">2025-04   0.001   0.001           0.000      0.004    0.000       0.000</span>
+<span class="go">2025-05   0.000   0.002           0.001      0.001    0.001       0.000</span>
+<span class="go">2025-06   0.002   0.003           0.001      0.003    0.000       0.000</span>
+<span class="go">2025-07   0.001   0.002           0.001      0.003    0.001       0.004</span>
+<span class="go">2025-08   0.002   0.000           0.002      0.002    0.000       0.003</span>
+<span class="go">2025-09   0.001   0.004           0.003      0.002    0.000       0.003</span>
+<span class="go">2025-10   0.001   0.001           0.007      0.001    0.003       0.110</span>
+<span class="go">2025-11   0.010   0.004           0.003      0.001    0.000       0.131</span>
+<span class="go">2025-12   0.004   0.004           0.005      0.002    0.001       0.104</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id5">
+<img alt="Heatmap of the PSI of six variables in twelve months, coloured by the 0.1 and 0.25 thresholds, with employment above 0.1 from October to December" class="plot-directive" src="../_images/monitoring-3.svg" />
+<figcaption>
+<p><span class="caption-text">PSI of each variable of the model in each month, coloured by the 0.1 and 0.25 thresholds. Only <code class="docutils literal notranslate"><span class="pre">employment</span></code> crosses 0.1, from October, when half of the permanent employees no longer apply.</span><a class="headerlink" href="#id5" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>Every variable stays below 0.01 up to September. From October, <code class="docutils literal notranslate"><span class="pre">employment</span></code> rises above 0.1, a moderate shift, while the other variables do not move: the report points at the change of mix before any outcomes of the new applicants are known. Each entry is the PSI of <a class="reference internal" href="../api/stability.html#kivi.stability.psi_table" title="kivi.stability.psi_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">psi_table()</span></code></a> for the month alone, which shows the groups that moved:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.stability</span><span class="w"> </span><span class="kn">import</span> <span class="n">psi_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">october</span> <span class="o">=</span> <span class="n">applications</span><span class="p">[</span><span class="s2">"month"</span><span class="p">]</span> <span class="o">==</span> <span class="n">months</span><span class="p">[</span><span class="mi">9</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">psi_table</span><span class="p">(</span><span class="n">development</span><span class="p">[</span><span class="s2">"employment"</span><span class="p">],</span> <span class="n">applications</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">october</span><span class="p">,</span> <span class="s2">"employment"</span><span class="p">])[</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="s2">"reference_share"</span><span class="p">,</span> <span class="s2">"current_share"</span><span class="p">,</span> <span class="s2">"psi"</span><span class="p">]</span>
+<span class="gp">... </span><span class="p">]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">               reference_share  current_share    psi</span>
+<span class="go">bin</span>
+<span class="go">permanent                0.655          0.492  0.047</span>
+<span class="go">temporary                0.197          0.287  0.034</span>
+<span class="go">self_employed            0.148          0.221  0.030</span>
+</pre></div>
+</div>
+<p>The share of permanent employees has fallen from 65% to 49%. Whether the new mix defaults as the score expects shows only when its outcomes are known; follow the event rate of the last quarter closely as they arrive.</p>
+</section>
+<section id="missing-values">
+<h2>Missing values<a class="headerlink" href="#missing-values" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>A missing target is an outcome that is not known yet. Most functions raise an error for a missing label, as <a class="reference internal" href="../api/conventions.html"><span class="doc">Conventions</span></a> describes; <a class="reference internal" href="../api/monitoring.html#kivi.monitoring.monitoring_table" title="kivi.monitoring.monitoring_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">monitoring_table()</span></code></a> reads it as an unknown outcome, as <a class="reference internal" href="../api/strategy.html#kivi.strategy.swap_set" title="kivi.strategy.swap_set"><code class="xref py py-func docutils literal notranslate"><span class="pre">swap_set()</span></code></a> does. It counts in <code class="docutils literal notranslate"><span class="pre">total</span></code> but not in <code class="docutils literal notranslate"><span class="pre">known</span></code>, <code class="docutils literal notranslate"><span class="pre">event</span></code>, <code class="docutils literal notranslate"><span class="pre">event_rate</span></code> or the discrimination, so pass the outcomes that are not yet observed as missing values rather than as 0. A period without both classes among its known outcomes, such as the last quarter above, gets NaN discrimination instead of an error.</p></li>
+<li><p>A missing score or a missing period raises an error: a missing score has no band and no rank, and an observation without a period has no row.</p></li>
+<li><p>In <a class="reference internal" href="../api/monitoring.html#kivi.monitoring.stability_table" title="kivi.monitoring.stability_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">stability_table()</span></code></a>, a missing value is a group of its own, as in <a class="reference internal" href="../api/stability.html#kivi.stability.psi_table" title="kivi.stability.psi_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">psi_table()</span></code></a>, and groups observed in only one of the two samples are included.</p></li>
+</ul>
+</section>
+<section id="sample-weights">
+<h2>Sample weights<a class="headerlink" href="#sample-weights" title="Link to this heading">#</a></h2>
+<p>Both functions take <code class="docutils literal notranslate"><span class="pre">weights</span></code>, one non-negative weight per observation, and <code class="docutils literal notranslate"><span class="pre">reference_weights</span></code> for a reference sample passed as <code class="docutils literal notranslate"><span class="pre">reference_score</span></code> or <code class="docutils literal notranslate"><span class="pre">reference_groups</span></code>; a reference period takes its weights from <code class="docutils literal notranslate"><span class="pre">weights</span></code>. Counts become sums of weights, as <a class="reference internal" href="../api/conventions.html"><span class="doc">Conventions</span></a> describes for every function, and the discrimination and the PSI are weighted. On the same band edges, integer weights give the same table as repeating rows. An integer <code class="docutils literal notranslate"><span class="pre">bins</span></code> fits the edges by weighted quantiles, as <a class="reference internal" href="../api/binning.html#kivi.binning.bin_edges" title="kivi.binning.bin_edges"><code class="xref py py-func docutils literal notranslate"><span class="pre">bin_edges()</span></code></a> does, so its edges can differ from those of the repeated rows.</p>
+<p>Monitoring samples often keep every event but only some of the non-events. Below, every application with an event or an unknown outcome is kept, but only a quarter of the known non-events, which get a weight of 4:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sampled</span> <span class="o">=</span> <span class="p">(</span><span class="n">outcome</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">rng</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">applications</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mf">0.25</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">outcome</span><span class="p">[</span><span class="n">sampled</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sample</span> <span class="o">=</span> <span class="n">applications</span><span class="p">[</span><span class="n">sampled</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">event_rates</span><span class="p">(</span><span class="o">**</span><span class="n">options</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">table</span> <span class="o">=</span> <span class="n">monitoring_table</span><span class="p">(</span>
+<span class="gp">... </span>        <span class="n">sample</span><span class="p">[</span><span class="s2">"incumbent_pd"</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="n">sample</span><span class="p">[</span><span class="s2">"month"</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="n">outcome</span><span class="p">[</span><span class="n">sampled</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="n">reference_score</span><span class="o">=</span><span class="n">development</span><span class="p">[</span><span class="s2">"incumbent_pd"</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="o">**</span><span class="n">options</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="p">)</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">table</span><span class="p">[</span><span class="s2">"event_rate"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s2">"all"</span><span class="p">:</span> <span class="n">report</span><span class="p">[</span><span class="s2">"event_rate"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s2">"sample"</span><span class="p">:</span> <span class="n">event_rates</span><span class="p">(),</span>
+<span class="gp">... </span>    <span class="s2">"weighted"</span><span class="p">:</span> <span class="n">event_rates</span><span class="p">(</span><span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">),</span>
+<span class="gp">... </span><span class="p">})</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">           all  sample  weighted</span>
+<span class="go">period</span>
+<span class="go">2025-01  0.096   0.289     0.092</span>
+<span class="go">2025-02  0.103   0.315     0.103</span>
+<span class="go">2025-03  0.101   0.295     0.095</span>
+</pre></div>
+</div>
+<p>The sample overstates the event rate threefold, and the weights restore it to that of all applications, up to sampling noise.</p>
+</section>
+<section id="limits">
+<h2>Limits<a class="headerlink" href="#limits" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>The PSI shows that the scores have moved, not whether the score still ranks or predicts the outcomes. The outcomes arrive only after the outcome window, so the discrimination of the latest periods is missing or rests on few outcomes.</p></li>
+<li><p>The table has no confidence intervals or tests. Judge a change of the Gini coefficient or the PSI against the size of the period, or compare periods of similar size.</p></li>
+<li><p>The table does not check calibration. Pass the period as the groups of <a class="reference internal" href="../api/calibration.html#kivi.calibration.calibration_table" title="kivi.calibration.calibration_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">calibration_table()</span></code></a>, with the rows whose outcomes are known, to compare the predicted and observed default rates of each period.</p></li>
+<li><p>The change of the average score that each variable causes is its CSI, from <a class="reference internal" href="../api/stability.html#kivi.stability.csi_table" title="kivi.stability.csi_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">csi_table()</span></code></a>, computed for one period at a time.</p></li>
+</ul>
+</section>
+<section id="errors-and-warnings">
+<h2>Errors and warnings<a class="headerlink" href="#errors-and-warnings" title="Link to this heading">#</a></h2>
+<p>An integer <code class="docutils literal notranslate"><span class="pre">bins</span></code> fits quantile edges on the reference scores. When many reference scores are tied, as for a score rounded to one decimal, the edges coincide and fewer bands remain. A <code class="docutils literal notranslate"><span class="pre">UserWarning</span></code> says so, and every period is compared on the bands that remain:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">(</span><span class="n">record</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">as</span> <span class="n">caught</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s2">"always"</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">rounded</span> <span class="o">=</span> <span class="n">monitoring_table</span><span class="p">(</span>
+<span class="gp">... </span>        <span class="n">applications</span><span class="p">[</span><span class="s2">"incumbent_pd"</span><span class="p">]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span>
+<span class="gp">... </span>        <span class="n">applications</span><span class="p">[</span><span class="s2">"month"</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="n">outcome</span><span class="p">,</span>
+<span class="gp">... </span>        <span class="n">reference_score</span><span class="o">=</span><span class="n">development</span><span class="p">[</span><span class="s2">"incumbent_pd"</span><span class="p">]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">caught</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
+<span class="go">tied edges leave 3 of the 10 requested bins; the value 0.1 makes up 56% of the fitted values, pass fewer bins or explicit edges</span>
+</pre></div>
+</div>
+<p>Pass fewer bins or explicit edges, such as those of the development report, to remove the warning. Explicit edges must cover every score, so use infinite outer edges; a score outside them raises an error.</p>
+<p>The reference is <code class="docutils literal notranslate"><span class="pre">reference_period</span></code> or <code class="docutils literal notranslate"><span class="pre">reference_score</span></code>, or <code class="docutils literal notranslate"><span class="pre">reference_groups</span></code> for <a class="reference internal" href="../api/monitoring.html#kivi.monitoring.stability_table" title="kivi.monitoring.stability_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">stability_table()</span></code></a>; passing neither or both raises an error. A <code class="docutils literal notranslate"><span class="pre">reference_period</span></code> that is not one of the periods raises an error that lists the first periods:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">monitoring_table</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">applications</span><span class="p">[</span><span class="s2">"incumbent_pd"</span><span class="p">],</span> <span class="n">applications</span><span class="p">[</span><span class="s2">"month"</span><span class="p">],</span> <span class="n">outcome</span><span class="p">,</span> <span class="n">reference_period</span><span class="o">=</span><span class="s2">"2024-12"</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gt">Traceback (most recent call last):</span>
+<span class="w">    </span><span class="o">...</span>
+<span class="gr">ValueError</span>: <span class="n">reference_period must be one of the periods Period('2025-01', 'M'), Period('2025-02', 'M'), Period('2025-03', 'M'), ..., got '2024-12'</span>
+</pre></div>
+</div>
+<p>A list of labels is not a period label, and a boolean mask of the reference rows is not a sample of scores, so both raise an error too. Pass the scores of the reference rows, such as <code class="docutils literal notranslate"><span class="pre">score[mask]</span></code>, as <code class="docutils literal notranslate"><span class="pre">reference_score</span></code>.</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="psi.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Population stability index</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="validation.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Model validation</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#definitions">Definitions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-worked-example">A worked example</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-monitoring-report">A monitoring report</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#reading-the-result">Reading the result</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#variable-stability">Variable stability</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#missing-values">Missing values</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sample-weights">Sample weights</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#limits">Limits</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#errors-and-warnings">Errors and warnings</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1.
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

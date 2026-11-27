@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>时间窗特征 &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=d005c095" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=14f9d491"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script src="../_static/translations.js?v=540d3cec"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/features';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="next" title="单变量概况" href="univariate.html" />
+    <link rel="prev" title="风控建模流程" href="risk_workflow.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+  <meta name="docsearch:version" content="1.9.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">跳转至主要内容</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>回到顶部</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="版本警告"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="网页导航" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 1.9.0">1.9.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    教程
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../../en/user_guide/features.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="当前页面" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    教程
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../../en/user_guide/features.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="章节导航">
+  <p class="bd-links__title" role="heading" aria-level="1">章节导航</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="risk_workflow.html">风控建模流程</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">时间窗特征</a></li>
+<li class="toctree-l1"><a class="reference internal" href="univariate.html">单变量概况</a></li>
+<li class="toctree-l1"><a class="reference internal" href="binning.html">分箱</a></li>
+<li class="toctree-l1"><a class="reference internal" href="woe_iv.html">证据权重与信息值</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selection.html">变量筛选</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reject_inference.html">拒绝推断</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scorecard.html">评分卡</a></li>
+<li class="toctree-l1"><a class="reference internal" href="expert.html">专家评分卡</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">模型表现</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">校准</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lgd.html">LGD 与 EAD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">信贷策略</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rules.html">政策规则</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spec.html">分箱方案</a></li>
+<li class="toctree-l1"><a class="reference internal" href="psi.html">群体稳定性指标</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">模型监控</a></li>
+<li class="toctree-l1"><a class="reference internal" href="validation.html">模型验证</a></li>
+<li class="toctree-l1"><a class="reference internal" href="capital.html">监管资本</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vintage.html">Vintage 与滚动率分析</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lifetime.html">存续期 PD 与预期信用损失</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html">图表</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">示例数据</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="初始页面">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">用户指南</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">时间窗特征</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="time-window-features">
+<h1>时间窗特征<a class="headerlink" href="#time-window-features" title="链接到此标题。">#</a></h1>
+<p>评分卡的行为类变量大多是对事件历史的汇总：最近三个月的交易笔数、一年内最大的一笔取现、距上次还款的天数。每个变量都针对一个主体（如客户）在一个观察时间（如申请日期）计算，只能使用当时已知的信息。手工筛选和分组事件的代码很容易混入之后发生的事件，为生产环境重写的代码也很少能给出相同的数。 <a class="reference internal" href="../api/features.html#kivi.features.window_features" title="kivi.features.window_features"><code class="xref py py-func docutils literal notranslate"><span class="pre">window_features()</span></code></a> 一次为大量观察计算这些变量，从不使用观察时间当时及之后的事件； <a class="reference internal" href="../api/features.html#kivi.features.panel_features" title="kivi.features.panel_features"><code class="xref py py-func docutils literal notranslate"><span class="pre">panel_features()</span></code></a> 对月度还款状态做同样的事，例如最近一年中逾期的月数； <a class="reference internal" href="../api/features.html#kivi.features.FeatureSpec" title="kivi.features.FeatureSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">FeatureSpec</span></code></a> 保存它们的定义，使生产环境以同样的方式计算。</p>
+<p>时间窗特征是项目的第一步。 <a class="reference internal" href="univariate.html"><span class="doc">单变量概况</span></a> 对照目标变量分析它们给出的特征， <a class="reference internal" href="binning.html"><span class="doc">分箱</span></a> 对保留下来的特征分箱。</p>
+<section id="definitions">
+<h2>定义<a class="headerlink" href="#definitions" title="链接到此标题。">#</a></h2>
+<p>一个 <em>观察</em> 是一个主体 <span class="math notranslate nohighlight">\(i\)</span> 和一个时间 <span class="math notranslate nohighlight">\(t\)</span> ，长度为 <span class="math notranslate nohighlight">\(k\)</span> 个月的 <em>窗口</em> 是它之前的区间 <span class="math notranslate nohighlight">\([t - k, t)\)</span> 。一个特征对该主体时间 <span class="math notranslate nohighlight">\(\tau_e\)</span> 落在窗口内的事件 <span class="math notranslate nohighlight">\(e\)</span> ，聚合某一列的值 <span class="math notranslate nohighlight">\(v_e\)</span> ：</p>
+<div class="math notranslate nohighlight">
+\[x_{i, t} = \operatorname{agg} \{\, v_e : \mathrm{id}_e = i,\ t - k \le \tau_e &lt; t \,\}.\]</div>
+<p>聚合可以是计数、求和、均值、极值或下文中的其他聚合。窗口截止于 <span class="math notranslate nohighlight">\(t\)</span> 之前，因此观察时间当时及之后的事件从不计入：这些特征是 <em>时点正确</em> 的（point in time）。窗口对，例如从 <span class="math notranslate nohighlight">\(t\)</span> 之前六个月到三个月，是区间 <span class="math notranslate nohighlight">\([t - 6, t - 3)\)</span> ，即最近一期之前的那一期。</p>
+<p>月份按自然月计算，与 <code class="docutils literal notranslate"><span class="pre">pandas.DateOffset(months=k)</span></code> 的计法相同：5 月 31 日之前三个月是 2 月 28 日，闰年为 2 月 29 日，且保留一天中的时间。长度为 <span class="math notranslate nohighlight">\(k\)</span> 天的窗口从 <span class="math notranslate nohighlight">\(t\)</span> 之前 <span class="math notranslate nohighlight">\(k\)</span> 天开始。</p>
+</section>
+<section id="a-worked-example">
+<h2>计算示例<a class="headerlink" href="#a-worked-example" title="链接到此标题。">#</a></h2>
+<p>两位客户有几笔刷卡消费和取现，三位客户在 2024 年 3 月 31 日申请贷款。客户 <code class="docutils literal notranslate"><span class="pre">c</span></code> 没有任何历史：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.features</span><span class="w"> </span><span class="kn">import</span> <span class="n">FeatureSpec</span><span class="p">,</span> <span class="n">window_features</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">events</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s2">"customer"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"a"</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s2">"time"</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">([</span>
+<span class="gp">... </span>        <span class="s2">"2023-11-20"</span><span class="p">,</span> <span class="s2">"2024-01-10"</span><span class="p">,</span> <span class="s2">"2024-02-29"</span><span class="p">,</span> <span class="s2">"2024-03-15"</span><span class="p">,</span> <span class="s2">"2024-03-31"</span><span class="p">,</span>
+<span class="gp">... </span>        <span class="s2">"2024-01-05"</span><span class="p">,</span> <span class="s2">"2024-03-20"</span><span class="p">,</span> <span class="s2">"2024-03-20"</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="p">]),</span>
+<span class="gp">... </span>    <span class="s2">"amount"</span><span class="p">:</span> <span class="p">[</span><span class="mf">300.0</span><span class="p">,</span> <span class="mf">120.0</span><span class="p">,</span> <span class="mf">80.0</span><span class="p">,</span> <span class="mf">50.0</span><span class="p">,</span> <span class="mf">200.0</span><span class="p">,</span> <span class="mf">50.0</span><span class="p">,</span> <span class="mf">40.0</span><span class="p">,</span> <span class="mf">25.0</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s2">"kind"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"card"</span><span class="p">,</span> <span class="s2">"card"</span><span class="p">,</span> <span class="s2">"cash"</span><span class="p">,</span> <span class="s2">"card"</span><span class="p">,</span> <span class="s2">"card"</span><span class="p">,</span> <span class="s2">"cash"</span><span class="p">,</span> <span class="s2">"cash"</span><span class="p">,</span> <span class="s2">"card"</span><span class="p">],</span>
+<span class="gp">... </span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">applications</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s2">"customer"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"a"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"c"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s2">"application_date"</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">([</span><span class="s2">"2024-03-31"</span><span class="p">,</span> <span class="s2">"2024-03-31"</span><span class="p">,</span> <span class="s2">"2024-03-31"</span><span class="p">]),</span>
+<span class="gp">... </span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">keys</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"id"</span><span class="p">:</span> <span class="s2">"customer"</span><span class="p">,</span> <span class="s2">"time"</span><span class="p">:</span> <span class="s2">"time"</span><span class="p">,</span> <span class="s2">"observation_time"</span><span class="p">:</span> <span class="s2">"application_date"</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">window_features</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">events</span><span class="p">,</span> <span class="n">applications</span><span class="p">,</span> <span class="o">**</span><span class="n">keys</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">windows</span><span class="o">=</span><span class="p">[</span><span class="s2">"1M"</span><span class="p">,</span> <span class="s2">"3M"</span><span class="p">],</span> <span class="n">aggregations</span><span class="o">=</span><span class="p">{</span><span class="s2">"amount"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"sum"</span><span class="p">]},</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="go">   events_1m  amount_sum_1m  events_3m  amount_sum_3m</span>
+<span class="go">0          2          130.0          3          250.0</span>
+<span class="go">1          2           65.0          3          115.0</span>
+<span class="go">2          0            0.0          0            0.0</span>
+</pre></div>
+</div>
+<p>3 月 31 日之前一个月从 2 月 29 日开始，因此对客户 <code class="docutils literal notranslate"><span class="pre">a</span></code> ，窗口 <code class="docutils literal notranslate"><span class="pre">1m</span></code> 包含当天 80 的取现和 3 月 15 日 50 的消费：两个事件，合计 130。3 月 31 日 200 的消费恰在申请日，不计入任何窗口。三个月的窗口从 2023 年 12 月 31 日开始，加上 1 月 10 日 120 的消费，而 11 月 300 的消费早于所有窗口。客户 <code class="docutils literal notranslate"><span class="pre">c</span></code> 没有事件，因此其计数和求和为 0；其均值或最大金额会是 NaN。</p>
+<p>结果每个申请一行，使用 <code class="docutils literal notranslate"><span class="pre">applications</span></code> 的索引，因此可以用 <code class="docutils literal notranslate"><span class="pre">pd.concat([applications,</span> <span class="pre">features],</span> <span class="pre">axis=1)</span></code> 与申请样本拼在一起。</p>
+<figure class="align-default" id="id2">
+<img alt="客户 a 和 b 的事件在 2023 年 11 月到 2024 年 4 月的时间轴上的位置，截止于申请日期 2024 年 3 月 31 日的一个月和三个月窗口，以及每个窗口内的事件数和金额之和" class="plot-directive" src="../_images/features-11.svg" />
+<figcaption>
+<p><span class="caption-text">完整示例。每个窗口从申请日期之前一个或三个自然月开始，截止于申请日期之前。申请日期当天 200 的消费和 11 月 300 的消费画为空心，不计入任何窗口。</span><a class="headerlink" href="#id2" title="链接到此图片">#</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="windows">
+<h2>窗口<a class="headerlink" href="#windows" title="链接到此标题。">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">windows</span></code> 以字符串列出窗口： <code class="docutils literal notranslate"><span class="pre">&quot;3M&quot;</span></code> 表示三个自然月， <code class="docutils literal notranslate"><span class="pre">&quot;90D&quot;</span></code> 表示 90 天。默认值为 <code class="docutils literal notranslate"><span class="pre">(&quot;3M&quot;,</span> <span class="pre">&quot;6M&quot;,</span> <span class="pre">&quot;12M&quot;)</span></code> 。 <code class="docutils literal notranslate"><span class="pre">(&quot;3M&quot;,</span> <span class="pre">&quot;1M&quot;)</span></code> 这样的一对表示观察之前三个月到一个月之间的时期；两个边界的单位必须相同，且第一个更早。列名中的窗口用小写书写，例如 <code class="docutils literal notranslate"><span class="pre">3m</span></code> 、 <code class="docutils literal notranslate"><span class="pre">90d</span></code> 和 <code class="docutils literal notranslate"><span class="pre">3m_1m</span></code> ：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">window_features</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">events</span><span class="p">,</span> <span class="n">applications</span><span class="p">,</span> <span class="o">**</span><span class="n">keys</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">windows</span><span class="o">=</span><span class="p">[</span><span class="s2">"30D"</span><span class="p">,</span> <span class="p">(</span><span class="s2">"3M"</span><span class="p">,</span> <span class="s2">"1M"</span><span class="p">)],</span> <span class="n">aggregations</span><span class="o">=</span><span class="p">{</span><span class="s2">"amount"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"sum"</span><span class="p">]},</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="go">   events_30d  amount_sum_30d  events_3m_1m  amount_sum_3m_1m</span>
+<span class="go">0           1            50.0             1             120.0</span>
+<span class="go">1           2            65.0             1              50.0</span>
+<span class="go">2           0             0.0             0               0.0</span>
+</pre></div>
+</div>
+<p>3 月 31 日之前三十天是 3 月 1 日，因此 2 月 29 日的取现在窗口 <code class="docutils literal notranslate"><span class="pre">30d</span></code> 之外，但在 <code class="docutils literal notranslate"><span class="pre">1m</span></code> 之内。窗口 <code class="docutils literal notranslate"><span class="pre">3m_1m</span></code> 截止于 <code class="docutils literal notranslate"><span class="pre">1m</span></code> 开始的地方，所以两者合起来就是窗口 <code class="docutils literal notranslate"><span class="pre">3m</span></code> 。</p>
+<div class="admonition note">
+<p class="admonition-title">备注</p>
+<p>一对边界只有作为窗口列表中的一项时才是一个窗口。 <code class="docutils literal notranslate"><span class="pre">windows=[(&quot;3M&quot;,</span> <span class="pre">&quot;1M&quot;)]</span></code> 是窗口 <code class="docutils literal notranslate"><span class="pre">3m_1m</span></code> ，而 <code class="docutils literal notranslate"><span class="pre">windows=(&quot;3M&quot;,</span> <span class="pre">&quot;1M&quot;)</span></code> 是 <code class="docutils literal notranslate"><span class="pre">3m</span></code> 和 <code class="docutils literal notranslate"><span class="pre">1m</span></code> 两个窗口：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">window_features</span><span class="p">(</span><span class="n">events</span><span class="p">,</span> <span class="n">applications</span><span class="p">,</span> <span class="o">**</span><span class="n">keys</span><span class="p">,</span> <span class="n">windows</span><span class="o">=</span><span class="p">(</span><span class="s2">"3M"</span><span class="p">,</span> <span class="s2">"1M"</span><span class="p">))</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+<span class="go">['events_3m', 'events_1m']</span>
+</pre></div>
+</div>
+</div>
+<p>默认每个窗口左闭右开，即 <span class="math notranslate nohighlight">\([t - k, t)\)</span> 。使用 <code class="docutils literal notranslate"><span class="pre">closed=&quot;right&quot;</span></code> 时窗口改为 <span class="math notranslate nohighlight">\((t - k, t]\)</span> ，观察时间当时的事件计入，适用于在发生时即已可知的事件，例如日终余额。这样的事件在观察时间是否已经可知，由调用者判断，kivi 无法得知。这里 3 月 31 日的消费计入，而位于窗口下界 2 月 29 日的取现不计入：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">window_features</span><span class="p">(</span><span class="n">events</span><span class="p">,</span> <span class="n">applications</span><span class="p">,</span> <span class="o">**</span><span class="n">keys</span><span class="p">,</span> <span class="n">windows</span><span class="o">=</span><span class="p">[</span><span class="s2">"1M"</span><span class="p">],</span> <span class="n">closed</span><span class="o">=</span><span class="s2">"right"</span><span class="p">)</span>
+<span class="go">   events_1m</span>
+<span class="go">0          2</span>
+<span class="go">1          2</span>
+<span class="go">2          0</span>
+</pre></div>
+</div>
+<p>时间列必须是 datetime。两列可以都无时区，也可以处于同一时区。有时区时，边界按当地日历计算，事件按绝对时刻比较。落在春季时钟跳过的那一小时内的边界移到该小时结束时，落在秋季时钟重复的那一小时内的边界取其第一次出现。</p>
+</section>
+<section id="aggregations">
+<h2>聚合<a class="headerlink" href="#aggregations" title="链接到此标题。">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">aggregations</span></code> 把事件表的每一列映射到它的聚合。缺失值不参与所在列的聚合，而 <code class="docutils literal notranslate"><span class="pre">events</span></code> 列统计窗口内的每个事件：</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 20.0%" />
+<col style="width: 55.0%" />
+<col style="width: 25.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>聚合</p></th>
+<th class="head"><p>取值</p></th>
+<th class="head"><p>空窗口</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">count</span></code></p></td>
+<td><p>值的个数</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">sum</span></code></p></td>
+<td><p>值的和</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">mean</span></code></p></td>
+<td><p>值的均值</p></td>
+<td><p>NaN</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">min</span></code> 、 <code class="docutils literal notranslate"><span class="pre">max</span></code></p></td>
+<td><p>最小值与最大值</p></td>
+<td><p>NaN</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">std</span></code></p></td>
+<td><p>样本标准差，与 <code class="docutils literal notranslate"><span class="pre">pandas.Series.std</span></code> 的结果相同；只有一个值时为 NaN</p></td>
+<td><p>NaN</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nunique</span></code></p></td>
+<td><p>不同取值的个数</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">first</span></code> 、 <code class="docutils literal notranslate"><span class="pre">last</span></code></p></td>
+<td><p>最早和最晚一个事件的值；同一时刻的多个事件按行序排列</p></td>
+<td><p>NaN</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">days_since_last</span></code></p></td>
+<td><p>从最后一个事件到观察时间的天数，含不足一天的部分</p></td>
+<td><p>NaN</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">count</span></code> 、 <code class="docutils literal notranslate"><span class="pre">nunique</span></code> 和 <code class="docutils literal notranslate"><span class="pre">days_since_last</span></code> 接受任何 dtype 的列，例如每个事件的类型；其余聚合需要数值，布尔值按 0 和 1 计，因此标志列的 <code class="docutils literal notranslate"><span class="pre">sum</span></code> 就是带该标志的事件数。计数为整数，其余列为浮点数。下表经过转置以适应页面宽度：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">features</span> <span class="o">=</span> <span class="n">window_features</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">events</span><span class="p">,</span> <span class="n">applications</span><span class="p">,</span> <span class="o">**</span><span class="n">keys</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">windows</span><span class="o">=</span><span class="p">[</span><span class="s2">"3M"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">aggregations</span><span class="o">=</span><span class="p">{</span>
+<span class="gp">... </span>        <span class="s2">"amount"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"mean"</span><span class="p">,</span> <span class="s2">"min"</span><span class="p">,</span> <span class="s2">"std"</span><span class="p">,</span> <span class="s2">"first"</span><span class="p">,</span> <span class="s2">"last"</span><span class="p">,</span> <span class="s2">"days_since_last"</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="s2">"kind"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"nunique"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">},</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">features</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">                               0      1    2</span>
+<span class="go">events_3m                    3.00   3.00  0.0</span>
+<span class="go">amount_mean_3m              83.33  38.33  NaN</span>
+<span class="go">amount_min_3m               50.00  25.00  NaN</span>
+<span class="go">amount_std_3m               35.12  12.58  NaN</span>
+<span class="go">amount_first_3m            120.00  50.00  NaN</span>
+<span class="go">amount_last_3m              50.00  25.00  NaN</span>
+<span class="go">amount_days_since_last_3m   16.00  11.00  NaN</span>
+<span class="go">kind_nunique_3m              2.00   2.00  0.0</span>
+</pre></div>
+</div>
+<p>客户 <code class="docutils literal notranslate"><span class="pre">b</span></code> 在 3 月 20 日有两笔交易：40 的取现和 25 的消费； <code class="docutils literal notranslate"><span class="pre">last</span></code> 取消费，因为它在行序中靠后。两者都在申请日之前十一天。对窗口对， <code class="docutils literal notranslate"><span class="pre">days_since_last</span></code> 仍从观察时间算起。它是经过的时间，因此有时区时，它与 <code class="docutils literal notranslate"><span class="pre">&quot;90D&quot;</span></code> 这类窗口按当地日历计的天数可能相差时钟调整的那一小时。</p>
+</section>
+<section id="ratios-and-changes">
+<h2>比率与变化<a class="headerlink" href="#ratios-and-changes" title="链接到此标题。">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">ratios</span></code> 计算两个特征之比，按列名指定。分母为 0 时比率为 NaN。两个特征只有窗口不同时，比率命名为 <code class="docutils literal notranslate"><span class="pre">{numerator}_over_{window}</span></code> ，否则命名为 <code class="docutils literal notranslate"><span class="pre">{numerator}_over_{denominator}</span></code> 。最近一个月在最近三个月中的占比反映活动是否集中在近期，最近一个月与之前两个月之比衡量相邻两期之间的变化：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">window_features</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">events</span><span class="p">,</span> <span class="n">applications</span><span class="p">,</span> <span class="o">**</span><span class="n">keys</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">windows</span><span class="o">=</span><span class="p">[</span><span class="s2">"1M"</span><span class="p">,</span> <span class="s2">"3M"</span><span class="p">,</span> <span class="p">(</span><span class="s2">"3M"</span><span class="p">,</span> <span class="s2">"1M"</span><span class="p">)],</span>
+<span class="gp">... </span>    <span class="n">aggregations</span><span class="o">=</span><span class="p">{</span><span class="s2">"amount"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"sum"</span><span class="p">]},</span>
+<span class="gp">... </span>    <span class="n">ratios</span><span class="o">=</span><span class="p">[(</span><span class="s2">"amount_sum_1m"</span><span class="p">,</span> <span class="s2">"amount_sum_3m"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"amount_sum_1m"</span><span class="p">,</span> <span class="s2">"amount_sum_3m_1m"</span><span class="p">)],</span>
+<span class="gp">... </span><span class="p">)</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">2</span><span class="p">:]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">   amount_sum_1m_over_3m  amount_sum_1m_over_3m_1m</span>
+<span class="go">0                 0.5200                    1.0833</span>
+<span class="go">1                 0.5652                    1.3000</span>
+<span class="go">2                    NaN                       NaN</span>
+</pre></div>
+</div>
+<p>与去年同一季度相比的变化，是窗口 <code class="docutils literal notranslate"><span class="pre">3M</span></code> 与窗口对 <code class="docutils literal notranslate"><span class="pre">(&quot;15M&quot;,</span> <span class="pre">&quot;12M&quot;)</span></code> 之比，例如 <code class="docutils literal notranslate"><span class="pre">(&quot;amount_sum_3m&quot;,</span> <span class="pre">&quot;amount_sum_15m_12m&quot;)</span></code> 。差值不需要单独的选项：用 pandas 把两列相减即可。</p>
+</section>
+<section id="filtered-events">
+<h2>筛选后的事件<a class="headerlink" href="#filtered-events" title="链接到此标题。">#</a></h2>
+<p>kivi 没有用于筛选事件的表达式。要只对部分事件计算特征，例如取现，先用 pandas 选出这些事件，再给它们的特征加上 <code class="docutils literal notranslate"><span class="pre">prefix</span></code> ：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cash</span> <span class="o">=</span> <span class="n">events</span><span class="p">[</span><span class="n">events</span><span class="p">[</span><span class="s2">"kind"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"cash"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">window_features</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">cash</span><span class="p">,</span> <span class="n">applications</span><span class="p">,</span> <span class="o">**</span><span class="n">keys</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">windows</span><span class="o">=</span><span class="p">[</span><span class="s2">"3M"</span><span class="p">],</span> <span class="n">aggregations</span><span class="o">=</span><span class="p">{</span><span class="s2">"amount"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"sum"</span><span class="p">]},</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">"cash_"</span><span class="p">,</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="go">   cash_events_3m  cash_amount_sum_3m</span>
+<span class="go">0               1                80.0</span>
+<span class="go">1               2                90.0</span>
+<span class="go">2               0                 0.0</span>
+</pre></div>
+</div>
+<p>前缀加在每一列前面，比率使用带前缀的列名。</p>
+</section>
+<section id="observations-over-time">
+<h2>多个时间点的观察<a class="headerlink" href="#observations-over-time" title="链接到此标题。">#</a></h2>
+<p>一个主体可以在观察表中出现多次，例如每个月末一行以跟踪其特征随时间的变化，或者同一行出现两次。每一行得到其自身时间的特征：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">month_ends</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s2">"customer"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"a"</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s2">"application_date"</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">([</span><span class="s2">"2024-01-31"</span><span class="p">,</span> <span class="s2">"2024-02-29"</span><span class="p">,</span> <span class="s2">"2024-03-31"</span><span class="p">]),</span>
+<span class="gp">... </span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">window_features</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">events</span><span class="p">,</span> <span class="n">month_ends</span><span class="p">,</span> <span class="o">**</span><span class="n">keys</span><span class="p">,</span> <span class="n">windows</span><span class="o">=</span><span class="p">[</span><span class="s2">"3M"</span><span class="p">],</span> <span class="n">aggregations</span><span class="o">=</span><span class="p">{</span><span class="s2">"amount"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"sum"</span><span class="p">]}</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="go">   events_3m  amount_sum_3m</span>
+<span class="go">0          2          420.0</span>
+<span class="go">1          1          120.0</span>
+<span class="go">2          3          250.0</span>
+</pre></div>
+</div>
+<p>2 月 29 日之前三个月是 11 月 29 日，晚于 11 月 20 日的消费，因此这笔消费只在 1 月底计入。一次调用就能计算所有日期的特征，回溯历史样本就是这样做的。事件只排序一次，每个窗口的边界用二分查找确定，因此计数、和、均值、第一个和最后一个值以及 <code class="docutils literal notranslate"><span class="pre">days_since_last</span></code> 的耗时随两张表的行数增长。 <code class="docutils literal notranslate"><span class="pre">min</span></code> 、 <code class="docutils literal notranslate"><span class="pre">max</span></code> 、 <code class="docutils literal notranslate"><span class="pre">std</span></code> 和 <code class="docutils literal notranslate"><span class="pre">nunique</span></code> 则要查看每个窗口中的每个事件，因此其耗时随一个主体的观察日期数乘以每个窗口的事件数增长。</p>
+</section>
+<section id="reading-the-result">
+<h2>解读结果<a class="headerlink" href="#reading-the-result" title="链接到此标题。">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 45.0%" />
+<col style="width: 25.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>列</p></th>
+<th class="head"><p>含义</p></th>
+<th class="head"><p>类型与空窗口取值</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">{prefix}events_{window}</span></code></p></td>
+<td><p>窗口内的事件数，不论是否有值</p></td>
+<td><p>整数，0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">{prefix}{column}_count_{window}</span></code> 、 <code class="docutils literal notranslate"><span class="pre">…_nunique_{window}</span></code></p></td>
+<td><p>该列的值的个数，以及不同取值的个数</p></td>
+<td><p>整数，0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">{prefix}{column}_sum_{window}</span></code></p></td>
+<td><p>值的和</p></td>
+<td><p>浮点数，0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">{prefix}{column}_{aggregation}_{window}</span></code></p></td>
+<td><p>其余聚合</p></td>
+<td><p>浮点数，NaN</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">{numerator}_over_{window}</span></code> 、 <code class="docutils literal notranslate"><span class="pre">{numerator}_over_{denominator}</span></code></p></td>
+<td><p>比率，排在最后</p></td>
+<td><p>浮点数，分母为 0 时为 NaN</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>各列先按窗口，再按 <code class="docutils literal notranslate"><span class="pre">aggregations</span></code> 中列的顺序，再按聚合排列，比率排在最后。列名和前缀保持原有的大小写：名称中只有 kivi 自己的部分，即聚合和窗口，用小写书写，因此 <code class="docutils literal notranslate"><span class="pre">Amount</span></code> 和 <code class="docutils literal notranslate"><span class="pre">amount</span></code> 的特征不会混在一起。NaN 表示窗口内没有可聚合的值，这本身就是信息：用 <a class="reference internal" href="../api/univariate.html#kivi.univariate.profile_table" title="kivi.univariate.profile_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">profile_table()</span></code></a> 分析这些特征，查看它们缺失的频率以及区分两类的能力，再用 <a class="reference internal" href="binning.html"><span class="doc">分箱</span></a> 分箱，缺失值在那里自成一组。</p>
+</section>
+<section id="repayment-behaviour">
+<span id="id1"></span><h2>还款行为<a class="headerlink" href="#repayment-behaviour" title="链接到此标题。">#</a></h2>
+<p>月度还款状态面板，例如 <a class="reference internal" href="../api/vintage.html#kivi.vintage.delinquency_panel" title="kivi.vintage.delinquency_panel"><code class="xref py py-func docutils literal notranslate"><span class="pre">delinquency_panel()</span></code></a> 或 <a class="reference internal" href="../api/datasets.html#kivi.datasets.make_loan_panel" title="kivi.datasets.make_loan_panel"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_loan_panel()</span></code></a> 的结果，给出每位借款人在其以往贷款上的还款行为。 <a class="reference internal" href="../api/features.html#kivi.features.panel_features" title="kivi.features.panel_features"><code class="xref py py-func docutils literal notranslate"><span class="pre">panel_features()</span></code></a> 对观察时间所在月之前的每个按月的窗口，统计有状态的月数、坏月数、连续坏月和连续好月的最长月数以及最差状态，另给出距最近一个坏月的月数。按状态列类别的顺序，从 <code class="docutils literal notranslate"><span class="pre">bad</span></code> （默认 <code class="docutils literal notranslate"><span class="pre">&quot;30-59&quot;</span></code> ）开始的状态都算坏，因此状态列必须是有序分类。</p>
+<p>客户 <code class="docutils literal notranslate"><span class="pre">a</span></code> 在 12 月和 1 月逾期达到 30 天，客户 <code class="docutils literal notranslate"><span class="pre">b</span></code> 在 1 月有两笔贷款，一笔正常，一笔逾期：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.features</span><span class="w"> </span><span class="kn">import</span> <span class="n">panel_features</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">panel</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s2">"customer"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"a"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">7</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"b"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">7</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s2">"month"</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">PeriodIndex</span><span class="p">(</span>
+<span class="gp">... </span>        <span class="p">[</span><span class="s2">"2023-09"</span><span class="p">,</span> <span class="s2">"2023-10"</span><span class="p">,</span> <span class="s2">"2023-11"</span><span class="p">,</span> <span class="s2">"2023-12"</span><span class="p">,</span> <span class="s2">"2024-01"</span><span class="p">,</span> <span class="s2">"2024-02"</span><span class="p">,</span> <span class="s2">"2024-03"</span><span class="p">]</span>
+<span class="gp">... </span>        <span class="o">+</span> <span class="p">[</span><span class="s2">"2023-10"</span><span class="p">,</span> <span class="s2">"2023-11"</span><span class="p">,</span> <span class="s2">"2023-12"</span><span class="p">,</span> <span class="s2">"2024-01"</span><span class="p">,</span> <span class="s2">"2024-01"</span><span class="p">,</span> <span class="s2">"2024-02"</span><span class="p">,</span> <span class="s2">"2024-03"</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="n">freq</span><span class="o">=</span><span class="s2">"M"</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="p">),</span>
+<span class="gp">... </span>    <span class="s2">"status"</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Categorical</span><span class="p">(</span>
+<span class="gp">... </span>        <span class="p">[</span><span class="s2">"current"</span><span class="p">,</span> <span class="s2">"current"</span><span class="p">,</span> <span class="s2">"1-29"</span><span class="p">,</span> <span class="s2">"30-59"</span><span class="p">,</span> <span class="s2">"30-59"</span><span class="p">,</span> <span class="s2">"current"</span><span class="p">,</span> <span class="s2">"current"</span><span class="p">]</span>
+<span class="gp">... </span>        <span class="o">+</span> <span class="p">[</span><span class="s2">"current"</span><span class="p">,</span> <span class="s2">"current"</span><span class="p">,</span> <span class="s2">"current"</span><span class="p">,</span> <span class="s2">"current"</span><span class="p">,</span> <span class="s2">"1-29"</span><span class="p">,</span> <span class="s2">"60-89"</span><span class="p">,</span> <span class="s2">"90+"</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="n">categories</span><span class="o">=</span><span class="p">[</span><span class="s2">"current"</span><span class="p">,</span> <span class="s2">"1-29"</span><span class="p">,</span> <span class="s2">"30-59"</span><span class="p">,</span> <span class="s2">"60-89"</span><span class="p">,</span> <span class="s2">"90+"</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="n">ordered</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="p">),</span>
+<span class="gp">... </span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">behaviour</span> <span class="o">=</span> <span class="n">panel_features</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">panel</span><span class="p">,</span> <span class="n">applications</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">"customer"</span><span class="p">,</span> <span class="n">month</span><span class="o">=</span><span class="s2">"month"</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="s2">"status"</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">observation_time</span><span class="o">=</span><span class="s2">"application_date"</span><span class="p">,</span> <span class="n">windows</span><span class="o">=</span><span class="p">[</span><span class="s2">"3M"</span><span class="p">,</span> <span class="s2">"6M"</span><span class="p">],</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">behaviour</span><span class="o">.</span><span class="n">T</span>
+<span class="go">                         0      1    2</span>
+<span class="go">months_3m                3      3    0</span>
+<span class="go">bad_months_3m            2      1    0</span>
+<span class="go">longest_bad_run_3m       2      1    0</span>
+<span class="go">longest_good_run_3m      1      2    0</span>
+<span class="go">worst_status_3m      30-59  60-89  NaN</span>
+<span class="go">months_6m                6      5    0</span>
+<span class="go">bad_months_6m            2      1    0</span>
+<span class="go">longest_bad_run_6m       2      1    0</span>
+<span class="go">longest_good_run_6m      3      4    0</span>
+<span class="go">worst_status_6m      30-59  60-89  NaN</span>
+<span class="go">months_since_bad       2.0    1.0  NaN</span>
+</pre></div>
+</div>
+<p>申请日期是 3 月 31 日，但 3 月末的状态在当时尚不可知，因此窗口截止于 2 月：三个月是 12 月到 2 月，六个月是 9 月到 2 月。客户 <code class="docutils literal notranslate"><span class="pre">b</span></code> 在 3 月逾期 90 天，因此不计入任何窗口。客户 <code class="docutils literal notranslate"><span class="pre">b</span></code> 在 1 月有两笔贷款，该月取较差的状态 <code class="docutils literal notranslate"><span class="pre">1-29</span></code> 。它的六个月中只有五个月有状态，因为它的第一笔贷款从 10 月开始：只统计有状态的月份，因此 <code class="docutils literal notranslate"><span class="pre">months_*</span></code> 列显示面板覆盖了窗口的多少。没有状态的月份也会中断连续月数，因此一个坏月、一个没有贷款的月份和一个坏月是两段各一个月的连续坏月。在窗口开始之前就已开始的连续月数只计其在窗口内的月份， <code class="docutils literal notranslate"><span class="pre">months_since_bad</span></code> 则查看观察之前的所有月份，与窗口无关。</p>
+<figure class="align-default" id="id4">
+<img alt="客户 a、b 和 c 在 2023 年 9 月到 2024 年 3 月的月度状态，以着色的单元格表示，坏月加了边框，3 月加了斜线；还有截止于 3 月初的三个月和六个月窗口，以及每位客户的 panel_features 结果" class="plot-directive" src="../_images/features-2.svg" />
+<figcaption>
+<p><span class="caption-text">还款行为示例。窗口截止于申请日期所在月的月初，因此 3 月的状态（加斜线）不计入任何窗口。客户 <code class="docutils literal notranslate"><span class="pre">b</span></code> 在 1 月有两笔贷款，取较差的状态。从 <code class="docutils literal notranslate"><span class="pre">30-59</span></code> 起的坏月加了边框。</span><a class="headerlink" href="#id4" title="链接到此图片">#</a></p>
+</figcaption>
+</figure>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 45.0%" />
+<col style="width: 25.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>列</p></th>
+<th class="head"><p>含义</p></th>
+<th class="head"><p>类型与空窗口取值</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">{prefix}months_{window}</span></code></p></td>
+<td><p>窗口内有状态的月数</p></td>
+<td><p>整数，0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">{prefix}bad_months_{window}</span></code></p></td>
+<td><p>坏月数</p></td>
+<td><p>整数，0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">{prefix}longest_bad_run_{window}</span></code> 、 <code class="docutils literal notranslate"><span class="pre">…_longest_good_run_{window}</span></code></p></td>
+<td><p>连续坏月和连续好月的最长月数</p></td>
+<td><p>整数，0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">{prefix}worst_status_{window}</span></code></p></td>
+<td><p>窗口内最差的状态</p></td>
+<td><p>与状态的 dtype 相同，缺失</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">{prefix}months_since_bad</span></code></p></td>
+<td><p>从最近一个坏月到观察时间所在月的月数</p></td>
+<td><p>浮点数，从未变坏时为 NaN</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>窗口只能按月计，如 <code class="docutils literal notranslate"><span class="pre">&quot;6M&quot;</span></code> 或 <code class="docutils literal notranslate"><span class="pre">(&quot;12M&quot;,</span> <span class="pre">&quot;6M&quot;)</span></code> ；状态按月记录，因此按天的窗口会引发错误。月份列可以是月度 Period，也可以是代表其所在月的日期时间。月份和观察时间各按自己的日历计算，因此有时区的月份和有时区的观察时间必须处于同一时区：东京的 4 月 1 日在纽约仍是 3 月 31 日，那时纽约 3 月末的状态还不存在。</p>
+<p>在 <a class="reference internal" href="../api/datasets.html#kivi.datasets.make_loan_panel" title="kivi.datasets.make_loan_panel"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_loan_panel()</span></code></a> 模拟的贷款账户上，每笔贷款在 2025 年 1 月的特征汇总了它最近一年的情况：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_loan_panel</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">loans</span> <span class="o">=</span> <span class="n">make_loan_panel</span><span class="p">(</span><span class="n">rng</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">book</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"loan_id"</span><span class="p">:</span> <span class="n">loans</span><span class="p">[</span><span class="s2">"loan_id"</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">(),</span> <span class="s2">"date"</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="s2">"2025-01-15"</span><span class="p">)})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">year</span> <span class="o">=</span> <span class="n">panel_features</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">loans</span><span class="p">,</span> <span class="n">book</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">"loan_id"</span><span class="p">,</span> <span class="n">month</span><span class="o">=</span><span class="s2">"month"</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="s2">"status"</span><span class="p">,</span> <span class="n">observation_time</span><span class="o">=</span><span class="s2">"date"</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">windows</span><span class="o">=</span><span class="p">[</span><span class="s2">"12M"</span><span class="p">],</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">year</span><span class="p">[</span><span class="s2">"worst_status_12m"</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">(</span><span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dropna</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="go">worst_status_12m</span>
+<span class="go">current    1976</span>
+<span class="go">1-29        205</span>
+<span class="go">30-59        48</span>
+<span class="go">60-89        20</span>
+<span class="go">90+          40</span>
+<span class="go">NaN        2711</span>
+<span class="go">Name: count, dtype: int64</span>
+</pre></div>
+</div>
+<p>首个账龄月在 2025 年的 2,711 笔贷款在 2025 年 1 月之前没有任何月份，因此其窗口为空，最差状态为缺失。其余贷款中，有 108 笔在 2024 年的某个月末逾期达到 30 天或以上。</p>
+</section>
+<section id="feature-specifications">
+<h2>特征方案<a class="headerlink" href="#feature-specifications" title="链接到此标题。">#</a></h2>
+<p>一个 <a class="reference internal" href="../api/features.html#kivi.features.FeatureSpec" title="kivi.features.FeatureSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">FeatureSpec</span></code></a> 保存特征的定义：主体列、观察时间列，以及一组或多组时间窗特征，每组包含一次 <a class="reference internal" href="../api/features.html#kivi.features.window_features" title="kivi.features.window_features"><code class="xref py py-func docutils literal notranslate"><span class="pre">window_features()</span></code></a> 调用的关键字参数。读取其他事件（例如取现）的组用 <code class="docutils literal notranslate"><span class="pre">table</span></code> 指定其事件表。比率可以是不同组的特征之比：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">spec</span> <span class="o">=</span> <span class="n">FeatureSpec</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="nb">id</span><span class="o">=</span><span class="s2">"customer"</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">observation_time</span><span class="o">=</span><span class="s2">"application_date"</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">events</span><span class="o">=</span><span class="p">[</span>
+<span class="gp">... </span>        <span class="p">{</span><span class="s2">"time"</span><span class="p">:</span> <span class="s2">"time"</span><span class="p">,</span> <span class="s2">"windows"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"1M"</span><span class="p">,</span> <span class="s2">"3M"</span><span class="p">],</span> <span class="s2">"aggregations"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"amount"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"sum"</span><span class="p">]}},</span>
+<span class="gp">... </span>        <span class="p">{</span>
+<span class="gp">... </span>            <span class="s2">"table"</span><span class="p">:</span> <span class="s2">"cash"</span><span class="p">,</span>
+<span class="gp">... </span>            <span class="s2">"time"</span><span class="p">:</span> <span class="s2">"time"</span><span class="p">,</span>
+<span class="gp">... </span>            <span class="s2">"windows"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"3M"</span><span class="p">],</span>
+<span class="gp">... </span>            <span class="s2">"aggregations"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"amount"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"sum"</span><span class="p">]},</span>
+<span class="gp">... </span>            <span class="s2">"prefix"</span><span class="p">:</span> <span class="s2">"cash_"</span><span class="p">,</span>
+<span class="gp">... </span>        <span class="p">},</span>
+<span class="gp">... </span>    <span class="p">],</span>
+<span class="gp">... </span>    <span class="n">ratios</span><span class="o">=</span><span class="p">[(</span><span class="s2">"cash_amount_sum_3m"</span><span class="p">,</span> <span class="s2">"amount_sum_3m"</span><span class="p">)],</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+<span class="go">['events_1m', 'amount_sum_1m', 'events_3m', 'amount_sum_3m', 'cash_events_3m',</span>
+<span class="go"> 'cash_amount_sum_3m', 'cash_amount_sum_3m_over_amount_sum_3m']</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="../api/features.html#kivi.features.FeatureSpec.compute" title="kivi.features.FeatureSpec.compute"><code class="xref py py-meth docutils literal notranslate"><span class="pre">compute()</span></code></a> 接受观察表以及按名称给出的事件表。所有组读取同一张表时，只传一个 DataFrame 即可：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">features</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="n">applications</span><span class="p">,</span> <span class="n">events</span><span class="o">=</span><span class="p">{</span><span class="s2">"events"</span><span class="p">:</span> <span class="n">events</span><span class="p">,</span> <span class="s2">"cash"</span><span class="p">:</span> <span class="n">cash</span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">features</span><span class="p">[[</span><span class="s2">"amount_sum_3m"</span><span class="p">,</span> <span class="s2">"cash_amount_sum_3m"</span><span class="p">,</span> <span class="s2">"cash_amount_sum_3m_over_amount_sum_3m"</span><span class="p">]]</span>
+<span class="go">   amount_sum_3m  cash_amount_sum_3m  cash_amount_sum_3m_over_amount_sum_3m</span>
+<span class="go">0          250.0                80.0                               0.320000</span>
+<span class="go">1          115.0                90.0                               0.782609</span>
+<span class="go">2            0.0                 0.0                                    NaN</span>
+</pre></div>
+</div>
+<p>每组给出 <a class="reference internal" href="../api/features.html#kivi.features.window_features" title="kivi.features.window_features"><code class="xref py py-func docutils literal notranslate"><span class="pre">window_features()</span></code></a> 按其定义给出的列，因此特征方案能精确地重现开发时的调用。特征方案只保存定义：其中没有任何从数据拟合的内容，因此可以手工编写，也可以从配置文件读取。</p>
+<p>面板特征组放在 <code class="docutils literal notranslate"><span class="pre">panel</span></code> 中，每组包含一次 <a class="reference internal" href="../api/features.html#kivi.features.panel_features" title="kivi.features.panel_features"><code class="xref py py-func docutils literal notranslate"><span class="pre">panel_features()</span></code></a> 调用的关键字参数，以及 <code class="docutils literal notranslate"><span class="pre">table</span></code> 中其面板的名称，默认为 <code class="docutils literal notranslate"><span class="pre">&quot;panel&quot;</span></code> ； <a class="reference internal" href="../api/features.html#kivi.features.FeatureSpec.compute" title="kivi.features.FeatureSpec.compute"><code class="xref py py-meth docutils literal notranslate"><span class="pre">compute()</span></code></a> 以 <code class="docutils literal notranslate"><span class="pre">panel</span></code> 接受这些面板。方案可以只包含面板特征，其比率也可以用时间窗特征除以面板特征。 <code class="docutils literal notranslate"><span class="pre">bad</span></code> 状态和前缀不同的两个组，给出两种违约定义下的特征：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">both</span> <span class="o">=</span> <span class="n">FeatureSpec</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="nb">id</span><span class="o">=</span><span class="s2">"customer"</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">observation_time</span><span class="o">=</span><span class="s2">"application_date"</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">events</span><span class="o">=</span><span class="p">[{</span><span class="s2">"time"</span><span class="p">:</span> <span class="s2">"time"</span><span class="p">,</span> <span class="s2">"windows"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"3M"</span><span class="p">]}],</span>
+<span class="gp">... </span>    <span class="n">panel</span><span class="o">=</span><span class="p">[</span>
+<span class="gp">... </span>        <span class="p">{</span><span class="s2">"month"</span><span class="p">:</span> <span class="s2">"month"</span><span class="p">,</span> <span class="s2">"status"</span><span class="p">:</span> <span class="s2">"status"</span><span class="p">,</span> <span class="s2">"windows"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"6M"</span><span class="p">]},</span>
+<span class="gp">... </span>        <span class="p">{</span><span class="s2">"month"</span><span class="p">:</span> <span class="s2">"month"</span><span class="p">,</span> <span class="s2">"status"</span><span class="p">:</span> <span class="s2">"status"</span><span class="p">,</span> <span class="s2">"windows"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"6M"</span><span class="p">],</span> <span class="s2">"bad"</span><span class="p">:</span> <span class="s2">"90+"</span><span class="p">,</span>
+<span class="gp">... </span>         <span class="s2">"prefix"</span><span class="p">:</span> <span class="s2">"severe_"</span><span class="p">},</span>
+<span class="gp">... </span>    <span class="p">],</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">both</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+<span class="go">['events_3m', 'months_6m', 'bad_months_6m', 'longest_bad_run_6m', 'longest_good_run_6m',</span>
+<span class="go"> 'worst_status_6m', 'months_since_bad', 'severe_months_6m', 'severe_bad_months_6m',</span>
+<span class="go"> 'severe_longest_bad_run_6m', 'severe_longest_good_run_6m', 'severe_worst_status_6m',</span>
+<span class="go"> 'severe_months_since_bad']</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">both</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="n">applications</span><span class="p">,</span> <span class="n">events</span><span class="o">=</span><span class="n">events</span><span class="p">,</span> <span class="n">panel</span><span class="o">=</span><span class="n">panel</span><span class="p">)[[</span><span class="s2">"bad_months_6m"</span><span class="p">,</span> <span class="s2">"severe_bad_months_6m"</span><span class="p">]]</span>
+<span class="go">   bad_months_6m  severe_bad_months_6m</span>
+<span class="go">0              2                     0</span>
+<span class="go">1              1                     0</span>
+<span class="go">2              0                     0</span>
+</pre></div>
+</div>
+<p>时间窗特征排在最前，然后是面板特征，比率排在最后。</p>
+<p><a class="reference internal" href="../api/features.html#kivi.features.FeatureSpec.to_json" title="kivi.features.FeatureSpec.to_json"><code class="xref py py-meth docutils literal notranslate"><span class="pre">to_json()</span></code></a> 把特征方案写成 JSON 文本， <a class="reference internal" href="../api/features.html#kivi.features.FeatureSpec.from_json" title="kivi.features.FeatureSpec.from_json"><code class="xref py py-meth docutils literal notranslate"><span class="pre">from_json()</span></code></a> 将其读回为相等的方案。两个方案的 JSON 文本相同时二者相等，文本中包含写出它们的 kivi 版本：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">loaded</span> <span class="o">=</span> <span class="n">FeatureSpec</span><span class="o">.</span><span class="n">from_json</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">loaded</span> <span class="o">==</span> <span class="n">spec</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">loaded</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="n">applications</span><span class="p">,</span> <span class="n">events</span><span class="o">=</span><span class="p">{</span><span class="s2">"events"</span><span class="p">:</span> <span class="n">events</span><span class="p">,</span> <span class="s2">"cash"</span><span class="p">:</span> <span class="n">cash</span><span class="p">})</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="n">features</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<p>文件包含以下键。 <code class="docutils literal notranslate"><span class="pre">kivi_version</span></code> 之后的键就是 <a class="reference internal" href="../api/features.html#kivi.features.FeatureSpec" title="kivi.features.FeatureSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">FeatureSpec</span></code></a> 的参数，形式与构造函数接受的相同，元组写成列表，每组写出全部键，因此 <a class="reference internal" href="../api/features.html#kivi.features.FeatureSpec.to_dict" title="kivi.features.FeatureSpec.to_dict"><code class="xref py py-meth docutils literal notranslate"><span class="pre">to_dict()</span></code></a> 给出的正是构造函数接受的参数：</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 75.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>键</p></th>
+<th class="head"><p>内容</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">format</span></code></p></td>
+<td><p>始终为 <code class="docutils literal notranslate"><span class="pre">&quot;kivi.FeatureSpec&quot;</span></code> 。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">format_version</span></code></p></td>
+<td><p>格式的版本，为 1。 <code class="docutils literal notranslate"><span class="pre">FeatureSpec.FORMAT_VERSION</span></code> 是 kivi 能读取的最新版本。格式版本较新的文件会引发错误，提示升级 kivi，而不会只读取其中一部分。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">kivi_version</span></code></p></td>
+<td><p>写出该方案的 kivi 版本。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">id</span></code> 和 <code class="docutils literal notranslate"><span class="pre">observation_time</span></code></p></td>
+<td><p>主体列和观察时间列。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">events</span></code></p></td>
+<td><p>每组一个 dict，按顺序排列，包含 <code class="docutils literal notranslate"><span class="pre">table</span></code> 、 <code class="docutils literal notranslate"><span class="pre">time</span></code> 、 <code class="docutils literal notranslate"><span class="pre">windows</span></code> （字符串和字符串对）、 <code class="docutils literal notranslate"><span class="pre">aggregations</span></code> （由每列到其聚合列表的 dict，按结果中列的顺序）、 <code class="docutils literal notranslate"><span class="pre">closed</span></code> 和 <code class="docutils literal notranslate"><span class="pre">prefix</span></code> 。重复某个键的 JSON 对象会引发错误，否则会丢失一个值。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ratios</span></code></p></td>
+<td><p>各比率的列名对。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">panel</span></code></p></td>
+<td><p>每个面板特征组一个 dict，按顺序排列，包含 <code class="docutils literal notranslate"><span class="pre">table</span></code> 、 <code class="docutils literal notranslate"><span class="pre">month</span></code> 、 <code class="docutils literal notranslate"><span class="pre">status</span></code> 、 <code class="docutils literal notranslate"><span class="pre">windows</span></code> 、 <code class="docutils literal notranslate"><span class="pre">bad</span></code> 和 <code class="docutils literal notranslate"><span class="pre">prefix</span></code> 。 <code class="docutils literal notranslate"><span class="pre">bad</span></code> 写成其类别的字符串或整数。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="features-of-synthetic-transactions">
+<h2>合成交易流水的特征<a class="headerlink" href="#features-of-synthetic-transactions" title="链接到此标题。">#</a></h2>
+<p><a class="reference internal" href="../api/datasets.html#kivi.datasets.make_transactions" title="kivi.datasets.make_transactions"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_transactions()</span></code></a> 模拟 <a class="reference internal" href="../api/datasets.html#kivi.datasets.make_applications" title="kivi.datasets.make_applications"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_applications()</span></code></a> 中每笔申请之前十二个月的刷卡消费、取现和分期还款，见 <a class="reference internal" href="datasets.html"><span class="doc">示例数据</span></a> 。交易流水取决于申请人的一个任何放贷机构都看不到的风险因子， <code class="docutils literal notranslate"><span class="pre">include_risk=True</span></code> 会把它作为 <code class="docutils literal notranslate"><span class="pre">risk</span></code> 列加到申请数据中。申请数据没有日期，因此按行的顺序把它们分布在 2024 年全年；观察就是申请人及其申请日期，使用申请数据的索引：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_applications</span><span class="p">,</span> <span class="n">make_transactions</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sample</span> <span class="o">=</span> <span class="n">make_applications</span><span class="p">(</span><span class="n">n_applicants</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span> <span class="n">include_risk</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">days</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_timedelta</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">10000</span><span class="p">)</span> <span class="o">*</span> <span class="mi">366</span> <span class="o">//</span> <span class="mi">10000</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">"D"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sample</span><span class="p">[</span><span class="s2">"application_date"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="s2">"2024-01-01"</span><span class="p">)</span> <span class="o">+</span> <span class="n">days</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">transactions</span> <span class="o">=</span> <span class="n">make_transactions</span><span class="p">(</span><span class="n">sample</span><span class="p">,</span> <span class="n">application_date</span><span class="o">=</span><span class="s2">"application_date"</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">observations</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">{</span><span class="s2">"applicant_id"</span><span class="p">:</span> <span class="n">sample</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="s2">"application_date"</span><span class="p">:</span> <span class="n">sample</span><span class="p">[</span><span class="s2">"application_date"</span><span class="p">]},</span>
+<span class="gp">... </span>    <span class="n">index</span><span class="o">=</span><span class="n">sample</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+<span class="gp">... </span><span class="p">)</span>
+</pre></div>
+</div>
+<p>一个 <a class="reference internal" href="../api/features.html#kivi.features.FeatureSpec" title="kivi.features.FeatureSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">FeatureSpec</span></code></a> ，每类交易一组，给出最近三个月和此前三个月的取现和还款，以及最近三个月的消费及其商户类别数。两个比率比较最近三个月与此前三个月：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">two_periods</span> <span class="o">=</span> <span class="p">{</span>
+<span class="gp">... </span>    <span class="s2">"time"</span><span class="p">:</span> <span class="s2">"timestamp"</span><span class="p">,</span> <span class="s2">"windows"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"3M"</span><span class="p">,</span> <span class="p">(</span><span class="s2">"6M"</span><span class="p">,</span> <span class="s2">"3M"</span><span class="p">)],</span> <span class="s2">"aggregations"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"amount"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"sum"</span><span class="p">]},</span>
+<span class="gp">... </span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">transaction_spec</span> <span class="o">=</span> <span class="n">FeatureSpec</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="nb">id</span><span class="o">=</span><span class="s2">"applicant_id"</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">observation_time</span><span class="o">=</span><span class="s2">"application_date"</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">events</span><span class="o">=</span><span class="p">[</span>
+<span class="gp">... </span>        <span class="p">{</span><span class="s2">"table"</span><span class="p">:</span> <span class="s2">"cash"</span><span class="p">,</span> <span class="s2">"prefix"</span><span class="p">:</span> <span class="s2">"cash_"</span><span class="p">,</span> <span class="o">**</span><span class="n">two_periods</span><span class="p">},</span>
+<span class="gp">... </span>        <span class="p">{</span><span class="s2">"table"</span><span class="p">:</span> <span class="s2">"repayments"</span><span class="p">,</span> <span class="s2">"prefix"</span><span class="p">:</span> <span class="s2">"repayment_"</span><span class="p">,</span> <span class="o">**</span><span class="n">two_periods</span><span class="p">},</span>
+<span class="gp">... </span>        <span class="p">{</span>
+<span class="gp">... </span>            <span class="s2">"table"</span><span class="p">:</span> <span class="s2">"purchases"</span><span class="p">,</span>
+<span class="gp">... </span>            <span class="s2">"prefix"</span><span class="p">:</span> <span class="s2">"purchase_"</span><span class="p">,</span>
+<span class="gp">... </span>            <span class="s2">"time"</span><span class="p">:</span> <span class="s2">"timestamp"</span><span class="p">,</span>
+<span class="gp">... </span>            <span class="s2">"windows"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"3M"</span><span class="p">],</span>
+<span class="gp">... </span>            <span class="s2">"aggregations"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"amount"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"sum"</span><span class="p">],</span> <span class="s2">"merchant_category"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"nunique"</span><span class="p">]},</span>
+<span class="gp">... </span>        <span class="p">},</span>
+<span class="gp">... </span>    <span class="p">],</span>
+<span class="gp">... </span>    <span class="n">ratios</span><span class="o">=</span><span class="p">[</span>
+<span class="gp">... </span>        <span class="p">(</span><span class="s2">"cash_events_3m"</span><span class="p">,</span> <span class="s2">"cash_events_6m_3m"</span><span class="p">),</span>
+<span class="gp">... </span>        <span class="p">(</span><span class="s2">"repayment_amount_sum_3m"</span><span class="p">,</span> <span class="s2">"repayment_amount_sum_6m_3m"</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="p">],</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">kind</span> <span class="o">=</span> <span class="n">transactions</span><span class="p">[</span><span class="s2">"kind"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">transaction_features</span> <span class="o">=</span> <span class="n">transaction_spec</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">observations</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">events</span><span class="o">=</span><span class="p">{</span>
+<span class="gp">... </span>        <span class="s2">"cash"</span><span class="p">:</span> <span class="n">transactions</span><span class="p">[</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">"cash_withdrawal"</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="s2">"repayments"</span><span class="p">:</span> <span class="n">transactions</span><span class="p">[</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">"repayment"</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="s2">"purchases"</span><span class="p">:</span> <span class="n">transactions</span><span class="p">[</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">"purchase"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">},</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">transaction_features</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">(10000, 13)</span>
+</pre></div>
+</div>
+<p>这些特征和申请数据中的列一样是候选变量，因此用 <a class="reference internal" href="../api/univariate.html#kivi.univariate.profile_table" title="kivi.univariate.profile_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">profile_table()</span></code></a> 对照结果筛选它们，见 <a class="reference internal" href="univariate.html"><span class="doc">单变量概况</span></a> ：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.univariate</span><span class="w"> </span><span class="kn">import</span> <span class="n">profile_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">screening</span> <span class="o">=</span> <span class="n">profile_table</span><span class="p">(</span><span class="n">transaction_features</span><span class="p">,</span> <span class="n">sample</span><span class="p">[</span><span class="s2">"target"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">screening</span><span class="p">[[</span><span class="s2">"missing_share"</span><span class="p">,</span> <span class="s2">"iv"</span><span class="p">,</span> <span class="s2">"gini"</span><span class="p">]]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">"iv"</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">                                       missing_share     iv   gini</span>
+<span class="go">variable</span>
+<span class="go">cash_events_3m                                 0.000  0.310  0.316</span>
+<span class="go">repayment_events_3m                            0.000  0.199 -0.257</span>
+<span class="go">cash_amount_sum_3m                             0.000  0.192  0.249</span>
+<span class="go">cash_events_3m_over_6m_3m                      0.241  0.185  0.185</span>
+<span class="go">repayment_amount_sum_3m_over_6m_3m             0.004  0.185 -0.218</span>
+<span class="go">cash_events_6m_3m                              0.000  0.180  0.247</span>
+<span class="go">purchase_amount_sum_3m                         0.000  0.104 -0.181</span>
+<span class="go">cash_amount_sum_6m_3m                          0.000  0.085  0.177</span>
+<span class="go">repayment_events_6m_3m                         0.000  0.082 -0.123</span>
+<span class="go">purchase_events_3m                             0.000  0.048 -0.121</span>
+<span class="go">repayment_amount_sum_3m                        0.000  0.031 -0.089</span>
+<span class="go">purchase_merchant_category_nunique_3m          0.000  0.030 -0.094</span>
+<span class="go">repayment_amount_sum_6m_3m                     0.000  0.005  0.037</span>
+</pre></div>
+</div>
+<p>最近三个月的取现次数对两类的区分最好，取现越多违约越多，正的 <code class="docutils literal notranslate"><span class="pre">gini</span></code> 表明了这一点。其次是最近三个月的还款，方向相反：有风险的申请人漏还更多，因此还款次数越少、金额相对此前三个月越小，违约越多。两者都来自交易流水的模拟方式，即申请之前逐渐累积的压力，因此两者在最近三个月都比在此前三个月更强。消费几乎没有信息。取现的比率对 24% 的申请人缺失，他们在最近三个月之前的三个月里没有取现，因此分母为 0。概况把他们单独作为一组，这一组的违约比其他人少：缺失值本身也是信息。</p>
+<figure class="align-default" id="id6">
+<img alt="cash_events_3m 和 cash_events_6m_3m 各区间的申请人占比与事件率：事件率在最近三个月的各区间中从 9.4% 升至 31.4%，在此前三个月的各区间中从 11.6% 升至 28.0%，而全部申请人的事件率为 16.1%" class="plot-directive" src="../_images/features-3.svg" />
+<figcaption>
+<p><span class="caption-text">概况的快速分箱对最近三个月及其之前三个月的取现次数分出的区间，附各特征的 IV。两个窗口中都是取现越多违约越多，而最近三个月对两类的区分更好。虚线是全部申请人的事件率。</span><a class="headerlink" href="#id6" title="链接到此图片">#</a></p>
+</figcaption>
+</figure>
+<p>信号清晰但有限，而且只有模拟数据才能把它与一个任何放贷机构都看不到的因子联系起来：这些交易流水展示时间窗特征如何运作，而不是说明真实组合中的行为对违约的预测能力有多强。保留下来的特征请按 <a class="reference internal" href="binning.html"><span class="doc">分箱</span></a> 中的方法分箱，并与其他候选变量一起按 <a class="reference internal" href="selection.html"><span class="doc">变量筛选</span></a> 中的方法筛选。</p>
+</section>
+<section id="missing-values">
+<h2>缺失值<a class="headerlink" href="#missing-values" title="链接到此标题。">#</a></h2>
+<p>被聚合列的缺失值不参与该列的聚合，因此 <code class="docutils literal notranslate"><span class="pre">count</span></code> 统计值的个数， <code class="docutils literal notranslate"><span class="pre">events</span></code> 统计行数：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">partial</span> <span class="o">=</span> <span class="n">events</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">amount</span><span class="o">=</span><span class="n">events</span><span class="p">[</span><span class="s2">"amount"</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">events</span><span class="p">[</span><span class="s2">"kind"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"card"</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">window_features</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">partial</span><span class="p">,</span> <span class="n">applications</span><span class="p">,</span> <span class="o">**</span><span class="n">keys</span><span class="p">,</span> <span class="n">windows</span><span class="o">=</span><span class="p">[</span><span class="s2">"3M"</span><span class="p">],</span> <span class="n">aggregations</span><span class="o">=</span><span class="p">{</span><span class="s2">"amount"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"count"</span><span class="p">,</span> <span class="s2">"mean"</span><span class="p">]}</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="go">   events_3m  amount_count_3m  amount_mean_3m</span>
+<span class="go">0          3                2            85.0</span>
+<span class="go">1          3                1            25.0</span>
+<span class="go">2          0                0             NaN</span>
+</pre></div>
+</div>
+<p>主体或时间缺失会引发错误，因为该事件无法放入任何窗口。</p>
+</section>
+<section id="limits">
+<h2>局限<a class="headerlink" href="#limits" title="链接到此标题。">#</a></h2>
+<ul class="simple">
+<li><p>窗口只比较时间。延迟入账的事件，例如交易发生几天后才记账，其可知的时间晚于记录的时间；请在计算特征之前平移这些事件的时间，或者平移观察时间。</p></li>
+<li><p>kivi 没有用于筛选事件的表达式，也不计算主体在群体内的排名；请用 pandas 筛选，并在之后对特征排名。</p></li>
+<li><p>特征不加权：每个事件计一次。</p></li>
+<li><p>一个主体只有一个标识列，事件表和面板共用这一列。要组合多个键，例如客户和产品，请先把它们合并成一列。</p></li>
+<li><p>面板特征需要按月的状态。其他频率的面板，例如每周快照，需要先归并到月末。</p></li>
+</ul>
+</section>
+<section id="errors-and-warnings">
+<h2>错误与警告<a class="headerlink" href="#errors-and-warnings" title="链接到此标题。">#</a></h2>
+<p>时间列必须是 datetime；请先转换字符串：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">text</span> <span class="o">=</span> <span class="n">applications</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">application_date</span><span class="o">=</span><span class="p">[</span><span class="s2">"2024-03-31"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">({</span><span class="s2">"application_date"</span><span class="p">:</span> <span class="nb">object</span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">try</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="n">window_features</span><span class="p">(</span><span class="n">events</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="o">**</span><span class="n">keys</span><span class="p">)</span>
+<span class="gp">... </span><span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
+<span class="go">observation_time column 'application_date' of observations must hold datetimes, got dtype object; convert it with pandas.to_datetime</span>
+</pre></div>
+</div>
+<p>单个窗口也要写成列表：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">try</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="n">window_features</span><span class="p">(</span><span class="n">events</span><span class="p">,</span> <span class="n">applications</span><span class="p">,</span> <span class="o">**</span><span class="n">keys</span><span class="p">,</span> <span class="n">windows</span><span class="o">=</span><span class="s2">"3M"</span><span class="p">)</span>
+<span class="gp">... </span><span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
+<span class="go">windows must be a list of windows such as '3M', '90D' or ('6M', '3M'), got '3M'; pass ['3M'] for one window</span>
+</pre></div>
+</div>
+<p>一个有时区、一个无时区的时间列，或者两个不同的时区，会引发同时列出两者的错误；用 <code class="docutils literal notranslate"><span class="pre">Series.dt.tz_convert</span></code> 把它们转换到同一时区，或用 <code class="docutils literal notranslate"><span class="pre">Series.dt.tz_localize(None)</span></code> 去掉时区。对于面板，有时区的月份和有时区的观察时间处于两个不同时区时，也会这样引发错误。 <code class="docutils literal notranslate"><span class="pre">count</span></code> 、 <code class="docutils literal notranslate"><span class="pre">nunique</span></code> 和 <code class="docutils literal notranslate"><span class="pre">days_since_last</span></code> 以外的聚合遇到文本列会引发错误，所有数值聚合遇到无穷值也会引发错误。</p>
+<p>字符串状态列没有顺序，因此 <a class="reference internal" href="../api/features.html#kivi.features.panel_features" title="kivi.features.panel_features"><code class="xref py py-func docutils literal notranslate"><span class="pre">panel_features()</span></code></a> 要求有序分类，而且 <code class="docutils literal notranslate"><span class="pre">bad</span></code> 必须是其类别之一：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">try</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="n">panel_features</span><span class="p">(</span>
+<span class="gp">... </span>        <span class="n">panel</span><span class="o">.</span><span class="n">astype</span><span class="p">({</span><span class="s2">"status"</span><span class="p">:</span> <span class="nb">object</span><span class="p">}),</span> <span class="n">applications</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">"customer"</span><span class="p">,</span> <span class="n">month</span><span class="o">=</span><span class="s2">"month"</span><span class="p">,</span>
+<span class="gp">... </span>        <span class="n">status</span><span class="o">=</span><span class="s2">"status"</span><span class="p">,</span> <span class="n">observation_time</span><span class="o">=</span><span class="s2">"application_date"</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="p">)</span>
+<span class="gp">... </span><span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
+<span class="go">status column 'status' of panel must be an ordered categorical, from the best status to the worst, got dtype object; convert it with pandas.Categorical(values, categories=[...], ordered=True)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">try</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="n">panel_features</span><span class="p">(</span>
+<span class="gp">... </span>        <span class="n">panel</span><span class="p">,</span> <span class="n">applications</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">"customer"</span><span class="p">,</span> <span class="n">month</span><span class="o">=</span><span class="s2">"month"</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="s2">"status"</span><span class="p">,</span>
+<span class="gp">... </span>        <span class="n">observation_time</span><span class="o">=</span><span class="s2">"application_date"</span><span class="p">,</span> <span class="n">bad</span><span class="o">=</span><span class="s2">"30+"</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="p">)</span>
+<span class="gp">... </span><span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
+<span class="go">bad must be one of the categories of status column 'status' of panel, got '30+'; the categories are ['current', '1-29', '30-59', '60-89', '90+']</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="risk_workflow.html"
+       title="上一页">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">上一页</p>
+        <p class="prev-next-title">风控建模流程</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="univariate.html"
+       title="下一页">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">下一页</p>
+        <p class="prev-next-title">单变量概况</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 当前页面
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#definitions">定义</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-worked-example">计算示例</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#windows">窗口</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#aggregations">聚合</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ratios-and-changes">比率与变化</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#filtered-events">筛选后的事件</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#observations-over-time">多个时间点的观察</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#reading-the-result">解读结果</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#repayment-behaviour">还款行为</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#feature-specifications">特征方案</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#features-of-synthetic-transactions">合成交易流水的特征</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#missing-values">缺失值</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#limits">局限</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#errors-and-warnings">错误与警告</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    由 <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1创建。
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

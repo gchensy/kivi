@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Regulatory capital &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=d005c095" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=25d9e9fd"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/capital';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Vintage and roll-rate analysis" href="vintage.html" />
+    <link rel="prev" title="Model monitoring" href="monitoring.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="1.9.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 1.9.0">1.9.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    Tutorial
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/api/capital.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    Tutorial
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/api/capital.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="conventions.html">Conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compatibility.html">Compatibility</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">Time-window features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="univariate.html">Univariate profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="binning.html">Binning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="woe.html">Weight of evidence and information value</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selection.html">Variable selection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reject_inference.html">Reject inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scorecard.html">Scorecard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="expert.html">Expert scorecards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">Model performance</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lgd.html">LGD and EAD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">Credit strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rules.html">Policy rules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spec.html">Binning specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stability.html">Population stability index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">Model monitoring</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">Regulatory capital</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vintage.html">Vintage and roll-rate analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lifetime.html">Lifetime PD and expected credit loss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html">Charts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">Example data</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../api.html" class="nav-link">API reference</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Regulatory capital</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="module-kivi.capital">
+<span id="regulatory-capital"></span><h1>Regulatory capital<a class="headerlink" href="#module-kivi.capital" title="Link to this heading">#</a></h1>
+<p>Compute the regulatory capital of credit exposures under the internal ratings-based approach. <a class="reference internal" href="#kivi.capital.asset_correlation" title="kivi.capital.asset_correlation"><code class="xref py py-func docutils literal notranslate"><span class="pre">asset_correlation()</span></code></a> and <a class="reference internal" href="#kivi.capital.capital_requirement" title="kivi.capital.capital_requirement"><code class="xref py py-func docutils literal notranslate"><span class="pre">capital_requirement()</span></code></a> evaluate the risk-weight functions of the Basel framework and of China’s 2023 capital rules, <a class="reference internal" href="#kivi.capital.conditional_pd" title="kivi.capital.conditional_pd"><code class="xref py py-func docutils literal notranslate"><span class="pre">conditional_pd()</span></code></a>, <a class="reference internal" href="#kivi.capital.systematic_factor" title="kivi.capital.systematic_factor"><code class="xref py py-func docutils literal notranslate"><span class="pre">systematic_factor()</span></code></a> and <a class="reference internal" href="#kivi.capital.vasicek_fit" title="kivi.capital.vasicek_fit"><code class="xref py py-func docutils literal notranslate"><span class="pre">vasicek_fit()</span></code></a> work with the one-factor model behind them, and <a class="reference internal" href="#kivi.capital.most_prudent_pd" title="kivi.capital.most_prudent_pd"><code class="xref py py-func docutils literal notranslate"><span class="pre">most_prudent_pd()</span></code></a> bounds the PDs of a portfolio with few defaults.</p>
+<p>See <a class="reference internal" href="../user_guide/capital.html"><span class="doc">Regulatory capital</span></a> for examples and the parameters of both jurisdictions.</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.capital.asset_correlation" title="kivi.capital.asset_correlation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">asset_correlation</span></code></a>(probability, *, asset_class)</p></td>
+<td><p>Compute the asset correlation of the IRB risk-weight function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.capital.capital_requirement" title="kivi.capital.capital_requirement"><code class="xref py py-obj docutils literal notranslate"><span class="pre">capital_requirement</span></code></a>(probability, lgd, *, ...)</p></td>
+<td><p>Compute the capital requirement K of the IRB approach, as a share of the exposure.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.capital.conditional_pd" title="kivi.capital.conditional_pd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">conditional_pd</span></code></a>(probability, *, correlation)</p></td>
+<td><p>Compute the PD of the one-factor model given the state of the economy.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.capital.systematic_factor" title="kivi.capital.systematic_factor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">systematic_factor</span></code></a>(default_rate, probability, ...)</p></td>
+<td><p>Compute the systematic factor that an observed default rate implies.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.capital.vasicek_fit" title="kivi.capital.vasicek_fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vasicek_fit</span></code></a>(default_rate)</p></td>
+<td><p>Estimate the long-run PD and the asset correlation from a series of default rates.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.capital.most_prudent_pd" title="kivi.capital.most_prudent_pd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">most_prudent_pd</span></code></a>(event, total, *[, level, ...])</p></td>
+<td><p>Compute the most prudent upper bounds of Pluto and Tasche for the PD of each grade.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.capital.asset_correlation">
+<span class="sig-prename descclassname"><span class="pre">kivi.capital.</span></span><span class="sig-name descname"><span class="pre">asset_correlation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">probability</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">asset_class</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">turnover</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">turnover_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(5.0,</span> <span class="pre">50.0)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">financial</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.capital.asset_correlation" title="Link to this definition">#</a></dt>
+<dd><p>Compute the asset correlation of the IRB risk-weight function.</p>
+<p>The asset correlation <span class="math notranslate nohighlight">\(R\)</span> is the share of the variance of a
+borrower’s assets that the economy as a whole explains. The IRB
+approach fixes it by asset class, falling with the PD for corporate
+exposures and for other retail exposures.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>probability</strong><span class="classifier">array_like</span></dt><dd><p>Probabilities of default, from 0 to 1. Missing values give missing
+correlations.</p>
+</dd>
+<dt><strong>asset_class</strong><span class="classifier">{“corporate”, “hvcre”, “mortgage”, “revolving”, “other_retail”}</span></dt><dd><p><code class="docutils literal notranslate"><span class="pre">&quot;corporate&quot;</span></code> for corporate, sovereign and bank exposures,
+<code class="docutils literal notranslate"><span class="pre">&quot;hvcre&quot;</span></code> for high-volatility commercial real estate,
+<code class="docutils literal notranslate"><span class="pre">&quot;mortgage&quot;</span></code> for residential mortgages, <code class="docutils literal notranslate"><span class="pre">&quot;revolving&quot;</span></code> for
+qualifying revolving retail exposures and <code class="docutils literal notranslate"><span class="pre">&quot;other_retail&quot;</span></code> for
+other retail exposures.</p>
+</dd>
+<dt><strong>turnover</strong><span class="classifier">array_like, optional</span></dt><dd><p>Annual sales of each corporate borrower, in the units of
+<cite>turnover_range</cite>, such as millions of euros. Values below the upper
+bound of the range lower the correlation, as for small and
+medium-sized enterprises; <code class="docutils literal notranslate"><span class="pre">numpy.inf</span></code> marks a borrower without
+that adjustment. Only for <code class="docutils literal notranslate"><span class="pre">asset_class=&quot;corporate&quot;</span></code>; must not be
+missing.</p>
+</dd>
+<dt><strong>turnover_range</strong><span class="classifier">tuple of float, default (5.0, 50.0)</span></dt><dd><p>The lower and upper bound of the turnover adjustment. The default is
+the Basel range in millions of euros; China’s rules use (3.0, 30.0)
+in tens of millions of yuan.</p>
+</dd>
+<dt><strong>financial</strong><span class="classifier">bool, default False</span></dt><dd><p>Whether the borrowers are financial institutions whose correlation is
+multiplied by 1.25. Only for <code class="docutils literal notranslate"><span class="pre">asset_class=&quot;corporate&quot;</span></code>, and not
+together with a turnover below the upper bound of <cite>turnover_range</cite>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>float, pandas.Series or numpy.ndarray</dt><dd><p>Correlations with the broadcast shape of <cite>probability</cite> and
+<cite>turnover</cite>. If an input is a Series, the result is a Series with its
+index, named <code class="docutils literal notranslate"><span class="pre">correlation</span></code>; scalar inputs give a float.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If <cite>asset_class</cite> is not one of the five classes, <cite>probability</cite> is not
+real and numeric or is outside [0, 1], or the inputs cannot be
+broadcast together or have different Series indices. Also if
+<cite>turnover</cite> or <cite>financial</cite> is given for another class than
+<code class="docutils literal notranslate"><span class="pre">&quot;corporate&quot;</span></code>, <cite>turnover</cite> is missing, negative or not numeric,
+<cite>turnover_range</cite> is not two finite numbers with
+<code class="docutils literal notranslate"><span class="pre">0</span> <span class="pre">&lt;=</span> <span class="pre">lower</span> <span class="pre">&lt;</span> <span class="pre">upper</span></code>, <cite>financial</cite> is not a boolean, or <cite>financial</cite>
+comes with a turnover below the upper bound.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.capital.capital_requirement" title="kivi.capital.capital_requirement"><code class="xref py py-obj docutils literal notranslate"><span class="pre">capital_requirement</span></code></a></dt><dd><p>The capital requirement that uses the correlation.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.capital.conditional_pd" title="kivi.capital.conditional_pd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">conditional_pd</span></code></a></dt><dd><p>The PD of the one-factor model given the state of the economy.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>For corporate exposures, and with weights of 35 instead of 50 and the
+bounds 0.03 and 0.16 for other retail exposures,</p>
+<div class="math notranslate nohighlight">
+\[w = \frac{1 - e^{-50\,\mathrm{PD}}}{1 - e^{-50}}, \qquad
+R = 0.12\,w + 0.24\,(1 - w).\]</div>
+<p>High-volatility commercial real estate uses 0.30 instead of 0.24,
+residential mortgages <span class="math notranslate nohighlight">\(R = 0.15\)</span> and qualifying revolving retail
+exposures <span class="math notranslate nohighlight">\(R = 0.04\)</span>. A turnover <span class="math notranslate nohighlight">\(S\)</span> with the range
+<span class="math notranslate nohighlight">\([l, u]\)</span> lowers a corporate correlation by
+<span class="math notranslate nohighlight">\(0.04\,(1 - (\min(\max(S, l), u) - l) / (u - l))\)</span>, which is 0.04
+at <span class="math notranslate nohighlight">\(S \le l\)</span> and 0 at <span class="math notranslate nohighlight">\(S \ge u\)</span>, and <cite>financial</cite> multiplies
+it by 1.25 (Basel CRE31.5–31.16; China, annex 6 and annex 8).</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.capital</span><span class="w"> </span><span class="kn">import</span> <span class="n">asset_correlation</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">asset_correlation</span><span class="p">([</span><span class="mf">0.0003</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">],</span> <span class="n">asset_class</span><span class="o">=</span><span class="s2">"corporate"</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">array([0.2382, 0.1928, 0.12  ])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">asset_correlation</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span><span class="w"> </span><span class="n">asset_class</span><span class="o">=</span><span class="s1">'corporate'</span><span class="p">,</span><span class="w"> </span><span class="n">turnover</span><span class="o">=</span><span class="mf">5.0</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">0.1528</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.capital.capital_requirement">
+<span class="sig-prename descclassname"><span class="pre">kivi.capital.</span></span><span class="sig-name descname"><span class="pre">capital_requirement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">probability</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lgd</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">asset_class</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maturity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">turnover</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">turnover_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(5.0,</span> <span class="pre">50.0)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">financial</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">correlation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.999</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scaling</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.capital.capital_requirement" title="Link to this definition">#</a></dt>
+<dd><p>Compute the capital requirement K of the IRB approach, as a share of the exposure.</p>
+<p>K covers the unexpected loss of an exposure that is not in default: the
+loss at the <cite>level</cite> quantile of the one-factor model minus the expected
+loss. The risk-weighted assets are <code class="docutils literal notranslate"><span class="pre">12.5</span> <span class="pre">*</span> <span class="pre">K</span> <span class="pre">*</span> <span class="pre">EAD</span></code> and the risk weight
+<code class="docutils literal notranslate"><span class="pre">12.5</span> <span class="pre">*</span> <span class="pre">K</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>probability</strong><span class="classifier">array_like</span></dt><dd><p>Probabilities of default strictly between 0 and 1, after any PD
+floor. Missing values give missing requirements.</p>
+</dd>
+<dt><strong>lgd</strong><span class="classifier">array_like</span></dt><dd><p>Loss given default as a share of the exposure, from 0 to 1. Missing
+values give missing requirements.</p>
+</dd>
+<dt><strong>asset_class</strong><span class="classifier">{“corporate”, “hvcre”, “mortgage”, “revolving”, “other_retail”}</span></dt><dd><p>The asset class, as in <cite>asset_correlation</cite>. It also decides whether
+the maturity adjustment applies: for <code class="docutils literal notranslate"><span class="pre">&quot;corporate&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">&quot;hvcre&quot;</span></code>,
+not for the three retail classes.</p>
+</dd>
+<dt><strong>maturity</strong><span class="classifier">array_like, optional</span></dt><dd><p>Effective maturity in years, positive and finite, for
+<code class="docutils literal notranslate"><span class="pre">&quot;corporate&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">&quot;hvcre&quot;</span></code> only. The default is 2.5 years. It
+is not clipped to the range of 1 to 5 years, which has exceptions
+for short-term exposures, and must not be missing.</p>
+</dd>
+<dt><strong>turnover</strong><span class="classifier">array_like, optional</span></dt><dd><p>Annual sales of corporate borrowers, as in <cite>asset_correlation</cite>.</p>
+</dd>
+<dt><strong>turnover_range</strong><span class="classifier">tuple of float, default (5.0, 50.0)</span></dt><dd><p>The bounds of the turnover adjustment, as in <cite>asset_correlation</cite>.</p>
+</dd>
+<dt><strong>financial</strong><span class="classifier">bool, default False</span></dt><dd><p>Whether the 1.25 multiplier for financial institutions applies, as in
+<cite>asset_correlation</cite>.</p>
+</dd>
+<dt><strong>correlation</strong><span class="classifier">array_like, optional</span></dt><dd><p>Asset correlations from 0 to 1 (exclusive) that replace those of the
+formula, as for economic capital; then <cite>turnover</cite> and <cite>financial</cite>
+must not be given. Must not be missing.</p>
+</dd>
+<dt><strong>level</strong><span class="classifier">float, default 0.999</span></dt><dd><p>The confidence level of the one-factor model, strictly between 0
+and 1.</p>
+</dd>
+<dt><strong>scaling</strong><span class="classifier">float, default 1.0</span></dt><dd><p>A positive factor applied to K. Only the Basel II framework of 2006
+multiplied the risk-weighted assets by 1.06; the current Basel
+framework and China’s 2023 rules do not.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>float, pandas.Series or numpy.ndarray</dt><dd><p>Capital requirements with the broadcast shape of the inputs. If an
+input is a Series, the result is a Series with its index, named
+<code class="docutils literal notranslate"><span class="pre">capital_requirement</span></code>; scalar inputs give a float.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If an input is not real and numeric, the inputs cannot be broadcast
+together or have different Series indices, <cite>probability</cite> is outside
+the open interval (0, 1), or is at or below about 2.927e-6 for
+<code class="docutils literal notranslate"><span class="pre">&quot;corporate&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;hvcre&quot;</span></code>, or <cite>lgd</cite> is outside [0, 1]. Also if
+<cite>maturity</cite> is given for a retail class, missing, not positive or not
+finite, <cite>correlation</cite> is missing, outside [0, 1) or given together
+with <cite>turnover</cite> or <cite>financial</cite>, <cite>level</cite> is outside (0, 1), <cite>scaling</cite>
+is not positive and finite, or an argument is invalid as in
+<cite>asset_correlation</cite>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.capital.asset_correlation" title="kivi.capital.asset_correlation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">asset_correlation</span></code></a></dt><dd><p>The correlation of each asset class.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.capital.conditional_pd" title="kivi.capital.conditional_pd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">conditional_pd</span></code></a></dt><dd><p>The PD at the level of the one-factor model.</p>
+</dd>
+<dt><a class="reference internal" href="strategy.html#kivi.strategy.expected_loss" title="kivi.strategy.expected_loss"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.strategy.expected_loss</span></code></a></dt><dd><p>The expected loss PD x LGD x EAD that K leaves out.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>With the standard normal distribution function <span class="math notranslate nohighlight">\(\Phi\)</span>, its
+quantile function <span class="math notranslate nohighlight">\(\Phi^{-1}\)</span>, the correlation <span class="math notranslate nohighlight">\(R\)</span> of
+<cite>asset_correlation</cite> and the level <span class="math notranslate nohighlight">\(q\)</span>,</p>
+<div class="math notranslate nohighlight">
+\[K = \mathrm{LGD} \left[ \Phi\!\left(
+\frac{\Phi^{-1}(\mathrm{PD}) + \sqrt{R}\,\Phi^{-1}(q)}{\sqrt{1 - R}}
+\right) - \mathrm{PD} \right] \frac{1 + (M - 2.5)\,b}{1 - 1.5\,b},
+\qquad b = (0.11852 - 0.05478 \ln \mathrm{PD})^2,\]</div>
+<p>where the maturity factor applies to <code class="docutils literal notranslate"><span class="pre">&quot;corporate&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">&quot;hvcre&quot;</span></code>
+only (Basel CRE31.5–31.16; China, annex 6). Then K is multiplied by
+<cite>scaling</cite>.</p>
+<p>The maturity factor divides by <span class="math notranslate nohighlight">\(1 - 1.5\,b\)</span>, which reaches 0 at a
+PD of about 2.927e-6, so these PDs raise an error; well before that,
+below a PD of about 1e-5, the factor grows so fast that the risk weight
+rises again as the PD falls. The PD floors of 0.05% (Basel CRE32.4,
+China article 91) stay above both; only sovereign exposures have none.</p>
+<p>A defaulted exposure (PD = 1) raises an error too: its requirement is
+<span class="math notranslate nohighlight">\(\max(0, \mathrm{LGD} - \mathrm{ELBE})\)</span> with the best estimate of
+its expected loss (Basel CRE31.3; China, annex 6, part II).</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.capital</span><span class="w"> </span><span class="kn">import</span> <span class="n">capital_requirement</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">k</span> <span class="o">=</span> <span class="n">capital_requirement</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.45</span><span class="p">,</span> <span class="n">asset_class</span><span class="o">=</span><span class="s2">"corporate"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"K = </span><span class="si">{</span><span class="n">k</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2">, risk weight = </span><span class="si">{</span><span class="mf">12.5</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">k</span><span class="si">:</span><span class="s2">.4%</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">K = 0.073853, risk weight = 92.3168%</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rw</span> <span class="o">=</span> <span class="mf">12.5</span> <span class="o">*</span> <span class="n">capital_requirement</span><span class="p">([</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.45</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">],</span> <span class="n">asset_class</span><span class="o">=</span><span class="s2">"other_retail"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rw</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">array([0.4577, 0.2543])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.capital.conditional_pd">
+<span class="sig-prename descclassname"><span class="pre">kivi.capital.</span></span><span class="sig-name descname"><span class="pre">conditional_pd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">probability</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">correlation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.capital.conditional_pd" title="Link to this definition">#</a></dt>
+<dd><p>Compute the PD of the one-factor model given the state of the economy.</p>
+<p>In the one-factor model of Vasicek, behind the IRB risk-weight functions,
+a borrower defaults when its assets fall below a threshold set by its
+long-run PD, and the assets of all borrowers share one systematic
+factor. Given that factor, defaults are independent and occur with the
+conditional PD. It turns a through-the-cycle PD into a point-in-time PD
+for a scenario of the economy, and gives the stressed PD of
+<cite>capital_requirement</cite> at its level.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>probability</strong><span class="classifier">array_like</span></dt><dd><p>Long-run (unconditional) probabilities of default, strictly between
+0 and 1. Missing values give missing PDs.</p>
+</dd>
+<dt><strong>correlation</strong><span class="classifier">array_like</span></dt><dd><p>Asset correlations from 0 to 1 (exclusive), such as those of
+<cite>asset_correlation</cite>. Must not be missing.</p>
+</dd>
+<dt><strong>factor</strong><span class="classifier">array_like, optional</span></dt><dd><p>Values of the standard normal systematic factor, finite; positive
+values stand for a better economy than on average and give PDs below
+the long-run PD. Missing values give missing PDs.</p>
+</dd>
+<dt><strong>level</strong><span class="classifier">array_like, optional</span></dt><dd><p>Instead of <cite>factor</cite>, the probability strictly between 0 and 1 that
+the economy is better than the scenario: the factor is the lower
+<code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">-</span> <span class="pre">level</span></code> quantile, <code class="docutils literal notranslate"><span class="pre">-Phi^-1(level)</span></code>. Missing values give
+missing PDs. Exactly one of <cite>factor</cite> and <cite>level</cite> must be given.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>float, pandas.Series or numpy.ndarray</dt><dd><p>Conditional PDs with the broadcast shape of the inputs. If an input
+is a Series, the result is a Series with its index, named
+<code class="docutils literal notranslate"><span class="pre">conditional_pd</span></code>; scalar inputs give a float.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If not exactly one of <cite>factor</cite> and <cite>level</cite> is given, an input is not
+real and numeric, the inputs cannot be broadcast together or have
+different Series indices, <cite>probability</cite> or <cite>level</cite> is outside the
+open interval (0, 1), <cite>correlation</cite> is missing or outside [0, 1), or
+<cite>factor</cite> is infinite.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.capital.systematic_factor" title="kivi.capital.systematic_factor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">systematic_factor</span></code></a></dt><dd><p>The factor that a default rate implies, the inverse of this function.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.capital.vasicek_fit" title="kivi.capital.vasicek_fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vasicek_fit</span></code></a></dt><dd><p>Estimate the long-run PD and the correlation from default rates.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.capital.capital_requirement" title="kivi.capital.capital_requirement"><code class="xref py py-obj docutils literal notranslate"><span class="pre">capital_requirement</span></code></a></dt><dd><p>The capital requirement, which uses the PD at the level 0.999.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>With the standard normal distribution function <span class="math notranslate nohighlight">\(\Phi\)</span>, the
+correlation <span class="math notranslate nohighlight">\(\rho\)</span> and the factor <span class="math notranslate nohighlight">\(z\)</span>,</p>
+<div class="math notranslate nohighlight">
+\[\mathrm{PD}(z) = \Phi\!\left(
+\frac{\Phi^{-1}(\mathrm{PD}) - \sqrt{\rho}\,z}{\sqrt{1 - \rho}} \right),\]</div>
+<p>and <cite>level</cite> <span class="math notranslate nohighlight">\(q\)</span> stands for <span class="math notranslate nohighlight">\(z = -\Phi^{-1}(q)\)</span>, so that
+<code class="docutils literal notranslate"><span class="pre">level=0.999</span></code> gives the PD of the IRB formula. Averaged over the
+standard normal <span class="math notranslate nohighlight">\(z\)</span>, the conditional PD is the long-run PD.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.capital</span><span class="w"> </span><span class="kn">import</span> <span class="n">conditional_pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">conditional_pd</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">correlation</span><span class="o">=</span><span class="mf">0.12</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="p">[</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">2.0</span><span class="p">])</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<span class="go">array([0.00064, 0.00657, 0.04081])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">conditional_pd</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span><span class="w"> </span><span class="n">correlation</span><span class="o">=</span><span class="mf">0.12</span><span class="p">,</span><span class="w"> </span><span class="n">level</span><span class="o">=</span><span class="mf">0.999</span><span class="p">)</span><span class="si">:</span><span class="s2">.4%</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">9.0326%</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.capital.systematic_factor">
+<span class="sig-prename descclassname"><span class="pre">kivi.capital.</span></span><span class="sig-name descname"><span class="pre">systematic_factor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">default_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">probability</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">correlation</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.capital.systematic_factor" title="Link to this definition">#</a></dt>
+<dd><p>Compute the systematic factor that an observed default rate implies.</p>
+<p>This inverts <cite>conditional_pd</cite>: it gives the value of the systematic
+factor under which the conditional PD equals the default rate, such as
+the default rate of a portfolio in each year. A negative factor marks a
+year worse than on average.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>default_rate</strong><span class="classifier">array_like</span></dt><dd><p>Observed default rates, strictly between 0 and 1. Missing values
+give missing factors.</p>
+</dd>
+<dt><strong>probability</strong><span class="classifier">array_like</span></dt><dd><p>Long-run probabilities of default, strictly between 0 and 1, such as
+the first result of <cite>vasicek_fit</cite>. Missing values give missing
+factors.</p>
+</dd>
+<dt><strong>correlation</strong><span class="classifier">array_like</span></dt><dd><p>Asset correlations strictly between 0 and 1, such as the second
+result of <cite>vasicek_fit</cite>. Must not be missing.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>float, pandas.Series or numpy.ndarray</dt><dd><p>Factors with the broadcast shape of the inputs. If an input is a
+Series, the result is a Series with its index, named <code class="docutils literal notranslate"><span class="pre">factor</span></code>;
+scalar inputs give a float.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If an input is not real and numeric, the inputs cannot be broadcast
+together or have different Series indices, <cite>default_rate</cite> or
+<cite>probability</cite> is outside the open interval (0, 1), or <cite>correlation</cite>
+is missing or outside (0, 1). A default rate of 0 or 1 has no finite
+factor.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.capital.conditional_pd" title="kivi.capital.conditional_pd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">conditional_pd</span></code></a></dt><dd><p>The PD given the factor, the inverse of this function.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.capital.vasicek_fit" title="kivi.capital.vasicek_fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vasicek_fit</span></code></a></dt><dd><p>Estimate the long-run PD and the correlation from default rates.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>With the default rate <span class="math notranslate nohighlight">\(\mathrm{DR}\)</span>,</p>
+<div class="math notranslate nohighlight">
+\[z = \frac{\Phi^{-1}(\mathrm{PD}) - \sqrt{1 - \rho}\,\Phi^{-1}(\mathrm{DR})}{\sqrt{\rho}}.\]</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.capital</span><span class="w"> </span><span class="kn">import</span> <span class="n">conditional_pd</span><span class="p">,</span> <span class="n">systematic_factor</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">systematic_factor</span><span class="p">([</span><span class="mf">0.004</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.03</span><span class="p">],</span> <span class="mf">0.01</span><span class="p">,</span> <span class="n">correlation</span><span class="o">=</span><span class="mf">0.12</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">array([ 0.4663, -0.4158, -1.6224])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">conditional_pd</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span><span class="w"> </span><span class="n">correlation</span><span class="o">=</span><span class="mf">0.12</span><span class="p">,</span><span class="w"> </span><span class="n">factor</span><span class="o">=-</span><span class="mf">1.6224</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">0.0300</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.capital.vasicek_fit">
+<span class="sig-prename descclassname"><span class="pre">kivi.capital.</span></span><span class="sig-name descname"><span class="pre">vasicek_fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">default_rate</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.capital.vasicek_fit" title="Link to this definition">#</a></dt>
+<dd><p>Estimate the long-run PD and the asset correlation from a series of default rates.</p>
+<p>In the one-factor model, the default rate of a large portfolio varies
+from year to year with the systematic factor, and its variance grows
+with the asset correlation. The method of moments matches the mean and
+the variance of the observed default rates. Default rates of 0 count,
+as in years without defaults.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>default_rate</strong><span class="classifier">array_like</span></dt><dd><p>Default rates of a portfolio in successive periods, such as years,
+from 0 to 1, at least two and without missing values.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>probability</strong><span class="classifier">float</span></dt><dd><p>The long-run PD, the mean of the default rates.</p>
+</dd>
+<dt><strong>correlation</strong><span class="classifier">float</span></dt><dd><p>The asset correlation, from 0 to 1. A constant series gives 0.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If <cite>default_rate</cite> is not real and numeric, not one-dimensional, has
+fewer than two values, missing values or values outside [0, 1], its
+mean is 0 or 1, or its variance is at least <code class="docutils literal notranslate"><span class="pre">mean</span> <span class="pre">*</span> <span class="pre">(1</span> <span class="pre">-</span> <span class="pre">mean)</span></code>,
+the variance of a correlation of 1.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.capital.conditional_pd" title="kivi.capital.conditional_pd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">conditional_pd</span></code></a></dt><dd><p>The PD given the factor, with the fitted parameters.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.capital.systematic_factor" title="kivi.capital.systematic_factor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">systematic_factor</span></code></a></dt><dd><p>The factor of each period, with the fitted parameters.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>With the mean <span class="math notranslate nohighlight">\(m\)</span> and the variance <span class="math notranslate nohighlight">\(s^2\)</span> of the default
+rates (with <code class="docutils literal notranslate"><span class="pre">ddof=1</span></code>), the correlation <span class="math notranslate nohighlight">\(\rho\)</span> solves</p>
+<div class="math notranslate nohighlight">
+\[\Phi_2\!\left(\Phi^{-1}(m), \Phi^{-1}(m); \rho\right) - m^2 = s^2,\]</div>
+<p>where <span class="math notranslate nohighlight">\(\Phi_2\)</span> is the bivariate standard normal distribution
+function: two borrowers of the portfolio default together with
+probability <span class="math notranslate nohighlight">\(\Phi_2\)</span>. Its left side rises with <span class="math notranslate nohighlight">\(\rho\)</span>, from 0
+to <span class="math notranslate nohighlight">\(m (1 - m)\)</span>, and is solved by bisection. The moments describe a
+portfolio large enough for its default rate to equal the conditional PD,
+so the binomial noise of a small portfolio raises the estimate.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.capital</span><span class="w"> </span><span class="kn">import</span> <span class="n">vasicek_fit</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">probability</span><span class="p">,</span> <span class="n">correlation</span> <span class="o">=</span> <span class="n">vasicek_fit</span><span class="p">([</span><span class="mf">0.004</span><span class="p">,</span> <span class="mf">0.012</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.031</span><span class="p">,</span> <span class="mf">0.008</span><span class="p">,</span> <span class="mf">0.015</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"PD = </span><span class="si">{</span><span class="n">probability</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, correlation = </span><span class="si">{</span><span class="n">correlation</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">PD = 0.0117, correlation = 0.0994</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.capital.most_prudent_pd">
+<span class="sig-prename descclassname"><span class="pre">kivi.capital.</span></span><span class="sig-name descname"><span class="pre">most_prudent_pd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">total</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.95</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">correlation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.capital.most_prudent_pd" title="Link to this definition">#</a></dt>
+<dd><p>Compute the most prudent upper bounds of Pluto and Tasche for the PD of each grade.</p>
+<p>A portfolio with few or no defaults, such as banks or large corporates,
+gives default rates too small to calibrate a PD on. The most prudent
+estimate of a grade is the largest PD that the defaults observed in it
+and in all riskier grades do not reject at the confidence <cite>level</cite>,
+assuming that the PDs do not fall from one grade to the next riskier one.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>event</strong><span class="classifier">array_like</span></dt><dd><p>Number of defaults in each grade, a non-negative whole number, with
+the grades from the least to the most risky. Must not be missing.</p>
+</dd>
+<dt><strong>total</strong><span class="classifier">array_like</span></dt><dd><p>Number of obligors in each grade, a whole number not below <cite>event</cite>,
+matched by position or, for two Series, by identical indices.</p>
+</dd>
+<dt><strong>level</strong><span class="classifier">float, default 0.95</span></dt><dd><p>The confidence level, strictly between 0 and 1.</p>
+</dd>
+<dt><strong>correlation</strong><span class="classifier">float, default 0.0</span></dt><dd><p>The asset correlation of the one-factor model, from 0 to 1
+(exclusive). With 0, defaults are independent; a positive
+correlation makes the same defaults compatible with higher PDs.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.Series or numpy.ndarray</dt><dd><p>The upper bound of the PD of each grade. If an input is a Series, the
+result is a Series with its index, named <code class="docutils literal notranslate"><span class="pre">most_prudent_pd</span></code>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If <cite>event</cite> or <cite>total</cite> is not real and numeric, not one-dimensional,
+empty or of different lengths, their Series indices differ, a count
+is missing or not a non-negative whole number, <cite>event</cite> exceeds
+<cite>total</cite>, <cite>level</cite> is outside (0, 1) or <cite>correlation</cite> is outside
+[0, 1).</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="calibration.html#kivi.calibration.binomial_test" title="kivi.calibration.binomial_test"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.calibration.binomial_test</span></code></a></dt><dd><p>Test the PD of each grade against its default count.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.capital.conditional_pd" title="kivi.capital.conditional_pd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">conditional_pd</span></code></a></dt><dd><p>The PD of the one-factor model given the factor.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>Grade <span class="math notranslate nohighlight">\(k\)</span> pools the obligors <span class="math notranslate nohighlight">\(n_k = \sum_{i \ge k} N_i\)</span> and
+the defaults <span class="math notranslate nohighlight">\(d_k = \sum_{i \ge k} D_i\)</span> of itself and all riskier
+grades. Its bound <span class="math notranslate nohighlight">\(p_k\)</span> is the largest PD for which
+<span class="math notranslate nohighlight">\(P(D \le d_k) \ge 1 - q\)</span> at the level <span class="math notranslate nohighlight">\(q\)</span>. With independent
+defaults, <span class="math notranslate nohighlight">\(D\)</span> is binomial with <span class="math notranslate nohighlight">\(n_k\)</span> and <span class="math notranslate nohighlight">\(p_k\)</span>, so
+<span class="math notranslate nohighlight">\(p_k\)</span> is the <span class="math notranslate nohighlight">\(q\)</span> quantile of the beta distribution with
+<span class="math notranslate nohighlight">\(d_k + 1\)</span> and <span class="math notranslate nohighlight">\(n_k - d_k\)</span>, and without defaults
+<span class="math notranslate nohighlight">\(p_k = 1 - (1 - q)^{1/n_k}\)</span>. With a correlation <span class="math notranslate nohighlight">\(\rho\)</span>, the
+defaults are binomial given the factor,</p>
+<div class="math notranslate nohighlight">
+\[P(D \le d_k) = \int P\left(\mathrm{Bin}(n_k, \mathrm{PD}(z)) \le d_k\right)
+\varphi(z) \, dz,\]</div>
+<p>with the conditional PD of <cite>conditional_pd</cite>, integrated by composite
+Gauss-Legendre quadrature over the factor from -9 to 9 (64 panels of 8
+nodes) and solved by bisection. A grade whose pooled obligors all
+defaulted, or which pools none, gets 1. The bounds are those of one
+period; with factors correlated over several years they need simulation,
+which kivi leaves out. Pluto and Tasche <a class="reference internal" href="#ra3c7650a73eb-1" id="id1">[1]</a> compute the same bounds for
+their examples, with a correlation of 0.12 for the correlated one.</p>
+<p class="rubric">References</p>
+<div role="list" class="citation-list">
+<div class="citation" id="ra3c7650a73eb-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>K. Pluto and D. Tasche, “Estimating probabilities of default for
+low default portfolios”, arXiv:cond-mat/0411699, 2004; also
+“Thinking positively”, Risk 18 (8), 2005, pp. 72-78.</p>
+</div>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.capital</span><span class="w"> </span><span class="kn">import</span> <span class="n">most_prudent_pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">(</span><span class="mi">100</span> <span class="o">*</span> <span class="n">most_prudent_pd</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">400</span><span class="p">,</span> <span class="mi">300</span><span class="p">],</span> <span class="n">level</span><span class="o">=</span><span class="mf">0.9</span><span class="p">))</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">array([0.29, 0.33, 0.76])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="monitoring.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Model monitoring</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="vintage.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Vintage and roll-rate analysis</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.capital.asset_correlation"><code class="docutils literal notranslate"><span class="pre">asset_correlation()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.capital.capital_requirement"><code class="docutils literal notranslate"><span class="pre">capital_requirement()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.capital.conditional_pd"><code class="docutils literal notranslate"><span class="pre">conditional_pd()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.capital.systematic_factor"><code class="docutils literal notranslate"><span class="pre">systematic_factor()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.capital.vasicek_fit"><code class="docutils literal notranslate"><span class="pre">vasicek_fit()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.capital.most_prudent_pd"><code class="docutils literal notranslate"><span class="pre">most_prudent_pd()</span></code></a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1.
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

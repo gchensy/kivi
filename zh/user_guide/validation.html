@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>模型验证 &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=d005c095" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=14f9d491"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script src="../_static/translations.js?v=540d3cec"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/validation';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="next" title="监管资本" href="capital.html" />
+    <link rel="prev" title="模型监控" href="monitoring.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+  <meta name="docsearch:version" content="1.9.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">跳转至主要内容</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>回到顶部</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="版本警告"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="网页导航" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 1.9.0">1.9.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    教程
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../../en/user_guide/validation.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="当前页面" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    教程
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../../en/user_guide/validation.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="章节导航">
+  <p class="bd-links__title" role="heading" aria-level="1">章节导航</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="risk_workflow.html">风控建模流程</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">时间窗特征</a></li>
+<li class="toctree-l1"><a class="reference internal" href="univariate.html">单变量概况</a></li>
+<li class="toctree-l1"><a class="reference internal" href="binning.html">分箱</a></li>
+<li class="toctree-l1"><a class="reference internal" href="woe_iv.html">证据权重与信息值</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selection.html">变量筛选</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reject_inference.html">拒绝推断</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scorecard.html">评分卡</a></li>
+<li class="toctree-l1"><a class="reference internal" href="expert.html">专家评分卡</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">模型表现</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">校准</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lgd.html">LGD 与 EAD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">信贷策略</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rules.html">政策规则</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spec.html">分箱方案</a></li>
+<li class="toctree-l1"><a class="reference internal" href="psi.html">群体稳定性指标</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">模型监控</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">模型验证</a></li>
+<li class="toctree-l1"><a class="reference internal" href="capital.html">监管资本</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vintage.html">Vintage 与滚动率分析</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lifetime.html">存续期 PD 与预期信用损失</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html">图表</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">示例数据</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="初始页面">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">用户指南</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">模型验证</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="model-validation">
+<h1>模型验证<a class="headerlink" href="#model-validation" title="链接到此标题。">#</a></h1>
+<p>用内部评级计算资本要求的银行至少每年验证一次每个模型，并把结果报告给监管机构。对内部评级法（IRB）的 PD、LGD 和 CCF 模型，欧洲央行在 2019 年 2 月发布的《Instructions for reporting the validation results of internal models》中规定了报告所用的定量工具：估计值的回测、与初始验证相比的区分能力，以及评级的稳定性。本指南把每个工具对应到 kivi 的函数，并按报告的顺序在模拟数据上计算。</p>
+<p>模型由 <a class="reference internal" href="monitoring.html"><span class="doc">模型监控</span></a> 逐期跟踪，验证则每年对其审查一次；下一篇指南 <a class="reference internal" href="capital.html"><span class="doc">监管资本</span></a> 把经过验证的 PD 转换为其所需的资本，之后 <a class="reference internal" href="vintage.html"><span class="doc">Vintage 与滚动率分析</span></a> 跟踪模型所通过的贷款。这些工具属于模型的不同步骤： <a class="reference internal" href="calibration.html"><span class="doc">校准</span></a> 回测估计值， <a class="reference internal" href="metrics.html"><span class="doc">模型表现</span></a> 衡量排序能力， <a class="reference internal" href="vintage.html"><span class="doc">Vintage 与滚动率分析</span></a> 跟踪等级之间的迁移，这些指南详细解释了每个函数。 <a class="reference internal" href="../api/calibration.html#kivi.calibration.jeffreys_test" title="kivi.calibration.jeffreys_test"><code class="xref py py-func docutils literal notranslate"><span class="pre">jeffreys_test()</span></code></a> 、 <a class="reference internal" href="../api/metrics.html#kivi.metrics.roc_auc_interval" title="kivi.metrics.roc_auc_interval"><code class="xref py py-func docutils literal notranslate"><span class="pre">roc_auc_interval()</span></code></a> 、 <a class="reference internal" href="../api/vintage.html#kivi.vintage.migration_bandwidth" title="kivi.vintage.migration_bandwidth"><code class="xref py py-func docutils literal notranslate"><span class="pre">migration_bandwidth()</span></code></a> 、 <a class="reference internal" href="../api/vintage.html#kivi.vintage.migration_test" title="kivi.vintage.migration_test"><code class="xref py py-func docutils literal notranslate"><span class="pre">migration_test()</span></code></a> 、 <a class="reference internal" href="../api/calibration.html#kivi.calibration.concentration_test" title="kivi.calibration.concentration_test"><code class="xref py py-func docutils literal notranslate"><span class="pre">concentration_test()</span></code></a> 、 <a class="reference internal" href="../api/calibration.html#kivi.calibration.backtest_table" title="kivi.calibration.backtest_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">backtest_table()</span></code></a> 和 <a class="reference internal" href="../api/metrics.html#kivi.metrics.generalized_auc" title="kivi.metrics.generalized_auc"><code class="xref py py-func docutils literal notranslate"><span class="pre">generalized_auc()</span></code></a> 计算报告中的统计量， <a class="reference internal" href="../api/vintage.html#kivi.vintage.default_rate_table" title="kivi.vintage.default_rate_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">default_rate_table()</span></code></a> 由月度面板统计每个等级的客户数和违约数， <a class="reference internal" href="../api/calibration.html#kivi.calibration.spiegelhalter_test" title="kivi.calibration.spiegelhalter_test"><code class="xref py py-func docutils literal notranslate"><span class="pre">spiegelhalter_test()</span></code></a> 和 <a class="reference internal" href="../api/calibration.html#kivi.calibration.brier_decomposition" title="kivi.calibration.brier_decomposition"><code class="xref py py-func docutils literal notranslate"><span class="pre">brier_decomposition()</span></code></a> 则补充了报告没有要求的两项检查。</p>
+<section id="the-tools-of-the-report">
+<h2>报告中的工具<a class="headerlink" href="#the-tools-of-the-report" title="链接到此标题。">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 18.0%" />
+<col style="width: 42.0%" />
+<col style="width: 40.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>节</p></th>
+<th class="head"><p>工具</p></th>
+<th class="head"><p>kivi</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>2.5.3.1</p></td>
+<td><p>用 Jeffreys 检验回测每个等级及整个资产组合的 PD</p></td>
+<td><p>对 <a class="reference internal" href="../api/calibration.html#kivi.calibration.calibration_table" title="kivi.calibration.calibration_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">calibration_table()</span></code></a> 的计数使用 <a class="reference internal" href="../api/calibration.html#kivi.calibration.jeffreys_test" title="kivi.calibration.jeffreys_test"><code class="xref py py-func docutils literal notranslate"><span class="pre">jeffreys_test()</span></code></a> ；对月度面板中的等级，则使用 <a class="reference internal" href="../api/vintage.html#kivi.vintage.default_rate_table" title="kivi.vintage.default_rate_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">default_rate_table()</span></code></a> 的计数</p></td>
+</tr>
+<tr class="row-odd"><td><p>2.5.4.1、附件 3.1</p></td>
+<td><p>当前 AUC 与初始验证时的 AUC 比较</p></td>
+<td><p><a class="reference internal" href="../api/metrics.html#kivi.metrics.roc_auc_interval" title="kivi.metrics.roc_auc_interval"><code class="xref py py-func docutils literal notranslate"><span class="pre">roc_auc_interval()</span></code></a> 的估计值和标准误，见下文</p></td>
+</tr>
+<tr class="row-even"><td><p>2.5.5.1</p></td>
+<td><p>客户迁移：上、下 MWB</p></td>
+<td><p><a class="reference internal" href="../api/vintage.html#kivi.vintage.migration_bandwidth" title="kivi.vintage.migration_bandwidth"><code class="xref py py-func docutils literal notranslate"><span class="pre">migration_bandwidth()</span></code></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>2.5.5.2</p></td>
+<td><p>迁移矩阵的稳定性：每个非对角单元格的 z 检验</p></td>
+<td><p><a class="reference internal" href="../api/vintage.html#kivi.vintage.migration_test" title="kivi.vintage.migration_test"><code class="xref py py-func docutils literal notranslate"><span class="pre">migration_test()</span></code></a></p></td>
+</tr>
+<tr class="row-even"><td><p>2.5.5.3</p></td>
+<td><p>评级等级的集中度：HI 与变异系数的检验</p></td>
+<td><p><a class="reference internal" href="../api/calibration.html#kivi.calibration.concentration_test" title="kivi.calibration.concentration_test"><code class="xref py py-func docutils literal notranslate"><span class="pre">concentration_test()</span></code></a> ； <a class="reference internal" href="../api/calibration.html#kivi.calibration.herfindahl_index" title="kivi.calibration.herfindahl_index"><code class="xref py py-func docutils literal notranslate"><span class="pre">herfindahl_index()</span></code></a> 给出赫芬达尔-赫希曼指数本身</p></td>
+</tr>
+<tr class="row-odd"><td><p>2.6.2.1、2.8.2.1、2.9.3.1、2.9.3.2</p></td>
+<td><p>用单侧 t 检验回测 LGD、违约后 LGD、CCF 以及采用 EAD 方法的债项的 EAD</p></td>
+<td><p><a class="reference internal" href="../api/calibration.html#kivi.calibration.backtest_table" title="kivi.calibration.backtest_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">backtest_table()</span></code></a></p></td>
+</tr>
+<tr class="row-even"><td><p>2.7.2.1</p></td>
+<td><p>用双侧 t 检验回测 ELBE</p></td>
+<td><p><a class="reference internal" href="../api/calibration.html#kivi.calibration.backtest_table" title="kivi.calibration.backtest_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">backtest_table()</span></code></a> ，p 值取 <code class="docutils literal notranslate"><span class="pre">2</span> <span class="pre">*</span> <span class="pre">min(p_value,</span> <span class="pre">1</span> <span class="pre">-</span> <span class="pre">p_value)</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>2.6.3.1、2.9.4.1、附件 3.2</p></td>
+<td><p>LGD 或 CCF 的当前 gAUC 与初始验证时的 gAUC 比较</p></td>
+<td><p><a class="reference internal" href="../api/metrics.html#kivi.metrics.generalized_auc" title="kivi.metrics.generalized_auc"><code class="xref py py-func docutils literal notranslate"><span class="pre">generalized_auc()</span></code></a> 的估计值和标准误，见下文</p></td>
+</tr>
+<tr class="row-even"><td><p>无</p></td>
+<td><p>单个客户概率的校准</p></td>
+<td><p><a class="reference internal" href="../api/calibration.html#kivi.calibration.spiegelhalter_test" title="kivi.calibration.spiegelhalter_test"><code class="xref py py-func docutils literal notranslate"><span class="pre">spiegelhalter_test()</span></code></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>无</p></td>
+<td><p>Brier 分数的可靠性与分辨力</p></td>
+<td><p><a class="reference internal" href="../api/calibration.html#kivi.calibration.brier_decomposition" title="kivi.calibration.brier_decomposition"><code class="xref py py-func docutils literal notranslate"><span class="pre">brier_decomposition()</span></code></a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>报告还要求一些不需要统计量的计数，例如评级缺失或被推翻的客户数，以及定性评估。kivi 把这些以及报告模板留给银行自己处理。</p>
+</section>
+<section id="pd-models">
+<h2>PD 模型<a class="headerlink" href="#pd-models" title="链接到此标题。">#</a></h2>
+<p>示例使用 <a class="reference internal" href="../api/datasets.html#kivi.datasets.make_applications" title="kivi.datasets.make_applications"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_applications()</span></code></a> 中现有评分卡的 PD（见 <a class="reference internal" href="datasets.html"><span class="doc">示例数据</span></a> ），取两个样本中获批的申请人：一个代表模型的初始验证，另一个代表当前观察期。</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_applications</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">initial</span> <span class="o">=</span> <span class="n">make_applications</span><span class="p">(</span><span class="n">n_applicants</span><span class="o">=</span><span class="mi">5000</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">"approved"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">current</span> <span class="o">=</span> <span class="n">make_applications</span><span class="p">(</span><span class="n">n_applicants</span><span class="o">=</span><span class="mi">5000</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">"approved"</span><span class="p">)</span>
+</pre></div>
+</div>
+<section id="back-testing-the-grades">
+<h3>回测各等级<a class="headerlink" href="#back-testing-the-grades" title="链接到此标题。">#</a></h3>
+<p>把 PD 映射到主标尺的等级上，用 <a class="reference internal" href="../api/calibration.html#kivi.calibration.jeffreys_test" title="kivi.calibration.jeffreys_test"><code class="xref py py-func docutils literal notranslate"><span class="pre">jeffreys_test()</span></code></a> 以每个等级的违约检验其 PD。该检验是单侧的：p 值较小说明该等级的违约数多于其 PD 的预测。主标尺和该检验的说明见 <a class="reference internal" href="calibration.html"><span class="doc">校准</span></a> 。</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">assign_grades</span><span class="p">,</span> <span class="n">calibration_table</span><span class="p">,</span> <span class="n">jeffreys_test</span><span class="p">,</span> <span class="n">master_scale</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">scale</span> <span class="o">=</span> <span class="n">master_scale</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">geomspace</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.16</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">labels</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="s2">"ABCDE"</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">grades</span> <span class="o">=</span> <span class="n">assign_grades</span><span class="p">(</span><span class="n">current</span><span class="p">[</span><span class="s2">"incumbent_pd"</span><span class="p">],</span> <span class="n">scale</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span> <span class="o">=</span> <span class="n">calibration_table</span><span class="p">(</span><span class="n">grades</span><span class="p">,</span> <span class="n">current</span><span class="p">[</span><span class="s2">"target"</span><span class="p">],</span> <span class="n">current</span><span class="p">[</span><span class="s2">"incumbent_pd"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">scale</span><span class="p">[</span><span class="s2">"probability"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">jeffreys</span><span class="o">=</span><span class="n">jeffreys_test</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s2">"event"</span><span class="p">],</span> <span class="n">table</span><span class="p">[</span><span class="s2">"total"</span><span class="p">],</span> <span class="n">table</span><span class="p">[</span><span class="s2">"probability"</span><span class="p">])</span>
+<span class="gp">... </span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">     total  event  event_rate  mean_probability  probability  jeffreys</span>
+<span class="go">bin</span>
+<span class="go">A        5      0       0.000             0.012         0.01     0.255</span>
+<span class="go">B      138      1       0.007             0.023         0.02     0.865</span>
+<span class="go">C      809     37       0.046             0.045         0.04     0.200</span>
+<span class="go">D     1713    180       0.105             0.083         0.08     0.000</span>
+<span class="go">E      664    117       0.176             0.131         0.16     0.128</span>
+</pre></div>
+</div>
+<p>报告还要求以整个资产组合的平均 PD 检验整个资产组合。把它作为一个分组统计：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">portfolio</span> <span class="o">=</span> <span class="n">calibration_table</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="s2">"all"</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">current</span><span class="p">),</span> <span class="n">current</span><span class="p">[</span><span class="s2">"target"</span><span class="p">],</span> <span class="n">current</span><span class="p">[</span><span class="s2">"incumbent_pd"</span><span class="p">]</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">jeffreys_test</span><span class="p">(</span><span class="n">portfolio</span><span class="p">[</span><span class="s2">"event"</span><span class="p">],</span> <span class="n">portfolio</span><span class="p">[</span><span class="s2">"total"</span><span class="p">],</span> <span class="n">portfolio</span><span class="p">[</span><span class="s2">"mean_probability"</span><span class="p">])</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
+<span class="go">bin</span>
+<span class="go">all    0.000022</span>
+<span class="go">dtype: float64</span>
+</pre></div>
+</div>
+<p>现有 PD 低估了当前观察期的违约率：等级 D 的违约率为 10.5%，而 PD 为 8%；整个资产组合的违约率为 10.1%，而平均 PD 为 8.1%。</p>
+<p>报告按观察期开始时定义计数：N 是某个等级中当时未处于违约的客户，D 是其中在观察期内至少违约一次的客户（迁移到其他等级或模型之后的违约也算），PD 是该等级在期初的 PD（第 2.3 节）。等级来自月度面板时，以观察期前一个月为唯一起点月的 <a class="reference internal" href="../api/vintage.html#kivi.vintage.default_rate_table" title="kivi.vintage.default_rate_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">default_rate_table()</span></code></a> 以 <code class="docutils literal notranslate"><span class="pre">total</span></code> 给出 N、以 <code class="docutils literal notranslate"><span class="pre">event</span></code> 给出 D，给出 <code class="docutils literal notranslate"><span class="pre">probability</span></code> 时还以 <code class="docutils literal notranslate"><span class="pre">mean_probability</span></code> 给出每个等级在该月的 PD。这里把 <a class="reference internal" href="vintage.html"><span class="doc">Vintage 与滚动率分析</span></a> 中模拟贷款组合的贷款按逾期状态分池，每个池一个 PD，观察期为 2025 年，因此起点月是 2024 年 12 月：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_loan_panel</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.vintage</span><span class="w"> </span><span class="kn">import</span> <span class="n">default_rate_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">panel</span> <span class="o">=</span> <span class="n">make_loan_panel</span><span class="p">(</span><span class="n">rng</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pool_pd</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">({</span><span class="s2">"current"</span><span class="p">:</span> <span class="mf">0.04</span><span class="p">,</span> <span class="s2">"1-29"</span><span class="p">:</span> <span class="mf">0.25</span><span class="p">,</span> <span class="s2">"30-59"</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s2">"60-89"</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">counts</span> <span class="o">=</span> <span class="n">default_rate_table</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">panel</span><span class="p">[</span><span class="s2">"loan_id"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">panel</span><span class="p">[</span><span class="s2">"month"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">panel</span><span class="p">[</span><span class="s2">"status"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">panel</span><span class="p">[</span><span class="s2">"status"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"90+"</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">starts</span><span class="o">=</span><span class="p">[</span><span class="s2">"2024-12"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">probability</span><span class="o">=</span><span class="n">panel</span><span class="p">[</span><span class="s2">"status"</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">pool_pd</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">),</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">counts</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">jeffreys</span><span class="o">=</span><span class="n">jeffreys_test</span><span class="p">(</span><span class="n">counts</span><span class="p">[</span><span class="s2">"event"</span><span class="p">],</span> <span class="n">counts</span><span class="p">[</span><span class="s2">"total"</span><span class="p">],</span> <span class="n">counts</span><span class="p">[</span><span class="s2">"mean_probability"</span><span class="p">])</span>
+<span class="gp">... </span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">                 total  event  exited  event_rate  mean_probability  jeffreys</span>
+<span class="go">start   grade</span>
+<span class="go">2024-12 current   2146     73     413       0.034              0.04     0.924</span>
+<span class="go">        1-29        65     17      12       0.262              0.25     0.406</span>
+<span class="go">        30-59       23     16       0       0.696              0.50     0.029</span>
+<span class="go">        60-89       15     11       0       0.733              0.80     0.753</span>
+</pre></div>
+</div>
+<p>12 月已处于违约的贷款（即 90+ 池）不属于任何等级，因此它们缺失的 PD 无关紧要。30-59 池的违约率为 69.6%，而其 PD 为 50%，检验在 5% 的水平上拒绝；其他各池都通过。 <code class="docutils literal notranslate"><span class="pre">current</span></code> 池中有 413 笔贷款在 2025 年内未违约就离开了组合，它们仍计入 N，这与报告的计数方式一致。</p>
+</section>
+<section id="current-auc-against-the-initial-auc">
+<h3>当前 AUC 与初始 AUC 比较<a class="headerlink" href="#current-auc-against-the-initial-auc" title="链接到此标题。">#</a></h3>
+<p>报告把当前观察期的 AUC 与初始验证时的 AUC 相比较，后者视为已知，原假设为 AUC 没有下降：</p>
+<div class="math notranslate nohighlight">
+\[S = \frac{\mathrm{AUC}_\mathrm{init} - \mathrm{AUC}_\mathrm{curr}}{s}, \qquad p = 1 - \Phi(S),\]</div>
+<p>其中 <span class="math notranslate nohighlight">\(s\)</span> 是当前 AUC 的标准误， <a class="reference internal" href="../api/metrics.html#kivi.metrics.roc_auc_interval" title="kivi.metrics.roc_auc_interval"><code class="xref py py-func docutils literal notranslate"><span class="pre">roc_auc_interval()</span></code></a> 按附件 3.1 的方法估计它。由两个 AUC 计算检验只需两行：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">roc_auc_interval</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">initial_auc</span> <span class="o">=</span> <span class="n">roc_auc_interval</span><span class="p">(</span><span class="n">initial</span><span class="p">[</span><span class="s2">"incumbent_pd"</span><span class="p">],</span> <span class="n">initial</span><span class="p">[</span><span class="s2">"target"</span><span class="p">])</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">"auc"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">current_auc</span> <span class="o">=</span> <span class="n">roc_auc_interval</span><span class="p">(</span><span class="n">current</span><span class="p">[</span><span class="s2">"incumbent_pd"</span><span class="p">],</span> <span class="n">current</span><span class="p">[</span><span class="s2">"target"</span><span class="p">])</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">"auc"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <span class="p">(</span><span class="n">initial_auc</span><span class="p">[</span><span class="s2">"estimate"</span><span class="p">]</span> <span class="o">-</span> <span class="n">current_auc</span><span class="p">[</span><span class="s2">"estimate"</span><span class="p">])</span> <span class="o">/</span> <span class="n">current_auc</span><span class="p">[</span><span class="s2">"se"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"S = </span><span class="si">{</span><span class="n">s</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">, p = </span><span class="si">{</span><span class="mf">0.5</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">math</span><span class="o">.</span><span class="n">erfc</span><span class="p">(</span><span class="n">s</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">S = -0.29, p = 0.616</span>
+</pre></div>
+</div>
+<p>当前 AUC 为 0.658，略高于初始 AUC 的 0.654，因此排序能力没有变差。检验中只出现当前 AUC 的标准误，因为报告把初始 AUC 视为固定值。</p>
+</section>
+<section id="migrations-and-concentration">
+<h3>迁移与集中度<a class="headerlink" href="#migrations-and-concentration" title="链接到此标题。">#</a></h3>
+<p>稳定性工具接受每个客户在观察期开始和结束时的等级。 <a class="reference internal" href="../api/vintage.html#kivi.vintage.migration_bandwidth" title="kivi.vintage.migration_bandwidth"><code class="xref py py-func docutils literal notranslate"><span class="pre">migration_bandwidth()</span></code></a> 给出迁往较差和较好等级的上、下 MWB， <a class="reference internal" href="../api/vintage.html#kivi.vintage.migration_test" title="kivi.vintage.migration_test"><code class="xref py py-func docutils literal notranslate"><span class="pre">migration_test()</span></code></a> 给出迁移矩阵每个非对角单元格的 z 检验。违约、转用其他评级体系或与银行终止业务关系的客户使用自己的状态，例如 <code class="docutils literal notranslate"><span class="pre">&quot;default&quot;</span></code> ，并且只计入其期初等级的客户数，这与报告对迁移矩阵的定义一致：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.vintage</span><span class="w"> </span><span class="kn">import</span> <span class="n">migration_bandwidth</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">before</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"A"</span><span class="p">,</span> <span class="s2">"A"</span><span class="p">,</span> <span class="s2">"A"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"C"</span><span class="p">,</span> <span class="s2">"C"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">after</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"A"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"C"</span><span class="p">,</span> <span class="s2">"A"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"C"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">migration_bandwidth</span><span class="p">(</span><span class="n">before</span><span class="p">,</span> <span class="n">after</span><span class="p">,</span> <span class="n">grades</span><span class="o">=</span><span class="p">[</span><span class="s2">"A"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"C"</span><span class="p">])</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">statistic</span>
+<span class="go">upper    0.7500</span>
+<span class="go">lower    0.6667</span>
+<span class="go">dtype: float64</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id1">
+<img alt="八个客户在 A、B、C 三个等级之间以及迁往违约的情况，标出每次迁移的距离和从每个等级出发的最远迁移，并给出上、下 MWB 的计算" class="plot-directive" src="../_images/validation-1.svg" />
+<figcaption>
+<p><span class="caption-text"><code class="docutils literal notranslate"><span class="pre">migration_bandwidth</span></code> 如何为各次迁移加权。每次迁往较差等级的迁移（位于对角线上方）把其距离 <code class="docutils literal notranslate"><span class="pre">|i</span> <span class="pre">-</span> <span class="pre">j|</span></code> 计入上 MWB 的分子，把从其等级出发向任一方向的最远迁移计入分母。迁往较好等级的迁移以同样的方式构成下 MWB，违约的客户两者都不计入。</span><a class="headerlink" href="#id1" title="链接到此图片">#</a></p>
+</figcaption>
+</figure>
+<p><a class="reference internal" href="vintage.html"><span class="doc">Vintage 与滚动率分析</span></a> 在一个有五个等级的模拟资产组合上解释了这两个函数。</p>
+<p><a class="reference internal" href="../api/calibration.html#kivi.calibration.concentration_test" title="kivi.calibration.concentration_test"><code class="xref py py-func docutils literal notranslate"><span class="pre">concentration_test()</span></code></a> 给出各等级的 HI，并检验其变异系数自初始验证以来是否上升。在两个样本中都统计标尺的每个等级，无论是否为空：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">concentration_test</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">initial_grades</span> <span class="o">=</span> <span class="n">assign_grades</span><span class="p">(</span><span class="n">initial</span><span class="p">[</span><span class="s2">"incumbent_pd"</span><span class="p">],</span> <span class="n">scale</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">concentration_test</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">grades</span><span class="o">.</span><span class="n">value_counts</span><span class="p">(</span><span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span> <span class="n">initial_counts</span><span class="o">=</span><span class="n">initial_grades</span><span class="o">.</span><span class="n">value_counts</span><span class="p">(</span><span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="gp">... </span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">statistic</span>
+<span class="go">hi            0.3744</span>
+<span class="go">cv            0.9092</span>
+<span class="go">initial_hi    0.3825</span>
+<span class="go">initial_cv    0.9223</span>
+<span class="go">statistic    -0.0250</span>
+<span class="go">p_value       0.5100</span>
+<span class="go">dtype: float64</span>
+</pre></div>
+</div>
+<p>各等级的集中度与初始验证时相同。</p>
+<p>报告要求对客户数计算 HI 并做这一检验，对敞口则只计算 HI；不传 <code class="docutils literal notranslate"><span class="pre">initial_counts</span></code> 、只传入每个等级的敞口时， <code class="docutils literal notranslate"><span class="pre">concentration_test</span></code> 给出后者。</p>
+</section>
+</section>
+<section id="lgd-and-ccf-models">
+<h2>LGD 和 CCF 模型<a class="headerlink" href="#lgd-and-ccf-models" title="链接到此标题。">#</a></h2>
+<p>LGD 工具使用回收过程在观察期内结案的债项。这里五个债项等级中的 1,500 个已结案违约的实际 LGD 像回收结果通常那样在其等级 LGD 周围分散得很开。等级 F4 的 LGD 围绕 68% 抽取，而不是其等级 LGD 60%：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">grade_lgd</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mf">0.10</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.40</span><span class="p">,</span> <span class="mf">0.60</span><span class="p">,</span> <span class="mf">0.80</span><span class="p">],</span> <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="s2">"F1"</span><span class="p">,</span> <span class="s2">"F2"</span><span class="p">,</span> <span class="s2">"F3"</span><span class="p">,</span> <span class="s2">"F4"</span><span class="p">,</span> <span class="s2">"F5"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">facility_grade</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Categorical</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">rng</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">grade_lgd</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">1500</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="p">[</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">]),</span>
+<span class="gp">... </span>    <span class="n">categories</span><span class="o">=</span><span class="n">grade_lgd</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">ordered</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="gp">... </span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">"grade"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">estimated</span> <span class="o">=</span> <span class="n">facility_grade</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">grade_lgd</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mean</span> <span class="o">=</span> <span class="n">estimated</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">facility_grade</span> <span class="o">==</span> <span class="s2">"F4"</span><span class="p">,</span> <span class="mf">0.08</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">realized</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">rng</span><span class="o">.</span><span class="n">beta</span><span class="p">(</span><span class="mf">1.5</span> <span class="o">*</span> <span class="n">mean</span><span class="p">,</span> <span class="mf">1.5</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">mean</span><span class="p">)),</span> <span class="n">name</span><span class="o">=</span><span class="s2">"realized"</span><span class="p">)</span>
+</pre></div>
+</div>
+<section id="back-testing-the-estimates">
+<h3>回测估计值<a class="headerlink" href="#back-testing-the-estimates" title="链接到此标题。">#</a></h3>
+<p><a class="reference internal" href="../api/calibration.html#kivi.calibration.backtest_table" title="kivi.calibration.backtest_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">backtest_table()</span></code></a> 对每个等级给出估计 LGD 和实际 LGD 的均值、二者之差的方差以及报告中的 t 检验，p 值较小说明估计值偏低：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">backtest_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">backtest_table</span><span class="p">(</span><span class="n">facility_grade</span><span class="p">,</span> <span class="n">realized</span><span class="p">,</span> <span class="n">estimated</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">     total  estimated  realized  difference  variance  statistic  p_value</span>
+<span class="go">bin</span>
+<span class="go">F1     363       0.10    0.1114      0.0114    0.0409     1.0767   0.1412</span>
+<span class="go">F2     427       0.25    0.2223     -0.0277    0.0690    -2.1822   0.9852</span>
+<span class="go">F3     311       0.40    0.3863     -0.0137    0.1006    -0.7602   0.7762</span>
+<span class="go">F4     251       0.60    0.7064      0.1064    0.0793     5.9874   0.0000</span>
+<span class="go">F5     148       0.80    0.8016      0.0016    0.0662     0.0758   0.4698</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id3">
+<img alt="五个债项等级的平均估计 LGD 和平均实际 LGD，标出每个等级的 p 值，等级 F4 的实际 LGD 以红色显示" class="plot-directive" src="../_images/validation-2.svg" />
+<figcaption>
+<p><span class="caption-text">等级 F4 的平均实际 LGD 超过其 60% 的估计值，也只有它的 p 值低于 5%。</span><a class="headerlink" href="#id3" title="链接到此图片">#</a></p>
+</figcaption>
+</figure>
+<p>只有等级 F4 被拒绝。报告也要求检验整个资产组合；为每个债项传入同一个分组：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">backtest_table</span><span class="p">([</span><span class="s2">"all"</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">realized</span><span class="p">),</span> <span class="n">realized</span><span class="p">,</span> <span class="n">estimated</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">     total  estimated  realized  difference  variance  statistic  p_value</span>
+<span class="go">bin</span>
+<span class="go">all   1500     0.3576    0.3676        0.01    0.0721     1.4422   0.0747</span>
+</pre></div>
+</div>
+<p>在资产组合层面，等级 F4 的不足被其他等级稀释，在 5% 的水平下不再显著。同一张表也可以回测违约后 LGD 和 CCF，用它们的估计值和实际值代替 LGD 即可；还可以回测采用 EAD 方法的债项的 EAD 估计值，以违约时的提款金额作为实际值。ELBE 做双侧检验，其 p 值为 <code class="docutils literal notranslate"><span class="pre">2</span> <span class="pre">*</span> <span class="pre">min(p_value,</span> <span class="pre">1</span> <span class="pre">-</span> <span class="pre">p_value)</span></code> 。</p>
+</section>
+<section id="generalized-auc">
+<h3>广义 AUC<a class="headerlink" href="#generalized-auc" title="链接到此标题。">#</a></h3>
+<p>LGD 模型的区分能力用 <a class="reference internal" href="../api/metrics.html#kivi.metrics.generalized_auc" title="kivi.metrics.generalized_auc"><code class="xref py py-func docutils literal notranslate"><span class="pre">generalized_auc()</span></code></a> 在估计分段与实际分段的列联表上计算的 gAUC 衡量。对债项等级不超过 20 个的模型，行是按 LGD 排序的等级，实际 LGD 按等级划分为若干类：第一类是不超过等级中最小 LGD 的实际 LGD，第二类是不超过第二小 LGD 的其余实际 LGD，最后一类是高于最大 LGD 的实际 LGD。这些类右端闭合，正是 <code class="docutils literal notranslate"><span class="pre">pandas.cut</span></code> 的默认方式：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">realized_class</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">realized</span><span class="p">,</span> <span class="p">[</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="o">*</span><span class="n">grade_lgd</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">],</span> <span class="n">labels</span><span class="o">=</span><span class="p">[</span><span class="s2">"R1"</span><span class="p">,</span> <span class="s2">"R2"</span><span class="p">,</span> <span class="s2">"R3"</span><span class="p">,</span> <span class="s2">"R4"</span><span class="p">,</span> <span class="s2">"R5"</span><span class="p">,</span> <span class="s2">"R6"</span><span class="p">]</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pd</span><span class="o">.</span><span class="n">crosstab</span><span class="p">(</span><span class="n">facility_grade</span><span class="p">,</span> <span class="n">realized_class</span><span class="p">)</span>
+<span class="go">realized   R1  R2  R3  R4  R5   R6</span>
+<span class="go">grade</span>
+<span class="go">F1        266  35  25  17  13    7</span>
+<span class="go">F2        200  90  42  44  27   24</span>
+<span class="go">F3         77  64  41  38  38   53</span>
+<span class="go">F4         10  16  18  30  52  125</span>
+<span class="go">F5          2   7  10   9  23   97</span>
+</pre></div>
+</div>
+<p>估计分段在前，实际分段在后：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">generalized_auc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gauc</span> <span class="o">=</span> <span class="n">generalized_auc</span><span class="p">(</span><span class="n">facility_grade</span><span class="p">,</span> <span class="n">realized_class</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gauc</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">           estimate      se   lower   upper</span>
+<span class="go">statistic</span>
+<span class="go">gauc           0.77  0.0072  0.7559  0.7841</span>
+<span class="go">somers_d       0.54  0.0144  0.5117  0.5683</span>
+</pre></div>
+</div>
+<p>与 AUC 一样，把当前 gAUC 与初始验证时的 gAUC 相比较，后者视为已知。设初始 gAUC 为 0.78：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.78</span> <span class="o">-</span> <span class="n">gauc</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">"gauc"</span><span class="p">,</span> <span class="s2">"estimate"</span><span class="p">])</span> <span class="o">/</span> <span class="n">gauc</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">"gauc"</span><span class="p">,</span> <span class="s2">"se"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"S = </span><span class="si">{</span><span class="n">s</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">, p = </span><span class="si">{</span><span class="mf">0.5</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">math</span><span class="o">.</span><span class="n">erfc</span><span class="p">(</span><span class="n">s</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">S = 1.39, p = 0.083</span>
+</pre></div>
+</div>
+<p>gAUC 下降了一个百分点，在 5% 的水平下不显著。等级 F4 有一半的债项实际 LGD 高于等级 F5 的 LGD 80%，因此 F4 的不足也模糊了这两个等级之间的排序。</p>
+</section>
+<section id="continuous-models">
+<h3>连续型模型<a class="headerlink" href="#continuous-models" title="链接到此标题。">#</a></h3>
+<p>债项等级或池超过 20 个的模型，或 LGD 为连续值的模型，按报告中的十二个 LGD 分段检验：0% 到 5%、5% 到 10%，然后以 10% 为步长到 100%，以及 100% 及以上。每个分段包含其下限，因此用 <code class="docutils literal notranslate"><span class="pre">right=False</span></code> 切分：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">segments</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model_lgd</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">rng</span><span class="o">.</span><span class="n">beta</span><span class="p">(</span><span class="mf">1.2</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">1500</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">outcome</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">rng</span><span class="o">.</span><span class="n">beta</span><span class="p">(</span><span class="mf">1.5</span> <span class="o">*</span> <span class="n">model_lgd</span><span class="p">,</span> <span class="mf">1.5</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">model_lgd</span><span class="p">)))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">estimated_segment</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">model_lgd</span><span class="p">,</span> <span class="n">segments</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">backtest</span> <span class="o">=</span> <span class="n">backtest_table</span><span class="p">(</span><span class="n">estimated_segment</span><span class="p">,</span> <span class="n">outcome</span><span class="p">,</span> <span class="n">model_lgd</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">backtest</span><span class="p">[[</span><span class="s2">"total"</span><span class="p">,</span> <span class="s2">"estimated"</span><span class="p">,</span> <span class="s2">"realized"</span><span class="p">,</span> <span class="s2">"statistic"</span><span class="p">,</span> <span class="s2">"p_value"</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">             total  estimated  realized  statistic  p_value</span>
+<span class="go">bin</span>
+<span class="go">[0.0, 0.05)     84      0.028     0.029      0.020    0.492</span>
+<span class="go">[0.05, 0.1)     98      0.075     0.079      0.241    0.405</span>
+<span class="go">[0.1, 0.2)     263      0.150     0.137     -1.037    0.850</span>
+<span class="go">[0.2, 0.3)     212      0.249     0.259      0.524    0.300</span>
+<span class="go">[0.3, 0.4)     215      0.345     0.351      0.272    0.393</span>
+<span class="go">[0.4, 0.5)     186      0.448     0.424     -1.119    0.868</span>
+<span class="go">[0.5, 0.6)     166      0.550     0.593      1.817    0.036</span>
+<span class="go">[0.6, 0.7)     125      0.648     0.643     -0.186    0.574</span>
+<span class="go">[0.7, 0.8)      85      0.746     0.740     -0.190    0.575</span>
+<span class="go">[0.8, 0.9)      44      0.842     0.816     -0.720    0.762</span>
+<span class="go">[0.9, 1.0)      22      0.922     0.930      0.208    0.419</span>
+</pre></div>
+</div>
+<p>这个模型按构造是校准良好的，但十一个分段中仍有一个的 p 值低于 5%，这在随机波动范围之内。没有估计值达到 100%，因此最后一个分段为空，被省略。</p>
+<p>计算 gAUC 时，实际 LGD 切分成同样的分段。回收额超过敞口时实际 LGD 低于 0，会落在第一个分段之外而成为缺失值，因此切分前先把实际值截断到 0 以上：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">realized_segment</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">outcome</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">lower</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">segments</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">generalized_auc</span><span class="p">(</span><span class="n">estimated_segment</span><span class="p">,</span> <span class="n">realized_segment</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">           estimate      se   lower   upper</span>
+<span class="go">statistic</span>
+<span class="go">gauc         0.7614  0.0067  0.7482  0.7745</span>
+<span class="go">somers_d     0.5228  0.0134  0.4964  0.5491</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="beyond-the-report">
+<h2>报告之外<a class="headerlink" href="#beyond-the-report" title="链接到此标题。">#</a></h2>
+<p>报告逐个检验每个等级的 PD。 <a class="reference internal" href="../api/calibration.html#kivi.calibration.spiegelhalter_test" title="kivi.calibration.spiegelhalter_test"><code class="xref py py-func docutils literal notranslate"><span class="pre">spiegelhalter_test()</span></code></a> 不分组，一次检验所有客户的 PD。现有 PD 全部低于 1/2，因此统计量为正表示违约多于 PD 的预测；它的值 4.09 证实这些 PD 低估了当前观察期的风险：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">brier_decomposition</span><span class="p">,</span> <span class="n">spiegelhalter_test</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">statistic</span><span class="p">,</span> <span class="n">pvalue</span> <span class="o">=</span> <span class="n">spiegelhalter_test</span><span class="p">(</span><span class="n">current</span><span class="p">[</span><span class="s2">"incumbent_pd"</span><span class="p">],</span> <span class="n">current</span><span class="p">[</span><span class="s2">"target"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"z = </span><span class="si">{</span><span class="n">statistic</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">, p = </span><span class="si">{</span><span class="n">pvalue</span><span class="si">:</span><span class="s2">.1e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">z = 4.09, p = 4.3e-05</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="../api/calibration.html#kivi.calibration.brier_decomposition" title="kivi.calibration.brier_decomposition"><code class="xref py py-func docutils literal notranslate"><span class="pre">brier_decomposition()</span></code></a> 按等级把 PD 的 Brier 分数分解为可靠性（被低估的 PD 会使其升高）、分辨力（衡量各等级违约率之间的差别）和结果的不确定性：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">brier_decomposition</span><span class="p">(</span><span class="n">grades</span><span class="p">,</span> <span class="n">current</span><span class="p">[</span><span class="s2">"target"</span><span class="p">],</span> <span class="n">current</span><span class="p">[</span><span class="s2">"incumbent_pd"</span><span class="p">])</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">statistic</span>
+<span class="go">brier                0.0887</span>
+<span class="go">reliability          0.0007</span>
+<span class="go">resolution           0.0023</span>
+<span class="go">uncertainty          0.0905</span>
+<span class="go">within_variance      0.0002</span>
+<span class="go">within_covariance    0.0004</span>
+<span class="go">dtype: float64</span>
+</pre></div>
+</div>
+</section>
+<section id="sample-weights">
+<h2>样本权重<a class="headerlink" href="#sample-weights" title="链接到此标题。">#</a></h2>
+<p>报告统计的是客户数和债项数，因此其检验不要使用权重。这些函数把 <code class="docutils literal notranslate"><span class="pre">weights</span></code> 视为频数权重，适合已汇总为计数的数据：整数权重与重复相应行的结果相同，检验把总权重视为观测数。因此，用抽样率的倒数等校正抽样的权重，会使标准误过小、p 值过低。 <a class="reference internal" href="../api/calibration.html#kivi.calibration.concentration_test" title="kivi.calibration.concentration_test"><code class="xref py py-func docutils literal notranslate"><span class="pre">concentration_test()</span></code></a> 接受的则是各等级的计数或敞口。</p>
+</section>
+<section id="limits">
+<h2>局限<a class="headerlink" href="#limits" title="链接到此标题。">#</a></h2>
+<ul class="simple">
+<li><p>所有检验都假定观测相互独立。违约和回收同涨同落时（例如经济下行期），回测的拒绝频率会高于名义水平。</p></li>
+<li><p>集中度检验比较 <span class="math notranslate nohighlight">\(K\)</span> 个等级的变异系数，其方差取决于 <span class="math notranslate nohighlight">\(K\)</span> 而非客户数，因此等级较少的标尺使检验的功效很低。除了 p 值，也要看 HI 及其变化。</p></li>
+<li><p>迁移检验为 <span class="math notranslate nohighlight">\(K (K - 1)\)</span> 个非对角单元格各给出一个 p 值，因此仅凭随机波动就会有一些低于 5%。</p></li>
+<li><p>对于违约很少的资产组合，附件 3.1 把各观察期合并，合并前把每个评级替换为该期评级相同或更差的客户所占的比例，这里的评级越高代表客户越好。对随风险上升的 PD 而言，这些是 PD 相同或更高的客户，即 <code class="docutils literal notranslate"><span class="pre">score.groupby(period).rank(method=&quot;max&quot;,</span> <span class="pre">ascending=False,</span> <span class="pre">pct=True)</span></code> 。这一比例随风险上升而下降，因此请把它的相反数 <code class="docutils literal notranslate"><span class="pre">-score.groupby(period).rank(method=&quot;max&quot;,</span> <span class="pre">ascending=False,</span> <span class="pre">pct=True)</span></code> 传给 <a class="reference internal" href="../api/metrics.html#kivi.metrics.roc_auc_interval" title="kivi.metrics.roc_auc_interval"><code class="xref py py-func docutils literal notranslate"><span class="pre">roc_auc_interval()</span></code></a> ，由它接收合并后的取值。等级有并列时，评级相同或更好的客户比例，即不带 <code class="docutils literal notranslate"><span class="pre">ascending=False</span></code> 的 <code class="docutils literal notranslate"><span class="pre">rank(method=&quot;max&quot;,</span> <span class="pre">pct=True)</span></code> ，会给出另一个 AUC。</p></li>
+<li><p>kivi 计算报告中的统计量，但不处理其数据排除、推翻评级和缺失评级的计数，也不生成报告模板。</p></li>
+</ul>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="monitoring.html"
+       title="上一页">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">上一页</p>
+        <p class="prev-next-title">模型监控</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="capital.html"
+       title="下一页">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">下一页</p>
+        <p class="prev-next-title">监管资本</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 当前页面
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-tools-of-the-report">报告中的工具</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pd-models">PD 模型</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#back-testing-the-grades">回测各等级</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#current-auc-against-the-initial-auc">当前 AUC 与初始 AUC 比较</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#migrations-and-concentration">迁移与集中度</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#lgd-and-ccf-models">LGD 和 CCF 模型</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#back-testing-the-estimates">回测估计值</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#generalized-auc">广义 AUC</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#continuous-models">连续型模型</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#beyond-the-report">报告之外</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sample-weights">样本权重</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#limits">局限</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    由 <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1创建。
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

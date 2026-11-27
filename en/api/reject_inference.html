@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Reject inference &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=d005c095" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=25d9e9fd"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/reject_inference';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Scorecard" href="scorecard.html" />
+    <link rel="prev" title="Variable selection" href="selection.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="1.9.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 1.9.0">1.9.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    Tutorial
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/api/reject_inference.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    Tutorial
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/api/reject_inference.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="conventions.html">Conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compatibility.html">Compatibility</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">Time-window features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="univariate.html">Univariate profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="binning.html">Binning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="woe.html">Weight of evidence and information value</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selection.html">Variable selection</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">Reject inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scorecard.html">Scorecard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="expert.html">Expert scorecards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">Model performance</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lgd.html">LGD and EAD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">Credit strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rules.html">Policy rules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spec.html">Binning specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stability.html">Population stability index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">Model monitoring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="capital.html">Regulatory capital</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vintage.html">Vintage and roll-rate analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lifetime.html">Lifetime PD and expected credit loss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html">Charts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">Example data</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../api.html" class="nav-link">API reference</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Reject inference</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="module-kivi.reject_inference">
+<span id="reject-inference"></span><h1>Reject inference<a class="headerlink" href="#module-kivi.reject_inference" title="Link to this heading">#</a></h1>
+<p>Supply outcomes for rejected applicants, so that a model developed on the approved applicants can be refitted on all of them. <a class="reference internal" href="#kivi.reject_inference.fuzzy_augmentation" title="kivi.reject_inference.fuzzy_augmentation"><code class="xref py py-func docutils literal notranslate"><span class="pre">fuzzy_augmentation()</span></code></a> and <a class="reference internal" href="#kivi.reject_inference.parceling" title="kivi.reject_inference.parceling"><code class="xref py py-func docutils literal notranslate"><span class="pre">parceling()</span></code></a> return inferred rows with weights, and <a class="reference internal" href="#kivi.reject_inference.reweighting" title="kivi.reject_inference.reweighting"><code class="xref py py-func docutils literal notranslate"><span class="pre">reweighting()</span></code></a> returns weights for the approved applicants.</p>
+<p>See <a class="reference internal" href="../user_guide/reject_inference.html"><span class="doc">Reject inference</span></a> for a comparison of the methods on synthetic applications.</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.reject_inference.fuzzy_augmentation" title="kivi.reject_inference.fuzzy_augmentation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fuzzy_augmentation</span></code></a>(probability, *[, factor])</p></td>
+<td><p>Split each rejected applicant into a bad and a good row with fractional weights.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.reject_inference.parceling" title="kivi.reject_inference.parceling"><code class="xref py py-obj docutils literal notranslate"><span class="pre">parceling</span></code></a>(score, target, reject_score, *[, ...])</p></td>
+<td><p>Label rejected applicants bad or good at the bad rate of their score band.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.reject_inference.reweighting" title="kivi.reject_inference.reweighting"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reweighting</span></code></a>(score, reject_score, *[, bins])</p></td>
+<td><p>Weight accepted applicants to stand in for the rejected applicants of their score band.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.reject_inference.fuzzy_augmentation">
+<span class="sig-prename descclassname"><span class="pre">kivi.reject_inference.</span></span><span class="sig-name descname"><span class="pre">fuzzy_augmentation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">probability</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.reject_inference.fuzzy_augmentation" title="Link to this definition">#</a></dt>
+<dd><p>Split each rejected applicant into a bad and a good row with fractional weights.</p>
+<p>The PD of a reject under the model fitted on the accepted applicants
+alone gives the weight of its bad row, and the rest of its weight of 1
+goes to its good row. Concatenate the rows with the accepted applicants
+at weight 1 and refit the model with weights.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>probability</strong><span class="classifier">array_like</span></dt><dd><p>PD of each rejected applicant under the accepts-only model, between
+0 and 1.</p>
+</dd>
+<dt><strong>factor</strong><span class="classifier">float, default 1</span></dt><dd><p>Positive multiplier of the PDs. A factor above 1 assumes that the
+rejects are riskier than accepted applicants with the same PD, as
+when the approval used information that the model does not have.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.DataFrame</dt><dd><p>Two rows per rejected applicant, the bad row first, with the columns
+<code class="docutils literal notranslate"><span class="pre">target</span></code>, 1 and then 0, and <code class="docutils literal notranslate"><span class="pre">weight</span></code>, the PD times <cite>factor</cite>
+clipped to [0, 1] and its complement. The index repeats the index of
+<cite>probability</cite>, or its positions when it is not a Series. When
+<cite>probability</cite> is a Series with the unique index of the rejects,
+<code class="docutils literal notranslate"><span class="pre">rejects.loc[result.index]</span></code> gives the features of every row.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If <cite>probability</cite> is empty, not one-dimensional or not numeric, or
+has a value that is missing or outside [0, 1]; or if <cite>factor</cite> is not
+a positive finite number.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.reject_inference.parceling" title="kivi.reject_inference.parceling"><code class="xref py py-obj docutils literal notranslate"><span class="pre">parceling</span></code></a></dt><dd><p>Infer the outcomes from the bad rate of a score band.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.reject_inference.reweighting" title="kivi.reject_inference.reweighting"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reweighting</span></code></a></dt><dd><p>Weight the accepted applicants instead.</p>
+</dd>
+<dt><a class="reference internal" href="selection.html#kivi.selection.logistic_regression" title="kivi.selection.logistic_regression"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.selection.logistic_regression</span></code></a></dt><dd><p>Refit the model with <code class="docutils literal notranslate"><span class="pre">weights</span></code>.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>A reject with PD <span class="math notranslate nohighlight">\(p\)</span> and the factor <span class="math notranslate nohighlight">\(k\)</span> gets the rows</p>
+<div class="math notranslate nohighlight">
+\[(y = 1,\ w = \min(k p, 1)) \quad \text{and} \quad
+(y = 0,\ w = 1 - \min(k p, 1)).\]</div>
+<p>Clipping keeps both weights in [0, 1]: when <span class="math notranslate nohighlight">\(k p \ge 1\)</span>, the reject
+counts as bad with its whole weight and its good row has weight 0, which
+kivi’s <code class="docutils literal notranslate"><span class="pre">weights</span></code> arguments ignore. Each reject keeps a total weight of
+1, so the weighted bad rate of its rows is the mean of
+<span class="math notranslate nohighlight">\(\min(k p_i, 1)\)</span>.</p>
+<p>With <code class="docutils literal notranslate"><span class="pre">factor=1</span></code>, refitting the same logistic regression on the same
+encoding returns the coefficients of the accepts-only model exactly: at
+those coefficients, the weight of each reject’s bad row equals its
+fitted PD, so the inferred rows leave the score equations unchanged. The
+refit only narrows the standard errors, although the inferred rows add
+no information: with these weights, the standard errors of
+<cite>kivi.selection.logistic_regression</cite> are too small. The model changes
+only with a factor other than 1,
+with another encoding, such as WOE refitted on the augmented sample, or
+with other variables.</p>
+<p class="rubric">References</p>
+<div role="list" class="citation-list">
+<div class="citation" id="r163332bd4527-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<p>N. Siddiqi, “Credit Risk Scorecards: Developing and Implementing
+Intelligent Credit Scoring”, Wiley, 2006.</p>
+</div>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.reject_inference</span><span class="w"> </span><span class="kn">import</span> <span class="n">fuzzy_augmentation</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">probability</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">],</span> <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="s2">"a"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"c"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fuzzy_augmentation</span><span class="p">(</span><span class="n">probability</span><span class="p">)</span>
+<span class="go">   target  weight</span>
+<span class="go">a       1     0.1</span>
+<span class="go">a       0     0.9</span>
+<span class="go">b       1     0.4</span>
+<span class="go">b       0     0.6</span>
+<span class="go">c       1     0.7</span>
+<span class="go">c       0     0.3</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fuzzy_augmentation</span><span class="p">(</span><span class="n">probability</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="mf">1.5</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">   target  weight</span>
+<span class="go">a       1    0.15</span>
+<span class="go">a       0    0.85</span>
+<span class="go">b       1    0.60</span>
+<span class="go">b       0    0.40</span>
+<span class="go">c       1    1.00</span>
+<span class="go">c       0    0.00</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.reject_inference.parceling">
+<span class="sig-prename descclassname"><span class="pre">kivi.reject_inference.</span></span><span class="sig-name descname"><span class="pre">parceling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">score</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reject_score</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expected</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.reject_inference.parceling" title="Link to this definition">#</a></dt>
+<dd><p>Label rejected applicants bad or good at the bad rate of their score band.</p>
+<p>The scores of the accepted and the rejected applicants are divided into
+bands. In each band, the bad rate of the rejects is <cite>factor</cite> times the
+observed bad rate of the accepted applicants, at most 1, and that share
+of the band’s rejects, chosen at random, is labelled bad.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>score</strong><span class="classifier">array_like</span></dt><dd><p>Finite numeric scores of the accepted applicants, such as their PD
+under the accepts-only model. The direction does not matter.</p>
+</dd>
+<dt><strong>target</strong><span class="classifier">array_like</span></dt><dd><p>Observed outcomes of the accepted applicants, 1 for bad and 0 for
+good, with both present. If <cite>score</cite> and <cite>target</cite> are both pandas
+Series, they must have identical indices; otherwise they are matched
+by position.</p>
+</dd>
+<dt><strong>reject_score</strong><span class="classifier">array_like</span></dt><dd><p>Finite numeric scores of the rejected applicants, on the scale of
+<cite>score</cite>.</p>
+</dd>
+<dt><strong>bins</strong><span class="classifier">int or array_like, default 10</span></dt><dd><p>Number of quantile bands, fitted with <cite>kivi.binning.bin_edges</cite> on the
+scores of accepted and rejected applicants together, so tied scores
+can leave fewer bands; or increasing band edges, closed on the
+right, that hold every score.</p>
+</dd>
+<dt><strong>factor</strong><span class="classifier">float, default 1</span></dt><dd><p>Positive multiplier of the accepted applicants’ bad rate in each
+band. A factor above 1 assumes that the rejects are riskier than
+accepted applicants with the same score.</p>
+</dd>
+<dt><strong>expected</strong><span class="classifier">bool, default False</span></dt><dd><p>Return two rows per reject, weighted with the band’s inferred bad
+rate and its complement as in <cite>fuzzy_augmentation</cite>, instead of a
+random label.</p>
+</dd>
+<dt><strong>rng</strong><span class="classifier">{None, int, numpy.random.Generator}, optional</span></dt><dd><p>Seed or generator passed to <cite>numpy.random.default_rng</cite> to draw the
+labels. The global NumPy random state is not used, so the same seed
+gives the same labels. Not used with <code class="docutils literal notranslate"><span class="pre">expected=True</span></code>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.DataFrame</dt><dd><p>The columns <code class="docutils literal notranslate"><span class="pre">target</span></code> and <code class="docutils literal notranslate"><span class="pre">weight</span></code>, indexed like <cite>reject_score</cite>,
+or by position when it is not a Series. One row per rejected
+applicant with its label and the weight 1, or, with
+<code class="docutils literal notranslate"><span class="pre">expected=True</span></code>, two rows per rejected applicant as returned by
+<cite>fuzzy_augmentation</cite>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If <cite>score</cite> and <cite>target</cite> are invalid as for
+<cite>kivi.metrics.gains_table</cite>; if <cite>reject_score</cite> is empty, not
+one-dimensional or not numeric, or has a missing or infinite value;
+if <cite>bins</cite> is neither a positive integer nor at least two increasing
+edges, or a score lies outside the edges; if a band holds rejected
+applicants but no accepted one, so that its bad rate is unknown; or
+if <cite>factor</cite> is not a positive finite number, <cite>expected</cite> is not a
+boolean, or <cite>rng</cite> is not a seed or generator that
+<cite>numpy.random.default_rng</cite> accepts.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Warns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>UserWarning</dt><dd><p>If tied scores leave fewer quantile bands than <cite>bins</cite>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.reject_inference.fuzzy_augmentation" title="kivi.reject_inference.fuzzy_augmentation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fuzzy_augmentation</span></code></a></dt><dd><p>Infer the outcomes from each reject’s own PD.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.reject_inference.reweighting" title="kivi.reject_inference.reweighting"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reweighting</span></code></a></dt><dd><p>Weight the accepted applicants of each band instead.</p>
+</dd>
+<dt><a class="reference internal" href="metrics.html#kivi.metrics.gains_table" title="kivi.metrics.gains_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.metrics.gains_table</span></code></a></dt><dd><p>Bad rates by score band.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>In a band with <span class="math notranslate nohighlight">\(a\)</span> accepted applicants of whom <span class="math notranslate nohighlight">\(b\)</span> are bad,
+and <span class="math notranslate nohighlight">\(n\)</span> rejects, the inferred bad rate is
+<span class="math notranslate nohighlight">\(r = \min(k b / a, 1)\)</span> for the factor <span class="math notranslate nohighlight">\(k\)</span>. The number of bad
+rejects is <span class="math notranslate nohighlight">\(r n\)</span> rounded down or up at random, up with a
+probability equal to its fractional part, so it is <span class="math notranslate nohighlight">\(r n\)</span> on
+average and never further from it than 1. With <code class="docutils literal notranslate"><span class="pre">expected=True</span></code>, each
+reject instead gets a bad row with the weight <span class="math notranslate nohighlight">\(r\)</span> and a good row
+with <span class="math notranslate nohighlight">\(1 - r\)</span>, which removes the noise of the draw.</p>
+<p>Parceling uses the score only: within a band, it treats every reject
+alike, whatever its features. A reject’s inferred bad rate depends on
+the accepted applicants of its band, which are few in the bands where
+the approval rate is low.</p>
+<p class="rubric">References</p>
+<div role="list" class="citation-list">
+<div class="citation" id="rc29e884af050-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<p>N. Siddiqi, “Credit Risk Scorecards: Developing and Implementing
+Intelligent Credit Scoring”, Wiley, 2006.</p>
+</div>
+</div>
+<p class="rubric">Examples</p>
+<p>The accepted applicants have the bad rate 1/4 in the low band and 3/4
+in the high band. Three of the four rejects of the high band are
+therefore labelled bad, and the one reject of the low band is bad with
+the probability 1/4:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.reject_inference</span><span class="w"> </span><span class="kn">import</span> <span class="n">parceling</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">score</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">reject_score</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.65</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">,</span> <span class="mf">0.85</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">parceling</span><span class="p">(</span><span class="n">score</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">reject_score</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">rng</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="go">   target  weight</span>
+<span class="go">0       0     1.0</span>
+<span class="go">1       0     1.0</span>
+<span class="go">2       1     1.0</span>
+<span class="go">3       1     1.0</span>
+<span class="go">4       1     1.0</span>
+</pre></div>
+</div>
+<p>With <code class="docutils literal notranslate"><span class="pre">expected=True</span></code>, every reject instead gets the bad rate of its
+band as the weight of its bad row:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">parceling</span><span class="p">(</span><span class="n">score</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">reject_score</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">expected</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">   target  weight</span>
+<span class="go">0       1    0.25</span>
+<span class="go">0       0    0.75</span>
+<span class="go">1       1    0.75</span>
+<span class="go">1       0    0.25</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.reject_inference.reweighting">
+<span class="sig-prename descclassname"><span class="pre">kivi.reject_inference.</span></span><span class="sig-name descname"><span class="pre">reweighting</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">score</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reject_score</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.reject_inference.reweighting" title="Link to this definition">#</a></dt>
+<dd><p>Weight accepted applicants to stand in for the rejected applicants of their score band.</p>
+<p>In each band of the score, every accepted applicant gets the weight
+(accepted + rejected) / accepted, the inverse of the band’s approval
+rate. The weighted accepted applicants then add up to all the
+applicants of their band, so a model refitted with these weights gives
+each band its share of the applicant population.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>score</strong><span class="classifier">array_like</span></dt><dd><p>Finite numeric scores of the accepted applicants, such as their PD
+under the accepts-only model. The direction does not matter.</p>
+</dd>
+<dt><strong>reject_score</strong><span class="classifier">array_like</span></dt><dd><p>Finite numeric scores of the rejected applicants, on the scale of
+<cite>score</cite>.</p>
+</dd>
+<dt><strong>bins</strong><span class="classifier">int or array_like, default 10</span></dt><dd><p>Number of quantile bands, fitted with <cite>kivi.binning.bin_edges</cite> on the
+scores of accepted and rejected applicants together, so tied scores
+can leave fewer bands; or increasing band edges, closed on the
+right, that hold every score.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.Series or numpy.ndarray</dt><dd><p>Weight of each accepted applicant, at least 1. A Series named
+<code class="docutils literal notranslate"><span class="pre">weight</span></code> with the index of <cite>score</cite> when <cite>score</cite> is a Series,
+otherwise an array.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If <cite>score</cite> or <cite>reject_score</cite> is empty, not one-dimensional or not
+numeric, or has a missing or infinite value; if <cite>bins</cite> is neither a
+positive integer nor at least two increasing edges, or a score lies
+outside the edges; or if a band holds rejected applicants but no
+accepted one.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Warns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>UserWarning</dt><dd><p>If tied scores leave fewer quantile bands than <cite>bins</cite>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.reject_inference.fuzzy_augmentation" title="kivi.reject_inference.fuzzy_augmentation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fuzzy_augmentation</span></code></a></dt><dd><p>Infer outcomes for the rejects instead.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.reject_inference.parceling" title="kivi.reject_inference.parceling"><code class="xref py py-obj docutils literal notranslate"><span class="pre">parceling</span></code></a></dt><dd><p>Label the rejects of each band at its bad rate.</p>
+</dd>
+<dt><a class="reference internal" href="selection.html#kivi.selection.logistic_regression" title="kivi.selection.logistic_regression"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.selection.logistic_regression</span></code></a></dt><dd><p>Refit the model with <code class="docutils literal notranslate"><span class="pre">weights</span></code>.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>With <span class="math notranslate nohighlight">\(a\)</span> accepted and <span class="math notranslate nohighlight">\(n\)</span> rejected applicants in a band, each
+accepted applicant of the band gets the weight</p>
+<div class="math notranslate nohighlight">
+\[w = \frac{a + n}{a}.\]</div>
+<p>Reweighting assumes that, within a band, the rejects default like the
+accepted applicants. It changes how much each band weighs in the fit,
+but adds no outcomes, so the rejects are predicted to be as risky as
+accepted applicants with the same score. It cannot represent applicants
+that no accepted applicant resembles: a band of rejects without accepted
+applicants raises an error. Bands of a score that decided the approval
+with a hard cut-off have no accepted applicants beyond the cut-off, so
+use a score on which accepted and rejected applicants overlap, such as
+the PD of the accepts-only model.</p>
+<p>The weights add up to more than the number of accepted applicants, so
+the standard errors of a fit with them are too small, as if the
+outcomes of all applicants had been observed.</p>
+<p class="rubric">References</p>
+<div role="list" class="citation-list">
+<div class="citation" id="r0bbcb3cec2a1-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<p>N. Siddiqi, “Credit Risk Scorecards: Developing and Implementing
+Intelligent Credit Scoring”, Wiley, 2006.</p>
+</div>
+</div>
+<p class="rubric">Examples</p>
+<p>The low band has 4 accepted applicants and 1 reject, the high band 2 and 4:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.reject_inference</span><span class="w"> </span><span class="kn">import</span> <span class="n">reweighting</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">score</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">reweighting</span><span class="p">(</span><span class="n">score</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.65</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">,</span> <span class="mf">0.85</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="go">array([1.25, 1.25, 1.25, 1.25, 3.  , 3.  ])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="selection.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Variable selection</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="scorecard.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Scorecard</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.reject_inference.fuzzy_augmentation"><code class="docutils literal notranslate"><span class="pre">fuzzy_augmentation()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.reject_inference.parceling"><code class="docutils literal notranslate"><span class="pre">parceling()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.reject_inference.reweighting"><code class="docutils literal notranslate"><span class="pre">reweighting()</span></code></a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1.
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

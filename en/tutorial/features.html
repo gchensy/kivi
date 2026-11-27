@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>2. Transaction features &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=d005c095" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=25d9e9fd"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'tutorial/features';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="3. Binning and WOE" href="binning.html" />
+    <link rel="prev" title="1. Data and samples" href="data.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="1.9.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 1.9.0">1.9.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    Tutorial
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/tutorial/features.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    Tutorial
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/tutorial/features.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="data.html">1. Data and samples</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">2. Transaction features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="binning.html">3. Binning and WOE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model.html">4. Variable selection and the model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reject_inference.html">5. Reject inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scorecard.html">6. The scorecard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="evaluation.html">7. Model evaluation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">8. Calibration and grades</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">9. Cut-off and strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">10. Production and monitoring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="portfolio.html">11. The loan book under IFRS 9</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Tutorial</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis"><span class="section-number">2. </span>Transaction features</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="transaction-features">
+<h1><span class="section-number">2. </span>Transaction features<a class="headerlink" href="#transaction-features" title="Link to this heading">#</a></h1>
+<p>The applicants hold current accounts with the lender, and the transactions on them show how each applicant handles money before applying. This chapter dates the applications, derives features from the transactions as of each application date with a feature specification, checks that no later transaction enters them, profiles them next to the candidates of <a class="reference internal" href="data.html"><span class="doc">Data and samples</span></a>, and saves their definitions for the scoring system; <a class="reference internal" href="../user_guide/features.html"><span class="doc">Time-window features</span></a> explains each step.</p>
+<details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
+<summary class="sd-summary-title sd-card-header">
+<span class="sd-summary-text">Code from the previous chapters</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_applications</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">applications</span> <span class="o">=</span> <span class="n">make_applications</span><span class="p">(</span><span class="n">n_applicants</span><span class="o">=</span><span class="mi">40000</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">months</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">period_range</span><span class="p">(</span><span class="s2">"2024-01"</span><span class="p">,</span> <span class="n">periods</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="s2">"M"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">applications</span><span class="p">[</span><span class="s2">"month"</span><span class="p">]</span> <span class="o">=</span> <span class="n">months</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">40000</span><span class="p">)</span> <span class="o">*</span> <span class="mi">12</span> <span class="o">//</span> <span class="mi">40000</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">eligible</span> <span class="o">=</span> <span class="n">applications</span><span class="p">[</span><span class="o">~</span><span class="n">applications</span><span class="p">[</span><span class="s2">"policy_decline"</span><span class="p">]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">accepts</span> <span class="o">=</span> <span class="n">eligible</span><span class="p">[</span><span class="n">eligible</span><span class="p">[</span><span class="s2">"approved"</span><span class="p">]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">development</span> <span class="o">=</span> <span class="n">accepts</span><span class="p">[</span><span class="n">accepts</span><span class="p">[</span><span class="s2">"month"</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="s2">"2024-09"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">features</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"age"</span><span class="p">,</span> <span class="s2">"income"</span><span class="p">,</span> <span class="s2">"debt_to_income"</span><span class="p">,</span> <span class="s2">"inquiries"</span><span class="p">,</span> <span class="s2">"housing"</span><span class="p">,</span> <span class="s2">"employment"</span><span class="p">,</span> <span class="s2">"incumbent_pd"</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</details><section id="date-the-applications">
+<h2>Date the applications<a class="headerlink" href="#date-the-applications" title="Link to this heading">#</a></h2>
+<p>The windows of the features end at the application date, but <a class="reference internal" href="data.html"><span class="doc">Data and samples</span></a> gave each application only a month. The applications of each month are spread evenly over its days, in the order of the rows: <code class="docutils literal notranslate"><span class="pre">position</span></code> is the place of a row within its month, from 0 up to 1:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">position</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">40000</span><span class="p">)</span> <span class="o">*</span> <span class="mi">12</span> <span class="o">%</span> <span class="mi">40000</span> <span class="o">/</span> <span class="mi">40000</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">days</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">position</span> <span class="o">*</span> <span class="n">applications</span><span class="p">[</span><span class="s2">"month"</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">days_in_month</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">start</span> <span class="o">=</span> <span class="n">applications</span><span class="p">[</span><span class="s2">"month"</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">start_time</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">applications</span><span class="p">[</span><span class="s2">"application_date"</span><span class="p">]</span> <span class="o">=</span> <span class="n">start</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_timedelta</span><span class="p">(</span><span class="n">days</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">"D"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">applications</span><span class="o">.</span><span class="n">loc</span><span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3333</span><span class="p">,</span> <span class="mi">3334</span><span class="p">,</span> <span class="mi">39999</span><span class="p">],</span> <span class="p">[</span><span class="s2">"month"</span><span class="p">,</span> <span class="s2">"application_date"</span><span class="p">]]</span>
+<span class="go">         month application_date</span>
+<span class="go">0      2024-01       2024-01-01</span>
+<span class="go">3333   2024-01       2024-01-31</span>
+<span class="go">3334   2024-02       2024-02-01</span>
+<span class="go">39999  2024-12       2024-12-31</span>
+</pre></div>
+</div>
+<p>The dates keep the months of <a class="reference internal" href="data.html"><span class="doc">Data and samples</span></a>, so the samples stay the same.</p>
+</section>
+<section id="simulate-the-transactions">
+<h2>Simulate the transactions<a class="headerlink" href="#simulate-the-transactions" title="Link to this heading">#</a></h2>
+<p>For the project, the lender extracted the transactions of its applicants’ accounts: card purchases, cash withdrawals and the repayments of their instalments, from a year before each application to three months after it. <a class="reference internal" href="../api/datasets.html#kivi.datasets.make_transactions" title="kivi.datasets.make_transactions"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_transactions()</span></code></a> simulates them. It draws the transactions from a risk factor of each applicant that no lender sees, so the simulation reads the same applications with <code class="docutils literal notranslate"><span class="pre">include_risk=True</span></code>, which adds that factor as the column <code class="docutils literal notranslate"><span class="pre">risk</span></code>; the steps of the project never use it. The first call gives the year before each application, and the second the three months before a date three months after it. Counted back from the end of a shorter month, those three months can start a day or two before an application at the end of a month: three months after 30 November is 28 February, and three months before that is 28 November. A filter therefore keeps the transactions of the second call from the application date on:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_transactions</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">simulated</span> <span class="o">=</span> <span class="n">make_applications</span><span class="p">(</span><span class="n">n_applicants</span><span class="o">=</span><span class="mi">40000</span><span class="p">,</span> <span class="n">include_risk</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">simulated</span><span class="p">[</span><span class="s2">"application_date"</span><span class="p">]</span> <span class="o">=</span> <span class="n">applications</span><span class="p">[</span><span class="s2">"application_date"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">before</span> <span class="o">=</span> <span class="n">make_transactions</span><span class="p">(</span><span class="n">simulated</span><span class="p">,</span> <span class="n">application_date</span><span class="o">=</span><span class="s2">"application_date"</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">later</span> <span class="o">=</span> <span class="n">simulated</span><span class="p">[</span><span class="s2">"application_date"</span><span class="p">]</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">DateOffset</span><span class="p">(</span><span class="n">months</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">after</span> <span class="o">=</span> <span class="n">make_transactions</span><span class="p">(</span><span class="n">simulated</span><span class="p">,</span> <span class="n">application_date</span><span class="o">=</span><span class="n">later</span><span class="p">,</span> <span class="n">n_months</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">after</span> <span class="o">=</span> <span class="n">after</span><span class="p">[</span><span class="n">after</span><span class="p">[</span><span class="s2">"timestamp"</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">after</span><span class="p">[</span><span class="s2">"applicant_id"</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">simulated</span><span class="p">[</span><span class="s2">"application_date"</span><span class="p">])]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">extract</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">before</span><span class="p">,</span> <span class="n">after</span><span class="p">])</span><span class="o">.</span><span class="n">sort_values</span><span class="p">([</span><span class="s2">"applicant_id"</span><span class="p">,</span> <span class="s2">"timestamp"</span><span class="p">],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">extract</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+<span class="go">   applicant_id           timestamp  amount       kind merchant_category</span>
+<span class="go">0             0 2023-01-05 12:52:45   60.01   purchase            online</span>
+<span class="go">1             0 2023-01-05 22:29:20  113.02   purchase            online</span>
+<span class="go">2             0 2023-01-10 08:59:08  664.73  repayment               NaN</span>
+<span class="go">3             0 2023-01-13 13:54:59   87.74   purchase            health</span>
+<span class="go">4             0 2023-01-26 22:03:14  352.16   purchase           grocery</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">applicant_id</span></code> is the index label of the application. The extract holds 2.2 million transactions, more than half of them purchases.</p>
+</section>
+<section id="define-the-features">
+<h2>Define the features<a class="headerlink" href="#define-the-features" title="Link to this heading">#</a></h2>
+<p>A <a class="reference internal" href="../api/features.html#kivi.features.FeatureSpec" title="kivi.features.FeatureSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">FeatureSpec</span></code></a> holds the definitions of the features: the column of the applicants, the column of the application dates, and one group of window features for each kind of transaction, each with the arguments of one call of <a class="reference internal" href="../api/features.html#kivi.features.window_features" title="kivi.features.window_features"><code class="xref py py-func docutils literal notranslate"><span class="pre">window_features()</span></code></a>. The groups count and add up the cash withdrawals of the last three and twelve months, the repayments of the last three months and of the three months before them, and the purchases of the last three months. Two ratios compare the cash with the purchases, and the repayments of the last three months with those of the three months before:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.features</span><span class="w"> </span><span class="kn">import</span> <span class="n">FeatureSpec</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">feature_spec</span> <span class="o">=</span> <span class="n">FeatureSpec</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="nb">id</span><span class="o">=</span><span class="s2">"applicant_id"</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">observation_time</span><span class="o">=</span><span class="s2">"application_date"</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">events</span><span class="o">=</span><span class="p">[</span>
+<span class="gp">... </span>        <span class="p">{</span><span class="s2">"table"</span><span class="p">:</span> <span class="s2">"cash"</span><span class="p">,</span> <span class="s2">"prefix"</span><span class="p">:</span> <span class="s2">"cash_"</span><span class="p">,</span> <span class="s2">"time"</span><span class="p">:</span> <span class="s2">"timestamp"</span><span class="p">,</span> <span class="s2">"windows"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"3M"</span><span class="p">,</span> <span class="s2">"12M"</span><span class="p">],</span>
+<span class="gp">... </span>         <span class="s2">"aggregations"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"amount"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"sum"</span><span class="p">]}},</span>
+<span class="gp">... </span>        <span class="p">{</span><span class="s2">"table"</span><span class="p">:</span> <span class="s2">"repayments"</span><span class="p">,</span> <span class="s2">"prefix"</span><span class="p">:</span> <span class="s2">"repayment_"</span><span class="p">,</span> <span class="s2">"time"</span><span class="p">:</span> <span class="s2">"timestamp"</span><span class="p">,</span>
+<span class="gp">... </span>         <span class="s2">"windows"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"3M"</span><span class="p">,</span> <span class="p">(</span><span class="s2">"6M"</span><span class="p">,</span> <span class="s2">"3M"</span><span class="p">)],</span> <span class="s2">"aggregations"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"amount"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"sum"</span><span class="p">]}},</span>
+<span class="gp">... </span>        <span class="p">{</span><span class="s2">"table"</span><span class="p">:</span> <span class="s2">"purchases"</span><span class="p">,</span> <span class="s2">"prefix"</span><span class="p">:</span> <span class="s2">"purchase_"</span><span class="p">,</span> <span class="s2">"time"</span><span class="p">:</span> <span class="s2">"timestamp"</span><span class="p">,</span> <span class="s2">"windows"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"3M"</span><span class="p">],</span>
+<span class="gp">... </span>         <span class="s2">"aggregations"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"amount"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"sum"</span><span class="p">]}},</span>
+<span class="gp">... </span>    <span class="p">],</span>
+<span class="gp">... </span>    <span class="n">ratios</span><span class="o">=</span><span class="p">[</span>
+<span class="gp">... </span>        <span class="p">(</span><span class="s2">"cash_amount_sum_3m"</span><span class="p">,</span> <span class="s2">"purchase_amount_sum_3m"</span><span class="p">),</span>
+<span class="gp">... </span>        <span class="p">(</span><span class="s2">"repayment_amount_sum_3m"</span><span class="p">,</span> <span class="s2">"repayment_amount_sum_6m_3m"</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="p">],</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">feature_spec</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+<span class="go">['cash_events_3m', 'cash_amount_sum_3m', 'cash_events_12m', 'cash_amount_sum_12m',</span>
+<span class="go"> 'repayment_events_3m', 'repayment_amount_sum_3m', 'repayment_events_6m_3m',</span>
+<span class="go"> 'repayment_amount_sum_6m_3m', 'purchase_events_3m', 'purchase_amount_sum_3m',</span>
+<span class="go"> 'cash_amount_sum_3m_over_purchase_amount_sum_3m', 'repayment_amount_sum_3m_over_6m_3m']</span>
+</pre></div>
+</div>
+<p>The observations are the applicants and their application dates, on the index of the applications. <a class="reference internal" href="../api/features.html#kivi.features.FeatureSpec.compute" title="kivi.features.FeatureSpec.compute"><code class="xref py py-meth docutils literal notranslate"><span class="pre">compute()</span></code></a> takes the transactions of each group by the name of its table, so a small function splits the extract by kind:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">observations</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">{</span><span class="s2">"applicant_id"</span><span class="p">:</span> <span class="n">applications</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="s2">"application_date"</span><span class="p">:</span> <span class="n">applications</span><span class="p">[</span><span class="s2">"application_date"</span><span class="p">]},</span>
+<span class="gp">... </span>    <span class="n">index</span><span class="o">=</span><span class="n">applications</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">by_kind</span><span class="p">(</span><span class="n">transactions</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">kind</span> <span class="o">=</span> <span class="n">transactions</span><span class="p">[</span><span class="s2">"kind"</span><span class="p">]</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="p">{</span>
+<span class="gp">... </span>        <span class="s2">"cash"</span><span class="p">:</span> <span class="n">transactions</span><span class="p">[</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">"cash_withdrawal"</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="s2">"repayments"</span><span class="p">:</span> <span class="n">transactions</span><span class="p">[</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">"repayment"</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="s2">"purchases"</span><span class="p">:</span> <span class="n">transactions</span><span class="p">[</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">"purchase"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">account_features</span> <span class="o">=</span> <span class="n">feature_spec</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="n">observations</span><span class="p">,</span> <span class="n">events</span><span class="o">=</span><span class="n">by_kind</span><span class="p">(</span><span class="n">extract</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">account_features</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">                                                      0        1        2</span>
+<span class="go">cash_events_3m                                     4.00     1.00     5.00</span>
+<span class="go">cash_amount_sum_3m                               596.36    65.84   683.87</span>
+<span class="go">cash_events_12m                                   13.00     5.00    16.00</span>
+<span class="go">cash_amount_sum_12m                             1754.90   335.42  1891.98</span>
+<span class="go">repayment_events_3m                                2.00     3.00     0.00</span>
+<span class="go">repayment_amount_sum_3m                         1214.41  5097.31     0.00</span>
+<span class="go">repayment_events_6m_3m                             2.00     3.00     2.00</span>
+<span class="go">repayment_amount_sum_6m_3m                      1211.13  5194.59  1917.27</span>
+<span class="go">purchase_events_3m                                13.00    12.00     1.00</span>
+<span class="go">purchase_amount_sum_3m                          2781.96  2082.14   112.82</span>
+<span class="go">cash_amount_sum_3m_over_purchase_amount_sum_3m     0.21     0.03     6.06</span>
+<span class="go">repayment_amount_sum_3m_over_6m_3m                 1.00     0.98     0.00</span>
+</pre></div>
+</div>
+<p>The third applicant made two repayments in the three months before the last three and none since, while withdrawing cash five times and spending little by card. Its ratio of repayments is 0, and its cash is six times its purchases.</p>
+</section>
+<section id="check-that-the-features-are-point-in-time">
+<h2>Check that the features are point in time<a class="headerlink" href="#check-that-the-features-are-point-in-time" title="Link to this heading">#</a></h2>
+<p>A fifth of the extract lies on or after the application date of its applicant. The scoring system could not have seen those transactions when it decided the application:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">date</span> <span class="o">=</span> <span class="n">extract</span><span class="p">[</span><span class="s2">"applicant_id"</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">applications</span><span class="p">[</span><span class="s2">"application_date"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="p">(</span><span class="n">extract</span><span class="p">[</span><span class="s1">'timestamp'</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">date</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">0.212</span>
+</pre></div>
+</div>
+<p>The windows end just before the application date, so those transactions count in no feature. To check it, remove them by hand and compute the features again. They are the same, the counts exactly and the sums up to the rounding of their last digits, because a table with fewer rows adds the same amounts in another order:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">known</span> <span class="o">=</span> <span class="n">extract</span><span class="p">[</span><span class="n">extract</span><span class="p">[</span><span class="s2">"timestamp"</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">date</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">feature_spec</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="n">observations</span><span class="p">,</span> <span class="n">events</span><span class="o">=</span><span class="n">by_kind</span><span class="p">(</span><span class="n">known</span><span class="p">)),</span> <span class="n">account_features</span><span class="p">,</span> <span class="n">equal_nan</span><span class="o">=</span><span class="kc">True</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<p>A count of each applicant’s transactions grouped by hand, without the dates, would include them, and a model developed on it would rank applicants on information that it never has in production.</p>
+</section>
+<section id="profile-the-features">
+<h2>Profile the features<a class="headerlink" href="#profile-the-features" title="Link to this heading">#</a></h2>
+<p>The features are candidates like the fields of the application form. <a class="reference internal" href="../api/univariate.html#kivi.univariate.profile_table" title="kivi.univariate.profile_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">profile_table()</span></code></a> profiles them next to the seven candidates of <a class="reference internal" href="data.html"><span class="doc">Data and samples</span></a>, on the development sample:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.univariate</span><span class="w"> </span><span class="kn">import</span> <span class="n">profile_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">candidates</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">development</span><span class="p">[</span><span class="n">features</span><span class="p">],</span> <span class="n">account_features</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">development</span><span class="o">.</span><span class="n">index</span><span class="p">]],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">profile</span> <span class="o">=</span> <span class="n">profile_table</span><span class="p">(</span><span class="n">candidates</span><span class="p">,</span> <span class="n">development</span><span class="p">[</span><span class="s2">"target"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">profile</span><span class="p">[[</span><span class="s2">"missing_share"</span><span class="p">,</span> <span class="s2">"iv"</span><span class="p">,</span> <span class="s2">"gini"</span><span class="p">]]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">"iv"</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">                                                missing_share     iv   gini</span>
+<span class="go">variable</span>
+<span class="go">incumbent_pd                                            0.000  0.272  0.295</span>
+<span class="go">housing                                                 0.000  0.110    NaN</span>
+<span class="go">cash_events_12m                                         0.000  0.099  0.183</span>
+<span class="go">cash_events_3m                                          0.000  0.089  0.176</span>
+<span class="go">cash_amount_sum_3m_over_purchase_amount_sum_3m          0.010  0.072  0.162</span>
+<span class="go">repayment_amount_sum_3m_over_6m_3m                      0.001  0.063 -0.138</span>
+<span class="go">repayment_events_3m                                     0.000  0.058 -0.123</span>
+<span class="go">cash_amount_sum_3m                                      0.000  0.050  0.139</span>
+<span class="go">cash_amount_sum_12m                                     0.000  0.047  0.124</span>
+<span class="go">debt_to_income                                          0.000  0.031  0.101</span>
+<span class="go">income                                                  0.000  0.023 -0.085</span>
+<span class="go">age                                                     0.000  0.023 -0.088</span>
+<span class="go">inquiries                                               0.000  0.021  0.101</span>
+<span class="go">employment                                              0.000  0.017    NaN</span>
+<span class="go">purchase_amount_sum_3m                                  0.000  0.015 -0.054</span>
+<span class="go">purchase_events_3m                                      0.000  0.005 -0.027</span>
+<span class="go">repayment_amount_sum_6m_3m                              0.000  0.003  0.017</span>
+<span class="go">repayment_amount_sum_3m                                 0.000  0.003 -0.034</span>
+<span class="go">repayment_events_6m_3m                                  0.000  0.000 -0.050</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">profile</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">profile</span><span class="p">[</span><span class="s2">"tied_bins"</span><span class="p">]])</span>
+<span class="go">['inquiries', 'cash_events_3m', 'cash_amount_sum_3m', 'repayment_events_3m',</span>
+<span class="go"> 'repayment_events_6m_3m', 'cash_amount_sum_3m_over_purchase_amount_sum_3m']</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id1">
+<img alt="Information value of the seven application candidates and the twelve transaction features on the development sample, sorted, with the 0.02, 0.1 and 0.3 reading bands" class="plot-directive" src="../_images/features-1.svg" />
+<figcaption>
+<p><span class="caption-text">IV of each candidate with a quick binning on the development sample. The cash withdrawals and the change of the repayments are stronger than most fields of the application form.</span><a class="headerlink" href="#id1" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>The profile ranks the transaction features among the application data:</p>
+<ul class="simple">
+<li><p>The cash withdrawals carry the most information: their numbers in the last twelve and three months have an IV of 0.099 and 0.089, more than any field of the application form except <code class="docutils literal notranslate"><span class="pre">housing</span></code>. More withdrawals mean more defaults, as the positive <code class="docutils literal notranslate"><span class="pre">gini</span></code> shows.</p></li>
+<li><p>The repayments matter by their change, not by their level. The sums of the last three months and of the three months before are weak on their own, because they follow the size of the instalments, but their ratio has an IV of 0.063 with a negative <code class="docutils literal notranslate"><span class="pre">gini</span></code>: applicants who repaid less recently than before default more often. So do applicants with fewer repayments in the last three months.</p></li>
+<li><p>The purchases say little.</p></li>
+<li><p>The ratio of cash to purchases is missing for the 1% of applicants without a purchase in the last three months, because its denominator is 0. The profile counts them as a group of their own.</p></li>
+<li><p>Five transaction features are marked in <code class="docutils literal notranslate"><span class="pre">tied_bins</span></code>, like <code class="docutils literal notranslate"><span class="pre">inquiries</span></code> in <a class="reference internal" href="data.html"><span class="doc">Data and samples</span></a>: the numbers of withdrawals and repayments in three months take few values, and a fifth of the applicants withdrew no cash in the last three months, so their quantile bins collapse. A binning would give them explicit edges.</p></li>
+</ul>
+<div class="kivi-check admonition">
+<p class="admonition-title">Simulation check</p>
+<p><a class="reference internal" href="../api/datasets.html#kivi.datasets.make_transactions" title="kivi.datasets.make_transactions"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_transactions()</span></code></a> draws the transactions from the hidden risk factor, of which the vendor’s scorecard sees only a part. The withdrawals of the last year follow that factor more closely than the vendor’s PD does, and share only part of their variation with the vendor’s PD, which is why they carry information that it lacks:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">simulated</span><span class="p">[[</span><span class="s2">"risk"</span><span class="p">,</span> <span class="s2">"incumbent_pd"</span><span class="p">]]</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">account_features</span><span class="p">[</span><span class="s2">"cash_events_12m"</span><span class="p">])</span><span class="o">.</span><span class="n">corr</span><span class="p">()</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">                 risk  incumbent_pd  cash_events_12m</span>
+<span class="go">risk             1.00          0.44             0.67</span>
+<span class="go">incumbent_pd     0.44          1.00             0.53</span>
+<span class="go">cash_events_12m  0.67          0.53             1.00</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="save-the-specification">
+<h2>Save the specification<a class="headerlink" href="#save-the-specification" title="Link to this heading">#</a></h2>
+<p>A feature specification holds definitions only: nothing in it is fitted to data. <a class="reference internal" href="../api/features.html#kivi.features.FeatureSpec.to_json" title="kivi.features.FeatureSpec.to_json"><code class="xref py py-meth docutils literal notranslate"><span class="pre">to_json()</span></code></a> writes it as JSON for the scoring system, and <a class="reference internal" href="../api/features.html#kivi.features.FeatureSpec.from_json" title="kivi.features.FeatureSpec.from_json"><code class="xref py py-meth docutils literal notranslate"><span class="pre">from_json()</span></code></a> reads it back into an equal specification that computes the same features:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">text</span> <span class="o">=</span> <span class="n">feature_spec</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">restored</span> <span class="o">=</span> <span class="n">FeatureSpec</span><span class="o">.</span><span class="n">from_json</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">restored</span> <span class="o">==</span> <span class="n">feature_spec</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">restored</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="n">observations</span><span class="p">,</span> <span class="n">events</span><span class="o">=</span><span class="n">by_kind</span><span class="p">(</span><span class="n">extract</span><span class="p">))</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="n">account_features</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<p>Each group is written with every argument of its call, the defaults included, so the file states the windows, the aggregations and the side on which each window is closed:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">restored</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()[</span><span class="s2">"events"</span><span class="p">][</span><span class="mi">0</span><span class="p">]))</span>
+<span class="go">{"table": "cash", "time": "timestamp", "windows": ["3M", "12M"],</span>
+<span class="go"> "aggregations": {"amount": ["sum"]}, "closed": "left", "prefix": "cash_"}</span>
+</pre></div>
+</div>
+</section>
+<section id="keep-them-for-the-next-scorecard">
+<h2>Keep them for the next scorecard<a class="headerlink" href="#keep-them-for-the-next-scorecard" title="Link to this heading">#</a></h2>
+<p>Several transaction features are stronger than most fields of the application form, but the project builds its first scorecard from the application data and the vendor’s PD, as it set out to do. A scorecard can rely on a characteristic only once the scoring system computes it as development did, so the lender first runs the specification in production, as <a class="reference internal" href="monitoring.html"><span class="doc">Production and monitoring</span></a> describes for the binning, and tests the features in a challenger scorecard of its next development. Whether they add to the vendor’s PD, which they partly repeat, is a question for that model, not for the profile. The chapters that follow use the seven candidates of <a class="reference internal" href="data.html"><span class="doc">Data and samples</span></a>.</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="data.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title"><span class="section-number">1. </span>Data and samples</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="binning.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title"><span class="section-number">3. </span>Binning and WOE</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#date-the-applications">Date the applications</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#simulate-the-transactions">Simulate the transactions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#define-the-features">Define the features</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#check-that-the-features-are-point-in-time">Check that the features are point in time</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#profile-the-features">Profile the features</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#save-the-specification">Save the specification</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#keep-them-for-the-next-scorecard">Keep them for the next scorecard</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1.
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

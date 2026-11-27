@@ -1,0 +1,1902 @@
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Scorecard &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=d005c095" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=25d9e9fd"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/scorecard';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Expert scorecards" href="expert.html" />
+    <link rel="prev" title="Reject inference" href="reject_inference.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="1.9.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 1.9.0">1.9.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    Tutorial
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/api/scorecard.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    Tutorial
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/api/scorecard.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="conventions.html">Conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compatibility.html">Compatibility</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">Time-window features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="univariate.html">Univariate profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="binning.html">Binning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="woe.html">Weight of evidence and information value</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selection.html">Variable selection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reject_inference.html">Reject inference</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">Scorecard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="expert.html">Expert scorecards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">Model performance</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lgd.html">LGD and EAD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">Credit strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rules.html">Policy rules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spec.html">Binning specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stability.html">Population stability index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">Model monitoring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="capital.html">Regulatory capital</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vintage.html">Vintage and roll-rate analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lifetime.html">Lifetime PD and expected credit loss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html">Charts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">Example data</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../api.html" class="nav-link">API reference</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Scorecard</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="module-kivi.scorecard">
+<span id="scorecard"></span><h1>Scorecard<a class="headerlink" href="#module-kivi.scorecard" title="Link to this heading">#</a></h1>
+<p>Turn a logistic regression on WOE values into points. <a class="reference internal" href="#kivi.scorecard.score_scaling" title="kivi.scorecard.score_scaling"><code class="xref py py-func docutils literal notranslate"><span class="pre">score_scaling()</span></code></a>, <a class="reference internal" href="#kivi.scorecard.pd_to_score" title="kivi.scorecard.pd_to_score"><code class="xref py py-func docutils literal notranslate"><span class="pre">pd_to_score()</span></code></a> and <a class="reference internal" href="#kivi.scorecard.score_to_pd" title="kivi.scorecard.score_to_pd"><code class="xref py py-func docutils literal notranslate"><span class="pre">score_to_pd()</span></code></a> set and apply the scale, <a class="reference internal" href="#kivi.scorecard.points_table" title="kivi.scorecard.points_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">points_table()</span></code></a> and <a class="reference internal" href="#kivi.scorecard.woe_to_points" title="kivi.scorecard.woe_to_points"><code class="xref py py-func docutils literal notranslate"><span class="pre">woe_to_points()</span></code></a> give the points, and <a class="reference internal" href="#kivi.scorecard.reason_codes" title="kivi.scorecard.reason_codes"><code class="xref py py-func docutils literal notranslate"><span class="pre">reason_codes()</span></code></a> lists the variables that lowered a score most. <a class="reference internal" href="#kivi.scorecard.ScorecardSpec" title="kivi.scorecard.ScorecardSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScorecardSpec</span></code></a> keeps the binning, the points, the scaling, a calibration and a master scale together, scores, calibrates and grades any sample with them, and saves them as versioned JSON.</p>
+<p>See <a class="reference internal" href="../user_guide/scorecard.html"><span class="doc">Scorecard</span></a> for a scorecard built on the bundled data.</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.scorecard.score_scaling" title="kivi.scorecard.score_scaling"><code class="xref py py-obj docutils literal notranslate"><span class="pre">score_scaling</span></code></a>(*, pdo, base_score, base_odds)</p></td>
+<td><p>Return the factor and offset that turn log odds into a score.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.scorecard.pd_to_score" title="kivi.scorecard.pd_to_score"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pd_to_score</span></code></a>(probability, *, pdo, base_score, ...)</p></td>
+<td><p>Convert event probabilities to scorecard scores.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.scorecard.score_to_pd" title="kivi.scorecard.score_to_pd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">score_to_pd</span></code></a>(score, *, pdo, base_score, base_odds)</p></td>
+<td><p>Convert scorecard scores to event probabilities.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.scorecard.points_table" title="kivi.scorecard.points_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">points_table</span></code></a>(tables, coefficients, ...)</p></td>
+<td><p>Turn a logistic regression on WOE values into points for each group.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.scorecard.woe_to_points" title="kivi.scorecard.woe_to_points"><code class="xref py py-obj docutils literal notranslate"><span class="pre">woe_to_points</span></code></a>(woe, coefficients, intercept, ...)</p></td>
+<td><p>Give each applicant the points of each variable from its WOE values.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.scorecard.reason_codes" title="kivi.scorecard.reason_codes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reason_codes</span></code></a>(points, table, *[, top, atol, ...])</p></td>
+<td><p>Name the variables that cost each applicant the most points.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.scorecard.ScorecardSpec" title="kivi.scorecard.ScorecardSpec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ScorecardSpec</span></code></a>(binning, table, *, pdo, ...[, ...])</p></td>
+<td><p>A whole scorecard, to score, calibrate and grade any sample the same way.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.scorecard.score_scaling">
+<span class="sig-prename descclassname"><span class="pre">kivi.scorecard.</span></span><span class="sig-name descname"><span class="pre">score_scaling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">pdo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_score</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_odds</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.scorecard.score_scaling" title="Link to this definition">#</a></dt>
+<dd><p>Return the factor and offset that turn log odds into a score.</p>
+<p>A scorecard score is linear in the log of the good:bad odds. It equals
+<cite>base_score</cite> at odds of <cite>base_odds</cite> and rises by <cite>pdo</cite> points each time
+the odds double.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>pdo</strong><span class="classifier">float</span></dt><dd><p>Points to double the odds. Must be positive.</p>
+</dd>
+<dt><strong>base_score</strong><span class="classifier">float</span></dt><dd><p>Score at the base odds.</p>
+</dd>
+<dt><strong>base_odds</strong><span class="classifier">float</span></dt><dd><p>Good:bad odds at the base score, such as 50 for 50 non-events per
+event. Must be positive.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>factor</strong><span class="classifier">float</span></dt><dd><p>Points per unit of log odds, <code class="docutils literal notranslate"><span class="pre">pdo</span> <span class="pre">/</span> <span class="pre">ln</span> <span class="pre">2</span></code>.</p>
+</dd>
+<dt><strong>offset</strong><span class="classifier">float</span></dt><dd><p>Score at even odds, <code class="docutils literal notranslate"><span class="pre">base_score</span> <span class="pre">-</span> <span class="pre">factor</span> <span class="pre">*</span> <span class="pre">ln(base_odds)</span></code>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If an argument is not a finite number, or <cite>pdo</cite> or <cite>base_odds</cite> is
+not positive.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.scorecard.pd_to_score" title="kivi.scorecard.pd_to_score"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pd_to_score</span></code></a></dt><dd><p>Convert event probabilities to scores.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.scorecard.score_to_pd" title="kivi.scorecard.score_to_pd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">score_to_pd</span></code></a></dt><dd><p>Convert scores to event probabilities.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>With odds <span class="math notranslate nohighlight">\(o = (1 - p) / p\)</span> for an event probability <span class="math notranslate nohighlight">\(p\)</span>,</p>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}\mathrm{score} = \mathrm{offset} + \mathrm{factor} \cdot \ln o,\\\mathrm{factor} = \frac{\mathrm{pdo}}{\ln 2}, \qquad
+\mathrm{offset} = \mathrm{base\_score} - \mathrm{factor} \cdot \ln \mathrm{base\_odds}.\end{aligned}\end{align} \]</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.scorecard</span><span class="w"> </span><span class="kn">import</span> <span class="n">score_scaling</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">factor</span><span class="p">,</span> <span class="n">offset</span> <span class="o">=</span> <span class="n">score_scaling</span><span class="p">(</span><span class="n">pdo</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">base_score</span><span class="o">=</span><span class="mi">600</span><span class="p">,</span> <span class="n">base_odds</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"factor = </span><span class="si">{</span><span class="n">factor</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, offset = </span><span class="si">{</span><span class="n">offset</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">factor = 28.8539, offset = 487.1229</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.scorecard.pd_to_score">
+<span class="sig-prename descclassname"><span class="pre">kivi.scorecard.</span></span><span class="sig-name descname"><span class="pre">pd_to_score</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">probability</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">pdo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_score</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_odds</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.scorecard.pd_to_score" title="Link to this definition">#</a></dt>
+<dd><p>Convert event probabilities to scorecard scores.</p>
+<p>A lower probability of the event, such as a default, gives a higher
+score. The scaling is set by <cite>pdo</cite>, <cite>base_score</cite> and <cite>base_odds</cite>, as in
+<cite>score_scaling</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>probability</strong><span class="classifier">array_like</span></dt><dd><p>Event probabilities strictly between 0 and 1. Missing values give
+missing scores.</p>
+</dd>
+<dt><strong>pdo</strong><span class="classifier">float</span></dt><dd><p>Points to double the odds. Must be positive.</p>
+</dd>
+<dt><strong>base_score</strong><span class="classifier">float</span></dt><dd><p>Score at the base odds.</p>
+</dd>
+<dt><strong>base_odds</strong><span class="classifier">float</span></dt><dd><p>Good:bad odds at the base score. Must be positive.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>float, pandas.Series or numpy.ndarray</dt><dd><p>Scores with the shape of <cite>probability</cite>. A Series input gives a Series with
+the same index and name, and a scalar gives a float.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If <cite>probability</cite> is not real and numeric or has values outside the
+open interval (0, 1), or the scaling arguments are invalid.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.scorecard.score_to_pd" title="kivi.scorecard.score_to_pd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">score_to_pd</span></code></a></dt><dd><p>The inverse conversion.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.scorecard.score_scaling" title="kivi.scorecard.score_scaling"><code class="xref py py-obj docutils literal notranslate"><span class="pre">score_scaling</span></code></a></dt><dd><p>The factor and offset of the scaling.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>The score is <code class="docutils literal notranslate"><span class="pre">offset</span> <span class="pre">+</span> <span class="pre">factor</span> <span class="pre">*</span> <span class="pre">ln((1</span> <span class="pre">-</span> <span class="pre">probability)</span> <span class="pre">/</span> <span class="pre">probability)</span></code>. A probability
+of exactly 0 or 1 has no finite score and raises an error; see
+<cite>score_to_pd</cite> for the scores whose probability rounds to 1.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.scorecard</span><span class="w"> </span><span class="kn">import</span> <span class="n">pd_to_score</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">scale</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">pdo</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">base_score</span><span class="o">=</span><span class="mi">600</span><span class="p">,</span> <span class="n">base_odds</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pd_to_score</span><span class="p">([</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">51</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">101</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">],</span> <span class="o">**</span><span class="n">scale</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">array([600.  , 620.  , 550.52])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.scorecard.score_to_pd">
+<span class="sig-prename descclassname"><span class="pre">kivi.scorecard.</span></span><span class="sig-name descname"><span class="pre">score_to_pd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">score</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">pdo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_score</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_odds</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.scorecard.score_to_pd" title="Link to this definition">#</a></dt>
+<dd><p>Convert scorecard scores to event probabilities.</p>
+<p>This is the inverse of <cite>pd_to_score</cite> for the same scaling, so it gives
+the probability of the event implied by each score.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>score</strong><span class="classifier">array_like</span></dt><dd><p>Scores. Missing values give missing probabilities.</p>
+</dd>
+<dt><strong>pdo</strong><span class="classifier">float</span></dt><dd><p>Points to double the odds. Must be positive.</p>
+</dd>
+<dt><strong>base_score</strong><span class="classifier">float</span></dt><dd><p>Score at the base odds.</p>
+</dd>
+<dt><strong>base_odds</strong><span class="classifier">float</span></dt><dd><p>Good:bad odds at the base score. Must be positive.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>float, pandas.Series or numpy.ndarray</dt><dd><p>Event probabilities with the shape of <cite>score</cite>. A Series input gives
+a Series with the same index and name, and a scalar gives a float.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If <cite>score</cite> is not real and numeric, or the scaling arguments are
+invalid.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.scorecard.pd_to_score" title="kivi.scorecard.pd_to_score"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pd_to_score</span></code></a></dt><dd><p>The inverse conversion.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.scorecard.score_scaling" title="kivi.scorecard.score_scaling"><code class="xref py py-obj docutils literal notranslate"><span class="pre">score_scaling</span></code></a></dt><dd><p>The factor and offset of the scaling.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>The probability is <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">/</span> <span class="pre">(1</span> <span class="pre">+</span> <span class="pre">exp((score</span> <span class="pre">-</span> <span class="pre">offset)</span> <span class="pre">/</span> <span class="pre">factor))</span></code>,
+computed without overflow for extreme scores. In double precision it
+rounds to exactly 1 for scores more than about <code class="docutils literal notranslate"><span class="pre">36.7</span> <span class="pre">*</span> <span class="pre">factor</span></code> below
+the offset, -572 for the scale in the example, and <cite>pd_to_score</cite> rejects
+such probabilities. Scores that low do not occur on a practical scale.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.scorecard</span><span class="w"> </span><span class="kn">import</span> <span class="n">score_to_pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">scale</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">pdo</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">base_score</span><span class="o">=</span><span class="mi">600</span><span class="p">,</span> <span class="n">base_odds</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">score_to_pd</span><span class="p">([</span><span class="mi">580</span><span class="p">,</span> <span class="mi">600</span><span class="p">,</span> <span class="mi">620</span><span class="p">],</span> <span class="o">**</span><span class="n">scale</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<span class="go">array([0.03846, 0.01961, 0.0099 ])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.scorecard.points_table">
+<span class="sig-prename descclassname"><span class="pre">kivi.scorecard.</span></span><span class="sig-name descname"><span class="pre">points_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tables</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coefficients</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intercept</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">pdo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_score</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_odds</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.scorecard.points_table" title="Link to this definition">#</a></dt>
+<dd><p>Turn a logistic regression on WOE values into points for each group.</p>
+<p>The points of an applicant’s groups, one per variable, add up to the
+score that <cite>pd_to_score</cite> gives for the model’s probability. The
+intercept is spread evenly across the variables.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>tables</strong><span class="classifier">mapping</span></dt><dd><p>For each variable, its <cite>kivi.woe.woe_table</cite> result or a Series of
+WOE values indexed by group. Tables of variables without a
+coefficient are ignored.</p>
+</dd>
+<dt><strong>coefficients</strong><span class="classifier">mapping or pandas.Series</span></dt><dd><p>Logistic regression coefficient of each variable’s WOE, for a model
+of the event probability. The rows follow this order.</p>
+</dd>
+<dt><strong>intercept</strong><span class="classifier">float</span></dt><dd><p>Intercept of the same model.</p>
+</dd>
+<dt><strong>pdo</strong><span class="classifier">float</span></dt><dd><p>Points to double the odds. Must be positive.</p>
+</dd>
+<dt><strong>base_score</strong><span class="classifier">float</span></dt><dd><p>Score at the base odds.</p>
+</dd>
+<dt><strong>base_odds</strong><span class="classifier">float</span></dt><dd><p>Good:bad odds at the base score. Must be positive.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.DataFrame</dt><dd><p>One row per variable and group, indexed by <code class="docutils literal notranslate"><span class="pre">variable</span></code>, with the
+group label <code class="docutils literal notranslate"><span class="pre">bin</span></code> and the group’s <code class="docutils literal notranslate"><span class="pre">woe</span></code> and <code class="docutils literal notranslate"><span class="pre">points</span></code>. Select a
+variable’s rows with <code class="docutils literal notranslate"><span class="pre">table.loc[[variable]]</span></code>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If <cite>tables</cite> is not a mapping or lacks a variable of <cite>coefficients</cite>,
+a table has no <code class="docutils literal notranslate"><span class="pre">woe</span></code> column, repeats a group or has non-finite WOE
+values, the coefficients are empty, repeated or not finite numbers
+or include the intercept, or the scaling arguments are invalid.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.scorecard.woe_to_points" title="kivi.scorecard.woe_to_points"><code class="xref py py-obj docutils literal notranslate"><span class="pre">woe_to_points</span></code></a></dt><dd><p>The points of each applicant.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.scorecard.reason_codes" title="kivi.scorecard.reason_codes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reason_codes</span></code></a></dt><dd><p>The variables that cost an applicant the most points.</p>
+</dd>
+<dt><a class="reference internal" href="woe.html#kivi.woe.woe_table" title="kivi.woe.woe_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.woe.woe_table</span></code></a></dt><dd><p>Fit the WOE of each group.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>With kivi’s WOE, <span class="math notranslate nohighlight">\(\ln(p_i / q_i)\)</span> for event and non-event shares
+<span class="math notranslate nohighlight">\(p_i\)</span> and <span class="math notranslate nohighlight">\(q_i\)</span>, the model is
+<span class="math notranslate nohighlight">\(\ln \frac{\mathrm{PD}}{1 - \mathrm{PD}} = \beta_0 + \sum_j \beta_j \mathrm{WOE}_j\)</span>.
+A higher WOE means more risk and, for a positive coefficient, fewer
+points. Group <span class="math notranslate nohighlight">\(i\)</span> of variable <span class="math notranslate nohighlight">\(j\)</span>, one of <span class="math notranslate nohighlight">\(m\)</span>
+variables, receives</p>
+<div class="math notranslate nohighlight">
+\[\mathrm{points}_{ij} = \frac{\mathrm{offset} - \mathrm{factor} \cdot \beta_0}{m}
+- \mathrm{factor} \cdot \beta_j \, \mathrm{WOE}_{ij},\]</div>
+<p>with the factor and offset of <cite>score_scaling</cite>. Each variable carries the
+same share of the intercept and offset, so the points of a variable’s
+groups differ only by their WOE term.</p>
+<p>The group labels stay in a column rather than an index level, so labels
+that compare equal across variables, such as <code class="docutils literal notranslate"><span class="pre">True</span></code> and <code class="docutils literal notranslate"><span class="pre">1</span></code>, keep
+their own values.</p>
+<p class="rubric">References</p>
+<div role="list" class="citation-list">
+<div class="citation" id="rc133f1fff48a-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<p>N. Siddiqi, “Credit Risk Scorecards: Developing and Implementing
+Intelligent Credit Scoring”, Wiley, 2006.</p>
+</div>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.scorecard</span><span class="w"> </span><span class="kn">import</span> <span class="n">points_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tables</span> <span class="o">=</span> <span class="p">{</span>
+<span class="gp">... </span>    <span class="s2">"housing"</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">({</span><span class="s2">"no"</span><span class="p">:</span> <span class="o">-</span><span class="mf">0.4</span><span class="p">,</span> <span class="s2">"yes"</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">}),</span>
+<span class="gp">... </span>    <span class="s2">"contact"</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">({</span><span class="s2">"cellular"</span><span class="p">:</span> <span class="o">-</span><span class="mf">0.2</span><span class="p">,</span> <span class="s2">"unknown"</span><span class="p">:</span> <span class="mf">0.6</span><span class="p">}),</span>
+<span class="gp">... </span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">coefficients</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"housing"</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span> <span class="s2">"contact"</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">points_table</span><span class="p">(</span><span class="n">tables</span><span class="p">,</span> <span class="n">coefficients</span><span class="p">,</span> <span class="o">-</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">pdo</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">base_score</span><span class="o">=</span><span class="mi">600</span><span class="p">,</span> <span class="n">base_odds</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">               bin  woe  points</span>
+<span class="go">variable</span>
+<span class="go">housing         no -0.4  281.65</span>
+<span class="go">housing        yes  0.3  265.49</span>
+<span class="go">contact   cellular -0.2  275.30</span>
+<span class="go">contact    unknown  0.6  263.76</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.scorecard.woe_to_points">
+<span class="sig-prename descclassname"><span class="pre">kivi.scorecard.</span></span><span class="sig-name descname"><span class="pre">woe_to_points</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">woe</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coefficients</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intercept</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">pdo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_score</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_odds</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.scorecard.woe_to_points" title="Link to this definition">#</a></dt>
+<dd><p>Give each applicant the points of each variable from its WOE values.</p>
+<p>The points are those of <cite>points_table</cite> for the same model and scaling.
+Their row sums are the scores, equal to <cite>pd_to_score</cite> of the model’s
+probabilities.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>woe</strong><span class="classifier">pandas.DataFrame or mapping</span></dt><dd><p>WOE values with one column per variable, such as the result of
+<cite>kivi.woe.woe_transform</cite> for each variable. Columns without a
+coefficient are ignored. The Series of a mapping must have
+identical indices; other values are matched by position.</p>
+</dd>
+<dt><strong>coefficients</strong><span class="classifier">mapping or pandas.Series</span></dt><dd><p>Logistic regression coefficient of each variable’s WOE, for a model
+of the event probability. The columns follow this order.</p>
+</dd>
+<dt><strong>intercept</strong><span class="classifier">float</span></dt><dd><p>Intercept of the same model.</p>
+</dd>
+<dt><strong>pdo</strong><span class="classifier">float</span></dt><dd><p>Points to double the odds. Must be positive.</p>
+</dd>
+<dt><strong>base_score</strong><span class="classifier">float</span></dt><dd><p>Score at the base odds.</p>
+</dd>
+<dt><strong>base_odds</strong><span class="classifier">float</span></dt><dd><p>Good:bad odds at the base score. Must be positive.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.DataFrame</dt><dd><p>Points with the index of <cite>woe</cite> and one column per variable.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If <cite>woe</cite> is not a DataFrame or mapping, lacks or repeats a variable
+of <cite>coefficients</cite>, has non-finite values or is a mapping of Series
+with different indices, the coefficients are empty, repeated, not
+finite or include the intercept, or the scaling arguments are
+invalid.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.scorecard.points_table" title="kivi.scorecard.points_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">points_table</span></code></a></dt><dd><p>The points of every group.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.scorecard.reason_codes" title="kivi.scorecard.reason_codes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reason_codes</span></code></a></dt><dd><p>The variables that cost an applicant the most points.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>The points of variable <span class="math notranslate nohighlight">\(j\)</span> are
+<span class="math notranslate nohighlight">\((\mathrm{offset} - \mathrm{factor} \cdot \beta_0) / m
+- \mathrm{factor} \cdot \beta_j \, \mathrm{WOE}_j\)</span> for <span class="math notranslate nohighlight">\(m\)</span>
+variables, as in <cite>points_table</cite>. They are computed in the same way, so
+rounding both gives the same points.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.scorecard</span><span class="w"> </span><span class="kn">import</span> <span class="n">woe_to_points</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">woe</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"housing"</span><span class="p">:</span> <span class="p">[</span><span class="o">-</span><span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">],</span> <span class="s2">"contact"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.6</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.2</span><span class="p">]})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">points</span> <span class="o">=</span> <span class="n">woe_to_points</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">woe</span><span class="p">,</span> <span class="p">{</span><span class="s2">"housing"</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span> <span class="s2">"contact"</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">},</span> <span class="o">-</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">pdo</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">base_score</span><span class="o">=</span><span class="mi">600</span><span class="p">,</span> <span class="n">base_odds</span><span class="o">=</span><span class="mi">50</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">points</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">   housing  contact</span>
+<span class="go">0   281.65   263.76</span>
+<span class="go">1   265.49   275.30</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">points</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<span class="go">[545.41, 540.79]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.scorecard.reason_codes">
+<span class="sig-prename descclassname"><span class="pre">kivi.scorecard.</span></span><span class="sig-name descname"><span class="pre">reason_codes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">top</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unseen_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.scorecard.reason_codes" title="Link to this definition">#</a></dt>
+<dd><p>Name the variables that cost each applicant the most points.</p>
+<p>A variable costs an applicant the difference between the points of the
+variable’s best group and the points of the applicant’s group. Variables
+are listed from the largest cost; those that cost nothing are not
+listed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>points</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>Points of each applicant, as returned by <cite>woe_to_points</cite>.</p>
+</dd>
+<dt><strong>table</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>The <cite>points_table</cite> result for the same model and scaling.</p>
+</dd>
+<dt><strong>top</strong><span class="classifier">int, default 3</span></dt><dd><p>Number of reasons per applicant.</p>
+</dd>
+<dt><strong>atol</strong><span class="classifier">float, default 1e-4</span></dt><dd><p>Largest difference, in points, between an applicant’s points and the
+points of a group for the applicant to be in that group. It absorbs
+rounding, for example of WOE values stored with six decimals.</p>
+</dd>
+<dt><strong>unseen_points</strong><span class="classifier">float, mapping or pandas.Series, optional</span></dt><dd><p>Points of applicants in groups that <cite>kivi.woe.woe_transform</cite> encoded
+with <code class="docutils literal notranslate"><span class="pre">unseen</span></code>, one value for every variable or values by variable.
+Points that match no group but lie within <cite>atol</cite> of their variable’s
+<cite>unseen_points</cite> cost nothing, so the variable is not a reason for
+those applicants. They are the <cite>woe_to_points</cite> result for the WOE
+passed as <code class="docutils literal notranslate"><span class="pre">unseen</span></code>; see the Examples. By default every point must
+match a group.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.DataFrame</dt><dd><p>Variable names in columns <code class="docutils literal notranslate"><span class="pre">reason_1</span></code> to <code class="docutils literal notranslate"><span class="pre">reason_&lt;top&gt;</span></code>, with the
+index of <cite>points</cite>. An applicant with fewer costly variables has
+None in the remaining columns.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If <cite>points</cite> is not a DataFrame, repeats a column or has non-finite
+values, <cite>table</cite> is not a <cite>points_table</cite> result, lacks a variable of
+<cite>points</cite> or has non-finite points for one, some points are farther
+than <cite>atol</cite> from every group of their variable and from its
+<cite>unseen_points</cite>, <cite>top</cite> is not a positive integer, <cite>atol</cite> is not a
+finite positive number, or <cite>unseen_points</cite> is not a finite number or
+a mapping or Series of finite numbers.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.scorecard.points_table" title="kivi.scorecard.points_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">points_table</span></code></a></dt><dd><p>The points of every group.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.scorecard.woe_to_points" title="kivi.scorecard.woe_to_points"><code class="xref py py-obj docutils literal notranslate"><span class="pre">woe_to_points</span></code></a></dt><dd><p>The points of each applicant.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>Each applicant’s points are matched to the nearest group of the variable
+in <cite>table</cite>, and the costs are differences between the points of
+<cite>table</cite>’s groups. Costs that differ by less than about <cite>atol</cite> count as
+equal, so such variables keep the order of the columns of <cite>points</cite>, and
+a cost below about <cite>atol</cite> is no cost.</p>
+<p>Points that match no group, such as those from a different intercept or
+scaling, or WOE values rounded more coarsely than <cite>atol</cite> allows, raise
+an error rather than giving reasons against the wrong groups. So do, by
+default, the points of applicants in a group that had no development
+observations, such as a new category, whose WOE came from <code class="docutils literal notranslate"><span class="pre">unseen</span></code> in
+<cite>kivi.woe.woe_transform</cite>. That WOE is a value chosen for the group, not
+evidence about the applicant, so with <cite>unseen_points</cite> such points give
+no reason instead of the distance to the best group. Only points near
+<cite>unseen_points</cite> are exempt; any other mismatch still raises. Points that
+lie within <cite>atol</cite> of a group are matched to that group, even when their
+WOE came from <code class="docutils literal notranslate"><span class="pre">unseen</span></code>.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.scorecard</span><span class="w"> </span><span class="kn">import</span> <span class="n">points_table</span><span class="p">,</span> <span class="n">reason_codes</span><span class="p">,</span> <span class="n">woe_to_points</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tables</span> <span class="o">=</span> <span class="p">{</span>
+<span class="gp">... </span>    <span class="s2">"housing"</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">({</span><span class="s2">"no"</span><span class="p">:</span> <span class="o">-</span><span class="mf">0.4</span><span class="p">,</span> <span class="s2">"yes"</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">}),</span>
+<span class="gp">... </span>    <span class="s2">"contact"</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">({</span><span class="s2">"cellular"</span><span class="p">:</span> <span class="o">-</span><span class="mf">0.2</span><span class="p">,</span> <span class="s2">"unknown"</span><span class="p">:</span> <span class="mf">0.6</span><span class="p">}),</span>
+<span class="gp">... </span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="p">({</span><span class="s2">"housing"</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span> <span class="s2">"contact"</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">},</span> <span class="o">-</span><span class="mf">2.0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">scale</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">pdo</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">base_score</span><span class="o">=</span><span class="mi">600</span><span class="p">,</span> <span class="n">base_odds</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span> <span class="o">=</span> <span class="n">points_table</span><span class="p">(</span><span class="n">tables</span><span class="p">,</span> <span class="o">*</span><span class="n">model</span><span class="p">,</span> <span class="o">**</span><span class="n">scale</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">woe</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"housing"</span><span class="p">:</span> <span class="p">[</span><span class="o">-</span><span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">],</span> <span class="s2">"contact"</span><span class="p">:</span> <span class="p">[</span><span class="o">-</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.2</span><span class="p">]})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">reason_codes</span><span class="p">(</span><span class="n">woe_to_points</span><span class="p">(</span><span class="n">woe</span><span class="p">,</span> <span class="o">*</span><span class="n">model</span><span class="p">,</span> <span class="o">**</span><span class="n">scale</span><span class="p">),</span> <span class="n">table</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">  reason_1 reason_2</span>
+<span class="go">0     None     None</span>
+<span class="go">1  housing  contact</span>
+<span class="go">2  housing     None</span>
+</pre></div>
+</div>
+<p>An applicant with a housing status that the development sample did not
+have was encoded with <code class="docutils literal notranslate"><span class="pre">woe_transform(...,</span> <span class="pre">unseen=0.0)</span></code>. The points of
+a WOE of 0 are the <cite>woe_to_points</cite> result for a row of zeros, the same
+base points for every variable. With these points as <cite>unseen_points</cite>,
+housing is not one of the applicant’s reasons:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zero</span> <span class="o">=</span> <span class="n">woe_to_points</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"housing"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">],</span> <span class="s2">"contact"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">]}),</span> <span class="o">*</span><span class="n">model</span><span class="p">,</span> <span class="o">**</span><span class="n">scale</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">zero</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">   housing  contact</span>
+<span class="go">0   272.42   272.42</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">new</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"housing"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">],</span> <span class="s2">"contact"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.6</span><span class="p">]})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">reason_codes</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">woe_to_points</span><span class="p">(</span><span class="n">new</span><span class="p">,</span> <span class="o">*</span><span class="n">model</span><span class="p">,</span> <span class="o">**</span><span class="n">scale</span><span class="p">),</span> <span class="n">table</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">unseen_points</span><span class="o">=</span><span class="n">zero</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="go">  reason_1 reason_2</span>
+<span class="go">0  contact     None</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="kivi.scorecard.ScorecardSpec">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">kivi.scorecard.</span></span><span class="sig-name descname"><span class="pre">ScorecardSpec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">binning</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">pdo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_score</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_odds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unseen_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calibration</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kivi_version</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.scorecard.ScorecardSpec" title="Link to this definition">#</a></dt>
+<dd><p>A whole scorecard, to score, calibrate and grade any sample the same way.</p>
+<p>A scorecard specification holds what scoring in production needs: the
+<cite>kivi.spec.BinningSpec</cite> that groups and encodes each characteristic,
+the points of every group, the scaling of the score, the points of
+values whose group was not in development, and optionally a
+calibration of the probability and a master scale. <cite>points</cite>, <cite>score</cite>,
+<cite>probability</cite>, <cite>grade</cite> and <cite>reason_codes</cite> apply it to any sample, and
+<cite>to_json</cite> and <cite>from_json</cite> save and load it. Build a specification with
+<cite>from_model</cite> from a logistic regression on the WOE values, or with the
+constructor from a points table whose points were rounded or adjusted.</p>
+<p>A specification is immutable. <code class="docutils literal notranslate"><span class="pre">table</span></code> and <code class="docutils literal notranslate"><span class="pre">scale</span></code> return a new copy
+on each access, and <code class="docutils literal notranslate"><span class="pre">unseen_points</span></code> and <code class="docutils literal notranslate"><span class="pre">calibration</span></code> are read-only
+mappings. To change a field, use <cite>dataclasses.replace</cite>, which validates
+the result again.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>binning</strong><span class="classifier">kivi.spec.BinningSpec</span></dt><dd><p>Binning and WOE of the characteristics of the scorecard, and of no
+other column, such as the result of <cite>kivi.spec.BinningSpec.select</cite>.</p>
+</dd>
+<dt><strong>table</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>Points of every group, as returned by <cite>points_table</cite> for the tables
+of <cite>binning</cite>: indexed by <code class="docutils literal notranslate"><span class="pre">variable</span></code>, with the columns <code class="docutils literal notranslate"><span class="pre">bin</span></code>,
+<code class="docutils literal notranslate"><span class="pre">woe</span></code> and <code class="docutils literal notranslate"><span class="pre">points</span></code>. The points may be rounded or changed, but
+<code class="docutils literal notranslate"><span class="pre">bin</span></code> and <code class="docutils literal notranslate"><span class="pre">woe</span></code> must equal the groups and the WOE of <cite>binning</cite>
+row for row, with the variables in the order of its columns.</p>
+</dd>
+<dt><strong>pdo</strong><span class="classifier">float</span></dt><dd><p>Points to double the odds. Must be positive.</p>
+</dd>
+<dt><strong>base_score</strong><span class="classifier">float</span></dt><dd><p>Score at the base odds.</p>
+</dd>
+<dt><strong>base_odds</strong><span class="classifier">float</span></dt><dd><p>Good:bad odds at the base score. Must be positive.</p>
+</dd>
+<dt><strong>unseen_points</strong><span class="classifier">mapping or pandas.Series, optional</span></dt><dd><p>Points of values whose group is not in their column’s table, for
+each column whose unseen policy in <cite>binning</cite> is a WOE, and only for
+those. A column whose policy is <code class="docutils literal notranslate"><span class="pre">&quot;raise&quot;</span></code> raises an error for such
+values, and a column whose policy names a group gives them the
+points of that group.</p>
+</dd>
+<dt><strong>calibration</strong><span class="classifier">mapping, optional</span></dt><dd><p>Calibration of <cite>probability</cite>, one of <code class="docutils literal notranslate"><span class="pre">{&quot;kind&quot;:</span> <span class="pre">&quot;shift&quot;,</span> <span class="pre">&quot;shift&quot;:</span>
+<span class="pre">shift}</span></code>, <code class="docutils literal notranslate"><span class="pre">{&quot;kind&quot;:</span> <span class="pre">&quot;platt&quot;,</span> <span class="pre">&quot;slope&quot;:</span> <span class="pre">slope,</span> <span class="pre">&quot;intercept&quot;:</span>
+<span class="pre">intercept}</span></code> and <code class="docutils literal notranslate"><span class="pre">{&quot;kind&quot;:</span> <span class="pre">&quot;isotonic&quot;,</span> <span class="pre">&quot;edges&quot;:</span> <span class="pre">edges,</span>
+<span class="pre">&quot;probability&quot;:</span> <span class="pre">probability}</span></code>; see the Notes. By default the
+probability is the one that the scaling gives the score.</p>
+</dd>
+<dt><strong>scale</strong><span class="classifier">pandas.DataFrame, optional</span></dt><dd><p>Master scale of <cite>grade</cite>, as returned by
+<cite>kivi.calibration.master_scale</cite>.</p>
+</dd>
+<dt><strong>kivi_version</strong><span class="classifier">str, optional</span></dt><dd><p>Version of kivi that built the specification. By default, or if
+None, the installed version.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Attributes<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>FORMAT_VERSION</strong><span class="classifier">int</span></dt><dd><p>Version of the JSON format that <cite>to_json</cite> writes and the newest
+that <cite>from_json</cite> reads.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If <cite>binning</cite> is not a <cite>kivi.spec.BinningSpec</cite>; if <cite>table</cite> is not a
+<cite>points_table</cite> result with one row per group of every column of
+<cite>binning</cite>, in its order, and the groups and WOE of <cite>binning</cite>, or has
+points that are not finite numbers; if the scaling arguments are
+invalid; if <cite>unseen_points</cite> lacks a column whose unseen policy is a
+WOE, has another column or has points that are not finite numbers;
+if <cite>calibration</cite> is not one of the three kinds with finite
+parameters, a slope that is not negative and, for <code class="docutils literal notranslate"><span class="pre">&quot;isotonic&quot;</span></code>,
+edges from <code class="docutils literal notranslate"><span class="pre">-inf</span></code> to <code class="docutils literal notranslate"><span class="pre">inf</span></code> and probabilities between 0 and 1
+that do not rise with the score; if <cite>scale</cite> is not a master scale
+with the columns <code class="docutils literal notranslate"><span class="pre">lower</span></code>, <code class="docutils literal notranslate"><span class="pre">probability</span></code> and <code class="docutils literal notranslate"><span class="pre">upper</span></code> and
+labels that are strings, integers, finite floats or booleans; or if
+<cite>kivi_version</cite> is not a string.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.scorecard.ScorecardSpec.from_model" title="kivi.scorecard.ScorecardSpec.from_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_model</span></code></a></dt><dd><p>Build the specification from a logistic regression.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.scorecard.points_table" title="kivi.scorecard.points_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">points_table</span></code></a></dt><dd><p>The points of every group.</p>
+</dd>
+<dt><a class="reference internal" href="spec.html#kivi.spec.BinningSpec" title="kivi.spec.BinningSpec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.spec.BinningSpec</span></code></a></dt><dd><p>The binning, which the specification includes.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>With the factor and offset of <cite>score_scaling</cite>, a score <span class="math notranslate nohighlight">\(s\)</span> stands
+for the log odds of the event</p>
+<div class="math notranslate nohighlight">
+\[\ell = \frac{\mathrm{offset} - s}{\mathrm{factor}},\]</div>
+<p>which <cite>probability</cite> computes from the score directly, so that it does
+not round a PD near 0 or 1 first. Without calibration, the probability
+is <span class="math notranslate nohighlight">\(\sigma(\ell) = 1 / (1 + e^{-\ell})\)</span>, the result of
+<cite>score_to_pd</cite>. The calibrations give</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;shift&quot;</span></code>: <span class="math notranslate nohighlight">\(\sigma(\ell + \Delta)\)</span>, for the shift
+<span class="math notranslate nohighlight">\(\Delta\)</span> of <cite>kivi.calibration.central_tendency_shift</cite> fitted to
+the uncalibrated probabilities;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;platt&quot;</span></code>: <span class="math notranslate nohighlight">\(\sigma(a \ell + b)\)</span>, for the slope <span class="math notranslate nohighlight">\(a\)</span> and
+intercept <span class="math notranslate nohighlight">\(b\)</span> of <cite>kivi.calibration.platt_fit</cite> or
+<cite>kivi.calibration.quasi_moment_fit</cite> fitted to the log odds
+<span class="math notranslate nohighlight">\(\ell\)</span>, as <cite>kivi.calibration.platt_predict</cite> gives;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;isotonic&quot;</span></code>: the probability of the band of the score, as
+<cite>kivi.calibration.isotonic_predict</cite> gives for the edges and
+probabilities of <cite>kivi.calibration.isotonic_fit</cite> fitted to the scores
+with <code class="docutils literal notranslate"><span class="pre">increasing=False</span></code>, because a higher score means a lower risk.</p></li>
+</ul>
+<p>The specification stores points rather than coefficients: the points
+table is the scorecard that production uses, and once its points are
+rounded, the probability follows from the rounded score, as in
+production. Feature definitions such as those of
+<cite>kivi.features.FeatureSpec</cite> are not part of it, because the features are
+computed from other tables before the scorecard scores them; save the
+two specifications side by side.</p>
+<p>Two scorecard specifications are equal when <cite>to_json</cite> gives the same
+text for both, which includes <cite>kivi_version</cite>.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.scorecard</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScorecardSpec</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.spec</span><span class="w"> </span><span class="kn">import</span> <span class="n">fit_spec</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">frame</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s2">"age"</span><span class="p">:</span> <span class="p">[</span><span class="mi">23</span><span class="p">,</span> <span class="mi">31</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">52</span><span class="p">,</span> <span class="mi">38</span><span class="p">,</span> <span class="mi">27</span><span class="p">,</span> <span class="mi">61</span><span class="p">,</span> <span class="mi">49</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s2">"housing"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"yes"</span><span class="p">,</span> <span class="s2">"no"</span><span class="p">,</span> <span class="s2">"yes"</span><span class="p">,</span> <span class="s2">"no"</span><span class="p">,</span> <span class="s2">"no"</span><span class="p">,</span> <span class="s2">"yes"</span><span class="p">,</span> <span class="s2">"no"</span><span class="p">,</span> <span class="s2">"yes"</span><span class="p">],</span>
+<span class="gp">... </span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">binning</span> <span class="o">=</span> <span class="n">fit_spec</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">unseen</span><span class="o">=</span><span class="p">{</span><span class="s2">"housing"</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">card</span> <span class="o">=</span> <span class="n">ScorecardSpec</span><span class="o">.</span><span class="n">from_model</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">binning</span><span class="p">,</span> <span class="p">{</span><span class="s2">"age"</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span> <span class="s2">"housing"</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">},</span> <span class="o">-</span><span class="mf">1.1</span><span class="p">,</span> <span class="n">pdo</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">base_score</span><span class="o">=</span><span class="mi">600</span><span class="p">,</span> <span class="n">base_odds</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">decimals</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">card</span>
+<span class="go">ScorecardSpec(columns=['age', 'housing'])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">card</span><span class="o">.</span><span class="n">table</span>
+<span class="go">                   bin       woe  points</span>
+<span class="go">variable</span>
+<span class="go">age       (-inf, 41.5]  1.455287   226.0</span>
+<span class="go">age        (41.5, inf] -1.722767   299.0</span>
+<span class="go">housing            yes  0.510826   252.0</span>
+<span class="go">housing             no -0.587787   268.0</span>
+</pre></div>
+</div>
+<p>A housing status that development did not have gets the WOE 0, whose
+points are kept with the table:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">dict</span><span class="p">(</span><span class="n">card</span><span class="o">.</span><span class="n">unseen_points</span><span class="p">)</span>
+<span class="go">{'housing': 259.0}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">card</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"age"</span><span class="p">:</span> <span class="p">[</span><span class="mi">30</span><span class="p">,</span> <span class="mi">70</span><span class="p">],</span> <span class="s2">"housing"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"rented"</span><span class="p">,</span> <span class="s2">"yes"</span><span class="p">]}))</span>
+<span class="go">0    485.0</span>
+<span class="go">1    551.0</span>
+<span class="go">Name: score, dtype: float64</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="kivi.scorecard.ScorecardSpec.from_model">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">binning</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coefficients</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intercept</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">pdo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_score</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_odds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">decimals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calibration</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.scorecard.ScorecardSpec.from_model" title="Link to this definition">#</a></dt>
+<dd><p>Build the specification of a logistic regression on the WOE values of a binning.</p>
+<p>The specification keeps the columns of <cite>binning</cite> that have a
+coefficient, in the order of <cite>coefficients</cite>, and the points that
+<cite>points_table</cite> gives their groups. The points of values in groups
+that development did not have, for the columns whose unseen policy
+is a WOE, are those that <cite>woe_to_points</cite> gives that WOE.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>binning</strong><span class="classifier">kivi.spec.BinningSpec</span></dt><dd><p>Binning and WOE of every column of the model, and possibly of
+other columns.</p>
+</dd>
+<dt><strong>coefficients</strong><span class="classifier">mapping or pandas.Series</span></dt><dd><p>Logistic regression coefficient of each column’s WOE, for a model
+of the event probability, without the intercept.</p>
+</dd>
+<dt><strong>intercept</strong><span class="classifier">float</span></dt><dd><p>Intercept of the same model.</p>
+</dd>
+<dt><strong>pdo</strong><span class="classifier">float</span></dt><dd><p>Points to double the odds. Must be positive.</p>
+</dd>
+<dt><strong>base_score</strong><span class="classifier">float</span></dt><dd><p>Score at the base odds.</p>
+</dd>
+<dt><strong>base_odds</strong><span class="classifier">float</span></dt><dd><p>Good:bad odds at the base score. Must be positive.</p>
+</dd>
+<dt><strong>decimals</strong><span class="classifier">int, optional</span></dt><dd><p>Number of decimals to round the points and the unseen points to,
+with pandas <code class="docutils literal notranslate"><span class="pre">round</span></code>, which rounds halves to even. By default
+the points are not rounded.</p>
+</dd>
+<dt><strong>calibration</strong><span class="classifier">mapping, optional</span></dt><dd><p>Calibration of the probability, as for the constructor.</p>
+</dd>
+<dt><strong>scale</strong><span class="classifier">pandas.DataFrame, optional</span></dt><dd><p>Master scale of <cite>grade</cite>, as for the constructor.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>ScorecardSpec</dt><dd><p>The specification of the model’s columns.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If <cite>binning</cite> is not a <cite>kivi.spec.BinningSpec</cite> or lacks a column
+of <cite>coefficients</cite>, <cite>decimals</cite> is not an integer, or for the
+reasons that <cite>points_table</cite> and the constructor give.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.scorecard.points_table" title="kivi.scorecard.points_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">points_table</span></code></a></dt><dd><p>The points of every group.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.scorecard.woe_to_points" title="kivi.scorecard.woe_to_points"><code class="xref py py-obj docutils literal notranslate"><span class="pre">woe_to_points</span></code></a></dt><dd><p>The points of each applicant from its WOE values.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.scorecard</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScorecardSpec</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.spec</span><span class="w"> </span><span class="kn">import</span> <span class="n">fit_spec</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">frame</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s2">"age"</span><span class="p">:</span> <span class="p">[</span><span class="mi">23</span><span class="p">,</span> <span class="mi">31</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">52</span><span class="p">,</span> <span class="mi">38</span><span class="p">,</span> <span class="mi">27</span><span class="p">,</span> <span class="mi">61</span><span class="p">,</span> <span class="mi">49</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s2">"housing"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"yes"</span><span class="p">,</span> <span class="s2">"no"</span><span class="p">,</span> <span class="s2">"yes"</span><span class="p">,</span> <span class="s2">"no"</span><span class="p">,</span> <span class="s2">"no"</span><span class="p">,</span> <span class="s2">"yes"</span><span class="p">,</span> <span class="s2">"no"</span><span class="p">,</span> <span class="s2">"yes"</span><span class="p">],</span>
+<span class="gp">... </span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">binning</span> <span class="o">=</span> <span class="n">fit_spec</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">card</span> <span class="o">=</span> <span class="n">ScorecardSpec</span><span class="o">.</span><span class="n">from_model</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">binning</span><span class="p">,</span> <span class="p">{</span><span class="s2">"age"</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">},</span> <span class="o">-</span><span class="mf">1.1</span><span class="p">,</span> <span class="n">pdo</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">base_score</span><span class="o">=</span><span class="mi">600</span><span class="p">,</span> <span class="n">base_odds</span><span class="o">=</span><span class="mi">50</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">card</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">               bin   woe  points</span>
+<span class="go">variable</span>
+<span class="go">age       (-inf, 41.5]  1.46  485.27</span>
+<span class="go">age        (41.5, inf] -1.72  558.63</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kivi.scorecard.ScorecardSpec.points">
+<span class="sig-name descname"><span class="pre">points</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.scorecard.ScorecardSpec.points" title="Link to this definition">#</a></dt>
+<dd><p>Give each row of a sample the points of its group in every column.</p>
+<p>Each column is grouped as by <cite>kivi.spec.BinningSpec.woe_transform</cite>
+and each group gets its points in <cite>table</cite>. A value whose group is not
+in its column’s table gets the points of the column’s unseen group
+or its <cite>unseen_points</cite>, or raises an error if the column’s unseen
+policy is <code class="docutils literal notranslate"><span class="pre">&quot;raise&quot;</span></code>, as <cite>kivi.spec.BinningSpec.woe_transform</cite>
+does.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>frame</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>Sample that has every column of the scorecard. Other columns are
+ignored.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.DataFrame</dt><dd><p>Float points of each column of the scorecard, in its order, with
+the index of <cite>frame</cite>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>For the reasons that <cite>kivi.spec.BinningSpec.woe_transform</cite>
+gives, such as a missing column or a value whose group is not in
+the table of a column with the unseen policy <code class="docutils literal notranslate"><span class="pre">&quot;raise&quot;</span></code>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.scorecard.ScorecardSpec.score" title="kivi.scorecard.ScorecardSpec.score"><code class="xref py py-obj docutils literal notranslate"><span class="pre">score</span></code></a></dt><dd><p>The sum of the points.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.scorecard.woe_to_points" title="kivi.scorecard.woe_to_points"><code class="xref py py-obj docutils literal notranslate"><span class="pre">woe_to_points</span></code></a></dt><dd><p>The points of WOE values.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.scorecard</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScorecardSpec</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.spec</span><span class="w"> </span><span class="kn">import</span> <span class="n">fit_spec</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">frame</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s2">"age"</span><span class="p">:</span> <span class="p">[</span><span class="mi">23</span><span class="p">,</span> <span class="mi">31</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">52</span><span class="p">,</span> <span class="mi">38</span><span class="p">,</span> <span class="mi">27</span><span class="p">,</span> <span class="mi">61</span><span class="p">,</span> <span class="mi">49</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s2">"housing"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"yes"</span><span class="p">,</span> <span class="s2">"no"</span><span class="p">,</span> <span class="s2">"yes"</span><span class="p">,</span> <span class="s2">"no"</span><span class="p">,</span> <span class="s2">"no"</span><span class="p">,</span> <span class="s2">"yes"</span><span class="p">,</span> <span class="s2">"no"</span><span class="p">,</span> <span class="s2">"yes"</span><span class="p">],</span>
+<span class="gp">... </span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">binning</span> <span class="o">=</span> <span class="n">fit_spec</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">unseen</span><span class="o">=</span><span class="p">{</span><span class="s2">"housing"</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">card</span> <span class="o">=</span> <span class="n">ScorecardSpec</span><span class="o">.</span><span class="n">from_model</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">binning</span><span class="p">,</span> <span class="p">{</span><span class="s2">"age"</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span> <span class="s2">"housing"</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">},</span> <span class="o">-</span><span class="mf">1.1</span><span class="p">,</span> <span class="n">pdo</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">base_score</span><span class="o">=</span><span class="mi">600</span><span class="p">,</span> <span class="n">base_odds</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">decimals</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">card</span><span class="o">.</span><span class="n">points</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"age"</span><span class="p">:</span> <span class="p">[</span><span class="mi">30</span><span class="p">,</span> <span class="mi">70</span><span class="p">],</span> <span class="s2">"housing"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"no"</span><span class="p">,</span> <span class="s2">"rented"</span><span class="p">]}))</span>
+<span class="go">     age  housing</span>
+<span class="go">0  226.0    268.0</span>
+<span class="go">1  299.0    259.0</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kivi.scorecard.ScorecardSpec.score">
+<span class="sig-name descname"><span class="pre">score</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.scorecard.ScorecardSpec.score" title="Link to this definition">#</a></dt>
+<dd><p>Score each row of a sample.</p>
+<p>The score of a row is the sum of its <cite>points</cite>, added column by
+column in the order of the scorecard rather than by a matrix
+product, so that rows with the same groups get exactly the same
+score on every processor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>frame</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>Sample that has every column of the scorecard. Other columns are
+ignored.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.Series</dt><dd><p>Float scores named <code class="docutils literal notranslate"><span class="pre">score</span></code>, with the index of <cite>frame</cite>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>For the reasons that <cite>points</cite> gives.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.scorecard.ScorecardSpec.points" title="kivi.scorecard.ScorecardSpec.points"><code class="xref py py-obj docutils literal notranslate"><span class="pre">points</span></code></a></dt><dd><p>The points of each column.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.scorecard.ScorecardSpec.probability" title="kivi.scorecard.ScorecardSpec.probability"><code class="xref py py-obj docutils literal notranslate"><span class="pre">probability</span></code></a></dt><dd><p>The probability of the event of each row.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.scorecard</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScorecardSpec</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.spec</span><span class="w"> </span><span class="kn">import</span> <span class="n">fit_spec</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">frame</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s2">"age"</span><span class="p">:</span> <span class="p">[</span><span class="mi">23</span><span class="p">,</span> <span class="mi">31</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">52</span><span class="p">,</span> <span class="mi">38</span><span class="p">,</span> <span class="mi">27</span><span class="p">,</span> <span class="mi">61</span><span class="p">,</span> <span class="mi">49</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s2">"housing"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"yes"</span><span class="p">,</span> <span class="s2">"no"</span><span class="p">,</span> <span class="s2">"yes"</span><span class="p">,</span> <span class="s2">"no"</span><span class="p">,</span> <span class="s2">"no"</span><span class="p">,</span> <span class="s2">"yes"</span><span class="p">,</span> <span class="s2">"no"</span><span class="p">,</span> <span class="s2">"yes"</span><span class="p">],</span>
+<span class="gp">... </span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">binning</span> <span class="o">=</span> <span class="n">fit_spec</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">card</span> <span class="o">=</span> <span class="n">ScorecardSpec</span><span class="o">.</span><span class="n">from_model</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">binning</span><span class="p">,</span> <span class="p">{</span><span class="s2">"age"</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span> <span class="s2">"housing"</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">},</span> <span class="o">-</span><span class="mf">1.1</span><span class="p">,</span> <span class="n">pdo</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">base_score</span><span class="o">=</span><span class="mi">600</span><span class="p">,</span> <span class="n">base_odds</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">decimals</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">card</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">frame</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+<span class="go">0    478.0</span>
+<span class="go">1    494.0</span>
+<span class="go">2    551.0</span>
+<span class="go">Name: score, dtype: float64</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kivi.scorecard.ScorecardSpec.probability">
+<span class="sig-name descname"><span class="pre">probability</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.scorecard.ScorecardSpec.probability" title="Link to this definition">#</a></dt>
+<dd><p>Give each row of a sample the probability of the event, such as its PD.</p>
+<p>The probability follows from the <cite>score</cite> of the row through the
+scaling and, if the specification has one, its calibration; see the
+Notes of <cite>ScorecardSpec</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>frame</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>Sample that has every column of the scorecard. Other columns are
+ignored.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.Series</dt><dd><p>Probabilities named <code class="docutils literal notranslate"><span class="pre">probability</span></code>, with the index of <cite>frame</cite>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>For the reasons that <cite>points</cite> gives.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.scorecard.ScorecardSpec.score" title="kivi.scorecard.ScorecardSpec.score"><code class="xref py py-obj docutils literal notranslate"><span class="pre">score</span></code></a></dt><dd><p>The score of each row.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.scorecard.ScorecardSpec.grade" title="kivi.scorecard.ScorecardSpec.grade"><code class="xref py py-obj docutils literal notranslate"><span class="pre">grade</span></code></a></dt><dd><p>The grade of each probability on the master scale.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.scorecard.score_to_pd" title="kivi.scorecard.score_to_pd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">score_to_pd</span></code></a></dt><dd><p>The probability of a score without calibration.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.scorecard</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScorecardSpec</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.spec</span><span class="w"> </span><span class="kn">import</span> <span class="n">fit_spec</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">frame</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s2">"age"</span><span class="p">:</span> <span class="p">[</span><span class="mi">23</span><span class="p">,</span> <span class="mi">31</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">52</span><span class="p">,</span> <span class="mi">38</span><span class="p">,</span> <span class="mi">27</span><span class="p">,</span> <span class="mi">61</span><span class="p">,</span> <span class="mi">49</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s2">"housing"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"yes"</span><span class="p">,</span> <span class="s2">"no"</span><span class="p">,</span> <span class="s2">"yes"</span><span class="p">,</span> <span class="s2">"no"</span><span class="p">,</span> <span class="s2">"no"</span><span class="p">,</span> <span class="s2">"yes"</span><span class="p">,</span> <span class="s2">"no"</span><span class="p">,</span> <span class="s2">"yes"</span><span class="p">],</span>
+<span class="gp">... </span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">binning</span> <span class="o">=</span> <span class="n">fit_spec</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">scaling</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">pdo</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">base_score</span><span class="o">=</span><span class="mi">600</span><span class="p">,</span> <span class="n">base_odds</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">card</span> <span class="o">=</span> <span class="n">ScorecardSpec</span><span class="o">.</span><span class="n">from_model</span><span class="p">(</span><span class="n">binning</span><span class="p">,</span> <span class="p">{</span><span class="s2">"age"</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span> <span class="s2">"housing"</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">},</span> <span class="o">-</span><span class="mf">1.1</span><span class="p">,</span> <span class="o">**</span><span class="n">scaling</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">card</span><span class="o">.</span><span class="n">probability</span><span class="p">(</span><span class="n">frame</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">0    0.5792</span>
+<span class="go">1    0.4428</span>
+<span class="go">2    0.0977</span>
+<span class="go">Name: probability, dtype: float64</span>
+</pre></div>
+</div>
+<p>With a shift of the log odds, such as one from
+<cite>kivi.calibration.central_tendency_shift</cite>:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">shifted</span> <span class="o">=</span> <span class="n">ScorecardSpec</span><span class="o">.</span><span class="n">from_model</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">binning</span><span class="p">,</span> <span class="p">{</span><span class="s2">"age"</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span> <span class="s2">"housing"</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">},</span> <span class="o">-</span><span class="mf">1.1</span><span class="p">,</span> <span class="o">**</span><span class="n">scaling</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">calibration</span><span class="o">=</span><span class="p">{</span><span class="s2">"kind"</span><span class="p">:</span> <span class="s2">"shift"</span><span class="p">,</span> <span class="s2">"shift"</span><span class="p">:</span> <span class="o">-</span><span class="mf">0.5</span><span class="p">},</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">shifted</span><span class="o">.</span><span class="n">probability</span><span class="p">(</span><span class="n">frame</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">0    0.4550</span>
+<span class="go">1    0.3253</span>
+<span class="go">2    0.0616</span>
+<span class="go">Name: probability, dtype: float64</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kivi.scorecard.ScorecardSpec.grade">
+<span class="sig-name descname"><span class="pre">grade</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.scorecard.ScorecardSpec.grade" title="Link to this definition">#</a></dt>
+<dd><p>Give each row of a sample the grade of its probability on the master scale.</p>
+<p>The grades are those that <cite>kivi.calibration.assign_grades</cite> gives the
+<cite>probability</cite> of each row on <cite>scale</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>frame</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>Sample that has every column of the scorecard. Other columns are
+ignored.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.Series</dt><dd><p>Grades named <code class="docutils literal notranslate"><span class="pre">grade</span></code>, an ordered categorical of the labels of
+the scale from the lowest risk to the highest, with the index of
+<cite>frame</cite>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If the specification has no master scale, or for the reasons
+that <cite>points</cite> gives.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.scorecard.ScorecardSpec.probability" title="kivi.scorecard.ScorecardSpec.probability"><code class="xref py py-obj docutils literal notranslate"><span class="pre">probability</span></code></a></dt><dd><p>The probability of each row.</p>
+</dd>
+<dt><a class="reference internal" href="calibration.html#kivi.calibration.master_scale" title="kivi.calibration.master_scale"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.calibration.master_scale</span></code></a></dt><dd><p>Build a master scale.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">master_scale</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.scorecard</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScorecardSpec</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.spec</span><span class="w"> </span><span class="kn">import</span> <span class="n">fit_spec</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">frame</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s2">"age"</span><span class="p">:</span> <span class="p">[</span><span class="mi">23</span><span class="p">,</span> <span class="mi">31</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">52</span><span class="p">,</span> <span class="mi">38</span><span class="p">,</span> <span class="mi">27</span><span class="p">,</span> <span class="mi">61</span><span class="p">,</span> <span class="mi">49</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s2">"housing"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"yes"</span><span class="p">,</span> <span class="s2">"no"</span><span class="p">,</span> <span class="s2">"yes"</span><span class="p">,</span> <span class="s2">"no"</span><span class="p">,</span> <span class="s2">"no"</span><span class="p">,</span> <span class="s2">"yes"</span><span class="p">,</span> <span class="s2">"no"</span><span class="p">,</span> <span class="s2">"yes"</span><span class="p">],</span>
+<span class="gp">... </span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">binning</span> <span class="o">=</span> <span class="n">fit_spec</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">card</span> <span class="o">=</span> <span class="n">ScorecardSpec</span><span class="o">.</span><span class="n">from_model</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">binning</span><span class="p">,</span> <span class="p">{</span><span class="s2">"age"</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span> <span class="s2">"housing"</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">},</span> <span class="o">-</span><span class="mf">1.1</span><span class="p">,</span> <span class="n">pdo</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">base_score</span><span class="o">=</span><span class="mi">600</span><span class="p">,</span> <span class="n">base_odds</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">scale</span><span class="o">=</span><span class="n">master_scale</span><span class="p">([</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]),</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">card</span><span class="o">.</span><span class="n">grade</span><span class="p">(</span><span class="n">frame</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+<span class="go">0    3</span>
+<span class="go">1    3</span>
+<span class="go">2    1</span>
+<span class="go">Name: grade, dtype: category</span>
+<span class="go">Categories (3, int64): [1 &lt; 2 &lt; 3]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kivi.scorecard.ScorecardSpec.reason_codes">
+<span class="sig-name descname"><span class="pre">reason_codes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">top</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.scorecard.ScorecardSpec.reason_codes" title="Link to this definition">#</a></dt>
+<dd><p>Name the columns that cost each row of a sample the most points.</p>
+<p>A column costs a row the difference between the points of the
+column’s best group and the points of the row’s group, and the
+columns are listed from the largest cost, as by the module function
+<cite>reason_codes</cite>. A value whose group was not in development costs
+nothing in a column with <cite>unseen_points</cite>, even when those points
+equal the points of a group, so the column is not its reason.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>frame</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>Sample that has every column of the scorecard. Other columns are
+ignored.</p>
+</dd>
+<dt><strong>top</strong><span class="classifier">int, default 3</span></dt><dd><p>Number of reasons per row.</p>
+</dd>
+<dt><strong>atol</strong><span class="classifier">float, default 1e-4</span></dt><dd><p>Tolerance in points: costs that differ by less than about <cite>atol</cite>
+count as equal and keep the order of the columns, and a cost
+below about <cite>atol</cite> is no cost.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.DataFrame</dt><dd><p>Column names in columns <code class="docutils literal notranslate"><span class="pre">reason_1</span></code> to <code class="docutils literal notranslate"><span class="pre">reason_&lt;top&gt;</span></code>, with
+the index of <cite>frame</cite>. A row with fewer costly columns has None
+in the remaining columns.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If <cite>top</cite> is not a positive integer or <cite>atol</cite> is not a finite
+positive number, or for the reasons that <cite>points</cite> gives.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.scorecard.ScorecardSpec.points" title="kivi.scorecard.ScorecardSpec.points"><code class="xref py py-obj docutils literal notranslate"><span class="pre">points</span></code></a></dt><dd><p>The points of each column.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.scorecard</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScorecardSpec</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.spec</span><span class="w"> </span><span class="kn">import</span> <span class="n">fit_spec</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">frame</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s2">"age"</span><span class="p">:</span> <span class="p">[</span><span class="mi">23</span><span class="p">,</span> <span class="mi">31</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">52</span><span class="p">,</span> <span class="mi">38</span><span class="p">,</span> <span class="mi">27</span><span class="p">,</span> <span class="mi">61</span><span class="p">,</span> <span class="mi">49</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s2">"housing"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"yes"</span><span class="p">,</span> <span class="s2">"no"</span><span class="p">,</span> <span class="s2">"yes"</span><span class="p">,</span> <span class="s2">"no"</span><span class="p">,</span> <span class="s2">"no"</span><span class="p">,</span> <span class="s2">"yes"</span><span class="p">,</span> <span class="s2">"no"</span><span class="p">,</span> <span class="s2">"yes"</span><span class="p">],</span>
+<span class="gp">... </span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">binning</span> <span class="o">=</span> <span class="n">fit_spec</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">unseen</span><span class="o">=</span><span class="p">{</span><span class="s2">"housing"</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">card</span> <span class="o">=</span> <span class="n">ScorecardSpec</span><span class="o">.</span><span class="n">from_model</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">binning</span><span class="p">,</span> <span class="p">{</span><span class="s2">"age"</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span> <span class="s2">"housing"</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">},</span> <span class="o">-</span><span class="mf">1.1</span><span class="p">,</span> <span class="n">pdo</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">base_score</span><span class="o">=</span><span class="mi">600</span><span class="p">,</span> <span class="n">base_odds</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">decimals</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">new</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"age"</span><span class="p">:</span> <span class="p">[</span><span class="mi">30</span><span class="p">,</span> <span class="mi">70</span><span class="p">,</span> <span class="mi">30</span><span class="p">],</span> <span class="s2">"housing"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"no"</span><span class="p">,</span> <span class="s2">"yes"</span><span class="p">,</span> <span class="s2">"rented"</span><span class="p">]})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">card</span><span class="o">.</span><span class="n">reason_codes</span><span class="p">(</span><span class="n">new</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">  reason_1 reason_2</span>
+<span class="go">0      age     None</span>
+<span class="go">1  housing     None</span>
+<span class="go">2      age     None</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kivi.scorecard.ScorecardSpec.to_dict">
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#kivi.scorecard.ScorecardSpec.to_dict" title="Link to this definition">#</a></dt>
+<dd><p>Return the scorecard specification as a dict of JSON types.</p>
+<p>The result holds only dicts, lists, strings, numbers, booleans and
+None, so <code class="docutils literal notranslate"><span class="pre">json.dumps</span></code> can write it without further conversion. Its
+keys are always in the same order. <cite>to_json</cite> writes this dict.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>dict</dt><dd><p>The keys <code class="docutils literal notranslate"><span class="pre">format</span></code>, <code class="docutils literal notranslate"><span class="pre">format_version</span></code>, <code class="docutils literal notranslate"><span class="pre">kivi_version</span></code>,
+<code class="docutils literal notranslate"><span class="pre">scaling</span></code>, <code class="docutils literal notranslate"><span class="pre">binning</span></code>, <code class="docutils literal notranslate"><span class="pre">points</span></code>, <code class="docutils literal notranslate"><span class="pre">unseen_points</span></code>,
+<code class="docutils literal notranslate"><span class="pre">calibration</span></code> and <code class="docutils literal notranslate"><span class="pre">scale</span></code>, with None for an unset field. See
+the user guide for the format.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.scorecard.ScorecardSpec.from_dict" title="kivi.scorecard.ScorecardSpec.from_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_dict</span></code></a></dt><dd><p>Rebuild the scorecard specification.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.scorecard.ScorecardSpec.to_json" title="kivi.scorecard.ScorecardSpec.to_json"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_json</span></code></a></dt><dd><p>Write the dict as JSON.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.scorecard</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScorecardSpec</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.spec</span><span class="w"> </span><span class="kn">import</span> <span class="n">fit_spec</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">frame</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"age"</span><span class="p">:</span> <span class="p">[</span><span class="mi">23</span><span class="p">,</span> <span class="mi">31</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">52</span><span class="p">,</span> <span class="mi">38</span><span class="p">,</span> <span class="mi">27</span><span class="p">,</span> <span class="mi">61</span><span class="p">,</span> <span class="mi">49</span><span class="p">]})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">binning</span> <span class="o">=</span> <span class="n">fit_spec</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">card</span> <span class="o">=</span> <span class="n">ScorecardSpec</span><span class="o">.</span><span class="n">from_model</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">binning</span><span class="p">,</span> <span class="p">{</span><span class="s2">"age"</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">},</span> <span class="o">-</span><span class="mf">1.1</span><span class="p">,</span> <span class="n">pdo</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">base_score</span><span class="o">=</span><span class="mi">600</span><span class="p">,</span> <span class="n">base_odds</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">decimals</span><span class="o">=</span><span class="mi">0</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">card</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="go">['format', 'format_version', 'kivi_version', 'scaling', 'binning', 'points',</span>
+<span class="go"> 'unseen_points', 'calibration', 'scale']</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span><span class="p">[</span><span class="s2">"points"</span><span class="p">]</span>
+<span class="go">{'age': [485.0, 559.0]}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kivi.scorecard.ScorecardSpec.from_dict">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.scorecard.ScorecardSpec.from_dict" title="Link to this definition">#</a></dt>
+<dd><p>Rebuild a scorecard specification from the result of <cite>to_dict</cite>.</p>
+<p>The dict is checked before the specification is built, so that a
+damaged or hand-edited file fails with a message that names the
+problem instead of scoring with wrong values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>data</strong><span class="classifier">mapping</span></dt><dd><p>A dict in the format of <cite>to_dict</cite>, for example from
+<code class="docutils literal notranslate"><span class="pre">json.load</span></code>. Every key that <cite>to_dict</cite> writes must be present.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>ScorecardSpec</dt><dd><p>The scorecard specification, equal to the one that wrote <cite>data</cite>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If <cite>data</cite> is not a kivi scorecard specification, has a
+<code class="docutils literal notranslate"><span class="pre">format_version</span></code> newer than this version of kivi reads, lacks a
+key or has an unknown one, or holds an invalid value, including
+an invalid binning for <cite>kivi.spec.BinningSpec.from_dict</cite>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.scorecard.ScorecardSpec.to_dict" title="kivi.scorecard.ScorecardSpec.to_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_dict</span></code></a></dt><dd><p>The dict format.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.scorecard.ScorecardSpec.from_json" title="kivi.scorecard.ScorecardSpec.from_json"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_json</span></code></a></dt><dd><p>Read the scorecard specification from JSON text.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.scorecard</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScorecardSpec</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.spec</span><span class="w"> </span><span class="kn">import</span> <span class="n">fit_spec</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">binning</span> <span class="o">=</span> <span class="n">fit_spec</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"age"</span><span class="p">:</span> <span class="p">[</span><span class="mi">23</span><span class="p">,</span> <span class="mi">31</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">52</span><span class="p">]}),</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">card</span> <span class="o">=</span> <span class="n">ScorecardSpec</span><span class="o">.</span><span class="n">from_model</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">binning</span><span class="p">,</span> <span class="p">{</span><span class="s2">"age"</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">},</span> <span class="o">-</span><span class="mf">1.1</span><span class="p">,</span> <span class="n">pdo</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">base_score</span><span class="o">=</span><span class="mi">600</span><span class="p">,</span> <span class="n">base_odds</span><span class="o">=</span><span class="mi">50</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ScorecardSpec</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">card</span><span class="o">.</span><span class="n">to_dict</span><span class="p">())</span> <span class="o">==</span> <span class="n">card</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kivi.scorecard.ScorecardSpec.to_json">
+<span class="sig-name descname"><span class="pre">to_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">indent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.scorecard.ScorecardSpec.to_json" title="Link to this definition">#</a></dt>
+<dd><p>Return the scorecard specification as JSON text.</p>
+<p>The text is the dict of <cite>to_dict</cite> written by <code class="docutils literal notranslate"><span class="pre">json.dumps</span></code>. The same
+scorecard specification always gives the same text, so saved
+specifications can be compared and kept under version control.
+Non-ASCII labels are written as they are, so save the text as UTF-8.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>indent</strong><span class="classifier">int, optional</span></dt><dd><p>Indentation of nested values, as in <code class="docutils literal notranslate"><span class="pre">json.dumps</span></code>. By default
+the text is a single line.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>str</dt><dd><p>JSON text that <cite>from_json</cite> reads back into an equal scorecard
+specification.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.scorecard.ScorecardSpec.from_json" title="kivi.scorecard.ScorecardSpec.from_json"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_json</span></code></a></dt><dd><p>Read the scorecard specification back.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.scorecard.ScorecardSpec.to_dict" title="kivi.scorecard.ScorecardSpec.to_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_dict</span></code></a></dt><dd><p>The same content as a dict.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.scorecard</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScorecardSpec</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.spec</span><span class="w"> </span><span class="kn">import</span> <span class="n">fit_spec</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">frame</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"age"</span><span class="p">:</span> <span class="p">[</span><span class="mi">23</span><span class="p">,</span> <span class="mi">31</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">52</span><span class="p">,</span> <span class="mi">38</span><span class="p">,</span> <span class="mi">27</span><span class="p">,</span> <span class="mi">61</span><span class="p">,</span> <span class="mi">49</span><span class="p">]})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">binning</span> <span class="o">=</span> <span class="n">fit_spec</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">card</span> <span class="o">=</span> <span class="n">ScorecardSpec</span><span class="o">.</span><span class="n">from_model</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">binning</span><span class="p">,</span> <span class="p">{</span><span class="s2">"age"</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">},</span> <span class="o">-</span><span class="mf">1.1</span><span class="p">,</span> <span class="n">pdo</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">base_score</span><span class="o">=</span><span class="mi">600</span><span class="p">,</span> <span class="n">base_odds</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">decimals</span><span class="o">=</span><span class="mi">0</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">card</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+<span class="go">{</span>
+<span class="go">  "format": "kivi.ScorecardSpec",</span>
+<span class="go">  "format_version": 1,</span>
+<span class="go">  "kivi_version": "...",</span>
+<span class="go">  "scaling": {</span>
+<span class="go">    "pdo": 20.0,</span>
+<span class="go">    "base_score": 600.0,</span>
+<span class="go">    "base_odds": 50.0</span>
+<span class="go">  },</span>
+<span class="go">  "binning": {</span>
+<span class="go">    "format": "kivi.BinningSpec",</span>
+<span class="go">...</span>
+<span class="go">  },</span>
+<span class="go">  "points": {</span>
+<span class="go">    "age": [</span>
+<span class="go">      485.0,</span>
+<span class="go">      559.0</span>
+<span class="go">    ]</span>
+<span class="go">  },</span>
+<span class="go">  "unseen_points": null,</span>
+<span class="go">  "calibration": null,</span>
+<span class="go">  "scale": null</span>
+<span class="go">}</span>
+</pre></div>
+</div>
+<p>Write the text to a file with
+<code class="docutils literal notranslate"><span class="pre">Path(&quot;scorecard.json&quot;).write_text(text,</span> <span class="pre">encoding=&quot;utf-8&quot;)</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kivi.scorecard.ScorecardSpec.from_json">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.scorecard.ScorecardSpec.from_json" title="Link to this definition">#</a></dt>
+<dd><p>Read a scorecard specification from the JSON text of <cite>to_json</cite>.</p>
+<p>The loaded specification scores, calibrates and grades every sample
+exactly as the one that was saved. A file written by a newer version
+of the format is rejected rather than read in part, and so is a JSON
+object that repeats a key, which <code class="docutils literal notranslate"><span class="pre">json.loads</span></code> would otherwise read
+as its last value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>text</strong><span class="classifier">str or bytes</span></dt><dd><p>JSON text, for example from <code class="docutils literal notranslate"><span class="pre">Path(...).read_text(encoding=&quot;utf-8&quot;)</span></code>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>ScorecardSpec</dt><dd><p>The scorecard specification, equal to the one that wrote <cite>text</cite>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If <cite>text</cite> is neither a str nor bytes, is not valid JSON, repeats
+a key of an object, contains <code class="docutils literal notranslate"><span class="pre">NaN</span></code> or <code class="docutils literal notranslate"><span class="pre">Infinity</span></code>, or does not
+describe a valid specification; see <cite>from_dict</cite>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.scorecard.ScorecardSpec.to_json" title="kivi.scorecard.ScorecardSpec.to_json"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_json</span></code></a></dt><dd><p>Write the scorecard specification.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.scorecard.ScorecardSpec.from_dict" title="kivi.scorecard.ScorecardSpec.from_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_dict</span></code></a></dt><dd><p>Rebuild the scorecard specification from a dict.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.scorecard</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScorecardSpec</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.spec</span><span class="w"> </span><span class="kn">import</span> <span class="n">fit_spec</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">frame</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"age"</span><span class="p">:</span> <span class="p">[</span><span class="mi">23</span><span class="p">,</span> <span class="mi">31</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">52</span><span class="p">]})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">binning</span> <span class="o">=</span> <span class="n">fit_spec</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">card</span> <span class="o">=</span> <span class="n">ScorecardSpec</span><span class="o">.</span><span class="n">from_model</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">binning</span><span class="p">,</span> <span class="p">{</span><span class="s2">"age"</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">},</span> <span class="o">-</span><span class="mf">1.1</span><span class="p">,</span> <span class="n">pdo</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">base_score</span><span class="o">=</span><span class="mi">600</span><span class="p">,</span> <span class="n">base_odds</span><span class="o">=</span><span class="mi">50</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">loaded</span> <span class="o">=</span> <span class="n">ScorecardSpec</span><span class="o">.</span><span class="n">from_json</span><span class="p">(</span><span class="n">card</span><span class="o">.</span><span class="n">to_json</span><span class="p">())</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">loaded</span> <span class="o">==</span> <span class="n">card</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">loaded</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="n">card</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">frame</span><span class="p">))</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="reject_inference.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Reject inference</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="expert.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Expert scorecards</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.scorecard.score_scaling"><code class="docutils literal notranslate"><span class="pre">score_scaling()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.scorecard.pd_to_score"><code class="docutils literal notranslate"><span class="pre">pd_to_score()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.scorecard.score_to_pd"><code class="docutils literal notranslate"><span class="pre">score_to_pd()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.scorecard.points_table"><code class="docutils literal notranslate"><span class="pre">points_table()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.scorecard.woe_to_points"><code class="docutils literal notranslate"><span class="pre">woe_to_points()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.scorecard.reason_codes"><code class="docutils literal notranslate"><span class="pre">reason_codes()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.scorecard.ScorecardSpec"><code class="docutils literal notranslate"><span class="pre">ScorecardSpec</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.scorecard.ScorecardSpec.from_model"><code class="docutils literal notranslate"><span class="pre">ScorecardSpec.from_model()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.scorecard.ScorecardSpec.points"><code class="docutils literal notranslate"><span class="pre">ScorecardSpec.points()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.scorecard.ScorecardSpec.score"><code class="docutils literal notranslate"><span class="pre">ScorecardSpec.score()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.scorecard.ScorecardSpec.probability"><code class="docutils literal notranslate"><span class="pre">ScorecardSpec.probability()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.scorecard.ScorecardSpec.grade"><code class="docutils literal notranslate"><span class="pre">ScorecardSpec.grade()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.scorecard.ScorecardSpec.reason_codes"><code class="docutils literal notranslate"><span class="pre">ScorecardSpec.reason_codes()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.scorecard.ScorecardSpec.to_dict"><code class="docutils literal notranslate"><span class="pre">ScorecardSpec.to_dict()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.scorecard.ScorecardSpec.from_dict"><code class="docutils literal notranslate"><span class="pre">ScorecardSpec.from_dict()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.scorecard.ScorecardSpec.to_json"><code class="docutils literal notranslate"><span class="pre">ScorecardSpec.to_json()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.scorecard.ScorecardSpec.from_json"><code class="docutils literal notranslate"><span class="pre">ScorecardSpec.from_json()</span></code></a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1.
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

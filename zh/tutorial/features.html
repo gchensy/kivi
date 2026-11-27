@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>2. 交易流水特征 &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=d005c095" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=14f9d491"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script src="../_static/translations.js?v=540d3cec"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'tutorial/features';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="next" title="3. 分箱与 WOE" href="binning.html" />
+    <link rel="prev" title="1. 数据与样本" href="data.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+  <meta name="docsearch:version" content="1.9.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">跳转至主要内容</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>回到顶部</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="版本警告"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="网页导航" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 1.9.0">1.9.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    教程
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../../en/tutorial/features.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="当前页面" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    教程
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../../en/tutorial/features.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="章节导航">
+  <p class="bd-links__title" role="heading" aria-level="1">章节导航</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="data.html">1. 数据与样本</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">2. 交易流水特征</a></li>
+<li class="toctree-l1"><a class="reference internal" href="binning.html">3. 分箱与 WOE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model.html">4. 变量筛选与建模</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reject_inference.html">5. 拒绝推断</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scorecard.html">6. 评分卡</a></li>
+<li class="toctree-l1"><a class="reference internal" href="evaluation.html">7. 模型评估</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">8. 校准与等级</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">9. 截断点与策略</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">10. 投产与监控</a></li>
+<li class="toctree-l1"><a class="reference internal" href="portfolio.html">11. IFRS 9 下的贷款组合</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="初始页面">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">教程</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis"><span class="section-number">2. </span>交易流水特征</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="transaction-features">
+<h1><span class="section-number">2. </span>交易流水特征<a class="headerlink" href="#transaction-features" title="链接到此标题。">#</a></h1>
+<p>申请人在贷款机构开有活期账户，账户上的交易显示了每位申请人在申请之前如何打理资金。本章为申请标注日期，用特征方案按每笔申请的日期从交易中计算特征，检查之后的交易没有混入其中，把它们与 <a class="reference internal" href="data.html"><span class="doc">数据与样本</span></a> 中的候选变量一起分析，并为评分系统保存它们的定义； <a class="reference internal" href="../user_guide/features.html"><span class="doc">时间窗特征</span></a> 解释了每一步。</p>
+<details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
+<summary class="sd-summary-title sd-card-header">
+<span class="sd-summary-text">前面各章的代码</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_applications</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">applications</span> <span class="o">=</span> <span class="n">make_applications</span><span class="p">(</span><span class="n">n_applicants</span><span class="o">=</span><span class="mi">40000</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">months</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">period_range</span><span class="p">(</span><span class="s2">"2024-01"</span><span class="p">,</span> <span class="n">periods</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="s2">"M"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">applications</span><span class="p">[</span><span class="s2">"month"</span><span class="p">]</span> <span class="o">=</span> <span class="n">months</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">40000</span><span class="p">)</span> <span class="o">*</span> <span class="mi">12</span> <span class="o">//</span> <span class="mi">40000</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">eligible</span> <span class="o">=</span> <span class="n">applications</span><span class="p">[</span><span class="o">~</span><span class="n">applications</span><span class="p">[</span><span class="s2">"policy_decline"</span><span class="p">]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">accepts</span> <span class="o">=</span> <span class="n">eligible</span><span class="p">[</span><span class="n">eligible</span><span class="p">[</span><span class="s2">"approved"</span><span class="p">]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">development</span> <span class="o">=</span> <span class="n">accepts</span><span class="p">[</span><span class="n">accepts</span><span class="p">[</span><span class="s2">"month"</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="s2">"2024-09"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">features</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"age"</span><span class="p">,</span> <span class="s2">"income"</span><span class="p">,</span> <span class="s2">"debt_to_income"</span><span class="p">,</span> <span class="s2">"inquiries"</span><span class="p">,</span> <span class="s2">"housing"</span><span class="p">,</span> <span class="s2">"employment"</span><span class="p">,</span> <span class="s2">"incumbent_pd"</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</details><section id="date-the-applications">
+<h2>为申请标注日期<a class="headerlink" href="#date-the-applications" title="链接到此标题。">#</a></h2>
+<p>特征的窗口截止于申请日期，但 <a class="reference internal" href="data.html"><span class="doc">数据与样本</span></a> 只为每笔申请给出了月份。每个月的申请按行的顺序均匀分布在该月的各天： <code class="docutils literal notranslate"><span class="pre">position</span></code> 是一行在其所在月份中的位置，从 0 起，小于 1：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">position</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">40000</span><span class="p">)</span> <span class="o">*</span> <span class="mi">12</span> <span class="o">%</span> <span class="mi">40000</span> <span class="o">/</span> <span class="mi">40000</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">days</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">position</span> <span class="o">*</span> <span class="n">applications</span><span class="p">[</span><span class="s2">"month"</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">days_in_month</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">start</span> <span class="o">=</span> <span class="n">applications</span><span class="p">[</span><span class="s2">"month"</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">start_time</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">applications</span><span class="p">[</span><span class="s2">"application_date"</span><span class="p">]</span> <span class="o">=</span> <span class="n">start</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_timedelta</span><span class="p">(</span><span class="n">days</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">"D"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">applications</span><span class="o">.</span><span class="n">loc</span><span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3333</span><span class="p">,</span> <span class="mi">3334</span><span class="p">,</span> <span class="mi">39999</span><span class="p">],</span> <span class="p">[</span><span class="s2">"month"</span><span class="p">,</span> <span class="s2">"application_date"</span><span class="p">]]</span>
+<span class="go">         month application_date</span>
+<span class="go">0      2024-01       2024-01-01</span>
+<span class="go">3333   2024-01       2024-01-31</span>
+<span class="go">3334   2024-02       2024-02-01</span>
+<span class="go">39999  2024-12       2024-12-31</span>
+</pre></div>
+</div>
+<p>这些日期保持 <a class="reference internal" href="data.html"><span class="doc">数据与样本</span></a> 中的月份不变，因此各样本也保持不变。</p>
+</section>
+<section id="simulate-the-transactions">
+<h2>模拟交易流水<a class="headerlink" href="#simulate-the-transactions" title="链接到此标题。">#</a></h2>
+<p>为了这个项目，贷款机构提取了申请人账户上的交易：银行卡消费、取现和分期还款，时间从每笔申请之前一年到申请之后三个月。 <a class="reference internal" href="../api/datasets.html#kivi.datasets.make_transactions" title="kivi.datasets.make_transactions"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_transactions()</span></code></a> 模拟这些交易。它根据每位申请人的一个任何贷款机构都看不到的风险因子生成交易，因此模拟时读取用 <code class="docutils literal notranslate"><span class="pre">include_risk=True</span></code> 生成的同一批申请，该参数把这个因子添加为 <code class="docutils literal notranslate"><span class="pre">risk</span></code> 列；项目的各个步骤从不使用它。第一次调用给出每笔申请之前的一年，第二次调用给出以申请三个月后的日期为终点的三个月。从较短月份的月末往回数，这三个月可能从月末申请的前一两天开始：11 月 30 日的三个月后是 2 月 28 日，再往前三个月是 11 月 28 日。因此用一个筛选只保留第二次调用中申请日期当天及之后的交易：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_transactions</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">simulated</span> <span class="o">=</span> <span class="n">make_applications</span><span class="p">(</span><span class="n">n_applicants</span><span class="o">=</span><span class="mi">40000</span><span class="p">,</span> <span class="n">include_risk</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">simulated</span><span class="p">[</span><span class="s2">"application_date"</span><span class="p">]</span> <span class="o">=</span> <span class="n">applications</span><span class="p">[</span><span class="s2">"application_date"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">before</span> <span class="o">=</span> <span class="n">make_transactions</span><span class="p">(</span><span class="n">simulated</span><span class="p">,</span> <span class="n">application_date</span><span class="o">=</span><span class="s2">"application_date"</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">later</span> <span class="o">=</span> <span class="n">simulated</span><span class="p">[</span><span class="s2">"application_date"</span><span class="p">]</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">DateOffset</span><span class="p">(</span><span class="n">months</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">after</span> <span class="o">=</span> <span class="n">make_transactions</span><span class="p">(</span><span class="n">simulated</span><span class="p">,</span> <span class="n">application_date</span><span class="o">=</span><span class="n">later</span><span class="p">,</span> <span class="n">n_months</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">after</span> <span class="o">=</span> <span class="n">after</span><span class="p">[</span><span class="n">after</span><span class="p">[</span><span class="s2">"timestamp"</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">after</span><span class="p">[</span><span class="s2">"applicant_id"</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">simulated</span><span class="p">[</span><span class="s2">"application_date"</span><span class="p">])]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">extract</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">before</span><span class="p">,</span> <span class="n">after</span><span class="p">])</span><span class="o">.</span><span class="n">sort_values</span><span class="p">([</span><span class="s2">"applicant_id"</span><span class="p">,</span> <span class="s2">"timestamp"</span><span class="p">],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">extract</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+<span class="go">   applicant_id           timestamp  amount       kind merchant_category</span>
+<span class="go">0             0 2023-01-05 12:52:45   60.01   purchase            online</span>
+<span class="go">1             0 2023-01-05 22:29:20  113.02   purchase            online</span>
+<span class="go">2             0 2023-01-10 08:59:08  664.73  repayment               NaN</span>
+<span class="go">3             0 2023-01-13 13:54:59   87.74   purchase            health</span>
+<span class="go">4             0 2023-01-26 22:03:14  352.16   purchase           grocery</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">applicant_id</span></code> 是申请的索引标签。提取的数据共有 220 万笔交易，其中一半以上是消费。</p>
+</section>
+<section id="define-the-features">
+<h2>定义特征<a class="headerlink" href="#define-the-features" title="链接到此标题。">#</a></h2>
+<p>一个 <a class="reference internal" href="../api/features.html#kivi.features.FeatureSpec" title="kivi.features.FeatureSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">FeatureSpec</span></code></a> 保存特征的定义：申请人列、申请日期列，以及每类交易一组时间窗特征，每组包含一次 <a class="reference internal" href="../api/features.html#kivi.features.window_features" title="kivi.features.window_features"><code class="xref py py-func docutils literal notranslate"><span class="pre">window_features()</span></code></a> 调用的参数。这些组统计最近三个月和十二个月取现的笔数与金额、最近三个月及其之前三个月还款的笔数与金额，以及最近三个月消费的笔数与金额。两个比率分别比较取现与消费，以及最近三个月与此前三个月的还款：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.features</span><span class="w"> </span><span class="kn">import</span> <span class="n">FeatureSpec</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">feature_spec</span> <span class="o">=</span> <span class="n">FeatureSpec</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="nb">id</span><span class="o">=</span><span class="s2">"applicant_id"</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">observation_time</span><span class="o">=</span><span class="s2">"application_date"</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">events</span><span class="o">=</span><span class="p">[</span>
+<span class="gp">... </span>        <span class="p">{</span><span class="s2">"table"</span><span class="p">:</span> <span class="s2">"cash"</span><span class="p">,</span> <span class="s2">"prefix"</span><span class="p">:</span> <span class="s2">"cash_"</span><span class="p">,</span> <span class="s2">"time"</span><span class="p">:</span> <span class="s2">"timestamp"</span><span class="p">,</span> <span class="s2">"windows"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"3M"</span><span class="p">,</span> <span class="s2">"12M"</span><span class="p">],</span>
+<span class="gp">... </span>         <span class="s2">"aggregations"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"amount"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"sum"</span><span class="p">]}},</span>
+<span class="gp">... </span>        <span class="p">{</span><span class="s2">"table"</span><span class="p">:</span> <span class="s2">"repayments"</span><span class="p">,</span> <span class="s2">"prefix"</span><span class="p">:</span> <span class="s2">"repayment_"</span><span class="p">,</span> <span class="s2">"time"</span><span class="p">:</span> <span class="s2">"timestamp"</span><span class="p">,</span>
+<span class="gp">... </span>         <span class="s2">"windows"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"3M"</span><span class="p">,</span> <span class="p">(</span><span class="s2">"6M"</span><span class="p">,</span> <span class="s2">"3M"</span><span class="p">)],</span> <span class="s2">"aggregations"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"amount"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"sum"</span><span class="p">]}},</span>
+<span class="gp">... </span>        <span class="p">{</span><span class="s2">"table"</span><span class="p">:</span> <span class="s2">"purchases"</span><span class="p">,</span> <span class="s2">"prefix"</span><span class="p">:</span> <span class="s2">"purchase_"</span><span class="p">,</span> <span class="s2">"time"</span><span class="p">:</span> <span class="s2">"timestamp"</span><span class="p">,</span> <span class="s2">"windows"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"3M"</span><span class="p">],</span>
+<span class="gp">... </span>         <span class="s2">"aggregations"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"amount"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"sum"</span><span class="p">]}},</span>
+<span class="gp">... </span>    <span class="p">],</span>
+<span class="gp">... </span>    <span class="n">ratios</span><span class="o">=</span><span class="p">[</span>
+<span class="gp">... </span>        <span class="p">(</span><span class="s2">"cash_amount_sum_3m"</span><span class="p">,</span> <span class="s2">"purchase_amount_sum_3m"</span><span class="p">),</span>
+<span class="gp">... </span>        <span class="p">(</span><span class="s2">"repayment_amount_sum_3m"</span><span class="p">,</span> <span class="s2">"repayment_amount_sum_6m_3m"</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="p">],</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">feature_spec</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+<span class="go">['cash_events_3m', 'cash_amount_sum_3m', 'cash_events_12m', 'cash_amount_sum_12m',</span>
+<span class="go"> 'repayment_events_3m', 'repayment_amount_sum_3m', 'repayment_events_6m_3m',</span>
+<span class="go"> 'repayment_amount_sum_6m_3m', 'purchase_events_3m', 'purchase_amount_sum_3m',</span>
+<span class="go"> 'cash_amount_sum_3m_over_purchase_amount_sum_3m', 'repayment_amount_sum_3m_over_6m_3m']</span>
+</pre></div>
+</div>
+<p>观察是申请人及其申请日期，使用申请的索引。 <a class="reference internal" href="../api/features.html#kivi.features.FeatureSpec.compute" title="kivi.features.FeatureSpec.compute"><code class="xref py py-meth docutils literal notranslate"><span class="pre">compute()</span></code></a> 按表名接收每组的交易，因此用一个小函数按类型拆分提取的数据：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">observations</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">{</span><span class="s2">"applicant_id"</span><span class="p">:</span> <span class="n">applications</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="s2">"application_date"</span><span class="p">:</span> <span class="n">applications</span><span class="p">[</span><span class="s2">"application_date"</span><span class="p">]},</span>
+<span class="gp">... </span>    <span class="n">index</span><span class="o">=</span><span class="n">applications</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">by_kind</span><span class="p">(</span><span class="n">transactions</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">kind</span> <span class="o">=</span> <span class="n">transactions</span><span class="p">[</span><span class="s2">"kind"</span><span class="p">]</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="p">{</span>
+<span class="gp">... </span>        <span class="s2">"cash"</span><span class="p">:</span> <span class="n">transactions</span><span class="p">[</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">"cash_withdrawal"</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="s2">"repayments"</span><span class="p">:</span> <span class="n">transactions</span><span class="p">[</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">"repayment"</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="s2">"purchases"</span><span class="p">:</span> <span class="n">transactions</span><span class="p">[</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">"purchase"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">account_features</span> <span class="o">=</span> <span class="n">feature_spec</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="n">observations</span><span class="p">,</span> <span class="n">events</span><span class="o">=</span><span class="n">by_kind</span><span class="p">(</span><span class="n">extract</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">account_features</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">                                                      0        1        2</span>
+<span class="go">cash_events_3m                                     4.00     1.00     5.00</span>
+<span class="go">cash_amount_sum_3m                               596.36    65.84   683.87</span>
+<span class="go">cash_events_12m                                   13.00     5.00    16.00</span>
+<span class="go">cash_amount_sum_12m                             1754.90   335.42  1891.98</span>
+<span class="go">repayment_events_3m                                2.00     3.00     0.00</span>
+<span class="go">repayment_amount_sum_3m                         1214.41  5097.31     0.00</span>
+<span class="go">repayment_events_6m_3m                             2.00     3.00     2.00</span>
+<span class="go">repayment_amount_sum_6m_3m                      1211.13  5194.59  1917.27</span>
+<span class="go">purchase_events_3m                                13.00    12.00     1.00</span>
+<span class="go">purchase_amount_sum_3m                          2781.96  2082.14   112.82</span>
+<span class="go">cash_amount_sum_3m_over_purchase_amount_sum_3m     0.21     0.03     6.06</span>
+<span class="go">repayment_amount_sum_3m_over_6m_3m                 1.00     0.98     0.00</span>
+</pre></div>
+</div>
+<p>第三位申请人在最近三个月之前的三个月里还款两次，此后再未还款，同时取现五次，刷卡消费很少。其还款比率为 0，取现金额是消费金额的六倍。</p>
+</section>
+<section id="check-that-the-features-are-point-in-time">
+<h2>检查特征是否时点正确<a class="headerlink" href="#check-that-the-features-are-point-in-time" title="链接到此标题。">#</a></h2>
+<p>提取的数据中有五分之一发生在其申请人的申请日期当天或之后。评分系统在审批申请时不可能看到这些交易：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">date</span> <span class="o">=</span> <span class="n">extract</span><span class="p">[</span><span class="s2">"applicant_id"</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">applications</span><span class="p">[</span><span class="s2">"application_date"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="p">(</span><span class="n">extract</span><span class="p">[</span><span class="s1">'timestamp'</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">date</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">0.212</span>
+</pre></div>
+</div>
+<p>窗口在申请日期之前截止，因此这些交易不计入任何特征。为了检查这一点，手工删除这些交易，再计算一次特征。结果相同：笔数完全相同，金额只在最后几位有舍入差异，因为行数较少的表以另一种顺序累加同样的金额：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">known</span> <span class="o">=</span> <span class="n">extract</span><span class="p">[</span><span class="n">extract</span><span class="p">[</span><span class="s2">"timestamp"</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">date</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">feature_spec</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="n">observations</span><span class="p">,</span> <span class="n">events</span><span class="o">=</span><span class="n">by_kind</span><span class="p">(</span><span class="n">known</span><span class="p">)),</span> <span class="n">account_features</span><span class="p">,</span> <span class="n">equal_nan</span><span class="o">=</span><span class="kc">True</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<p>如果不看日期、手工按申请人分组统计交易，就会把这些交易计算在内，在此基础上开发的模型会依据它在生产中永远得不到的信息为申请人排序。</p>
+</section>
+<section id="profile-the-features">
+<h2>分析特征<a class="headerlink" href="#profile-the-features" title="链接到此标题。">#</a></h2>
+<p>这些特征与申请表上的字段一样是候选变量。 <a class="reference internal" href="../api/univariate.html#kivi.univariate.profile_table" title="kivi.univariate.profile_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">profile_table()</span></code></a> 在开发样本上把它们与 <a class="reference internal" href="data.html"><span class="doc">数据与样本</span></a> 中的七个候选变量一起分析：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.univariate</span><span class="w"> </span><span class="kn">import</span> <span class="n">profile_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">candidates</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">development</span><span class="p">[</span><span class="n">features</span><span class="p">],</span> <span class="n">account_features</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">development</span><span class="o">.</span><span class="n">index</span><span class="p">]],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">profile</span> <span class="o">=</span> <span class="n">profile_table</span><span class="p">(</span><span class="n">candidates</span><span class="p">,</span> <span class="n">development</span><span class="p">[</span><span class="s2">"target"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">profile</span><span class="p">[[</span><span class="s2">"missing_share"</span><span class="p">,</span> <span class="s2">"iv"</span><span class="p">,</span> <span class="s2">"gini"</span><span class="p">]]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">"iv"</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">                                                missing_share     iv   gini</span>
+<span class="go">variable</span>
+<span class="go">incumbent_pd                                            0.000  0.272  0.295</span>
+<span class="go">housing                                                 0.000  0.110    NaN</span>
+<span class="go">cash_events_12m                                         0.000  0.099  0.183</span>
+<span class="go">cash_events_3m                                          0.000  0.089  0.176</span>
+<span class="go">cash_amount_sum_3m_over_purchase_amount_sum_3m          0.010  0.072  0.162</span>
+<span class="go">repayment_amount_sum_3m_over_6m_3m                      0.001  0.063 -0.138</span>
+<span class="go">repayment_events_3m                                     0.000  0.058 -0.123</span>
+<span class="go">cash_amount_sum_3m                                      0.000  0.050  0.139</span>
+<span class="go">cash_amount_sum_12m                                     0.000  0.047  0.124</span>
+<span class="go">debt_to_income                                          0.000  0.031  0.101</span>
+<span class="go">income                                                  0.000  0.023 -0.085</span>
+<span class="go">age                                                     0.000  0.023 -0.088</span>
+<span class="go">inquiries                                               0.000  0.021  0.101</span>
+<span class="go">employment                                              0.000  0.017    NaN</span>
+<span class="go">purchase_amount_sum_3m                                  0.000  0.015 -0.054</span>
+<span class="go">purchase_events_3m                                      0.000  0.005 -0.027</span>
+<span class="go">repayment_amount_sum_6m_3m                              0.000  0.003  0.017</span>
+<span class="go">repayment_amount_sum_3m                                 0.000  0.003 -0.034</span>
+<span class="go">repayment_events_6m_3m                                  0.000  0.000 -0.050</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">profile</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">profile</span><span class="p">[</span><span class="s2">"tied_bins"</span><span class="p">]])</span>
+<span class="go">['inquiries', 'cash_events_3m', 'cash_amount_sum_3m', 'repayment_events_3m',</span>
+<span class="go"> 'repayment_events_6m_3m', 'cash_amount_sum_3m_over_purchase_amount_sum_3m']</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id1">
+<img alt="开发样本上七个申请候选变量和十二个交易流水特征的信息值排序，含 0.02、0.1 和 0.3 的解读区间" class="plot-directive" src="../_images/features-1.svg" />
+<figcaption>
+<p><span class="caption-text">开发样本上各候选变量快速分箱的 IV。取现和还款的变化比申请表上的大多数字段更强。</span><a class="headerlink" href="#id1" title="链接到此图片">#</a></p>
+</figcaption>
+</figure>
+<p>概况把交易流水特征与申请数据放在一起排序：</p>
+<ul class="simple">
+<li><p>取现的信息最多：最近十二个月和三个月的取现次数的 IV 分别为 0.099 和 0.089，高于申请表上除 <code class="docutils literal notranslate"><span class="pre">housing</span></code> 以外的所有字段。取现越多违约越多，正的 <code class="docutils literal notranslate"><span class="pre">gini</span></code> 表明了这一点。</p></li>
+<li><p>还款重要的是变化，而不是水平。最近三个月和此前三个月的还款金额单独来看都很弱，因为它们取决于分期款的大小；但两者之比的 IV 为 0.063， <code class="docutils literal notranslate"><span class="pre">gini</span></code> 为负：最近还款比此前少的申请人违约更多。最近三个月还款次数较少的申请人也是如此。</p></li>
+<li><p>消费几乎没有信息。</p></li>
+<li><p>最近三个月没有消费的 1% 申请人，其取现与消费之比缺失，因为分母为 0。概况把他们单独作为一组。</p></li>
+<li><p>有五个交易流水特征在 <code class="docutils literal notranslate"><span class="pre">tied_bins</span></code> 中被标记，与 <a class="reference internal" href="data.html"><span class="doc">数据与样本</span></a> 中的 <code class="docutils literal notranslate"><span class="pre">inquiries</span></code> 一样：三个月内的取现和还款次数只取少数几个值，而且五分之一的申请人在最近三个月没有取现，因此它们的等频分箱会塌缩。分箱时要为它们指定边界。</p></li>
+</ul>
+<div class="kivi-check admonition">
+<p class="admonition-title">模拟核对</p>
+<p><a class="reference internal" href="../api/datasets.html#kivi.datasets.make_transactions" title="kivi.datasets.make_transactions"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_transactions()</span></code></a> 根据隐藏的风险因子生成交易，而供应商的评分卡只看到这个因子的一部分。最近一年的取现比供应商的 PD 更紧密地跟随这个因子，并且与供应商的 PD 只有部分共同的变化，这正是它们带有供应商 PD 所缺少的信息的原因：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">simulated</span><span class="p">[[</span><span class="s2">"risk"</span><span class="p">,</span> <span class="s2">"incumbent_pd"</span><span class="p">]]</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">account_features</span><span class="p">[</span><span class="s2">"cash_events_12m"</span><span class="p">])</span><span class="o">.</span><span class="n">corr</span><span class="p">()</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">                 risk  incumbent_pd  cash_events_12m</span>
+<span class="go">risk             1.00          0.44             0.67</span>
+<span class="go">incumbent_pd     0.44          1.00             0.53</span>
+<span class="go">cash_events_12m  0.67          0.53             1.00</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="save-the-specification">
+<h2>保存特征方案<a class="headerlink" href="#save-the-specification" title="链接到此标题。">#</a></h2>
+<p>特征方案只保存定义：其中没有任何从数据拟合的内容。 <a class="reference internal" href="../api/features.html#kivi.features.FeatureSpec.to_json" title="kivi.features.FeatureSpec.to_json"><code class="xref py py-meth docutils literal notranslate"><span class="pre">to_json()</span></code></a> 把它写成 JSON 供评分系统使用， <a class="reference internal" href="../api/features.html#kivi.features.FeatureSpec.from_json" title="kivi.features.FeatureSpec.from_json"><code class="xref py py-meth docutils literal notranslate"><span class="pre">from_json()</span></code></a> 将其读回为相等的特征方案，计算出相同的特征：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">text</span> <span class="o">=</span> <span class="n">feature_spec</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">restored</span> <span class="o">=</span> <span class="n">FeatureSpec</span><span class="o">.</span><span class="n">from_json</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">restored</span> <span class="o">==</span> <span class="n">feature_spec</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">restored</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="n">observations</span><span class="p">,</span> <span class="n">events</span><span class="o">=</span><span class="n">by_kind</span><span class="p">(</span><span class="n">extract</span><span class="p">))</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="n">account_features</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<p>每组都写出其调用的所有参数，包括默认值，因此文件写明了窗口、聚合方式以及每个窗口在哪一侧闭合：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">restored</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()[</span><span class="s2">"events"</span><span class="p">][</span><span class="mi">0</span><span class="p">]))</span>
+<span class="go">{"table": "cash", "time": "timestamp", "windows": ["3M", "12M"],</span>
+<span class="go"> "aggregations": {"amount": ["sum"]}, "closed": "left", "prefix": "cash_"}</span>
+</pre></div>
+</div>
+</section>
+<section id="keep-them-for-the-next-scorecard">
+<h2>留给下一版评分卡<a class="headerlink" href="#keep-them-for-the-next-scorecard" title="链接到此标题。">#</a></h2>
+<p>有几个交易流水特征比申请表上的大多数字段更强，但项目按最初的设定，用申请数据和供应商的 PD 构建第一张评分卡。只有当评分系统能像开发时一样计算一个变量时，评分卡才能依赖它，因此贷款机构先在生产中运行这个特征方案（就像 <a class="reference internal" href="monitoring.html"><span class="doc">投产与监控</span></a> 对分箱方案所做的那样），再在下一次开发的挑战者评分卡中检验这些特征。它们与供应商的 PD 部分重复，能否在其之外增加信息，要由那个模型回答，而不是由概况回答。后面各章使用 <a class="reference internal" href="data.html"><span class="doc">数据与样本</span></a> 中的七个候选变量。</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="data.html"
+       title="上一页">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">上一页</p>
+        <p class="prev-next-title"><span class="section-number">1. </span>数据与样本</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="binning.html"
+       title="下一页">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">下一页</p>
+        <p class="prev-next-title"><span class="section-number">3. </span>分箱与 WOE</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 当前页面
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#date-the-applications">为申请标注日期</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#simulate-the-transactions">模拟交易流水</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#define-the-features">定义特征</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#check-that-the-features-are-point-in-time">检查特征是否时点正确</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#profile-the-features">分析特征</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#save-the-specification">保存特征方案</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#keep-them-for-the-next-scorecard">留给下一版评分卡</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    由 <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1创建。
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>专家评分卡 &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=d005c095" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=14f9d491"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script src="../_static/translations.js?v=540d3cec"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/expert';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="next" title="模型表现" href="metrics.html" />
+    <link rel="prev" title="评分卡" href="scorecard.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+  <meta name="docsearch:version" content="1.9.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">跳转至主要内容</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>回到顶部</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="版本警告"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="网页导航" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 1.9.0">1.9.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    教程
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../../en/api/expert.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="当前页面" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    教程
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../../en/api/expert.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="章节导航">
+  <p class="bd-links__title" role="heading" aria-level="1">章节导航</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="conventions.html">约定</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compatibility.html">兼容性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">术语表</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">时间窗特征</a></li>
+<li class="toctree-l1"><a class="reference internal" href="univariate.html">单变量概况</a></li>
+<li class="toctree-l1"><a class="reference internal" href="binning.html">分箱</a></li>
+<li class="toctree-l1"><a class="reference internal" href="woe.html">证据权重与信息值</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selection.html">变量筛选</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reject_inference.html">拒绝推断</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scorecard.html">评分卡</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">专家评分卡</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">模型表现</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">校准</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lgd.html">LGD 与 EAD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">信贷策略</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rules.html">政策规则</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spec.html">分箱方案</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stability.html">群体稳定性指标</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">模型监控</a></li>
+<li class="toctree-l1"><a class="reference internal" href="capital.html">监管资本</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vintage.html">Vintage 与滚动率分析</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lifetime.html">存续期 PD 与预期信用损失</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html">图表</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">示例数据</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="初始页面">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../api.html" class="nav-link">API 参考</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">专家评分卡</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="module-kivi.expert">
+<span id="expert-scorecards"></span><h1>专家评分卡<a class="headerlink" href="#module-kivi.expert" title="链接到此标题。">#</a></h1>
+<p>像层次分析法（AHP）那样，根据两两比较确定专家评分卡中各因子的权重。 <a class="reference internal" href="#kivi.expert.ahp_weights" title="kivi.expert.ahp_weights"><code class="xref py py-func docutils literal notranslate"><span class="pre">ahp_weights()</span></code></a> 把比较矩阵转换为权重， <a class="reference internal" href="#kivi.expert.ahp_consistency" title="kivi.expert.ahp_consistency"><code class="xref py py-func docutils literal notranslate"><span class="pre">ahp_consistency()</span></code></a> 度量各项比较的一致程度， <a class="reference internal" href="#kivi.expert.combine_weights" title="kivi.expert.combine_weights"><code class="xref py py-func docutils literal notranslate"><span class="pre">combine_weights()</span></code></a> 把因子和子因子的权重合成为全局权重。</p>
+<p>示例和一致性比率的解读见 <a class="reference internal" href="../user_guide/expert.html"><span class="doc">专家评分卡</span></a> 。</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.expert.ahp_weights" title="kivi.expert.ahp_weights"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ahp_weights</span></code></a>(matrix, *[, method, rtol])</p></td>
+<td><p>像层次分析法那样，根据两两比较矩阵确定各因子的权重。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.expert.ahp_consistency" title="kivi.expert.ahp_consistency"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ahp_consistency</span></code></a>(matrix, *[, rtol])</p></td>
+<td><p>度量两两比较矩阵中各项判断的一致程度。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.expert.combine_weights" title="kivi.expert.combine_weights"><code class="xref py py-obj docutils literal notranslate"><span class="pre">combine_weights</span></code></a>(parent, children)</p></td>
+<td><p>把因子及其子因子的权重合成为全局权重。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.expert.ahp_weights">
+<span class="sig-prename descclassname"><span class="pre">kivi.expert.</span></span><span class="sig-name descname"><span class="pre">ahp_weights</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'eigenvector'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rtol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.expert.ahp_weights" title="链接到此定义。">#</a></dt>
+<dd><p>像层次分析法那样，根据两两比较矩阵确定各因子的权重。</p>
+<p>矩阵的元素 <span class="math notranslate nohighlight">\(a_{ij}\)</span> 按 Saaty 标度（从 1 表示同等重要到 9 表示极端重要）表示因子 <span class="math notranslate nohighlight">\(i\)</span> 比因子 <span class="math notranslate nohighlight">\(j\)</span> 重要多少倍，反过来则取其倒数 <span class="math notranslate nohighlight">\(a_{ji} = 1 / a_{ij}\)</span> 。权重与矩阵的主特征向量或各行的几何平均数成正比，且总和为 1。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>matrix</strong><span class="classifier">pandas.DataFrame 或 array_like</span></dt><dd><p>两两比较的方阵，对角线为 1，元素互为倒数，即 <span class="math notranslate nohighlight">\(a_{ij} a_{ji} = 1\)</span> ，满足相对容差 <cite>rtol</cite> 。DataFrame 以其索引作为因子名称，索引必须与列相同；数组则把因子从 0 起编号。</p>
+</dd>
+<dt><strong>method</strong><span class="classifier">{&quot;eigenvector&quot;, &quot;geometric&quot;}，默认 &quot;eigenvector&quot;</span></dt><dd><p><code class="docutils literal notranslate"><span class="pre">&quot;eigenvector&quot;</span></code> 是 Saaty 的主特征向量法。 <code class="docutils literal notranslate"><span class="pre">&quot;geometric&quot;</span></code> 取每一行的几何平均数，对一致矩阵给出相同的权重，且无需计算特征值。</p>
+</dd>
+<dt><strong>rtol</strong><span class="classifier">float，默认 1e-3</span></dt><dd><p>检查对角线为 1、以及 <span class="math notranslate nohighlight">\(a_{ij} a_{ji}\)</span> 为 1 的相对容差。默认值可接受四舍五入到四位小数的倒数，例如用 0.3333 代替 1 / 3，或用 0.1429 代替 1 / 7；四舍五入到两位小数的元素，例如 0.14，需要更大的值，或者直接写成分数。必须为有限的非负数。矩阵按给定的值使用，因此不是精确倒数的元素会使权重发生与其偏差大致相同的变化。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.Series</dt><dd><p>权重，名为 <code class="docutils literal notranslate"><span class="pre">weight</span></code> ，以因子为索引，索引名为 <code class="docutils literal notranslate"><span class="pre">factor</span></code> 。权重均为正数，总和为 1。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果 <cite>matrix</cite> 不是由有限正数构成、对角线为 1 且元素互为倒数的方阵，DataFrame 的索引与列不一致、标签重复或构成 MultiIndex， <cite>method</cite> 不是这两个名称之一，或者 <cite>rtol</cite> 不是有限的非负数。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.expert.ahp_consistency" title="kivi.expert.ahp_consistency"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ahp_consistency</span></code></a></dt><dd><p>检查矩阵中各项判断的一致程度。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.expert.combine_weights" title="kivi.expert.combine_weights"><code class="xref py py-obj docutils literal notranslate"><span class="pre">combine_weights</span></code></a></dt><dd><p>为层次结构中的子因子确定权重。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>对一致矩阵， <span class="math notranslate nohighlight">\(a_{ij} = w_i / w_j\)</span> ，两种方法都给出 <span class="math notranslate nohighlight">\(w\)</span> 。否则，特征向量法求解 <span class="math notranslate nohighlight">\(A w = \lambda_{\max} w\)</span> ，几何法则取</p>
+<div class="math notranslate nohighlight">
+\[w_i = \frac{\left(\prod_j a_{ij}\right)^{1/n}}
+           {\sum_k \left(\prod_j a_{kj}\right)^{1/n}}.\]</div>
+<p>对两个或三个因子，两种方法对任何互反矩阵都给出相同的权重；从四个因子起，若判断不一致，两者会略有差异。旧的 0.2.x <code class="docutils literal notranslate"><span class="pre">AHP</span></code> 类使用几何法。</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.expert</span><span class="w"> </span><span class="kn">import</span> <span class="n">ahp_weights</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">factors</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"sales"</span><span class="p">,</span> <span class="s2">"margin"</span><span class="p">,</span> <span class="s2">"leverage"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">matrix</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]],</span> <span class="n">index</span><span class="o">=</span><span class="n">factors</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">factors</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ahp_weights</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">factor</span>
+<span class="go">sales       0.5714</span>
+<span class="go">margin      0.2857</span>
+<span class="go">leverage    0.1429</span>
+<span class="go">Name: weight, dtype: float64</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.expert.ahp_consistency">
+<span class="sig-prename descclassname"><span class="pre">kivi.expert.</span></span><span class="sig-name descname"><span class="pre">ahp_consistency</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rtol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.expert.ahp_consistency" title="链接到此定义。">#</a></dt>
+<dd><p>度量两两比较矩阵中各项判断的一致程度。</p>
+<p>各项判断相互吻合时即为一致：如果因子 A 的重要性是 B 的 2 倍，B 又是 C 的 2 倍，那么 A 应是 C 的 4 倍。一致性比率把矩阵的不一致程度与随机判断的不一致程度相比。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>matrix</strong><span class="classifier">pandas.DataFrame 或 array_like</span></dt><dd><p>比较至多 15 个因子的方阵，要求与 <cite>ahp_weights</cite> 相同。</p>
+</dd>
+<dt><strong>rtol</strong><span class="classifier">float，默认 1e-3</span></dt><dd><p>检查对角线为 1、互为倒数的元素之积为 1 的相对容差，与 <cite>ahp_weights</cite> 相同。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.Series</dt><dd><p>统计量，以 <code class="docutils literal notranslate"><span class="pre">lambda_max</span></code> 、 <code class="docutils literal notranslate"><span class="pre">ci</span></code> 、 <code class="docutils literal notranslate"><span class="pre">ri</span></code> 和 <code class="docutils literal notranslate"><span class="pre">cr</span></code> 为索引，索引名为 <code class="docutils literal notranslate"><span class="pre">statistic</span></code> ：</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">lambda_max</span></code> ，矩阵的主特征值，不小于因子数 <span class="math notranslate nohighlight">\(n\)</span> ；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ci</span></code> ，一致性指标，判断一致时为零；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ri</span></code> ， <span class="math notranslate nohighlight">\(n\)</span> 对应的 Saaty 随机一致性指标；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cr</span></code> ，一致性比率 <code class="docutils literal notranslate"><span class="pre">ci</span> <span class="pre">/</span> <span class="pre">ri</span></code> 。</p></li>
+</ul>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果 <cite>matrix</cite> 不是有效的比较矩阵，或者 <cite>rtol</cite> 不是有限的非负数（要求与 <cite>ahp_weights</cite> 相同），或者 <cite>matrix</cite> 比较的因子超过 15 个，即超过有随机一致性指标表的最大阶数。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.expert.ahp_weights" title="kivi.expert.ahp_weights"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ahp_weights</span></code></a></dt><dd><p>该矩阵给出的权重。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>有 <span class="math notranslate nohighlight">\(n\)</span> 个因子时，</p>
+<div class="math notranslate nohighlight">
+\[\mathrm{CI} = \frac{\lambda_{\max} - n}{n - 1}, \qquad
+\mathrm{CR} = \frac{\mathrm{CI}}{\mathrm{RI}}.\]</div>
+<p>Saaty 建议，CR 高于 0.1 的判断应当复核，后来（1994 年）又把限值收紧为：三个因子 0.05，四个因子 0.08。这些只是经验法则而不是检验，CR 更大时函数也不会报错。一个或两个因子的矩阵必然一致，因此其 <code class="docutils literal notranslate"><span class="pre">ci</span></code> 、 <code class="docutils literal notranslate"><span class="pre">ri</span></code> 和 <code class="docutils literal notranslate"><span class="pre">cr</span></code> 均为 0。对互反矩阵 <span class="math notranslate nohighlight">\(\lambda_{\max} \ge n\)</span> ；若舍入使计算值低于 <span class="math notranslate nohighlight">\(n\)</span> ，则取 <span class="math notranslate nohighlight">\(n\)</span> 。</p>
+<p>随机一致性指标是 Saaty 标度下随机互反矩阵的平均 CI。3 到 15 个因子的表是 K. Tone 的 <em>The Analytic Hierarchy Process: Decision Making</em> （日文，1986 年）中的表，这里取自 T. Obata 和 S. Shiraishi 在 arXiv:2607.07950 表 2 中的列出。Saaty 的著作中 12 个因子的数值印的是 1.48 而不是 1.53，一般认为这是印刷错误。旧的 0.2.x 类用几何平均权重下 <span class="math notranslate nohighlight">\((A w)_i / w_i\)</span> 的均值来估计 <span class="math notranslate nohighlight">\(\lambda_{\max}\)</span> ，在不超过三个因子时它等于精确值，并且使用了几乎相同的随机一致性指标。</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.expert</span><span class="w"> </span><span class="kn">import</span> <span class="n">ahp_consistency</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ahp_consistency</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">statistic</span>
+<span class="go">lambda_max    3.0385</span>
+<span class="go">ci            0.0193</span>
+<span class="go">ri            0.5800</span>
+<span class="go">cr            0.0332</span>
+<span class="go">dtype: float64</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.expert.combine_weights">
+<span class="sig-prename descclassname"><span class="pre">kivi.expert.</span></span><span class="sig-name descname"><span class="pre">combine_weights</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">children</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.expert.combine_weights" title="链接到此定义。">#</a></dt>
+<dd><p>把因子及其子因子的权重合成为全局权重。</p>
+<p>在层次结构中，每个因子被拆分为若干子因子，子因子之间再相互比较权重。子因子的全局权重等于其所属因子的权重乘以它在该因子内的权重，因此所有子因子的全局权重之和仍为 1。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>parent</strong><span class="classifier">pandas.Series</span></dt><dd><p>各因子的权重，例如 <cite>ahp_weights</cite> 的结果。必须为有限的非负数，总和为 1，相对容差为 1e-6。</p>
+</dd>
+<dt><strong>children</strong><span class="classifier">mapping</span></dt><dd><p>对 <cite>parent</cite> 的每个因子，给出其子因子权重的 Series，以子因子标签为索引，例如 <cite>ahp_weights</cite> 的结果。每个 Series 的权重必须为有限的非负数且总和为 1，每个子因子只能出现一次。 <cite>parent</cite> 的每个因子都需要一个条目，且不允许有其他的键：没有子因子的因子对应只含一个标签、权重为 1 的 Series。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.Series</dt><dd><p>全局权重，名为 <code class="docutils literal notranslate"><span class="pre">weight</span></code> ，以 <code class="docutils literal notranslate"><span class="pre">factor</span></code> 和 <code class="docutils literal notranslate"><span class="pre">sub_factor</span></code> 为索引，先按 <cite>parent</cite> 的顺序，再按各因子的子因子顺序排列。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果 <cite>parent</cite> 不是 Series， <cite>children</cite> 不是由 Series 构成的映射，其键不是 <cite>parent</cite> 的因子，或者某组权重不是有限的非负数、总和不为 1。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.expert.ahp_weights" title="kivi.expert.ahp_weights"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ahp_weights</span></code></a></dt><dd><p>为各因子及每个因子的子因子确定权重。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>该函数合并两层，即因子及其子因子。对于更多层的层次结构，请逐层合并：把去掉 <code class="docutils literal notranslate"><span class="pre">factor</span></code> 层的全局权重 <code class="docutils literal notranslate"><span class="pre">weights.droplevel(&quot;factor&quot;)</span></code> 作为下一次调用的 <cite>parent</cite> ，其结果则给出最后两层的名称。这要求不同因子的子因子名称互不相同，因为 <cite>parent</cite> 的标签必须互不重复。</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.expert</span><span class="w"> </span><span class="kn">import</span> <span class="n">combine_weights</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">parent</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">({</span><span class="s2">"finance"</span><span class="p">:</span> <span class="mf">0.75</span><span class="p">,</span> <span class="s2">"market"</span><span class="p">:</span> <span class="mf">0.25</span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">children</span> <span class="o">=</span> <span class="p">{</span>
+<span class="gp">... </span>    <span class="s2">"finance"</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">({</span><span class="s2">"leverage"</span><span class="p">:</span> <span class="mf">0.6</span><span class="p">,</span> <span class="s2">"margin"</span><span class="p">:</span> <span class="mf">0.4</span><span class="p">}),</span>
+<span class="gp">... </span>    <span class="s2">"market"</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">({</span><span class="s2">"position"</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">}),</span>
+<span class="gp">... </span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">combine_weights</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">children</span><span class="p">)</span>
+<span class="go">factor   sub_factor</span>
+<span class="go">finance  leverage     0.45</span>
+<span class="go">         margin       0.30</span>
+<span class="go">market   position     0.25</span>
+<span class="go">Name: weight, dtype: float64</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="scorecard.html"
+       title="上一页">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">上一页</p>
+        <p class="prev-next-title">评分卡</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="metrics.html"
+       title="下一页">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">下一页</p>
+        <p class="prev-next-title">模型表现</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 当前页面
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.expert.ahp_weights"><code class="docutils literal notranslate"><span class="pre">ahp_weights()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.expert.ahp_consistency"><code class="docutils literal notranslate"><span class="pre">ahp_consistency()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.expert.combine_weights"><code class="docutils literal notranslate"><span class="pre">combine_weights()</span></code></a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    由 <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1创建。
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

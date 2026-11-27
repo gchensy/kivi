@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Vintage 与滚动率分析 &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=d005c095" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=14f9d491"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script src="../_static/translations.js?v=540d3cec"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/vintage';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="next" title="存续期 PD 与预期信用损失" href="lifetime.html" />
+    <link rel="prev" title="监管资本" href="capital.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+  <meta name="docsearch:version" content="1.9.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">跳转至主要内容</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>回到顶部</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="版本警告"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="网页导航" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 1.9.0">1.9.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    教程
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../../en/api/vintage.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="当前页面" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    教程
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../../en/api/vintage.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="章节导航">
+  <p class="bd-links__title" role="heading" aria-level="1">章节导航</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="conventions.html">约定</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compatibility.html">兼容性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">术语表</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">时间窗特征</a></li>
+<li class="toctree-l1"><a class="reference internal" href="univariate.html">单变量概况</a></li>
+<li class="toctree-l1"><a class="reference internal" href="binning.html">分箱</a></li>
+<li class="toctree-l1"><a class="reference internal" href="woe.html">证据权重与信息值</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selection.html">变量筛选</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reject_inference.html">拒绝推断</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scorecard.html">评分卡</a></li>
+<li class="toctree-l1"><a class="reference internal" href="expert.html">专家评分卡</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">模型表现</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">校准</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lgd.html">LGD 与 EAD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">信贷策略</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rules.html">政策规则</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spec.html">分箱方案</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stability.html">群体稳定性指标</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">模型监控</a></li>
+<li class="toctree-l1"><a class="reference internal" href="capital.html">监管资本</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">Vintage 与滚动率分析</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lifetime.html">存续期 PD 与预期信用损失</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html">图表</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">示例数据</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="初始页面">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../api.html" class="nav-link">API 参考</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Vintage 与滚动率分析</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="module-kivi.vintage">
+<span id="vintage-and-roll-rate-analysis"></span><h1>Vintage 与滚动率分析<a class="headerlink" href="#module-kivi.vintage" title="链接到此标题。">#</a></h1>
+<p>随着贷款账龄增长分析贷款面板。 <a class="reference internal" href="#kivi.vintage.delinquency_panel" title="kivi.vintage.delinquency_panel"><code class="xref py py-func docutils literal notranslate"><span class="pre">delinquency_panel()</span></code></a> 根据还款计划和还款记录构建面板， <a class="reference internal" href="#kivi.vintage.vintage_table" title="kivi.vintage.vintage_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">vintage_table()</span></code></a> 按账龄给出每个放款批次的累计坏账率， <a class="reference internal" href="#kivi.vintage.default_rate_table" title="kivi.vintage.default_rate_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">default_rate_table()</span></code></a> 由一系列起点月给出每个等级的一年违约率， <a class="reference internal" href="#kivi.vintage.transition_matrix" title="kivi.vintage.transition_matrix"><code class="xref py py-func docutils literal notranslate"><span class="pre">transition_matrix()</span></code></a> 和 <a class="reference internal" href="#kivi.vintage.roll_rates" title="kivi.vintage.roll_rates"><code class="xref py py-func docutils literal notranslate"><span class="pre">roll_rates()</span></code></a> 展示贷款在逾期档位或等级之间的迁移。 <a class="reference internal" href="#kivi.vintage.migration_bandwidth" title="kivi.vintage.migration_bandwidth"><code class="xref py py-func docutils literal notranslate"><span class="pre">migration_bandwidth()</span></code></a> 和 <a class="reference internal" href="#kivi.vintage.migration_test" title="kivi.vintage.migration_test"><code class="xref py py-func docutils literal notranslate"><span class="pre">migration_test()</span></code></a> 概括并检验评级等级之间的迁移。</p>
+<p>基于合成贷款面板、几份还款计划和模拟评级迁移的示例见 <a class="reference internal" href="../user_guide/vintage.html"><span class="doc">Vintage 与滚动率分析</span></a> 。</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.vintage.delinquency_panel" title="kivi.vintage.delinquency_panel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">delinquency_panel</span></code></a>(loan, due_date, ...[, ...])</p></td>
+<td><p>根据还款计划和还款记录构建月度逾期面板。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.vintage.vintage_table" title="kivi.vintage.vintage_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vintage_table</span></code></a>(loan, cohort, month_on_book, ...)</p></td>
+<td><p>按账龄列出每个批次的累计坏账率。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.vintage.default_rate_table" title="kivi.vintage.default_rate_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">default_rate_table</span></code></a>(loan, month, grade, ...)</p></td>
+<td><p>按队列法统计每个等级的一年违约率。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.vintage.transition_matrix" title="kivi.vintage.transition_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transition_matrix</span></code></a>(before, after, *[, ...])</p></td>
+<td><p>统计对象在两个状态之间的迁移次数。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.vintage.roll_rates" title="kivi.vintage.roll_rates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">roll_rates</span></code></a>(before, after, *[, states, weights])</p></td>
+<td><p>计算每个状态中滚动到下一状态的对象所占的比例。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.vintage.migration_bandwidth" title="kivi.vintage.migration_bandwidth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">migration_bandwidth</span></code></a>(before, after, *, grades)</p></td>
+<td><p>衡量客户在评级等级之间向上和向下迁移的幅度。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.vintage.migration_test" title="kivi.vintage.migration_test"><code class="xref py py-obj docutils literal notranslate"><span class="pre">migration_test</span></code></a>(before, after, *, grades[, ...])</p></td>
+<td><p>检验迁移频率是否随着远离矩阵对角线而下降。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.vintage.delinquency_panel">
+<span class="sig-prename descclassname"><span class="pre">kivi.vintage.</span></span><span class="sig-name descname"><span class="pre">delinquency_panel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">loan</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">due_date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">amount_due</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">payment_loan</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">payment_date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">payment_amount</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">origination</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">principal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.vintage.delinquency_panel" title="链接到此定义。">#</a></dt>
+<dd><p>根据还款计划和还款记录构建月度逾期面板。</p>
+<p>在每个月末，贷款拖欠的是已经到期但尚未还清的期款。此函数把每笔贷款的还款依次分配给它的各期期款，先还最早的一期，并为每笔贷款的每个月末给出一行，包括逾期天数、逾期状态、逾期金额和未还金额，即 <cite>vintage_table</cite> 、 <cite>transition_matrix</cite> 和 <cite>roll_rates</cite> 所用的贷款面板。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>loan</strong><span class="classifier">array_like</span></dt><dd><p>还款计划中每一期期款所属的贷款。各期期款不必排序。</p>
+</dd>
+<dt><strong>due_date</strong><span class="classifier">array_like</span></dt><dd><p>每一期期款的到期日，可以是日期，也可以是 <cite>pandas.to_datetime</cite> 能读取的字符串。一天中的时间会被忽略。</p>
+</dd>
+<dt><strong>amount_due</strong><span class="classifier">array_like</span></dt><dd><p>每一期期款的应还金额，必须有限且非负，例如在该日到期的本金和利息之和。</p>
+</dd>
+<dt><strong>payment_loan</strong><span class="classifier">array_like</span></dt><dd><p>每笔还款所属的贷款。每个值都必须是还款计划中的贷款；没有还款记录的贷款视为分文未还。还款记录不必排序，其 Series 可以使用任意索引。</p>
+</dd>
+<dt><strong>payment_date</strong><span class="classifier">array_like</span></dt><dd><p>每笔还款的日期，读取方式与 <cite>due_date</cite> 相同。</p>
+</dd>
+<dt><strong>payment_amount</strong><span class="classifier">array_like</span></dt><dd><p>每笔还款的金额，必须有限且非负。冲正应与被冲正的还款相互抵消后再传入。</p>
+</dd>
+<dt><strong>end</strong><span class="classifier">日期或月份</span></dt><dd><p>面板的最后一个月，例如 <code class="docutils literal notranslate"><span class="pre">&quot;2026-01&quot;</span></code> 、该月中的某个日期或一个 <cite>pandas.Period</cite> 。字符串按 <cite>pandas.Period</cite> 的方式读取；长于一个月的期间（例如 <code class="docutils literal notranslate"><span class="pre">&quot;2025Q4&quot;</span></code> ）以其最后一个月结束。截至该月最后一天的还款记录必须完整。</p>
+</dd>
+<dt><strong>origination</strong><span class="classifier">pandas.Series 或映射，可选</span></dt><dd><p>每笔贷款的放款日期，可以是以贷款为索引的 Series，也可以是从贷款到日期的映射，读取方式与 <cite>due_date</cite> 相同。它必须给出还款计划中每笔贷款的日期，也可以包含其他贷款。此时批次为放款月份，账龄从放款月份起算。默认情况下，两者都由首个到期日得出。</p>
+</dd>
+<dt><strong>principal</strong><span class="classifier">array_like，可选</span></dt><dd><p>每一期期款中的本金部分，介于 0 与该期应还金额之间，对应方式与 <cite>amount_due</cite> 相同。此时面板会增加一列 <code class="docutils literal notranslate"><span class="pre">balance</span></code> 。</p>
+</dd>
+<dt><strong>tolerance</strong><span class="classifier">float，默认 0.0</span></dt><dd><p>一期期款中仍可视为已还清的最大未还金额，例如几分钱的舍入误差。它只决定哪些期款算作已还清；面板中的金额保持精确。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.DataFrame</dt><dd><p>每笔贷款的每个月末一行，先按贷款、再按月份排序。各列含义见“说明”：包括 <cite>kivi.datasets.make_loan_panel</cite> 中还款计划能够给出的各列，顺序相同，以及逾期天数和欠款金额。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果还款计划的输入或还款记录的输入不是一维的、长度不同，或者是索引不同的 Series，或者还款计划为空。此外，如果贷款或日期有缺失值、日期无法读取、金额缺失、为负、无穷大或不是数字、 <cite>principal</cite> 大于 <cite>amount_due</cite> 、某笔还款所属的贷款不在还款计划中、 <cite>end</cite> 既不是日期也不是月份或者早于所有到期日所在的月份、 <cite>origination</cite> 既不是 Series 也不是映射、重复给出某笔贷款、缺少还款计划中的某笔贷款或其日期，或者晚于该贷款的首个到期日，或者 <cite>tolerance</cite> 不是有限的非负数，也会报错。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.vintage.vintage_table" title="kivi.vintage.vintage_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vintage_table</span></code></a></dt><dd><p>按批次和账龄统计的累计坏账率。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.vintage.transition_matrix" title="kivi.vintage.transition_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transition_matrix</span></code></a></dt><dd><p>贷款在逾期档位之间的迁移。</p>
+</dd>
+<dt><a class="reference internal" href="datasets.html#kivi.datasets.make_loan_panel" title="kivi.datasets.make_loan_panel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.datasets.make_loan_panel</span></code></a></dt><dd><p>状态与此相同的合成贷款面板。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>贷款从首个到期日所在的月份起，到 <cite>end</cite> 为止，每个月末都有一行。在所有期款都算作已还清的那个月末之后，贷款离开面板，提前还清时也是如此；而在最后一个到期日之后仍有拖欠的贷款会继续滚动，直到 <cite>end</cite> 。 <cite>end</cite> 之后的还款不会被使用，超出应还总额的金额也不会，例如多还的金额或贷款还清之后的还款：不存在贷方余额。</p>
+<p>在每个月末 <span class="math notranslate nohighlight">\(t\)</span> ，只计入在 <span class="math notranslate nohighlight">\(t\)</span> 当天或之前的还款。还款按到期日的顺序分配给各期期款，先还最早的未还清期款，同一天到期的期款按还款计划中的顺序处理，因此在期款到期之前支付的金额也计入该期。设 <span class="math notranslate nohighlight">\(C_k\)</span> 为按此顺序贷款截至第 <span class="math notranslate nohighlight">\(k\)</span> 期累计应还的金额， <span class="math notranslate nohighlight">\(P_t\)</span> 为截至 <span class="math notranslate nohighlight">\(t\)</span> 累计已还的金额，则当</p>
+<div class="math notranslate nohighlight">
+\[C_k - P_t \le \mathrm{tolerance},\]</div>
+<p>时，第 <span class="math notranslate nohighlight">\(k\)</span> 期在 <span class="math notranslate nohighlight">\(t\)</span> 算作已还清，也就是说，该期与之前各期合计的未还金额不超过 <cite>tolerance</cite> 。部分还款会使一期期款保持未还清状态，直到满足这一条件；而不超过 <cite>tolerance</cite> 的未还余数仍然欠着：之后的还款会先还它。因此，一旦贷款的未还金额不超过 <cite>tolerance</cite> ，它就离开面板；当 <cite>tolerance</cite> 不小于应还总额时，分文未还的贷款也会在第一个月就离开。与 <span class="math notranslate nohighlight">\(C_k\)</span> 相对差距在 <span class="math notranslate nohighlight">\(10^{-10}\)</span> 以内的金额视为已还清，这样分几次还清的期款不会因为求和的舍入误差而被视为未还清。同一天到期的期款会相加，因此因错误的连接而重复出现的还款计划行会使应还金额翻倍。</p>
+<p>设 <span class="math notranslate nohighlight">\(d\)</span> 为在 <span class="math notranslate nohighlight">\(t\)</span> 时尚未还清的最早一期期款的到期日。若 <span class="math notranslate nohighlight">\(d\)</span> 早于 <span class="math notranslate nohighlight">\(t\)</span> ，贷款逾期 <span class="math notranslate nohighlight">\(t - d\)</span> 天，否则逾期 0 天；期款在到期日当天不算逾期。</p>
+<p>各列为：</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">loan_id</span></code> ：贷款，标签与 <cite>loan</cite> 相同；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cohort</span></code> ：给出 <cite>origination</cite> 时为贷款的放款月份，否则为其首个到期日的前一个月，为月度 <cite>pandas.Period</cite> ；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">month</span></code> ：月份，为月度 <cite>pandas.Period</cite> ，在该月最后一天观测；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">month_on_book</span></code> ：以月计的 <code class="docutils literal notranslate"><span class="pre">month</span> <span class="pre">-</span> <span class="pre">cohort</span></code> 。不给出 <cite>origination</cite> 时，它在首个到期日所在的月份为 1，与 <cite>kivi.datasets.make_loan_panel</cite> 相同，后者的首期期款在放款一个月后到期。给出 <cite>origination</cite> 时，首期期款在宽限期之后才到期的贷款，其第一行出现在更大的账龄上；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">days_past_due</span></code> ：逾期天数，定义见上文；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">overdue_amount</span></code> ：在月末之前到期的各期期款的未还金额；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">outstanding</span></code> ：所有期款的未还金额，无论是否逾期；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">balance</span></code> ，仅在给出 <cite>principal</cite> 时才有：所有期款的未还本金。一笔还款先还一期期款的利息（即应还金额减去本金），再还其本金；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">status</span></code> ：以有序分类变量表示的逾期天数，类别依次为 <code class="docutils literal notranslate"><span class="pre">current</span></code> （0 天）、 <code class="docutils literal notranslate"><span class="pre">1-29</span></code> 、 <code class="docutils literal notranslate"><span class="pre">30-59</span></code> 、 <code class="docutils literal notranslate"><span class="pre">60-89</span></code> 和 <code class="docutils literal notranslate"><span class="pre">90+</span></code> （90 天及以上），与 <cite>kivi.datasets.make_loan_panel</cite> 的状态相同。</p></li>
+</ul>
+<p>不给出 <cite>origination</cite> 时，同月放款但宽限期长短不同的贷款会落入不同的批次。给出它时，所有贷款都有宽限期的批次在 <cite>vintage_table</cite> 中从更大的账龄开始，更早的账龄为 NaN。</p>
+<p>月末的逾期天数并不总是每月前进一个档位。1 月 31 日到期且一直未还的期款，在 2 月末逾期 29 天，在 3 月末逾期 60 天，因此跳过了 <code class="docutils literal notranslate"><span class="pre">30-59</span></code> 。</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.vintage</span><span class="w"> </span><span class="kn">import</span> <span class="n">delinquency_panel</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">loan</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"A"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">3</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"B"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">3</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">due_date</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"2024-01-15"</span><span class="p">,</span> <span class="s2">"2024-02-15"</span><span class="p">,</span> <span class="s2">"2024-03-15"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">amount_due</span> <span class="o">=</span> <span class="p">[</span><span class="mf">100.0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">6</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">payment_loan</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"A"</span><span class="p">,</span> <span class="s2">"A"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">payment_date</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"2024-01-15"</span><span class="p">,</span> <span class="s2">"2024-03-20"</span><span class="p">,</span> <span class="s2">"2024-01-12"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">payment_amount</span> <span class="o">=</span> <span class="p">[</span><span class="mf">100.0</span><span class="p">,</span> <span class="mf">200.0</span><span class="p">,</span> <span class="mf">200.0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">panel</span> <span class="o">=</span> <span class="n">delinquency_panel</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">loan</span><span class="p">,</span> <span class="n">due_date</span><span class="p">,</span> <span class="n">amount_due</span><span class="p">,</span> <span class="n">payment_loan</span><span class="p">,</span> <span class="n">payment_date</span><span class="p">,</span> <span class="n">payment_amount</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">"2024-05"</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">panel</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">"cohort"</span><span class="p">,</span> <span class="s2">"month_on_book"</span><span class="p">])</span>
+<span class="go">  loan_id    month  days_past_due  overdue_amount  outstanding   status</span>
+<span class="go">0       A  2024-01              0             0.0        200.0  current</span>
+<span class="go">1       A  2024-02             14           100.0        200.0     1-29</span>
+<span class="go">2       A  2024-03              0             0.0          0.0  current</span>
+<span class="go">3       B  2024-01              0             0.0        100.0  current</span>
+<span class="go">4       B  2024-02              0             0.0        100.0  current</span>
+<span class="go">5       B  2024-03             16           100.0        100.0     1-29</span>
+<span class="go">6       B  2024-04             46           100.0        100.0    30-59</span>
+<span class="go">7       B  2024-05             77           100.0        100.0    60-89</span>
+</pre></div>
+</div>
+<p>贷款 A 没有还 2 月的期款，并在 3 月 20 日（2 月末之后）连同 3 月的期款一起还上，因此它在 2 月末逾期 14 天，在 3 月末已经还清。贷款 B 在 1 月还了两期，因此 2 月仍为正常；它没有还最后一期，所以在最后一个到期日之后继续滚动。</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.vintage.vintage_table">
+<span class="sig-prename descclassname"><span class="pre">kivi.vintage.</span></span><span class="sig-name descname"><span class="pre">vintage_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">loan</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cohort</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">month_on_book</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bad</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.vintage.vintage_table" title="链接到此定义。">#</a></dt>
+<dd><p>按账龄列出每个批次的累计坏账率。</p>
+<p>Vintage 表（账龄表）跟踪每个贷款批次（通常是同一个月发放的贷款）随账龄增长的表现。某个批次在某个账龄上的取值，是该批次贷款中在该账龄或更早时已变坏的比例，因此每一行都不会递减。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>loan</strong><span class="classifier">array_like</span></dt><dd><p>面板中每一行所属贷款的标识。每笔贷款在每个账龄最多有一行，各行无需排序。</p>
+</dd>
+<dt><strong>cohort</strong><span class="classifier">array_like</span></dt><dd><p>每一行的批次，例如放款月份。同一笔贷款的每一行批次必须相同。批次会被排序；分类型批次按其类别顺序排列。</p>
+</dd>
+<dt><strong>month_on_book</strong><span class="classifier">array_like</span></dt><dd><p>每一行距放款的整月数，不能为负。</p>
+</dd>
+<dt><strong>bad</strong><span class="classifier">array_like</span></dt><dd><p>该贷款在该账龄时是否为坏，取布尔值或 0 和 1。坏的定义以状态上的条件传入，例如 <code class="docutils literal notranslate"><span class="pre">status</span> <span class="pre">==</span> <span class="pre">&quot;90+&quot;</span></code> ；对于有序分类变量，也可以写成 <code class="docutils literal notranslate"><span class="pre">status</span> <span class="pre">&gt;=</span> <span class="pre">&quot;60-89&quot;</span></code> 。</p>
+</dd>
+<dt><strong>weights</strong><span class="classifier">array_like，可选</span></dt><dd><p>每笔贷款的非负权重，例如放款金额，在该贷款的每一行重复给出。此时表中报告的是批次权重中属于坏贷款的比例，权重之和为零的批次会被排除。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.DataFrame</dt><dd><p>累计坏账率：每个批次一行，面板中每个不同的账龄一列。在批次被观测的账龄范围（从其各行中最小的账龄到最大的账龄）之外，取值为 NaN。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果输入为空、不是一维的或长度不同，或者是索引不同的 Series。此外，如果 <cite>loan</cite> 或 <cite>cohort</cite> 含有缺失值，某笔贷款属于多个批次或在同一账龄有多行， <cite>month_on_book</cite> 含有不是非负整数的值， <cite>bad</cite> 含有 0 和 1 以外的值，或 <cite>weights</cite> 无效或在同一贷款的各行之间不一致，也会抛出此异常。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.vintage.transition_matrix" title="kivi.vintage.transition_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transition_matrix</span></code></a></dt><dd><p>从一个月到另一个月在各状态之间的迁移。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.vintage.roll_rates" title="kivi.vintage.roll_rates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">roll_rates</span></code></a></dt><dd><p>每个逾期档位滚动到下一档位的比例。</p>
+</dd>
+<dt><a class="reference internal" href="datasets.html#kivi.datasets.make_loan_panel" title="kivi.datasets.make_loan_panel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.datasets.make_loan_panel</span></code></a></dt><dd><p>可用于试用此函数的合成贷款面板。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>设 <span class="math notranslate nohighlight">\(L_c\)</span> 为批次 <span class="math notranslate nohighlight">\(c\)</span> 的贷款， <span class="math notranslate nohighlight">\(\tau_i\)</span> 为贷款 <span class="math notranslate nohighlight">\(i\)</span> 首次为坏的账龄（从未变坏时为无穷大）， <span class="math notranslate nohighlight">\(w_i\)</span> 为其权重（不传 <cite>weights</cite> 时为 1）。账龄 <span class="math notranslate nohighlight">\(k\)</span> 处的取值为</p>
+<div class="math notranslate nohighlight">
+\[V_{c,k} = \frac{\sum_{i \in L_c} w_i \, [\tau_i \le k]}
+               {\sum_{i \in L_c} w_i}.\]</div>
+<p>分母包括批次中的每一笔贷款，也包括提前离开面板的贷款（例如已经还清）；这类贷款只有在离开前变坏过才算作坏。贷款一旦变坏，即使之后回到正常，也一直算作坏。</p>
+<p>批次的观测范围从其各行中最小的账龄到最大的账龄，范围之外的取值为 NaN 而不是 0。之后的账龄缺失，是因为该批次的账龄还太短，看不出其贷款是否会变坏；之前的账龄缺失，是因为面板在该批次发放之后才开始。只在面板开始之前变坏过的贷款不会被计入，因此应尽量让面板从放款时开始。在相同账龄上比较各批次，就是在相同的“年龄”上比较它们，从而把新增放款质量的变化与资产组合的账龄成熟效应区分开。</p>
+<p>有两种情况需要注意。如果某个批次的所有贷款都在面板结束前离开（例如全部已经还清），该批次的最后一个取值已是最终结果，但其之后的账龄仍为 NaN；要补齐这些取值，可以在贷款离开后的每个月末保留一行，状态设为不算坏的值，例如 <code class="docutils literal notranslate"><span class="pre">&quot;closed&quot;</span></code> 。另外，跨越多个放款月的批次（例如按季度划分的批次）混合了不同账龄的贷款：在其最大的几个账龄上，最年轻的贷款虽然还没有被观测到这么久，却计入了分母，使这些取值偏低。按月划分批次可以避免这一问题。</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.vintage</span><span class="w"> </span><span class="kn">import</span> <span class="n">vintage_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">loan</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cohort</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"2024-01"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">6</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"2024-02"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">4</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">month_on_book</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">status</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"current"</span><span class="p">,</span> <span class="s2">"90+"</span><span class="p">,</span> <span class="s2">"current"</span><span class="p">,</span> <span class="s2">"current"</span><span class="p">,</span> <span class="s2">"current"</span><span class="p">,</span> <span class="s2">"current"</span><span class="p">,</span>
+<span class="gp">... </span>          <span class="s2">"90+"</span><span class="p">,</span> <span class="s2">"90+"</span><span class="p">,</span> <span class="s2">"current"</span><span class="p">,</span> <span class="s2">"current"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bad</span> <span class="o">=</span> <span class="p">[</span><span class="n">value</span> <span class="o">==</span> <span class="s2">"90+"</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">status</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vintage_table</span><span class="p">(</span><span class="n">loan</span><span class="p">,</span> <span class="n">cohort</span><span class="p">,</span> <span class="n">month_on_book</span><span class="p">,</span> <span class="n">bad</span><span class="p">)</span>
+<span class="go">month_on_book    1    2    3</span>
+<span class="go">cohort</span>
+<span class="go">2024-01        0.0  0.5  0.5</span>
+<span class="go">2024-02        0.5  0.5  NaN</span>
+</pre></div>
+</div>
+<p>贷款 1 在账龄 2 之后回到正常，但仍算作坏；2024-02 批次尚未达到账龄 3。</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.vintage.default_rate_table">
+<span class="sig-prename descclassname"><span class="pre">kivi.vintage.</span></span><span class="sig-name descname"><span class="pre">default_rate_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">loan</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">month</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grade</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">defaulted</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">horizon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">12</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">starts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">probability</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.vintage.default_rate_table" title="链接到此定义。">#</a></dt>
+<dd><p>按队列法统计每个等级的一年违约率。</p>
+<p>每个起点月形成一个队列，由该月末未违约的贷款组成，按它们在该月的等级分组。一个等级的违约率，是其队列中在此后 <cite>horizon</cite> 个月里至少有一个月处于违约的比例，这就是 IRB 的 PD 校准和验证所用的一年违约率。在这些月份中离开面板的贷款仍留在队列中。</p>
+<dl class="field-list">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>loan</strong><span class="classifier">array_like</span></dt><dd><p>月度面板中每一行所属贷款的标识；违约定义适用于债务人时，传债务人的标识。每笔贷款每月最多有一行，各行无需排序。</p>
+</dd>
+<dt><strong>month</strong><span class="classifier">array_like</span></dt><dd><p>每一行的月份，表示月末的状态：月度 Period，或按其自身日历代表其所在月的日期时间，例如 <cite>delinquency_panel</cite> 的 <code class="docutils literal notranslate"><span class="pre">month</span></code> 。</p>
+</dd>
+<dt><strong>grade</strong><span class="classifier">array_like</span></dt><dd><p>每一行的等级或池。只用起点月那一行，所以之后的迁移不会把贷款移到另一个等级。分类型的等级按类别顺序排列，其他等级排序。缺失的等级单独成一行，排在最后。</p>
+</dd>
+<dt><strong>defaulted</strong><span class="classifier">array_like</span></dt><dd><p>贷款当月是否处于违约，为布尔值或 0 与 1，例如 <code class="docutils literal notranslate"><span class="pre">status</span> <span class="pre">==</span> <span class="pre">&quot;90+&quot;</span></code> 。</p>
+</dd>
+<dt><strong>horizon</strong><span class="classifier">int，默认 12</span></dt><dd><p>每个起点月之后的月数，一年违约率为 12。</p>
+</dd>
+<dt><strong>starts</strong><span class="classifier">array_like，可选</span></dt><dd><p>各队列的起点月，可以是 Period、日期或字符串；字符串按 <cite>pandas.Period</cite> 读取，代表其最后一个月，所以 <code class="docutils literal notranslate"><span class="pre">&quot;2024Q2&quot;</span></code> 是 2024 年 6 月。每个起点之后的 <cite>horizon</cite> 个月必须都在面板内。默认取面板第一个月起的每个季末，只保留 <cite>horizon</cite> 个月在面板最后一个月或之前结束的。</p>
+</dd>
+<dt><strong>probability</strong><span class="classifier">array_like，可选</span></dt><dd><p>每一行的 PD，介于 0 与 1 之间。表格会给出每个队列在起点月的平均 PD。只检查队列中的行是否有缺失值，所以违约的行可以留空。</p>
+</dd>
+<dt><strong>weights</strong><span class="classifier">array_like，可选</span></dt><dd><p>每一行的非负频数权重，例如抽样率的倒数；用的是贷款在起点月那一行的权重。权重之和为零的分组被略去。PD 校准按债务人计数，不要按敞口加权（巴塞尔 CRE36.78）。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt>pandas.DataFrame</dt><dd><p>每个起点月和队列中有债务人的等级各一行，二级索引为 <code class="docutils literal notranslate"><span class="pre">start</span></code> （月度 Period）和 <code class="docutils literal notranslate"><span class="pre">grade</span></code> ，先按起点月、再按等级排序。各列为：</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">total</span></code> ：队列中的贷款数，或它们的权重之和；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">event</span></code> ：其中在起点月之后的 <cite>horizon</cite> 个月里至少有一个月处于违约的；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">exited</span></code> ：其中在这些月份里没有违约、且最后一行早于其中最后一个月的，例如已偿清、出售或核销的贷款；它们计入 <code class="docutils literal notranslate"><span class="pre">total</span></code> ；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">event_rate</span></code> ： <code class="docutils literal notranslate"><span class="pre">event</span> <span class="pre">/</span> <span class="pre">total</span></code> ，即违约率；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mean_probability</span></code> ：队列在起点月的平均 PD，仅在给出 <cite>probability</cite> 时才有。</p></li>
+</ul>
+<p>不给 <cite>weights</cite> 时计数为整数，给出时为权重之和。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果输入为空、不是一维、长度不同，或者是索引不同的 Series。此外，如果 <cite>loan</cite> 或 <cite>month</cite> 有缺失值，某笔贷款在同一个月有两行， <cite>month</cite> 不是月度 Period 或日期时间， <cite>defaulted</cite> 有 0 与 1 以外的值， <cite>horizon</cite> 不是正整数， <cite>starts</cite> 不是一组互不相同、且之后 <cite>horizon</cite> 个月都在面板内的月份，面板不包含任何一个季末及其后的 <cite>horizon</cite> 个月，或者 <cite>probability</cite> 或 <cite>weights</cite> 无效，也会引发此异常。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.vintage.vintage_table" title="kivi.vintage.vintage_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vintage_table</span></code></a></dt><dd><p>按放款批次和账龄统计的累计坏账率。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.vintage.transition_matrix" title="kivi.vintage.transition_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transition_matrix</span></code></a></dt><dd><p>从一个月到另一个月在各等级之间的迁移。</p>
+</dd>
+<dt><a class="reference internal" href="calibration.html#kivi.calibration.jeffreys_test" title="kivi.calibration.jeffreys_test"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.calibration.jeffreys_test</span></code></a></dt><dd><p>检验每个等级的 PD 与其违约率是否相符。</p>
+</dd>
+<dt><a class="reference internal" href="calibration.html#kivi.calibration.central_tendency_shift" title="kivi.calibration.central_tendency_shift"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.calibration.central_tendency_shift</span></code></a></dt><dd><p>把 PD 平移到长期平均违约率。</p>
+</dd>
+<dt><a class="reference internal" href="capital.html#kivi.capital.vasicek_fit" title="kivi.capital.vasicek_fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.capital.vasicek_fit</span></code></a></dt><dd><p>由每年的违约率估计长期 PD 和资产相关系数。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>设 <span class="math notranslate nohighlight">\(C_{r,g}\)</span> 为在起点月 <span class="math notranslate nohighlight">\(r\)</span> 有一行、该月未违约、且该月等级为 <span class="math notranslate nohighlight">\(g\)</span> 的贷款， <span class="math notranslate nohighlight">\(w_i\)</span> 为贷款 <span class="math notranslate nohighlight">\(i\)</span> 在 <span class="math notranslate nohighlight">\(r\)</span> 那一行的权重，不给 <cite>weights</cite> 时为 1。记 <span class="math notranslate nohighlight">\(h\)</span> 为 <cite>horizon</cite> ，违约率为</p>
+<div class="math notranslate nohighlight">
+\[\mathrm{DR}_{r,g} = \frac{\sum_{i \in C_{r,g}} w_i \,
+    [\text{loan } i \text{ is in default in a month } m,\ r &lt; m \le r + h]}
+    {\sum_{i \in C_{r,g}} w_i}.\]</div>
+<p>这就是 EBA 的 PD 估计指引 <a class="reference internal" href="#r32bc58eab3c2-1" id="id1">[1]</a> （第 73 至 77 段）和欧洲央行验证报告说明 <a class="reference internal" href="#r32bc58eab3c2-2" id="id2">[2]</a> （第 2.3 节）中的一年违约率：分母是起点时未违约的全部债务人，分子是其中一年内至少违约一次的，违约两次的债务人只计一次。一年内迁移到其他等级或模型、或者被偿清、出售或核销的贷款仍留在分母中，只要面板保留它们的行，它们的违约就会计入（第 76 段）。窗口中某些月份没有行的贷款，在这些月份视为未违约，因此不像生存曲线那样被删失；贷款大量离开时，生存曲线给出的比率更高。 <code class="docutils literal notranslate"><span class="pre">exited</span></code> 列给出离开的贷款数，供第 76 段和第 80 段要求的偏差分析使用。缺失的等级单独成一行，因为第 75 段要求对起点时没有评级的债务人也计算违约率；欧洲央行的报告则把他们排除在外（第 2.5.1 节）。</p>
+<p>指引要求至少按季度评估一年违约率（第 78 段），默认的 <cite>starts</cite> 正是如此；至于用这样的重叠窗口，还是每年一个起点月的不重叠窗口，由对其偏差的分析决定（第 80 段）。观察平均违约率是各一年违约率的算术平均（第 81 段），长期平均则是在能代表违约率可能变化范围的期间（至少五年）上的这一平均（第 82 至 86 段）。</p>
+<p>月末状态会漏掉在一个月内开始又结束的违约，所以 <cite>defaulted</cite> 应标记贷款在当月任何时候处于违约的月份，包括其后的考察期。去掉技术性违约和其他误记的违约。</p>
+<p class="rubric">参考文献</p>
+<div role="list" class="citation-list">
+<div class="citation" id="r32bc58eab3c2-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>European Banking Authority, &quot;Guidelines on PD estimation, LGD estimation and the treatment of defaulted exposures&quot;, EBA/GL/2017/16，第 5.3 节，2017 年。</p>
+</div>
+<div class="citation" id="r32bc58eab3c2-2" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">2</a><span class="fn-bracket">]</span></span>
+<p>European Central Bank, &quot;Instructions for reporting the validation results of internal models: IRB Pillar I models for credit risk&quot;，2019 年 2 月。</p>
+</div>
+</div>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.vintage</span><span class="w"> </span><span class="kn">import</span> <span class="n">default_rate_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">months</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"2024-</span><span class="si">{</span><span class="n">number</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">number</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rows</span> <span class="o">=</span> <span class="p">(</span>
+<span class="gp">... </span>    <span class="p">[(</span><span class="mi">1</span><span class="p">,</span> <span class="n">month</span><span class="p">,</span> <span class="s2">"A"</span><span class="p">,</span> <span class="n">month</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"2024-05"</span><span class="p">,</span> <span class="s2">"2024-06"</span><span class="p">))</span> <span class="k">for</span> <span class="n">month</span> <span class="ow">in</span> <span class="n">months</span><span class="p">]</span>
+<span class="gp">... </span>    <span class="o">+</span> <span class="p">[(</span><span class="mi">2</span><span class="p">,</span> <span class="n">month</span><span class="p">,</span> <span class="s2">"A"</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="k">for</span> <span class="n">month</span> <span class="ow">in</span> <span class="n">months</span><span class="p">[:</span><span class="mi">4</span><span class="p">]]</span>
+<span class="gp">... </span>    <span class="o">+</span> <span class="p">[(</span><span class="mi">3</span><span class="p">,</span> <span class="n">month</span><span class="p">,</span> <span class="s2">"B"</span> <span class="k">if</span> <span class="n">month</span> <span class="o">&lt;</span> <span class="s2">"2024-08"</span> <span class="k">else</span> <span class="s2">"A"</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="k">for</span> <span class="n">month</span> <span class="ow">in</span> <span class="n">months</span><span class="p">]</span>
+<span class="gp">... </span>    <span class="o">+</span> <span class="p">[(</span><span class="mi">4</span><span class="p">,</span> <span class="n">month</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="n">month</span> <span class="o">&gt;=</span> <span class="s2">"2024-08"</span><span class="p">)</span> <span class="k">for</span> <span class="n">month</span> <span class="ow">in</span> <span class="n">months</span><span class="p">]</span>
+<span class="gp">... </span>    <span class="o">+</span> <span class="p">[(</span><span class="mi">5</span><span class="p">,</span> <span class="n">month</span><span class="p">,</span> <span class="s2">"A"</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="k">for</span> <span class="n">month</span> <span class="ow">in</span> <span class="n">months</span><span class="p">[</span><span class="mi">4</span><span class="p">:]]</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">panel</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">"loan"</span><span class="p">,</span> <span class="s2">"month"</span><span class="p">,</span> <span class="s2">"grade"</span><span class="p">,</span> <span class="s2">"defaulted"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">panel</span><span class="p">[</span><span class="s2">"month"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">PeriodIndex</span><span class="p">(</span><span class="n">panel</span><span class="p">[</span><span class="s2">"month"</span><span class="p">],</span> <span class="n">freq</span><span class="o">=</span><span class="s2">"M"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">default_rate_table</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">panel</span><span class="p">[</span><span class="s2">"loan"</span><span class="p">],</span> <span class="n">panel</span><span class="p">[</span><span class="s2">"month"</span><span class="p">],</span> <span class="n">panel</span><span class="p">[</span><span class="s2">"grade"</span><span class="p">],</span> <span class="n">panel</span><span class="p">[</span><span class="s2">"defaulted"</span><span class="p">],</span> <span class="n">horizon</span><span class="o">=</span><span class="mi">3</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="go">               total  event  exited  event_rate</span>
+<span class="go">start   grade</span>
+<span class="go">2024-03 A          2      1       1         0.5</span>
+<span class="go">        B          2      0       0         0.0</span>
+<span class="go">2024-06 A          1      0       0         0.0</span>
+<span class="go">        B          2      1       0         0.5</span>
+</pre></div>
+</div>
+<p>贷款 1 在 5 月违约，不在 6 月的队列中；贷款 2 在 4 月之后偿清，计为未违约；贷款 3 在 8 月移到等级 A，但仍留在等级 B；贷款 5 在 5 月进入面板。</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.vintage.transition_matrix">
+<span class="sig-prename descclassname"><span class="pre">kivi.vintage.</span></span><span class="sig-name descname"><span class="pre">transition_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">before</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">after</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">states</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.vintage.transition_matrix" title="链接到此定义。">#</a></dt>
+<dd><p>统计对象在两个状态之间的迁移次数。</p>
+<p>每个对象（例如一笔贷款或一位债务人）先后各在一个状态上被观测，例如相邻两个月末的逾期档位，或两次年度复评时的评级。第 <span class="math notranslate nohighlight">\(i\)</span> 行、第 <span class="math notranslate nohighlight">\(j\)</span> 列统计从状态 <span class="math notranslate nohighlight">\(i\)</span> 迁移到状态 <span class="math notranslate nohighlight">\(j\)</span> 的对象数。设置 <cite>normalize</cite> 后，每一行给出之后各状态所占的比例，即评级体系的转移矩阵。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>before, after</strong><span class="classifier">array_like</span></dt><dd><p>每个对象在第一次和第二次观测时的状态。如果二者都是 Series，索引必须完全相同；否则按位置对应。二者都不能含有缺失值：请删除没有被观测两次的对象，或给已离开的对象一个单独的状态，例如 <code class="docutils literal notranslate"><span class="pre">&quot;closed&quot;</span></code> 。</p>
+</dd>
+<dt><strong>states</strong><span class="classifier">array_like，可选</span></dt><dd><p>按顺序排列的全部状态；对于逾期档位和评级，从最好到最差排列。没有对象的状态仍会占一行一列。默认取分类型输入的类别（此时两个输入的类别必须相同），否则取排序后的不同取值。排序会把 <code class="docutils literal notranslate"><span class="pre">&quot;current&quot;</span></code> 这样的标签排在 <code class="docutils literal notranslate"><span class="pre">&quot;90+&quot;</span></code> 之后，因此对于逾期档位，请传入 <cite>states</cite> 或使用有序分类变量。状态不能为缺失值。</p>
+</dd>
+<dt><strong>normalize</strong><span class="classifier">bool，默认 False</span></dt><dd><p>如果为 True，每一行除以该行合计，使其给出该状态的对象迁移到各状态的比例。此时没有对象的行为 NaN。</p>
+</dd>
+<dt><strong>weights</strong><span class="classifier">array_like，可选</span></dt><dd><p>每个对象的非负权重，例如第一次观测时的余额，对应方式与 <cite>after</cite> 相同。此时计数为权重之和。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.DataFrame</dt><dd><p>之前的每个状态一行，之后的每个状态一列，按 <cite>states</cite> 的顺序排列。不传 <cite>weights</cite> 且不设置 <cite>normalize</cite> 时，取值为整数计数。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果输入为空、不是一维的、长度不同或是索引不同的 Series，含有缺失值或不属于 <cite>states</cite> 的值，或 <cite>weights</cite> 无效。此外，如果 <cite>states</cite> 不是一维的、有重复值或缺失值，或者未给出 <cite>states</cite> 而 <cite>before</cite> 和 <cite>after</cite> 是类别不同的分类变量，或者 <cite>normalize</cite> 不是布尔值，也会抛出此异常。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.vintage.roll_rates" title="kivi.vintage.roll_rates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">roll_rates</span></code></a></dt><dd><p>每个状态中迁移到下一个更差状态的比例。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.vintage.vintage_table" title="kivi.vintage.vintage_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vintage_table</span></code></a></dt><dd><p>按批次和账龄统计的累计坏账率。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>设有 <span class="math notranslate nohighlight">\(n_{ij}\)</span> 个对象从状态 <span class="math notranslate nohighlight">\(i\)</span> 迁移到状态 <span class="math notranslate nohighlight">\(j\)</span> ，则归一化后的取值</p>
+<div class="math notranslate nohighlight">
+\[p_{ij} = \frac{n_{ij}}{\sum_k n_{ik}}\]</div>
+<p>估计了从 <span class="math notranslate nohighlight">\(i\)</span> 迁移到 <span class="math notranslate nohighlight">\(j\)</span> 的概率。如果迁移服从时齐马尔可夫链，归一化矩阵的 <span class="math notranslate nohighlight">\(h\)</span> 次幂给出 <span class="math notranslate nohighlight">\(h\)</span> 期内的迁移概率。</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.vintage</span><span class="w"> </span><span class="kn">import</span> <span class="n">transition_matrix</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">before</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"A"</span><span class="p">,</span> <span class="s2">"A"</span><span class="p">,</span> <span class="s2">"A"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"C"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">after</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"A"</span><span class="p">,</span> <span class="s2">"A"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"C"</span><span class="p">,</span> <span class="s2">"C"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">transition_matrix</span><span class="p">(</span><span class="n">before</span><span class="p">,</span> <span class="n">after</span><span class="p">,</span> <span class="n">states</span><span class="o">=</span><span class="p">[</span><span class="s2">"A"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"C"</span><span class="p">,</span> <span class="s2">"D"</span><span class="p">])</span>
+<span class="go">after   A  B  C  D</span>
+<span class="go">before</span>
+<span class="go">A       2  1  0  0</span>
+<span class="go">B       0  1  1  0</span>
+<span class="go">C       0  0  1  0</span>
+<span class="go">D       0  0  0  0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">transition_matrix</span><span class="p">(</span><span class="n">before</span><span class="p">,</span> <span class="n">after</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">after       A      B    C</span>
+<span class="go">before</span>
+<span class="go">A       0.667  0.333  0.0</span>
+<span class="go">B       0.000  0.500  0.5</span>
+<span class="go">C       0.000  0.000  1.0</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.vintage.roll_rates">
+<span class="sig-prename descclassname"><span class="pre">kivi.vintage.</span></span><span class="sig-name descname"><span class="pre">roll_rates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">before</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">after</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">states</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.vintage.roll_rates" title="链接到此定义。">#</a></dt>
+<dd><p>计算每个状态中滚动到下一状态的对象所占的比例。</p>
+<p>滚动率概括了两个月末之间逾期状态的变化：逾期 <code class="docutils literal notranslate"><span class="pre">30-59</span></code> 天的滚动率，是逾期 30 到 59 天的贷款中一个月后逾期 60 到 89 天的比例。状态必须从最好到最差排列，这样下一个状态就是更差的一档。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>before, after</strong><span class="classifier">array_like</span></dt><dd><p>每个对象在第一次和第二次观测时的状态，与 <cite>transition_matrix</cite> 相同。二者都不能含有缺失值。</p>
+</dd>
+<dt><strong>states</strong><span class="classifier">array_like，可选</span></dt><dd><p>从最好到最差排列的全部状态。除非 <cite>before</cite> 和 <cite>after</cite> 是类别相同的有序分类变量（此时使用其类别顺序），否则必须传入。对大多数标签来说，排序得到的顺序是错误的，例如 <code class="docutils literal notranslate"><span class="pre">&quot;current&quot;</span></code> 会排在 <code class="docutils literal notranslate"><span class="pre">&quot;90+&quot;</span></code> 之后。</p>
+</dd>
+<dt><strong>weights</strong><span class="classifier">array_like，可选</span></dt><dd><p>每个对象的非负权重，例如第一次观测时的余额，对应方式与 <cite>after</cite> 相同。此时滚动率是权重的比例，即余额滚动率。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.Series</dt><dd><p>除最差状态（没有下一个状态）外每个状态的滚动率，以状态为索引。没有对象的状态，其滚动率为 NaN。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>与 <cite>transition_matrix</cite> 在相同的情况下抛出；此外，如果未给出 <cite>states</cite> 而 <cite>before</cite> 和 <cite>after</cite> 不是有序分类变量，也会抛出。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.vintage.transition_matrix" title="kivi.vintage.transition_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transition_matrix</span></code></a></dt><dd><p>所有状态两两之间的迁移。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.vintage.vintage_table" title="kivi.vintage.vintage_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vintage_table</span></code></a></dt><dd><p>按批次和账龄统计的累计坏账率。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>设有 <span class="math notranslate nohighlight">\(n_{ij}\)</span> 个对象从状态 <span class="math notranslate nohighlight">\(i\)</span> 迁移到状态 <span class="math notranslate nohighlight">\(j\)</span> ，则状态 <span class="math notranslate nohighlight">\(i\)</span> 的滚动率为</p>
+<div class="math notranslate nohighlight">
+\[r_i = \frac{n_{i,i+1}}{\sum_k n_{ik}}.\]</div>
+<p>状态改善、保持不变或恶化超过一档的对象只计入分母。从一个月末到下一个月末，贷款最多再恶化一个逾期档位，因此如果迁移服从马尔可夫链，各滚动率的乘积估计了正常贷款在经过与滚动次数相同的月数后处于最差档位的比例。</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.vintage</span><span class="w"> </span><span class="kn">import</span> <span class="n">roll_rates</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">states</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"current"</span><span class="p">,</span> <span class="s2">"30"</span><span class="p">,</span> <span class="s2">"60"</span><span class="p">,</span> <span class="s2">"90+"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">before</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"current"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">4</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"30"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">3</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"60"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"90+"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">after</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"current"</span><span class="p">,</span> <span class="s2">"current"</span><span class="p">,</span> <span class="s2">"current"</span><span class="p">,</span> <span class="s2">"30"</span><span class="p">,</span>
+<span class="gp">... </span>         <span class="s2">"current"</span><span class="p">,</span> <span class="s2">"30"</span><span class="p">,</span> <span class="s2">"60"</span><span class="p">,</span> <span class="s2">"60"</span><span class="p">,</span> <span class="s2">"90+"</span><span class="p">,</span> <span class="s2">"90+"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">roll_rates</span><span class="p">(</span><span class="n">before</span><span class="p">,</span> <span class="n">after</span><span class="p">,</span> <span class="n">states</span><span class="o">=</span><span class="n">states</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">before</span>
+<span class="go">current    0.250</span>
+<span class="go">30         0.333</span>
+<span class="go">60         0.500</span>
+<span class="go">Name: roll_rate, dtype: float64</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.vintage.migration_bandwidth">
+<span class="sig-prename descclassname"><span class="pre">kivi.vintage.</span></span><span class="sig-name descname"><span class="pre">migration_bandwidth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">before</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">after</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">grades</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.vintage.migration_bandwidth" title="链接到此定义。">#</a></dt>
+<dd><p>衡量客户在评级等级之间向上和向下迁移的幅度。</p>
+<p>欧洲央行的矩阵加权带宽（MWB） <a class="reference internal" href="#r1b9b2b3017a6-1" id="id5">[1]</a> 用两个数概括迁移矩阵：迁往较差等级的客户迁移了多远，迁往较好等级的客户迁移了多远，二者都相对于从其等级向任一方向迁移的最远距离。稳定的评级体系这两个值都较小。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>before</strong><span class="classifier">array_like</span></dt><dd><p>每个客户在观察期开始时的等级。每个值都必须属于 <cite>grades</cite> 。</p>
+</dd>
+<dt><strong>after</strong><span class="classifier">array_like</span></dt><dd><p>每个客户在观察期结束时的状态：一个等级，或者对离开这些等级的客户使用其他任意标签，例如 <code class="docutils literal notranslate"><span class="pre">&quot;default&quot;</span></code> 或 <code class="docutils literal notranslate"><span class="pre">&quot;closed&quot;</span></code> 。如果 <cite>before</cite> 和 <cite>after</cite> 都是 Series，二者的索引必须完全相同；否则按位置对应。二者都不能含有缺失值。</p>
+</dd>
+<dt><strong>grades</strong><span class="classifier">array_like</span></dt><dd><p>评级标尺中非违约客户的 <span class="math notranslate nohighlight">\(K\)</span> 个等级，从最好到最差排列，至少两个。</p>
+</dd>
+<dt><strong>weights</strong><span class="classifier">array_like，可选</span></dt><dd><p>每个客户的非负频数权重，对应方式与 <cite>after</cite> 相同：整数权重与重复相应行的结果相同。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.Series</dt><dd><p><code class="docutils literal notranslate"><span class="pre">upper</span></code> ：迁往较差等级（迁移矩阵对角线以上）的 MWB； <code class="docutils literal notranslate"><span class="pre">lower</span></code> ：迁往较好等级（对角线以下）的 MWB；位于名为 <code class="docutils literal notranslate"><span class="pre">statistic</span></code> 的索引中。二者都在 0 与 1 之间；某个方向上没有客户迁移时为 NaN。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果输入为空、不是一维的、长度不同或是索引不同的 Series，或含有缺失值，如果 <cite>before</cite> 中有不属于 <cite>grades</cite> 的值，或者 <cite>weights</cite> 无效。此外，如果 <cite>grades</cite> 不是一维的、少于两个等级、有重复值或缺失值，也会引发此异常。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.vintage.migration_test" title="kivi.vintage.migration_test"><code class="xref py py-obj docutils literal notranslate"><span class="pre">migration_test</span></code></a></dt><dd><p>检验迁移矩阵的单调性。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.vintage.transition_matrix" title="kivi.vintage.transition_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transition_matrix</span></code></a></dt><dd><p>迁移矩阵本身。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>把等级从最好的 1 编号到 <span class="math notranslate nohighlight">\(K\)</span> 。设期初在等级 <span class="math notranslate nohighlight">\(i\)</span> 的客户有 <span class="math notranslate nohighlight">\(N_i\)</span> 个，其中期末在等级 <span class="math notranslate nohighlight">\(j\)</span> 的有 <span class="math notranslate nohighlight">\(N_{ij}\)</span> 个， <span class="math notranslate nohighlight">\(p_{ij} = N_{ij} / N_i\)</span> ，则</p>
+<div class="math notranslate nohighlight">
+\[\mathrm{MWB}_\mathrm{upper} = \frac{1}{M_u} \sum_{i=1}^{K-1}
+\sum_{j=i+1}^{K} |i - j| \, N_i \, p_{ij}, \qquad
+M_u = \sum_{i=1}^{K-1} \max(|i - K|, |i - 1|) \, N_i
+\sum_{j=i+1}^{K} p_{ij},\]</div>
+<p><span class="math notranslate nohighlight">\(\mathrm{MWB}_\mathrm{lower}\)</span> 和 <span class="math notranslate nohighlight">\(M_l\)</span> 以同样的方式在 <span class="math notranslate nohighlight">\(j &lt; i\)</span> 上定义， <span class="math notranslate nohighlight">\(i\)</span> 从 2 到 <span class="math notranslate nohighlight">\(K\)</span> 。 <span class="math notranslate nohighlight">\(N_i\)</span> 也计入违约或离开的客户，但 <span class="math notranslate nohighlight">\(N_i \, p_{ij} = N_{ij}\)</span> 只计入到达某个等级的客户，因此离开的客户不影响两个带宽。使用权重时，计数为权重之和。</p>
+<p class="rubric">参考文献</p>
+<div role="list" class="citation-list">
+<div class="citation" id="r1b9b2b3017a6-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id5">1</a><span class="fn-bracket">]</span></span>
+<p>European Central Bank, &quot;Instructions for reporting the
+validation results of internal models: IRB Pillar I models for
+credit risk&quot;, February 2019, section 2.5.5.1.</p>
+</div>
+</div>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.vintage</span><span class="w"> </span><span class="kn">import</span> <span class="n">migration_bandwidth</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">before</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"A"</span><span class="p">,</span> <span class="s2">"A"</span><span class="p">,</span> <span class="s2">"A"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"C"</span><span class="p">,</span> <span class="s2">"C"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">after</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"A"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"C"</span><span class="p">,</span> <span class="s2">"A"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"C"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">migration_bandwidth</span><span class="p">(</span><span class="n">before</span><span class="p">,</span> <span class="n">after</span><span class="p">,</span> <span class="n">grades</span><span class="o">=</span><span class="p">[</span><span class="s2">"A"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"C"</span><span class="p">])</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">statistic</span>
+<span class="go">upper    0.7500</span>
+<span class="go">lower    0.6667</span>
+<span class="go">dtype: float64</span>
+</pre></div>
+</div>
+<p>等级 A 中，一个客户下调了一个等级，另一个下调了两个等级，而每人最多都可下调两个等级，因此上 MWB 为 (1 + 2) / (2 + 2)。等级 B 中违约的客户不计入任何一个带宽。</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.vintage.migration_test">
+<span class="sig-prename descclassname"><span class="pre">kivi.vintage.</span></span><span class="sig-name descname"><span class="pre">migration_test</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">before</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">after</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">grades</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.vintage.migration_test" title="链接到此定义。">#</a></dt>
+<dd><p>检验迁移频率是否随着远离矩阵对角线而下降。</p>
+<p>在稳定的评级体系中，很少有客户迁移得很远：一个等级迁往另一个等级的比例，应当随着两者距离的增加而下降。欧洲央行的 z 检验 <a class="reference internal" href="#r52d7c570a17e-1" id="id7">[1]</a> 把迁移矩阵中每个非对角单元格与其靠近对角线一侧的相邻单元格相比较。p 值较小说明到达该单元格的客户比相邻单元格多，这表明资产组合或评级体系发生了偏移。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>before</strong><span class="classifier">array_like</span></dt><dd><p>每个客户在观察期开始时的等级。每个值都必须属于 <cite>grades</cite> 。</p>
+</dd>
+<dt><strong>after</strong><span class="classifier">array_like</span></dt><dd><p>每个客户在观察期结束时的状态：一个等级，或者对离开这些等级的客户使用其他任意标签，例如 <code class="docutils literal notranslate"><span class="pre">&quot;default&quot;</span></code> 或 <code class="docutils literal notranslate"><span class="pre">&quot;closed&quot;</span></code> 。如果 <cite>before</cite> 和 <cite>after</cite> 都是 Series，二者的索引必须完全相同；否则按位置对应。二者都不能含有缺失值。</p>
+</dd>
+<dt><strong>grades</strong><span class="classifier">array_like</span></dt><dd><p>评级标尺中非违约客户的 <span class="math notranslate nohighlight">\(K\)</span> 个等级，从最好到最差排列，至少两个。</p>
+</dd>
+<dt><strong>weights</strong><span class="classifier">array_like，可选</span></dt><dd><p>每个客户的非负频数权重，对应方式与 <cite>after</cite> 相同：整数权重与重复相应行的结果相同。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.DataFrame</dt><dd><p><span class="math notranslate nohighlight">\(K (K - 1)\)</span> 个非对角单元格各一行，按 <cite>grades</cite> 的顺序排列，以等级 <code class="docutils literal notranslate"><span class="pre">before</span></code> 和 <code class="docutils literal notranslate"><span class="pre">after</span></code> 为索引。 <code class="docutils literal notranslate"><span class="pre">total</span></code> 是期初等级中的客户数（包括离开的客户）； <code class="docutils literal notranslate"><span class="pre">share</span></code> 是其中到达期末等级的比例； <code class="docutils literal notranslate"><span class="pre">statistic</span></code> 是 z 统计量； <code class="docutils literal notranslate"><span class="pre">p_value</span></code> 是它的单侧 p 值。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>与 <cite>migration_bandwidth</cite> 相同的情形。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.vintage.migration_bandwidth" title="kivi.vintage.migration_bandwidth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">migration_bandwidth</span></code></a></dt><dd><p>客户迁移的幅度。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.vintage.transition_matrix" title="kivi.vintage.transition_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transition_matrix</span></code></a></dt><dd><p>迁移矩阵本身。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>设期初在等级 <span class="math notranslate nohighlight">\(i\)</span> 的客户有 <span class="math notranslate nohighlight">\(N_i\)</span> 个（包括违约或离开的客户），其中期末在等级 <span class="math notranslate nohighlight">\(j\)</span> 的比例为 <span class="math notranslate nohighlight">\(p_{ij}\)</span> 。每个单元格都与其靠近对角线一侧的相邻单元格 <span class="math notranslate nohighlight">\(n\)</span> 相比较：对角线以下（ <span class="math notranslate nohighlight">\(j &lt; i\)</span> ）为 <span class="math notranslate nohighlight">\(n = j + 1\)</span> ，对角线以上（ <span class="math notranslate nohighlight">\(j &gt; i\)</span> ）为 <span class="math notranslate nohighlight">\(n = j - 1\)</span> ：</p>
+<div class="math notranslate nohighlight">
+\[z_{ij} = \frac{p_{in} - p_{ij}}
+{\sqrt{\left[p_{ij} (1 - p_{ij}) + p_{in} (1 - p_{in})
++ 2 p_{ij} p_{in}\right] / N_i}},\]</div>
+<p>当等级 <span class="math notranslate nohighlight">\(i\)</span> 的客户相互独立地迁移时，分母就是 <span class="math notranslate nohighlight">\(p_{in} - p_{ij}\)</span> 的标准差。在原假设 <span class="math notranslate nohighlight">\(p_{ij} \le p_{in}\)</span> 下，p 值为 <span class="math notranslate nohighlight">\(\Phi(z_{ij})\)</span> ，因此比相邻单元格更满的单元格 p 值较小。按照欧洲央行的要求，统计量和 p 值在无定义时为 NaN：等级中没有客户，或者两个比例都为 0，或者其中一个为 1。使用权重时，计数为权重之和，因此敞口等不是频数的权重得到的统计量并不服从标准正态分布。</p>
+<p class="rubric">参考文献</p>
+<div role="list" class="citation-list">
+<div class="citation" id="r52d7c570a17e-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id7">1</a><span class="fn-bracket">]</span></span>
+<p>European Central Bank, &quot;Instructions for reporting the
+validation results of internal models: IRB Pillar I models for
+credit risk&quot;, February 2019, section 2.5.5.2.</p>
+</div>
+</div>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.vintage</span><span class="w"> </span><span class="kn">import</span> <span class="n">migration_test</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">before</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"A"</span><span class="p">,</span> <span class="s2">"A"</span><span class="p">,</span> <span class="s2">"A"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"C"</span><span class="p">,</span> <span class="s2">"C"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">after</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"A"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"C"</span><span class="p">,</span> <span class="s2">"A"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"C"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">migration_test</span><span class="p">(</span><span class="n">before</span><span class="p">,</span> <span class="n">after</span><span class="p">,</span> <span class="n">grades</span><span class="o">=</span><span class="p">[</span><span class="s2">"A"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"C"</span><span class="p">])</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">              total   share  statistic  p_value</span>
+<span class="go">before after</span>
+<span class="go">A      B          3  0.3333     0.0000   0.5000</span>
+<span class="go">       C          3  0.3333     0.0000   0.5000</span>
+<span class="go">B      A          3  0.3333     0.0000   0.5000</span>
+<span class="go">       C          3  0.0000     1.2247   0.8897</span>
+<span class="go">C      A          2  0.0000     1.4142   0.9214</span>
+<span class="go">       B          2  0.5000     0.0000   0.5000</span>
+</pre></div>
+</div>
+<p>等级 B 中违约的客户计入其 <code class="docutils literal notranslate"><span class="pre">total</span></code> 。没有哪个单元格的客户比其靠近对角线的相邻单元格多，因此没有很小的 p 值。</p>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="capital.html"
+       title="上一页">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">上一页</p>
+        <p class="prev-next-title">监管资本</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="lifetime.html"
+       title="下一页">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">下一页</p>
+        <p class="prev-next-title">存续期 PD 与预期信用损失</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 当前页面
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.vintage.delinquency_panel"><code class="docutils literal notranslate"><span class="pre">delinquency_panel()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.vintage.vintage_table"><code class="docutils literal notranslate"><span class="pre">vintage_table()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.vintage.default_rate_table"><code class="docutils literal notranslate"><span class="pre">default_rate_table()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.vintage.transition_matrix"><code class="docutils literal notranslate"><span class="pre">transition_matrix()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.vintage.roll_rates"><code class="docutils literal notranslate"><span class="pre">roll_rates()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.vintage.migration_bandwidth"><code class="docutils literal notranslate"><span class="pre">migration_bandwidth()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.vintage.migration_test"><code class="docutils literal notranslate"><span class="pre">migration_test()</span></code></a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    由 <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1创建。
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

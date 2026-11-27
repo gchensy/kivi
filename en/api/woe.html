@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Weight of evidence and information value &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=d005c095" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=25d9e9fd"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/woe';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Variable selection" href="selection.html" />
+    <link rel="prev" title="Binning" href="binning.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="1.9.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 1.9.0">1.9.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    Tutorial
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/api/woe.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    Tutorial
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/api/woe.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="conventions.html">Conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compatibility.html">Compatibility</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">Time-window features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="univariate.html">Univariate profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="binning.html">Binning</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">Weight of evidence and information value</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selection.html">Variable selection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reject_inference.html">Reject inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scorecard.html">Scorecard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="expert.html">Expert scorecards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">Model performance</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lgd.html">LGD and EAD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">Credit strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rules.html">Policy rules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spec.html">Binning specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stability.html">Population stability index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">Model monitoring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="capital.html">Regulatory capital</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vintage.html">Vintage and roll-rate analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lifetime.html">Lifetime PD and expected credit loss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html">Charts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">Example data</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../api.html" class="nav-link">API reference</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Weight of evidence and information value</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="module-kivi.woe">
+<span id="weight-of-evidence-and-information-value"></span><h1>Weight of evidence and information value<a class="headerlink" href="#module-kivi.woe" title="Link to this heading">#</a></h1>
+<p>Measure how each group of a variable separates a binary target, and encode groups with the result. <a class="reference internal" href="#kivi.woe.woe_table" title="kivi.woe.woe_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">woe_table()</span></code></a> gives the WOE and IV of each group and <a class="reference internal" href="#kivi.woe.woe_transform" title="kivi.woe.woe_transform"><code class="xref py py-func docutils literal notranslate"><span class="pre">woe_transform()</span></code></a> encodes new data with them; <a class="reference internal" href="#kivi.woe.woe" title="kivi.woe.woe"><code class="xref py py-func docutils literal notranslate"><span class="pre">woe()</span></code></a> and <a class="reference internal" href="#kivi.woe.iv" title="kivi.woe.iv"><code class="xref py py-func docutils literal notranslate"><span class="pre">iv()</span></code></a> compute the same measures from aggregated counts, and <a class="reference internal" href="#kivi.woe.woe_trend" title="kivi.woe.woe_trend"><code class="xref py py-func docutils literal notranslate"><span class="pre">woe_trend()</span></code></a> names the shape of the WOE over the bins of a numeric variable.</p>
+<p>See <a class="reference internal" href="../user_guide/woe_iv.html"><span class="doc">Weight of evidence and information value</span></a> for the definitions, examples and how to read the result.</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.woe.woe_table" title="kivi.woe.woe_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">woe_table</span></code></a>(groups, target, *[, smoothing, ...])</p></td>
+<td><p>Compute weight of evidence and information value for observed groups.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.woe.woe_transform" title="kivi.woe.woe_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">woe_transform</span></code></a>(groups, table, *[, unseen])</p></td>
+<td><p>Replace each group with its weight of evidence.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.woe.woe" title="kivi.woe.woe"><code class="xref py py-obj docutils literal notranslate"><span class="pre">woe</span></code></a>(event_counts, non_event_counts, *[, ...])</p></td>
+<td><p>Compute the weight of evidence of each group from its counts.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.woe.iv" title="kivi.woe.iv"><code class="xref py py-obj docutils literal notranslate"><span class="pre">iv</span></code></a>(event_counts, non_event_counts, *[, ...])</p></td>
+<td><p>Compute the information value from counts per group.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.woe.woe_trend" title="kivi.woe.woe_trend"><code class="xref py py-obj docutils literal notranslate"><span class="pre">woe_trend</span></code></a>(table)</p></td>
+<td><p>Name the shape of the WOE over the bins of a numeric variable.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.woe.woe_table">
+<span class="sig-prename descclassname"><span class="pre">kivi.woe.</span></span><span class="sig-name descname"><span class="pre">woe_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">groups</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">smoothing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.woe.woe_table" title="Link to this definition">#</a></dt>
+<dd><p>Compute weight of evidence and information value for observed groups.</p>
+<p>Each group’s share of events is compared with its share of non-events.
+Sum the <code class="docutils literal notranslate"><span class="pre">iv</span></code> column for the information value of the variable.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>groups</strong><span class="classifier">array_like</span></dt><dd><p>Pre-binned values or category labels. Missing values form a group.</p>
+</dd>
+<dt><strong>target</strong><span class="classifier">array_like</span></dt><dd><p>Binary labels, with 1 indicating the event. If <cite>groups</cite> and <cite>target</cite>
+are both pandas Series, they must have identical indices; otherwise
+they are matched by position.</p>
+</dd>
+<dt><strong>smoothing</strong><span class="classifier">float, default 0.5</span></dt><dd><p>Positive replacement for a zero count when calculating shares.</p>
+</dd>
+<dt><strong>weights</strong><span class="classifier">array_like, optional</span></dt><dd><p>Non-negative weight of each observation, for example the inverse of
+its sampling rate, matched like <cite>target</cite>. The counts are then sums of
+weights, and groups whose weights sum to zero are left out, so
+<cite>woe_transform</cite> treats them as unseen. <cite>smoothing</cite> is then in units of
+weight: scale the weights to sum to the number of observations, or
+scale <cite>smoothing</cite> with them.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.DataFrame</dt><dd><p>One row per group with the columns <code class="docutils literal notranslate"><span class="pre">non_event</span></code>, <code class="docutils literal notranslate"><span class="pre">event</span></code> and
+<code class="docutils literal notranslate"><span class="pre">total</span></code> (counts), <code class="docutils literal notranslate"><span class="pre">non_event_share</span></code> and <code class="docutils literal notranslate"><span class="pre">event_share</span></code> (smoothed
+shares within each class), <code class="docutils literal notranslate"><span class="pre">total_share</span></code> (share of all
+observations), <code class="docutils literal notranslate"><span class="pre">event_rate</span></code>, <code class="docutils literal notranslate"><span class="pre">woe</span></code> and <code class="docutils literal notranslate"><span class="pre">iv</span></code>. Sum the iv column
+for the variable’s information value.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If the inputs are not one-dimensional, their indices or lengths do
+not match, <cite>target</cite> does not contain both 0 and 1 or has missing or
+other labels, or <cite>smoothing</cite> is not finite and positive. Also if
+<cite>weights</cite> is not numeric, does not give each observation one finite,
+non-negative weight, has an index other than that of <cite>groups</cite>, or
+leaves a class with a zero total.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.woe.woe_transform" title="kivi.woe.woe_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">woe_transform</span></code></a></dt><dd><p>Replace each group with its WOE.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.woe.woe" title="kivi.woe.woe"><code class="xref py py-obj docutils literal notranslate"><span class="pre">woe</span></code></a>, <a class="reference internal" href="#kivi.woe.iv" title="kivi.woe.iv"><code class="xref py py-obj docutils literal notranslate"><span class="pre">iv</span></code></a></dt><dd><p>The same measures from counts per group.</p>
+</dd>
+<dt><a class="reference internal" href="binning.html#kivi.binning.bin_edges" title="kivi.binning.bin_edges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.binning.bin_edges</span></code></a></dt><dd><p>Fit edges for numeric variables.</p>
+</dd>
+<dt><a class="reference internal" href="stability.html#kivi.stability.psi_table" title="kivi.stability.psi_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.stability.psi_table</span></code></a></dt><dd><p>Compare the distribution of two samples.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>For group <span class="math notranslate nohighlight">\(i\)</span>, let <span class="math notranslate nohighlight">\(p_i\)</span> and <span class="math notranslate nohighlight">\(q_i\)</span> be its shares of all
+events and of all non-events. Then</p>
+<div class="math notranslate nohighlight">
+\[\mathrm{WOE}_i = \ln \frac{p_i}{q_i}, \qquad
+\mathrm{IV}_i = (p_i - q_i)\,\mathrm{WOE}_i, \qquad
+\mathrm{IV} = \sum_i \mathrm{IV}_i.\]</div>
+<p>Each zero count is replaced with <cite>smoothing</cite> before the shares are
+normalized, so every WOE is finite. The count columns, <code class="docutils literal notranslate"><span class="pre">total_share</span></code>
+and <code class="docutils literal notranslate"><span class="pre">event_rate</span></code> always use the observed counts.</p>
+<p>Categorical groups, such as the result of <cite>kivi.binning.cut</cite> or
+<code class="docutils literal notranslate"><span class="pre">pandas.cut</span></code>, follow the order of their categories with missing values
+last. Other groups follow the order in which they first appear.
+Categories that are never observed are omitted.</p>
+<p class="rubric">References</p>
+<div role="list" class="citation-list">
+<div class="citation" id="r86ef760ac44f-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<p>N. Siddiqi, “Credit Risk Scorecards: Developing and Implementing
+Intelligent Credit Scoring”, Wiley, 2006.</p>
+</div>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.woe</span><span class="w"> </span><span class="kn">import</span> <span class="n">woe_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">groups</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="s2">"a"</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">woe_table</span><span class="p">(</span><span class="n">groups</span><span class="p">,</span> <span class="n">target</span><span class="p">)[[</span><span class="s2">"event"</span><span class="p">,</span> <span class="s2">"non_event"</span><span class="p">,</span> <span class="s2">"woe"</span><span class="p">,</span> <span class="s2">"iv"</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">     event  non_event     woe     iv</span>
+<span class="go">bin</span>
+<span class="go">a        2          1  0.6931  0.231</span>
+<span class="go">b        1          2 -0.6931  0.231</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.woe.woe_transform">
+<span class="sig-prename descclassname"><span class="pre">kivi.woe.</span></span><span class="sig-name descname"><span class="pre">woe_transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">groups</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">unseen</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'raise'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.woe.woe_transform" title="Link to this definition">#</a></dt>
+<dd><p>Replace each group with its weight of evidence.</p>
+<p>The WOE values come from a table fitted on the development sample, so a
+scorecard model sees the same encoding in development, validation and
+production.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>groups</strong><span class="classifier">array_like</span></dt><dd><p>One-dimensional group labels formed in the same way as those passed
+to <cite>woe_table</cite>, for example with the same edges and <code class="docutils literal notranslate"><span class="pre">pandas.cut</span></code>.</p>
+</dd>
+<dt><strong>table</strong><span class="classifier">pandas.DataFrame or pandas.Series</span></dt><dd><p>The result of <cite>woe_table</cite>, or a Series of WOE values indexed by group.
+A missing label in the index gives the WOE of missing values.</p>
+</dd>
+<dt><strong>unseen</strong><span class="classifier">float or “raise”, default “raise”</span></dt><dd><p>Finite WOE for groups that are not in <cite>table</cite>, such as a new
+category, an interval without development observations, or missing
+values when <cite>table</cite> has no missing group. By default such groups
+raise an error.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.Series or numpy.ndarray</dt><dd><p>Float WOE values in the order of <cite>groups</cite>. A Series input gives a
+Series with the same index and name.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If <cite>groups</cite> is not one-dimensional, <cite>table</cite> has no <code class="docutils literal notranslate"><span class="pre">woe</span></code> column or
+repeats a group, <cite>unseen</cite> is neither <code class="docutils literal notranslate"><span class="pre">&quot;raise&quot;</span></code> nor a finite number,
+or <cite>unseen</cite> is <code class="docutils literal notranslate"><span class="pre">&quot;raise&quot;</span></code> and some groups are not in <cite>table</cite>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.woe.woe_table" title="kivi.woe.woe_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">woe_table</span></code></a></dt><dd><p>Fit the WOE of each group.</p>
+</dd>
+<dt><a class="reference internal" href="binning.html#kivi.binning.bin_edges" title="kivi.binning.bin_edges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.binning.bin_edges</span></code></a></dt><dd><p>Fit the edges used to form numeric groups.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>Labels are matched by equality, so an interval from <code class="docutils literal notranslate"><span class="pre">pandas.cut</span></code> matches
+the interval with the same edges in <cite>table</cite>, and a number matches only an
+equal label, never the interval that contains it. Use the edges fitted on
+the development sample for every sample that is transformed.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.woe</span><span class="w"> </span><span class="kn">import</span> <span class="n">woe_table</span><span class="p">,</span> <span class="n">woe_transform</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">groups</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="s2">"a"</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span> <span class="o">=</span> <span class="n">woe_table</span><span class="p">(</span><span class="n">groups</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">woe_transform</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="s2">"b"</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">,</span> <span class="kc">None</span><span class="p">]),</span> <span class="n">table</span><span class="p">,</span> <span class="n">unseen</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<span class="go">[-0.6931, 0.6931, 0.0]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.woe.woe">
+<span class="sig-prename descclassname"><span class="pre">kivi.woe.</span></span><span class="sig-name descname"><span class="pre">woe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event_counts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">non_event_counts</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">smoothing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.woe.woe" title="Link to this definition">#</a></dt>
+<dd><p>Compute the weight of evidence of each group from its counts.</p>
+<p>Use this when the counts are already aggregated, for example from a
+database query or a report, instead of one label per observation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>event_counts, non_event_counts</strong><span class="classifier">array_like</span></dt><dd><p>One-dimensional, non-negative counts of events and non-events in each
+group, in the same group order. Two Series must have identical
+indices. Weighted counts need not be integers.</p>
+</dd>
+<dt><strong>smoothing</strong><span class="classifier">float, default 0.5</span></dt><dd><p>Positive replacement for a zero count when calculating shares.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.Series or numpy.ndarray</dt><dd><p>The WOE of each group. If a count argument is a Series, the result is
+a Series with its index, named <code class="docutils literal notranslate"><span class="pre">woe</span></code>; otherwise it is an array.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If the counts are not one-dimensional, numeric, finite and
+non-negative, have different lengths or a zero total, or are two
+Series with different indices, or <cite>smoothing</cite> is not finite and
+positive.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.woe.iv" title="kivi.woe.iv"><code class="xref py py-obj docutils literal notranslate"><span class="pre">iv</span></code></a></dt><dd><p>The information value of the same counts.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.woe.woe_table" title="kivi.woe.woe_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">woe_table</span></code></a></dt><dd><p>Counts, shares, WOE and IV from group labels and a target.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>With <span class="math notranslate nohighlight">\(p_i\)</span> and <span class="math notranslate nohighlight">\(q_i\)</span> the smoothed shares of group <span class="math notranslate nohighlight">\(i\)</span>
+among all events and all non-events, <span class="math notranslate nohighlight">\(\mathrm{WOE}_i = \ln(p_i / q_i)\)</span>,
+as in the <code class="docutils literal notranslate"><span class="pre">woe</span></code> column of <cite>woe_table</cite>.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.woe</span><span class="w"> </span><span class="kn">import</span> <span class="n">woe</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">woe</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">array([ 0.6931, -0.6931])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">event</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="s2">"a"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">non_event</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="s2">"a"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">woe</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">non_event</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">a    0.6931</span>
+<span class="go">b   -0.6931</span>
+<span class="go">Name: woe, dtype: float64</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.woe.iv">
+<span class="sig-prename descclassname"><span class="pre">kivi.woe.</span></span><span class="sig-name descname"><span class="pre">iv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event_counts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">non_event_counts</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">smoothing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.woe.iv" title="Link to this definition">#</a></dt>
+<dd><p>Compute the information value from counts per group.</p>
+<p>The information value summarizes how well the groups separate events
+from non-events, from counts that are already aggregated.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>event_counts, non_event_counts</strong><span class="classifier">array_like</span></dt><dd><p>One-dimensional, non-negative counts of events and non-events in each
+group, in the same group order. Two Series must have identical
+indices. Weighted counts need not be integers.</p>
+</dd>
+<dt><strong>smoothing</strong><span class="classifier">float, default 0.5</span></dt><dd><p>Positive replacement for a zero count when calculating shares.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>float</dt><dd><p>The information value of the variable.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If the counts are not one-dimensional, numeric, finite and
+non-negative, have different lengths or a zero total, or are two
+Series with different indices, or <cite>smoothing</cite> is not finite and
+positive.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.woe.woe" title="kivi.woe.woe"><code class="xref py py-obj docutils literal notranslate"><span class="pre">woe</span></code></a></dt><dd><p>The weight of evidence of each group.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.woe.woe_table" title="kivi.woe.woe_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">woe_table</span></code></a></dt><dd><p>The IV contribution of each group from labels and a target.</p>
+</dd>
+<dt><a class="reference internal" href="stability.html#kivi.stability.psi" title="kivi.stability.psi"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.stability.psi</span></code></a></dt><dd><p>The same divergence between two samples.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<div class="math notranslate nohighlight">
+\[\mathrm{IV} = \sum_i (p_i - q_i) \ln \frac{p_i}{q_i},\]</div>
+<p>which equals the sum of the <code class="docutils literal notranslate"><span class="pre">iv</span></code> column of <cite>woe_table</cite> for the same
+groups.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.woe</span><span class="w"> </span><span class="kn">import</span> <span class="n">iv</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">round</span><span class="p">(</span><span class="n">iv</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]),</span> <span class="mi">4</span><span class="p">)</span>
+<span class="go">0.4621</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.woe.woe_trend">
+<span class="sig-prename descclassname"><span class="pre">kivi.woe.</span></span><span class="sig-name descname"><span class="pre">woe_trend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.woe.woe_trend" title="Link to this definition">#</a></dt>
+<dd><p>Name the shape of the WOE over the bins of a numeric variable.</p>
+<p>The WOE of the rows labeled with an interval is read in the order of
+the table, which for the bins of <cite>kivi.binning.cut</cite> or <code class="docutils literal notranslate"><span class="pre">pandas.cut</span></code>
+runs from the lowest values of the variable to the highest. Rows of
+special codes and of missing values have no place on that scale and are
+left out.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>table</strong><span class="classifier">pandas.DataFrame or pandas.Series</span></dt><dd><p>The result of <cite>woe_table</cite>, one of the tables of a
+<cite>kivi.spec.BinningSpec</cite>, or a Series of WOE values indexed by group,
+as <cite>woe_transform</cite> accepts. It needs at least one row labeled with a
+<code class="docutils literal notranslate"><span class="pre">pandas.Interval</span></code>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>str</dt><dd><p>One of:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">'increasing'</span></code>: the WOE rises from bin to bin;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'decreasing'</span></code>: the WOE falls from bin to bin;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'u_shaped'</span></code>: the WOE falls, then rises;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'inverted_u'</span></code>: the WOE rises, then falls;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'irregular'</span></code>: the direction changes more than once;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'flat'</span></code>: every bin has the same WOE, or there is one bin.</p></li>
+</ul>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If <cite>table</cite> is neither a <cite>woe_table</cite> result nor a Series, has no
+<code class="docutils literal notranslate"><span class="pre">woe</span></code> column or repeats a group, has no row labeled with an
+interval, as a categorical variable has none, or the WOE of an
+interval row is not a finite number.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.woe.woe_table" title="kivi.woe.woe_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">woe_table</span></code></a></dt><dd><p>The WOE of each group.</p>
+</dd>
+<dt><a class="reference internal" href="binning.html#kivi.binning.monotonic_edges" title="kivi.binning.monotonic_edges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.binning.monotonic_edges</span></code></a></dt><dd><p>Fit edges whose WOE rises or falls from bin to bin.</p>
+</dd>
+<dt><a class="reference internal" href="plotting.html#kivi.plotting.woe_chart" title="kivi.plotting.woe_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.plotting.woe_chart</span></code></a></dt><dd><p>Draw the WOE of each group.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>Two neighbouring bins whose WOE values differ by at most a relative
+1e-10 count as equal. Equal neighbours neither rise nor fall, so they
+do not break a trend: WOE values of 0.1, 0.1 and 0.3 are increasing.
+A change of direction is a rise followed by a fall, or a fall followed
+by a rise, across any number of equal neighbours.</p>
+<p>The order of the table decides the trend, so a table reordered after
+<cite>woe_table</cite>, for example with <code class="docutils literal notranslate"><span class="pre">sort_values(&quot;woe&quot;)</span></code>, has the trend of
+that order. Sort it by its intervals first, as <code class="docutils literal notranslate"><span class="pre">table.sort_index()</span></code>
+does when every label is an interval.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.woe</span><span class="w"> </span><span class="kn">import</span> <span class="n">woe_table</span><span class="p">,</span> <span class="n">woe_trend</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">values</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span> <span class="o">=</span> <span class="n">woe_table</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">9</span><span class="p">]),</span> <span class="n">target</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span><span class="p">[</span><span class="s2">"woe"</span><span class="p">]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<span class="go">[-0.154, -1.253, 1.232]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">woe_trend</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
+<span class="go">'u_shaped'</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="binning.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Binning</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="selection.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Variable selection</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.woe.woe_table"><code class="docutils literal notranslate"><span class="pre">woe_table()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.woe.woe_transform"><code class="docutils literal notranslate"><span class="pre">woe_transform()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.woe.woe"><code class="docutils literal notranslate"><span class="pre">woe()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.woe.iv"><code class="docutils literal notranslate"><span class="pre">iv()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.woe.woe_trend"><code class="docutils literal notranslate"><span class="pre">woe_trend()</span></code></a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1.
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

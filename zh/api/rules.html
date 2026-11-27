@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>政策规则 &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=d005c095" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=14f9d491"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script src="../_static/translations.js?v=540d3cec"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/rules';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="next" title="分箱方案" href="spec.html" />
+    <link rel="prev" title="信贷策略" href="strategy.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+  <meta name="docsearch:version" content="1.9.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">跳转至主要内容</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>回到顶部</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="版本警告"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="网页导航" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 1.9.0">1.9.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    教程
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../../en/api/rules.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="当前页面" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    教程
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../../en/api/rules.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="章节导航">
+  <p class="bd-links__title" role="heading" aria-level="1">章节导航</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="conventions.html">约定</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compatibility.html">兼容性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">术语表</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">时间窗特征</a></li>
+<li class="toctree-l1"><a class="reference internal" href="univariate.html">单变量概况</a></li>
+<li class="toctree-l1"><a class="reference internal" href="binning.html">分箱</a></li>
+<li class="toctree-l1"><a class="reference internal" href="woe.html">证据权重与信息值</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selection.html">变量筛选</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reject_inference.html">拒绝推断</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scorecard.html">评分卡</a></li>
+<li class="toctree-l1"><a class="reference internal" href="expert.html">专家评分卡</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">模型表现</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">校准</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lgd.html">LGD 与 EAD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">信贷策略</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">政策规则</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spec.html">分箱方案</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stability.html">群体稳定性指标</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">模型监控</a></li>
+<li class="toctree-l1"><a class="reference internal" href="capital.html">监管资本</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vintage.html">Vintage 与滚动率分析</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lifetime.html">存续期 PD 与预期信用损失</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html">图表</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">示例数据</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="初始页面">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../api.html" class="nav-link">API 参考</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">政策规则</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="module-kivi.rules">
+<span id="policy-rules"></span><h1>政策规则<a class="headerlink" href="#module-kivi.rules" title="链接到此标题。">#</a></h1>
+<p>搜索并衡量信贷策略中的政策规则。 <a class="reference internal" href="#kivi.rules.rule_candidates" title="kivi.rules.rule_candidates"><code class="xref py py-func docutils literal notranslate"><span class="pre">rule_candidates()</span></code></a> 从数据中提出单阈值规则， <a class="reference internal" href="#kivi.rules.rule_table" title="kivi.rules.rule_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">rule_table()</span></code></a> 统计规则集中每条规则的命中数和事件数， <a class="reference internal" href="#kivi.rules.rule_set_table" title="kivi.rules.rule_set_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">rule_set_table()</span></code></a> 按顺序应用规则，作为决策瀑布，给出每条规则的新增命中和规则集留下的通过申请。</p>
+<p>示例见 <a class="reference internal" href="../user_guide/rules.html"><span class="doc">政策规则</span></a> ：基于模拟的申请数据，包括规则搜索、两条规则的重叠和被拒申请人的结果。</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.rules.rule_candidates" title="kivi.rules.rule_candidates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rule_candidates</span></code></a>(frame, target, *[, columns, ...])</p></td>
+<td><p>在每个数值列中搜索能构成高风险政策规则的阈值。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.rules.rule_table" title="kivi.rules.rule_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rule_table</span></code></a>(rules[, target, weights])</p></td>
+<td><p>统计每条规则的命中数、只被它命中的样本，以及给出目标时其中的事件数。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.rules.rule_set_table" title="kivi.rules.rule_set_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rule_set_table</span></code></a>(rules[, target, weights])</p></td>
+<td><p>按顺序执行规则，汇总每条规则新增的命中和规则执行后仍然通过的客群。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.rules.rule_candidates">
+<span class="sig-prename descclassname"><span class="pre">kivi.rules.</span></span><span class="sig-name descname"><span class="pre">rule_candidates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'tree'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_bins</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_hit_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_lift</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">special</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.rules.rule_candidates" title="链接到此定义。">#</a></dt>
+<dd><p>在每个数值列中搜索能构成高风险政策规则的阈值。</p>
+<p>对每个数值列，函数用 <cite>kivi.binning.tree_edges</cite> 或 <cite>kivi.binning.ks_edges</cite> 拟合切点。每个内部切点 <span class="math notranslate nohighlight">\(t\)</span> 给出两条规则 <code class="docutils literal notranslate"><span class="pre">column</span> <span class="pre">&gt;</span> <span class="pre">t</span></code> 和 <code class="docutils literal notranslate"><span class="pre">column</span> <span class="pre">&lt;=</span> <span class="pre">t</span></code>，命中者事件率较高的一条成为候选规则。命中申请人太少或风险不够高的候选会被丢弃，其余按提升度从高到低列出。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>frame</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>每个申请人一行。搜索 <cite>columns</cite> 中的数值列（默认是除布尔列以外的所有数值列）。</p>
+</dd>
+<dt><strong>target</strong><span class="classifier">array_like</span></dt><dd><p>二元标签，1 表示事件，缺失值表示结果未知。如果 <cite>target</cite> 是 Series，其索引必须与 <cite>frame</cite> 相同；否则按位置对应。切点在结果已知的行上拟合。</p>
+</dd>
+<dt><strong>columns</strong><span class="classifier">str 序列，可选</span></dt><dd><p>要搜索的列，必须是数值列且不能是布尔列。默认搜索 <cite>frame</cite> 中所有这样的列；其他类型的列（类别、文本、布尔）会被跳过。</p>
+</dd>
+<dt><strong>method</strong><span class="classifier">{&quot;tree&quot;, &quot;ks&quot;}，默认 &quot;tree&quot;</span></dt><dd><p>切点的拟合方式：<code class="docutils literal notranslate"><span class="pre">&quot;tree&quot;</span></code> 用 <cite>kivi.binning.tree_edges</cite> （决策树切分），<code class="docutils literal notranslate"><span class="pre">&quot;ks&quot;</span></code> 用 <cite>kivi.binning.ks_edges</cite> （Best-KS）。</p>
+</dd>
+<dt><strong>max_bins</strong><span class="classifier">int，默认 5</span></dt><dd><p>每列最多的分箱数，因此每列最多 <code class="docutils literal notranslate"><span class="pre">max_bins</span> <span class="pre">-</span> <span class="pre">1</span></code> 个阈值，与分箱函数相同。</p>
+</dd>
+<dt><strong>min_hit_rate</strong><span class="classifier">float，默认 0.01</span></dt><dd><p>规则必须命中的行占全部行的最小比例，取值在 0 到 1 之间。</p>
+</dd>
+<dt><strong>min_lift</strong><span class="classifier">float，默认 2.0</span></dt><dd><p>规则必须达到的最小提升度，为不小于 0 的有限数。</p>
+</dd>
+<dt><strong>special</strong><span class="classifier">mapping，可选</span></dt><dd><p>数值列的特殊值，列名到特殊值的映射，与 <cite>kivi.spec.fit_spec</cite> 相同。带特殊值的行与缺失值的行一样，不参与拟合，也不命中任何规则。</p>
+</dd>
+<dt><strong>weights</strong><span class="classifier">array_like，可选</span></dt><dd><p>每一行的非负频数权重，对应方式与 <cite>target</cite> 相同。计数变为权重之和，因此整数权重与重复相应行得到的表相同。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.DataFrame</dt><dd><p>每条候选规则一行，索引是形如 <code class="docutils literal notranslate"><span class="pre">&quot;age</span> <span class="pre">&lt;=</span> <span class="pre">25.0&quot;</span></code> 的名称，索引名为 <code class="docutils literal notranslate"><span class="pre">rule</span></code>。列为 <code class="docutils literal notranslate"><span class="pre">variable</span></code>、<code class="docutils literal notranslate"><span class="pre">operator``（</span></code>&quot;&gt;&quot;`` 或 <code class="docutils literal notranslate"><span class="pre">&quot;&lt;=&quot;</span></code>）、<code class="docutils literal notranslate"><span class="pre">threshold</span></code>、<code class="docutils literal notranslate"><span class="pre">hits</span></code>、<code class="docutils literal notranslate"><span class="pre">hit_rate</span></code>、<code class="docutils literal notranslate"><span class="pre">known</span></code>、<code class="docutils literal notranslate"><span class="pre">event</span></code>、<code class="docutils literal notranslate"><span class="pre">event_rate</span></code> 和 <code class="docutils literal notranslate"><span class="pre">lift</span></code>，见 Notes。没有规则符合条件时表为空。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果 <cite>frame</cite> 不是 DataFrame 或没有行，<cite>columns</cite> 不是 <cite>frame</cite> 中互不相同的列名序列、其中有列不是数值列或是布尔列，或 <cite>frame</cite> 没有可搜索的数值列，<cite>method</cite> 无法识别，<cite>max_bins</cite> 不是正整数，<cite>min_hit_rate</cite> 不是 0 到 1 之间的数，<cite>min_lift</cite> 不是不小于 0 的有限数，<cite>special</cite> 指向未被搜索的列或含缺失值或布尔型特殊值，或被搜索的列含有不是特殊值的无穷值，则抛出。另外，如果 <cite>target</cite> 含有 0、1 和缺失以外的标签或没有给每行一个标签，Series 参数的索引与 <cite>frame</cite> 不同，<cite>weights</cite> 不是数值，或没有给每行一个有限、非负且总和为正的权重，或 <cite>columns</cite> 中指定的某列参与拟合的行（结果已知、有观测值、不是特殊值且权重为正）缺少事件或非事件，也会抛出。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">警告<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>UserWarning</dt><dd><p>如果默认找到的列（<cite>columns</cite> 为 None）的拟合行中没有两个类别，该列会被跳过。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.rules.rule_table" title="kivi.rules.rule_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rule_table</span></code></a></dt><dd><p>重新衡量这些规则，例如在验证样本上。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.rules.rule_set_table" title="kivi.rules.rule_set_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rule_set_table</span></code></a></dt><dd><p>按顺序应用选定的规则。</p>
+</dd>
+<dt><a class="reference internal" href="binning.html#kivi.binning.tree_edges" title="kivi.binning.tree_edges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.binning.tree_edges</span></code></a></dt><dd><p><code class="docutils literal notranslate"><span class="pre">method=&quot;tree&quot;</span></code> 的切点。</p>
+</dd>
+<dt><a class="reference internal" href="binning.html#kivi.binning.ks_edges" title="kivi.binning.ks_edges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.binning.ks_edges</span></code></a></dt><dd><p><code class="docutils literal notranslate"><span class="pre">method=&quot;ks&quot;</span></code> 的切点。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>候选规则命中搜索值大于（<code class="docutils literal notranslate"><span class="pre">&quot;&gt;&quot;</span></code>）或小于等于（<code class="docutils literal notranslate"><span class="pre">&quot;&lt;=&quot;</span></code>）其 <code class="docutils literal notranslate"><span class="pre">threshold</span></code> 的行。缺失值和特殊值不命中任何一侧。从 <code class="docutils literal notranslate"><span class="pre">hits</span></code> 到 <code class="docutils literal notranslate"><span class="pre">lift</span></code> 的计数列与 <cite>rule_table</cite> 的列相同，顺序也相同，其值恰好是 <cite>rule_table</cite> 对下面这个布尔列报告的值，权重也相同：<code class="docutils literal notranslate"><span class="pre">((frame[variable]</span> <span class="pre">&gt;</span> <span class="pre">threshold)</span> <span class="pre">&amp;</span> <span class="pre">~frame[variable].isin(codes)).fillna(False)``（或</span> <span class="pre">``&lt;=</span></code>），其中 <code class="docutils literal notranslate"><span class="pre">codes</span></code> 是该列的特殊值。如果不排除特殊值，位于所选一侧的特殊值会被算作命中。<code class="docutils literal notranslate"><span class="pre">lift</span></code> 是命中者的事件率除以所有已知结果的事件率，缺失或特殊值的行也计入后者，<code class="docutils literal notranslate"><span class="pre">event</span> <span class="pre">/</span> <span class="pre">known</span></code> 等于 <code class="docutils literal notranslate"><span class="pre">event_rate</span></code>。命中者中没有已知结果的规则没有事件率，不会被保留。</p>
+<p>切点用 <code class="docutils literal notranslate"><span class="pre">min_bin_share=min(min_hit_rate,</span> <span class="pre">0.5)</span></code> 拟合，因此拟合中的箱可以小到被接受的最小规则，也能找到小于 <cite>kivi.binning</cite> 默认 5% 的高风险尾部。</p>
+<p>一个阈值的两侧中，保留 <code class="docutils literal notranslate"><span class="pre">event_rate</span></code> 较高的一侧，相等时取 <code class="docutils literal notranslate"><span class="pre">&gt;</span></code>。规则按 <code class="docutils literal notranslate"><span class="pre">lift</span></code> 从高到低排序，并列时按列的顺序、再按阈值的顺序。</p>
+<p><cite>frame</cite> 中拟合行里没有两个类别的列，在 <cite>columns</cite> 为 None 时会被警告并跳过（除非没有剩下任何列），在 <cite>columns</cite> 中指定时则抛出错误。</p>
+<p>阈值和它们的事件率是在同一批行上得到的，因此偏乐观：在开发样本上看起来很强的规则，在新数据上往往较弱，就像有监督分箱的 IV 一样。使用选定的规则之前，请先在验证样本上用 <cite>rule_table</cite> 复核。搜索一次只看一个变量，不会组合变量。</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.rules</span><span class="w"> </span><span class="kn">import</span> <span class="n">rule_candidates</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">frame</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s2">"age"</span><span class="p">:</span> <span class="p">[</span><span class="mi">19</span><span class="p">,</span> <span class="mi">22</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">31</span><span class="p">,</span> <span class="mi">38</span><span class="p">,</span> <span class="mi">44</span><span class="p">,</span> <span class="mi">52</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">35</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s2">"region"</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="s2">"aabbaabbab"</span><span class="p">),</span>
+<span class="gp">... </span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rule_candidates</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">min_hit_rate</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">min_lift</span><span class="o">=</span><span class="mf">1.5</span><span class="p">)[</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="s2">"variable"</span><span class="p">,</span> <span class="s2">"operator"</span><span class="p">,</span> <span class="s2">"threshold"</span><span class="p">,</span> <span class="s2">"hits"</span><span class="p">,</span> <span class="s2">"event"</span><span class="p">,</span> <span class="s2">"lift"</span><span class="p">]</span>
+<span class="gp">... </span><span class="p">]</span>
+<span class="go">           variable operator  threshold  hits  event  lift</span>
+<span class="go">rule</span>
+<span class="go">age &lt;= 28.0      age       &lt;=       28.0     4      4   2.5</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.rules.rule_table">
+<span class="sig-prename descclassname"><span class="pre">kivi.rules.</span></span><span class="sig-name descname"><span class="pre">rule_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rules</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.rules.rule_table" title="链接到此定义。">#</a></dt>
+<dd><p>统计每条规则的命中数、只被它命中的样本，以及给出目标时其中的事件数。</p>
+<p>每条规则都在每一行上独立评估，不受其他规则影响，因此被两条规则命中的申请人在两行中都会计入。独有命中是规则集中只被这一条规则命中的申请人，即完全取决于这一条规则的拒绝。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>rules</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>每条规则一列，列名为规则名，每个申请人一行。每列为布尔值，或 0 与 1，规则命中处为 True 或 1，例如拒绝或转人工审核。不允许缺失值：请先决定数据缺失时规则是否命中，例如用 <code class="docutils literal notranslate"><span class="pre">fillna</span></code> 。</p>
+</dd>
+<dt><strong>target</strong><span class="classifier">array_like，可选</span></dt><dd><p>二元标签，1 表示事件，缺失值表示结果未知，例如被拒申请人的结果。不传入 <cite>target</cite> 时，表中只统计命中数。如果 <cite>target</cite> 是 Series，其索引必须与 <cite>rules</cite> 相同；否则按位置对应。</p>
+</dd>
+<dt><strong>weights</strong><span class="classifier">array_like，可选</span></dt><dd><p>每一行的非负频数权重，例如其抽样比例的倒数，对应方式与 <cite>target</cite> 相同。计数变为权重之和，因此整数权重与重复相应行得到的表相同。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.DataFrame</dt><dd><p>每条规则一行，按 <cite>rules</cite> 的列顺序排列，以规则名为索引，索引名为 <code class="docutils literal notranslate"><span class="pre">rule</span></code> 。各列为 <code class="docutils literal notranslate"><span class="pre">hits</span></code> 、 <code class="docutils literal notranslate"><span class="pre">hit_rate</span></code> 和 <code class="docutils literal notranslate"><span class="pre">unique_hits</span></code> ，给出 <cite>target</cite> 时还有 <code class="docutils literal notranslate"><span class="pre">known</span></code> 、 <code class="docutils literal notranslate"><span class="pre">event</span></code> 、 <code class="docutils literal notranslate"><span class="pre">event_rate</span></code> 、 <code class="docutils literal notranslate"><span class="pre">lift</span></code> 、 <code class="docutils literal notranslate"><span class="pre">recall</span></code> 和 <code class="docutils literal notranslate"><span class="pre">unique_event</span></code> ；见“说明”。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果 <cite>rules</cite> 不是 DataFrame，没有行或没有列，列名不止一层或有重复的列名，或某列含有缺失值或 True、False、0 和 1 以外的值。另外，如果 <cite>target</cite> 不是一维的、没有为每一行给出一个标签，或含有 0、1 和缺失值以外的标签， <cite>weights</cite> 不是数值、没有为每一行给出一个有限非负且总和为正的权重，或某个 Series 参数的索引与 <cite>rules</cite> 不同，也会报错。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.rules.rule_set_table" title="kivi.rules.rule_set_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rule_set_table</span></code></a></dt><dd><p>按顺序执行规则，即决策瀑布表。</p>
+</dd>
+<dt><a class="reference internal" href="strategy.html#kivi.strategy.cutoff_table" title="kivi.strategy.cutoff_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.strategy.cutoff_table</span></code></a></dt><dd><p>对评分的各个截断点给出同样的汇总。</p>
+</dd>
+<dt><a class="reference internal" href="strategy.html#kivi.strategy.swap_set" title="kivi.strategy.swap_set"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.strategy.swap_set</span></code></a></dt><dd><p>比较两个评分的审批决策。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>对于命中行 <span class="math notranslate nohighlight">\(H\)</span> 的一条规则，记各行的权重为 <span class="math notranslate nohighlight">\(w_i\)</span> ，全部行中的已知结果为 <span class="math notranslate nohighlight">\(K\)</span> 、事件为 <span class="math notranslate nohighlight">\(E\)</span> ，各列为：</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">hits</span></code> ： <span class="math notranslate nohighlight">\(\sum_{i \in H} w_i\)</span> ，不带权重时即规则命中的行数；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">hit_rate</span></code> ： <code class="docutils literal notranslate"><span class="pre">hits</span></code> 除以整个样本；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">unique_hits</span></code> ：被这条规则命中、且不被 <cite>rules</cite> 中其他任何规则命中的行；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">known</span></code> ：结果已知的命中， <span class="math notranslate nohighlight">\(H \cap K\)</span> ；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">event</span></code> ：命中中的事件， <span class="math notranslate nohighlight">\(H \cap E\)</span> ；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">event_rate</span></code> ： <code class="docutils literal notranslate"><span class="pre">event</span></code> 除以 <code class="docutils literal notranslate"><span class="pre">known</span></code> ，没有命中的结果已知时为 NaN；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">lift</span></code> ： <code class="docutils literal notranslate"><span class="pre">event_rate</span></code> 除以全部已知结果的事件率 <span class="math notranslate nohighlight">\(\sum_{E} w_i / \sum_{K} w_i\)</span> ，因此命中的违约频率为整个样本两倍的规则，提升度为 2。样本中没有已知事件时为 NaN；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">recall</span></code> ： <code class="docutils literal notranslate"><span class="pre">event</span></code> 除以全部已知事件，即规则命中的事件所占比例，没有已知事件时为 NaN；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">unique_event</span></code> ：独有命中中的事件。</p></li>
+</ul>
+<p>各行相加没有意义，因为一行可能被多条规则命中： <cite>rule_set_table</cite> 只把每个命中计一次。两条规则的重叠是两列的乘积，所有规则两两之间的重叠为 <code class="docutils literal notranslate"><span class="pre">rules.astype(int).T</span> <span class="pre">&#64;</span> <span class="pre">rules.astype(int)</span></code> ，对角线上是各规则的命中数。</p>
+<p>被拒申请人的结果通常是未知的。对这类申请人传入缺失标签：申请人计入 <code class="docutils literal notranslate"><span class="pre">hits</span></code> 、 <code class="docutils literal notranslate"><span class="pre">hit_rate</span></code> 和 <code class="docutils literal notranslate"><span class="pre">unique_hits</span></code> ，但不计入 <code class="docutils literal notranslate"><span class="pre">known</span></code> 、 <code class="docutils literal notranslate"><span class="pre">event</span></code> 和各比率，因此一条拒绝了所有命中申请人的规则，根本没有已知结果。</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.rules</span><span class="w"> </span><span class="kn">import</span> <span class="n">rule_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rules</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s2">"high_debt"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s2">"young"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s2">"inquiries"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+<span class="gp">... </span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span> <span class="o">=</span> <span class="n">rule_table</span><span class="p">(</span><span class="n">rules</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span><span class="p">[[</span><span class="s2">"hits"</span><span class="p">,</span> <span class="s2">"hit_rate"</span><span class="p">,</span> <span class="s2">"unique_hits"</span><span class="p">,</span> <span class="s2">"known"</span><span class="p">,</span> <span class="s2">"event"</span><span class="p">]]</span>
+<span class="go">           hits  hit_rate  unique_hits  known  event</span>
+<span class="go">rule</span>
+<span class="go">high_debt     3     0.375            2      3      2</span>
+<span class="go">young         2     0.250            0      2      1</span>
+<span class="go">inquiries     2     0.250            1      2      1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span><span class="p">[[</span><span class="s2">"event_rate"</span><span class="p">,</span> <span class="s2">"lift"</span><span class="p">,</span> <span class="s2">"recall"</span><span class="p">,</span> <span class="s2">"unique_event"</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">           event_rate   lift  recall  unique_event</span>
+<span class="go">rule</span>
+<span class="go">high_debt       0.667  1.778   0.667             1</span>
+<span class="go">young           0.500  1.333   0.333             0</span>
+<span class="go">inquiries       0.500  1.333   0.333             1</span>
+</pre></div>
+</div>
+<p>被规则拒绝的申请人，其结果往往是未知的：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">observed</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rule_table</span><span class="p">(</span><span class="n">rules</span><span class="p">,</span> <span class="n">observed</span><span class="p">)[[</span><span class="s2">"hits"</span><span class="p">,</span> <span class="s2">"known"</span><span class="p">,</span> <span class="s2">"event"</span><span class="p">,</span> <span class="s2">"event_rate"</span><span class="p">]]</span>
+<span class="go">           hits  known  event  event_rate</span>
+<span class="go">rule</span>
+<span class="go">high_debt     3      0      0         NaN</span>
+<span class="go">young         2      1      0         0.0</span>
+<span class="go">inquiries     2      2      1         0.5</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.rules.rule_set_table">
+<span class="sig-prename descclassname"><span class="pre">kivi.rules.</span></span><span class="sig-name descname"><span class="pre">rule_set_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rules</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.rules.rule_set_table" title="链接到此定义。">#</a></dt>
+<dd><p>按顺序执行规则，汇总每条规则新增的命中和规则执行后仍然通过的客群。</p>
+<p>这些规则构成一张决策瀑布表：第一条规则拒绝它命中的行，第二条规则拒绝剩余行中它命中的行，依此类推。每一行给出一条规则的新增命中，即之前的规则都没有命中的行，以及执行到这条规则为止仍然通过的客群，各列与 <cite>kivi.strategy.cutoff_table</cite> 相同。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>rules</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>每条规则一列，按规则执行的顺序排列，每个申请人一行。每列为布尔值，或 0 与 1，规则命中处为 True 或 1。不允许缺失值：请先决定数据缺失时规则是否命中。</p>
+</dd>
+<dt><strong>target</strong><span class="classifier">array_like，可选</span></dt><dd><p>二元标签，1 表示事件，缺失值表示结果未知，例如被拒申请人的结果。不传入 <cite>target</cite> 时，表中只统计命中数和通过的行数。如果 <cite>target</cite> 是 Series，其索引必须与 <cite>rules</cite> 相同；否则按位置对应。</p>
+</dd>
+<dt><strong>weights</strong><span class="classifier">array_like，可选</span></dt><dd><p>每一行的非负频数权重，例如其抽样比例的倒数，对应方式与 <cite>target</cite> 相同。计数变为权重之和，因此整数权重与重复相应行得到的表相同。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.DataFrame</dt><dd><p>每条规则一行，按 <cite>rules</cite> 的列顺序排列，以规则名为索引，索引名为 <code class="docutils literal notranslate"><span class="pre">rule</span></code> 。各列依次为 <code class="docutils literal notranslate"><span class="pre">new_hits</span></code> ，给出 <cite>target</cite> 时还有 <code class="docutils literal notranslate"><span class="pre">new_event</span></code> ，然后是 <code class="docutils literal notranslate"><span class="pre">approved</span></code> 和 <code class="docutils literal notranslate"><span class="pre">approval_rate</span></code> ，给出 <cite>target</cite> 时还有 <code class="docutils literal notranslate"><span class="pre">approved_event</span></code> 、 <code class="docutils literal notranslate"><span class="pre">approved_event_rate</span></code> 、 <code class="docutils literal notranslate"><span class="pre">rejected_event_share</span></code> 和 <code class="docutils literal notranslate"><span class="pre">rejected_non_event_share</span></code> ；见“说明”。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果 <cite>rules</cite> 不是 DataFrame，没有行或没有列，列名不止一层或有重复的列名，或某列含有缺失值或 True、False、0 和 1 以外的值。另外，如果 <cite>target</cite> 不是一维的、没有为每一行给出一个标签，或含有 0、1 和缺失值以外的标签， <cite>weights</cite> 不是数值、没有为每一行给出一个有限非负且总和为正的权重，或某个 Series 参数的索引与 <cite>rules</cite> 不同，也会报错。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.rules.rule_table" title="kivi.rules.rule_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rule_table</span></code></a></dt><dd><p>每条规则各自的命中。</p>
+</dd>
+<dt><a class="reference internal" href="strategy.html#kivi.strategy.cutoff_table" title="kivi.strategy.cutoff_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.strategy.cutoff_table</span></code></a></dt><dd><p>对评分的各个截断点给出同样的累计列。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>一条规则的新增命中，是它命中、且之前任何规则都没有命中的行。各列为：</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">new_hits</span></code> ：这条规则的新增命中，或其权重之和；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">new_event</span></code> ：新增命中中的事件；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">approved</span></code> ：到这条规则为止，没有被任何规则命中的行；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">approval_rate</span></code>：<code class="docutils literal notranslate"><span class="pre">approved</span></code> 除以整个样本；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">approved_event</span></code> ：通过的行中的事件；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">approved_event_rate</span></code> ： <code class="docutils literal notranslate"><span class="pre">approved_event</span></code> 除以结果已知的通过行，没有已知结果时为 NaN；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">rejected_event_share</span></code> 和 <code class="docutils literal notranslate"><span class="pre">rejected_non_event_share</span></code> ：到这条规则为止被某条规则命中的已知事件和已知非事件，分别占全部已知事件和全部已知非事件的比例；样本中没有已知事件或已知非事件时为 NaN。</p></li>
+</ul>
+<p>每个命中只计一次，计在第一条命中它的规则下，因此所有规则的新增命中之和等于被任一规则命中的行数。一条规则的新增命中取决于它之前的规则，把规则往前移，它的新增命中就会增加。最后一行描述整个规则集：其累计列与规则的顺序无关。</p>
+<p>所有结果都已知时，一行的累计列等于 <code class="docutils literal notranslate"><span class="pre">kivi.strategy.cutoff_table(score,</span> <span class="pre">target,</span> <span class="pre">cutoffs=[0])</span></code> 的结果，其中评分在到该行为止的某条规则命中处为 1，其余为 0。存在未知结果时， <code class="docutils literal notranslate"><span class="pre">approved</span></code> 和 <code class="docutils literal notranslate"><span class="pre">approval_rate</span></code> 仍然统计所有行，而事件率和各比例只统计已知结果。</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.rules</span><span class="w"> </span><span class="kn">import</span> <span class="n">rule_set_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rules</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s2">"high_debt"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s2">"young"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s2">"inquiries"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+<span class="gp">... </span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span> <span class="o">=</span> <span class="n">rule_set_table</span><span class="p">(</span><span class="n">rules</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span><span class="p">[[</span><span class="s2">"new_hits"</span><span class="p">,</span> <span class="s2">"new_event"</span><span class="p">,</span> <span class="s2">"approved"</span><span class="p">,</span> <span class="s2">"approval_rate"</span><span class="p">]]</span>
+<span class="go">           new_hits  new_event  approved  approval_rate</span>
+<span class="go">rule</span>
+<span class="go">high_debt         3          2         5          0.625</span>
+<span class="go">young             1          0         4          0.500</span>
+<span class="go">inquiries         1          1         3          0.375</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span><span class="p">[[</span><span class="s2">"approved_event"</span><span class="p">,</span> <span class="s2">"approved_event_rate"</span><span class="p">]]</span>
+<span class="go">           approved_event  approved_event_rate</span>
+<span class="go">rule</span>
+<span class="go">high_debt               1                 0.20</span>
+<span class="go">young                   1                 0.25</span>
+<span class="go">inquiries               0                 0.00</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span><span class="p">[[</span><span class="s2">"rejected_event_share"</span><span class="p">,</span> <span class="s2">"rejected_non_event_share"</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">           rejected_event_share  rejected_non_event_share</span>
+<span class="go">rule</span>
+<span class="go">high_debt                 0.667                       0.2</span>
+<span class="go">young                     0.667                       0.4</span>
+<span class="go">inquiries                 1.000                       0.4</span>
+</pre></div>
+</div>
+<p>先执行 <code class="docutils literal notranslate"><span class="pre">inquiries</span></code> 时，它的两个命中都是新增命中， <code class="docutils literal notranslate"><span class="pre">high_debt</span></code> 只剩两个新增命中，而最后一行保持不变：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rule_set_table</span><span class="p">(</span><span class="n">rules</span><span class="p">[[</span><span class="s2">"inquiries"</span><span class="p">,</span> <span class="s2">"young"</span><span class="p">,</span> <span class="s2">"high_debt"</span><span class="p">]],</span> <span class="n">target</span><span class="p">)[</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="s2">"new_hits"</span><span class="p">,</span> <span class="s2">"new_event"</span><span class="p">,</span> <span class="s2">"approved"</span><span class="p">,</span> <span class="s2">"approved_event"</span><span class="p">]</span>
+<span class="gp">... </span><span class="p">]</span>
+<span class="go">           new_hits  new_event  approved  approved_event</span>
+<span class="go">rule</span>
+<span class="go">inquiries         2          1         6               2</span>
+<span class="go">young             1          1         5               1</span>
+<span class="go">high_debt         2          1         3               0</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="strategy.html"
+       title="上一页">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">上一页</p>
+        <p class="prev-next-title">信贷策略</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="spec.html"
+       title="下一页">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">下一页</p>
+        <p class="prev-next-title">分箱方案</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 当前页面
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.rules.rule_candidates"><code class="docutils literal notranslate"><span class="pre">rule_candidates()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.rules.rule_table"><code class="docutils literal notranslate"><span class="pre">rule_table()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.rules.rule_set_table"><code class="docutils literal notranslate"><span class="pre">rule_set_table()</span></code></a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    由 <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1创建。
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

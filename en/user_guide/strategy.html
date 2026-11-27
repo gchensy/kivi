@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Credit strategy &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=d005c095" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=25d9e9fd"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/strategy';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Policy rules" href="rules.html" />
+    <link rel="prev" title="LGD and EAD" href="lgd.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="1.9.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 1.9.0">1.9.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    Tutorial
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/user_guide/strategy.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    Tutorial
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/user_guide/strategy.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="risk_workflow.html">Risk modeling workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">Time-window features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="univariate.html">Univariate profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="binning.html">Binning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="woe_iv.html">Weight of evidence and information value</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selection.html">Variable selection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reject_inference.html">Reject inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scorecard.html">Scorecard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="expert.html">Expert scorecards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">Model performance</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lgd.html">LGD and EAD</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">Credit strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rules.html">Policy rules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spec.html">Binning specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="psi.html">Population stability index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">Model monitoring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="validation.html">Model validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="capital.html">Regulatory capital</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vintage.html">Vintage and roll-rate analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lifetime.html">Lifetime PD and expected credit loss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html">Charts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">Example data</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">User guide</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Credit strategy</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="credit-strategy">
+<h1>Credit strategy<a class="headerlink" href="#credit-strategy" title="Link to this heading">#</a></h1>
+<p>A scorecard ranks applicants; a credit strategy decides whom to approve. <a class="reference internal" href="../api/strategy.html#module-kivi.strategy" title="kivi.strategy"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.strategy</span></code></a> supports the decisions that follow: <a class="reference internal" href="../api/strategy.html#kivi.strategy.cutoff_table" title="kivi.strategy.cutoff_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">cutoff_table()</span></code></a> shows what each candidate cut-off approves, how many bad outcomes it lets through and, with the revenue and losses of each applicant, what it earns, <a class="reference internal" href="../api/strategy.html#kivi.strategy.confusion_table" title="kivi.strategy.confusion_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">confusion_table()</span></code></a> counts the right and the wrong decisions of each cut-off, <a class="reference internal" href="../api/strategy.html#kivi.strategy.swap_set" title="kivi.strategy.swap_set"><code class="xref py py-func docutils literal notranslate"><span class="pre">swap_set()</span></code></a> compares the decisions of a current and a new score, and <a class="reference internal" href="../api/strategy.html#kivi.strategy.expected_loss" title="kivi.strategy.expected_loss"><code class="xref py py-func docutils literal notranslate"><span class="pre">expected_loss()</span></code></a> and <a class="reference internal" href="../api/strategy.html#kivi.strategy.expected_loss_table" title="kivi.strategy.expected_loss_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">expected_loss_table()</span></code></a> turn PDs, LGDs and exposures into the expected loss of each applicant and of each grade.</p>
+<p>The strategy follows <a class="reference internal" href="calibration.html"><span class="doc">Calibration</span></a>, which gives PDs and grades, and <a class="reference internal" href="lgd.html"><span class="doc">LGD and EAD</span></a>, which gives the LGDs and EADs of the expected loss, and comes before <a class="reference internal" href="rules.html"><span class="doc">Policy rules</span></a>, which measures the rules that decline applicants whatever their score.</p>
+<section id="score-direction-and-the-approval-rule">
+<h2>Score direction and the approval rule<a class="headerlink" href="#score-direction-and-the-approval-rule" title="Link to this heading">#</a></h2>
+<p>As in <a class="reference internal" href="metrics.html"><span class="doc">Model performance</span></a>, every score is higher for a higher risk, such as a PD. An applicant is approved when the score is at or below the cut-off, so a higher cut-off approves more applicants. A score equal to the cut-off is approved, and tied scores therefore always get the same decision.</p>
+<p>Scorecard points run the other way: a policy that approves 600 points or more approves the applicants whose negated points are at most -600. Pass <code class="docutils literal notranslate"><span class="pre">-points</span></code> and the negated cut-offs, for example <code class="docutils literal notranslate"><span class="pre">cutoff_table(-points,</span> <span class="pre">target,</span> <span class="pre">cutoffs=[-620,</span> <span class="pre">-600,</span> <span class="pre">-580])</span></code>.</p>
+</section>
+<section id="pds-of-two-scorecards">
+<h2>PDs of two scorecards<a class="headerlink" href="#pds-of-two-scorecards" title="Link to this heading">#</a></h2>
+<p>The examples on this page use the bundled bank data. The data record a marketing response rather than a default, so read target 1 as a default, as in <a class="reference internal" href="scorecard.html"><span class="doc">Scorecard</span></a>. The first 3,000 rows are the development sample and the remaining 1,521 rows stand for the applicants of a later period. Two logistic regressions on WOE values give the PDs of a current scorecard with four variables and of a new one that adds <code class="docutils literal notranslate"><span class="pre">loan</span></code> and <code class="docutils literal notranslate"><span class="pre">marital</span></code>:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_bank</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">logistic_regression</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.woe</span><span class="w"> </span><span class="kn">import</span> <span class="n">woe_table</span><span class="p">,</span> <span class="n">woe_transform</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">load_bank</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">development</span><span class="p">,</span> <span class="n">applicants</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="mi">3000</span><span class="p">],</span> <span class="n">data</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">3000</span><span class="p">:]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">to_groups</span><span class="p">(</span><span class="n">frame</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">groups</span> <span class="o">=</span> <span class="n">frame</span><span class="p">[[</span><span class="s2">"poutcome"</span><span class="p">,</span> <span class="s2">"contact"</span><span class="p">,</span> <span class="s2">"housing"</span><span class="p">,</span> <span class="s2">"loan"</span><span class="p">,</span> <span class="s2">"marital"</span><span class="p">]]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="gp">... </span>    <span class="n">groups</span><span class="p">[</span><span class="s2">"age"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">frame</span><span class="p">[</span><span class="s2">"age"</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">35</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">55</span><span class="p">,</span> <span class="mi">65</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">])</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">groups</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dev_groups</span> <span class="o">=</span> <span class="n">to_groups</span><span class="p">(</span><span class="n">development</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tables</span> <span class="o">=</span> <span class="p">{</span>
+<span class="gp">... </span>    <span class="n">column</span><span class="p">:</span> <span class="n">woe_table</span><span class="p">(</span><span class="n">dev_groups</span><span class="p">[</span><span class="n">column</span><span class="p">],</span> <span class="n">development</span><span class="p">[</span><span class="s2">"target"</span><span class="p">])</span> <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">dev_groups</span>
+<span class="gp">... </span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">to_woe</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">columns</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">groups</span> <span class="o">=</span> <span class="n">to_groups</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+<span class="gp">... </span>        <span class="p">{</span><span class="n">column</span><span class="p">:</span> <span class="n">woe_transform</span><span class="p">(</span><span class="n">groups</span><span class="p">[</span><span class="n">column</span><span class="p">],</span> <span class="n">tables</span><span class="p">[</span><span class="n">column</span><span class="p">])</span> <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">}</span>
+<span class="gp">... </span>    <span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">fit_pd</span><span class="p">(</span><span class="n">columns</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">fit</span> <span class="o">=</span> <span class="n">logistic_regression</span><span class="p">(</span><span class="n">to_woe</span><span class="p">(</span><span class="n">development</span><span class="p">,</span> <span class="n">columns</span><span class="p">),</span> <span class="n">development</span><span class="p">[</span><span class="s2">"target"</span><span class="p">])</span>
+<span class="gp">... </span>    <span class="n">coefficients</span> <span class="o">=</span> <span class="n">fit</span><span class="p">[</span><span class="s2">"coef"</span><span class="p">]</span>
+<span class="gp">... </span>    <span class="k">def</span><span class="w"> </span><span class="nf">predict</span><span class="p">(</span><span class="n">frame</span><span class="p">):</span>
+<span class="gp">... </span>        <span class="n">log_odds</span> <span class="o">=</span> <span class="n">coefficients</span><span class="p">[</span><span class="s2">"intercept"</span><span class="p">]</span> <span class="o">+</span> <span class="n">to_woe</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">columns</span><span class="p">)</span> <span class="o">@</span> <span class="n">coefficients</span><span class="p">[</span><span class="n">columns</span><span class="p">]</span>
+<span class="gp">... </span>        <span class="k">return</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">log_odds</span><span class="p">))</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">predict</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">four</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"poutcome"</span><span class="p">,</span> <span class="s2">"contact"</span><span class="p">,</span> <span class="s2">"housing"</span><span class="p">,</span> <span class="s2">"age"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">current</span> <span class="o">=</span> <span class="n">fit_pd</span><span class="p">(</span><span class="n">four</span><span class="p">)(</span><span class="n">applicants</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">new</span> <span class="o">=</span> <span class="n">fit_pd</span><span class="p">([</span><span class="o">*</span><span class="n">four</span><span class="p">,</span> <span class="s2">"loan"</span><span class="p">,</span> <span class="s2">"marital"</span><span class="p">])(</span><span class="n">applicants</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="n">applicants</span><span class="p">[</span><span class="s2">"target"</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>The new scorecard ranks the applicants a little better:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">roc_auc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="nb">round</span><span class="p">(</span><span class="n">roc_auc</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="mi">3</span><span class="p">),</span> <span class="nb">round</span><span class="p">(</span><span class="n">roc_auc</span><span class="p">(</span><span class="n">new</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="mi">3</span><span class="p">)]</span>
+<span class="go">[0.718, 0.73]</span>
+</pre></div>
+</div>
+</section>
+<section id="choosing-a-cut-off">
+<h2>Choosing a cut-off<a class="headerlink" href="#choosing-a-cut-off" title="Link to this heading">#</a></h2>
+<p><a class="reference internal" href="../api/strategy.html#kivi.strategy.cutoff_table" title="kivi.strategy.cutoff_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">cutoff_table()</span></code></a> takes the candidate cut-offs and reports, for each, the approved book and what the cut-off rejects. A PD of 1 approves everyone and gives the reference row:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.strategy</span><span class="w"> </span><span class="kn">import</span> <span class="n">cutoff_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cutoffs</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.08</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span> <span class="o">=</span> <span class="n">cutoff_table</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">cutoffs</span><span class="o">=</span><span class="n">cutoffs</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span><span class="p">[[</span><span class="s2">"approved"</span><span class="p">,</span> <span class="s2">"approval_rate"</span><span class="p">,</span> <span class="s2">"approved_event"</span><span class="p">,</span> <span class="s2">"approved_event_rate"</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">        approved  approval_rate  approved_event  approved_event_rate</span>
+<span class="go">cutoff</span>
+<span class="go">0.05         328          0.216              13                0.040</span>
+<span class="go">0.08         562          0.369              26                0.046</span>
+<span class="go">0.10         784          0.515              49                0.062</span>
+<span class="go">0.15        1329          0.874             110                0.083</span>
+<span class="go">0.20        1410          0.927             120                0.085</span>
+<span class="go">1.00        1521          1.000             173                0.114</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span><span class="p">[[</span><span class="s2">"rejected_event_share"</span><span class="p">,</span> <span class="s2">"rejected_non_event_share"</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">        rejected_event_share  rejected_non_event_share</span>
+<span class="go">cutoff</span>
+<span class="go">0.05                   0.925                     0.766</span>
+<span class="go">0.08                   0.850                     0.602</span>
+<span class="go">0.10                   0.717                     0.455</span>
+<span class="go">0.15                   0.364                     0.096</span>
+<span class="go">0.20                   0.306                     0.043</span>
+<span class="go">1.00                   0.000                     0.000</span>
+</pre></div>
+</div>
+<p>Each row is a possible policy. A cut-off of 0.10 approves 784 of the 1,521 applicants, 51.5%, and their bad rate of 6.25% is about half the 11.4% of all applicants. It avoids 71.7% of the bad outcomes, but also turns away 45.5% of the good applicants. Raising the cut-off to 0.15 approves 87.4% at a bad rate of 8.3%: the lender gains volume and accepts more risk. Which row to choose is a business decision; the table shows its price.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 70.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Column</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">approved</span></code></p></td>
+<td><p>Applicants with a score at or below the cut-off.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">approval_rate</span></code></p></td>
+<td><p>Share of all applicants that the cut-off approves.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">approved_event</span></code>, <code class="docutils literal notranslate"><span class="pre">approved_event_rate</span></code></p></td>
+<td><p>Events among the approved applicants and their rate, the bad rate of the approved book.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rejected_event_share</span></code></p></td>
+<td><p>Share of all events with a score above the cut-off: the bad outcomes the cut-off avoids.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rejected_non_event_share</span></code></p></td>
+<td><p>Share of all non-events with a score above the cut-off: the good business the cut-off gives up.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">approved_loss</span></code></p></td>
+<td><p>With <code class="docutils literal notranslate"><span class="pre">loss</span></code>, the sum of the losses of the approved applicants; see below.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">approved_revenue</span></code></p></td>
+<td><p>With <code class="docutils literal notranslate"><span class="pre">revenue</span></code>, the sum of the revenue of the approved applicants.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">profit</span></code></p></td>
+<td><p>With both <code class="docutils literal notranslate"><span class="pre">loss</span></code> and <code class="docutils literal notranslate"><span class="pre">revenue</span></code>, <code class="docutils literal notranslate"><span class="pre">approved_revenue</span></code> minus <code class="docutils literal notranslate"><span class="pre">approved_loss</span></code>.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The bad rate of the approved book averages over everyone approved. The cut-off itself is better judged by the marginal bad rate, the bad rate of the applicants that a higher cut-off adds:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">marginal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s2">"approved_event"</span><span class="p">],</span> <span class="n">prepend</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s2">"approved"</span><span class="p">],</span> <span class="n">prepend</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">marginal</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">array([0.04 , 0.056, 0.104, 0.112, 0.123, 0.477])</span>
+</pre></div>
+</div>
+<p>Suppose a good loan earns a margin <span class="math notranslate nohighlight">\(m\)</span> and a bad loan loses <span class="math notranslate nohighlight">\(L\)</span>. A group of applicants with bad rate <span class="math notranslate nohighlight">\(b\)</span> earns <span class="math notranslate nohighlight">\((1 - b)\,m - b L\)</span>, which is positive while <span class="math notranslate nohighlight">\(b &lt; m / (m + L)\)</span>. With a margin of 1 and a loss of 10 the break-even bad rate is <span class="math notranslate nohighlight">\(1/11 \approx 9.1\%\)</span>. The applicants between 0.05 and 0.08 default at 5.6% and pay for themselves, while those between 0.08 and 0.10 default at 10.4% and do not, so 0.08 is the most profitable of these cut-offs. For a well-calibrated PD the break-even rate is itself the PD cut-off; the marginal rates check it against the observed outcomes. With the revenue and the loss of each applicant, <code class="docutils literal notranslate"><span class="pre">cutoff_table</span></code> adds up the profit of each cut-off itself, as the section on revenue and profit below shows.</p>
+<p>An integer <code class="docutils literal notranslate"><span class="pre">cutoffs</span></code> places the cut-offs at the quantile edges of <a class="reference internal" href="../api/binning.html#kivi.binning.bin_edges" title="kivi.binning.bin_edges"><code class="xref py py-func docutils literal notranslate"><span class="pre">bin_edges()</span></code></a>, so that the rows approve about a fifth, two fifths and so on of the applicants. Tied scores move the steps, because all applicants with the same score get the same decision:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cutoff_table</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">cutoffs</span><span class="o">=</span><span class="mi">5</span><span class="p">)[[</span><span class="s2">"approved"</span><span class="p">,</span> <span class="s2">"approval_rate"</span><span class="p">,</span> <span class="s2">"approved_event_rate"</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">          approved  approval_rate  approved_event_rate</span>
+<span class="go">cutoff</span>
+<span class="go">0.043558       305          0.201                0.043</span>
+<span class="go">0.087036       696          0.458                0.057</span>
+<span class="go">0.120298       931          0.612                0.064</span>
+<span class="go">0.133431      1255          0.825                0.080</span>
+<span class="go">inf           1521          1.000                0.114</span>
+</pre></div>
+</div>
+</section>
+<section id="confusion-matrix">
+<h2>Confusion matrix<a class="headerlink" href="#confusion-matrix" title="Link to this heading">#</a></h2>
+<p>A cut-off is also a classifier: it predicts an event for every applicant it declines. <a class="reference internal" href="../api/strategy.html#kivi.strategy.confusion_table" title="kivi.strategy.confusion_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">confusion_table()</span></code></a> counts, at each cut-off, how those predictions match the outcomes, with an event as the positive class and a decline as the positive prediction:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.strategy</span><span class="w"> </span><span class="kn">import</span> <span class="n">confusion_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">confusion</span> <span class="o">=</span> <span class="n">confusion_table</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">cutoffs</span><span class="o">=</span><span class="n">cutoffs</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">confusion</span><span class="p">[[</span><span class="s2">"true_positive"</span><span class="p">,</span> <span class="s2">"false_positive"</span><span class="p">,</span> <span class="s2">"true_negative"</span><span class="p">,</span> <span class="s2">"false_negative"</span><span class="p">]]</span>
+<span class="go">        true_positive  false_positive  true_negative  false_negative</span>
+<span class="go">cutoff</span>
+<span class="go">0.05              160            1033            315              13</span>
+<span class="go">0.08              147             812            536              26</span>
+<span class="go">0.10              124             613            735              49</span>
+<span class="go">0.15               63             129           1219             110</span>
+<span class="go">0.20               53              58           1290             120</span>
+<span class="go">1.00                0               0           1348             173</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">confusion</span><span class="p">[[</span><span class="s2">"precision"</span><span class="p">,</span> <span class="s2">"recall"</span><span class="p">,</span> <span class="s2">"f1"</span><span class="p">,</span> <span class="s2">"accuracy"</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">        precision  recall     f1  accuracy</span>
+<span class="go">cutoff</span>
+<span class="go">0.05        0.134   0.925  0.234     0.312</span>
+<span class="go">0.08        0.153   0.850  0.260     0.449</span>
+<span class="go">0.10        0.168   0.717  0.273     0.565</span>
+<span class="go">0.15        0.328   0.364  0.345     0.843</span>
+<span class="go">0.20        0.477   0.306  0.373     0.883</span>
+<span class="go">1.00          NaN   0.000  0.000     0.886</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id1">
+<img alt="Two-by-two table of the applicants approved and declined at a cut-off of 0.10 against their outcome, with the columns of cutoff_table and confusion_table derived from its counts" class="plot-directive" src="../_images/strategy-1.svg" />
+<figcaption>
+<p><span class="caption-text">The four counts of <code class="docutils literal notranslate"><span class="pre">confusion_table</span></code> at the cut-off of 0.10, with an event as the positive class and a decline as the positive prediction. They make up the columns of <code class="docutils literal notranslate"><span class="pre">cutoff_table</span></code> at the same cut-off: the approved applicants are the true negatives and the false negatives, and the false negatives are its <code class="docutils literal notranslate"><span class="pre">approved_event</span></code>.</span><a class="headerlink" href="#id1" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 70.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Column</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">true_positive</span></code></p></td>
+<td><p>Events with a score above the cut-off: the bad outcomes it avoids.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">false_positive</span></code></p></td>
+<td><p>Non-events with a score above the cut-off: the good business it gives up.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">true_negative</span></code></p></td>
+<td><p>Non-events at or below the cut-off: the good business it keeps.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">false_negative</span></code></p></td>
+<td><p>Events at or below the cut-off: the bad outcomes it lets through.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">precision</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">true_positive</span></code> divided by the declined applicants, the event rate among them. It is NaN when the cut-off declines nobody.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">recall</span></code></p></td>
+<td><p>Share of all events that the cut-off declines.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">f1</span></code></p></td>
+<td><p>The harmonic mean of <code class="docutils literal notranslate"><span class="pre">precision</span></code> and <code class="docutils literal notranslate"><span class="pre">recall</span></code>; 0 when no event is declined.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">accuracy</span></code></p></td>
+<td><p>Share of applicants whose decision matches the outcome: declined events and approved non-events.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>A cut-off of 0.10 declines 737 applicants, 124 of them events. It declines 71.7% of the events, and 16.8% of the declined applicants are events, 1.5 times the 11.4% of all applicants. The rows are those of <a class="reference internal" href="../api/strategy.html#kivi.strategy.cutoff_table" title="kivi.strategy.cutoff_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">cutoff_table()</span></code></a>: <code class="docutils literal notranslate"><span class="pre">recall</span></code> is its <code class="docutils literal notranslate"><span class="pre">rejected_event_share</span></code>, <code class="docutils literal notranslate"><span class="pre">false_negative</span></code> its <code class="docutils literal notranslate"><span class="pre">approved_event</span></code>, and <code class="docutils literal notranslate"><span class="pre">false_positive</span></code> divided by all non-events its <code class="docutils literal notranslate"><span class="pre">rejected_non_event_share</span></code>. The table adds the counts that these shares are made of, and the measures of a classifier:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">confusion</span><span class="p">[</span><span class="s2">"recall"</span><span class="p">]</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s2">"rejected_event_share"</span><span class="p">])</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="../api/metrics.html#kivi.metrics.roc_table" title="kivi.metrics.roc_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">roc_table()</span></code></a> has the same counts at every distinct score, but its rows flag the scores at or above a threshold, while a cut-off declines only those above it. A row of <code class="docutils literal notranslate"><span class="pre">confusion_table</span></code> equals the <code class="docutils literal notranslate"><span class="pre">roc_table</span></code> row with the lowest threshold above the cut-off:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">roc_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">roc</span> <span class="o">=</span> <span class="n">roc_table</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">roc</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">roc</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">roc</span><span class="o">.</span><span class="n">index</span> <span class="o">&gt;</span> <span class="mf">0.1</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="p">[</span><span class="s2">"cum_event"</span><span class="p">,</span> <span class="s2">"cum_non_event"</span><span class="p">]]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<span class="go">[124, 613]</span>
+</pre></div>
+</div>
+<p>These measures depend on the share of events. Approving everyone, the last row, is right about 88.6% of the applicants, one minus the event rate, so among these cut-offs the accuracy is highest for the one that declines nobody. Precision stays low for the same reason. The F1 score is highest at 0.20, which declines 111 applicants, 7.3%, but it counts a declined good applicant and an approved bad one as equally costly. With the margin of 1 and the loss of 10 above, the second error costs ten times the first, and the cut-off of 0.08 that pays most there has an F1 of 0.26. Use these measures to compare scores or to report a classification at a chosen cut-off, and choose the cut-off from the marginal bad rate and the costs, as above.</p>
+<p>Unlike <a class="reference internal" href="../api/strategy.html#kivi.strategy.swap_set" title="kivi.strategy.swap_set"><code class="xref py py-func docutils literal notranslate"><span class="pre">swap_set()</span></code></a>, <code class="docutils literal notranslate"><span class="pre">confusion_table</span></code> takes no missing outcomes: remove the applicants whose outcome is unknown, or fill it in with reject inference, before counting.</p>
+</section>
+<section id="swap-sets">
+<h2>Swap sets<a class="headerlink" href="#swap-sets" title="Link to this heading">#</a></h2>
+<p>A new score changes the decisions of some applicants. At the cut-offs of both scores, <a class="reference internal" href="../api/strategy.html#kivi.strategy.swap_set" title="kivi.strategy.swap_set"><code class="xref py py-func docutils literal notranslate"><span class="pre">swap_set()</span></code></a> sorts the applicants into four groups: those both scores approve, the swap-outs that only the current score approves, the swap-ins that only the new score approves, and those both decline. To compare the scores at the same approval rate, give the new score the cut-off that approves as many applicants as the current cut-off of 0.10:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.strategy</span><span class="w"> </span><span class="kn">import</span> <span class="n">swap_set</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">approved</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">current</span> <span class="o">&lt;=</span> <span class="mf">0.1</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">new_cutoff</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">new</span><span class="p">)[</span><span class="n">approved</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">swaps</span> <span class="o">=</span> <span class="n">swap_set</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="n">new</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">current_cutoff</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">new_cutoff</span><span class="o">=</span><span class="n">new_cutoff</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">swaps</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">                 total  share  known  event  event_rate</span>
+<span class="go">current new</span>
+<span class="go">approve approve    679  0.446    679     33       0.049</span>
+<span class="go">        decline    105  0.069    105     16       0.152</span>
+<span class="go">decline approve    118  0.078    118      8       0.068</span>
+<span class="go">        decline    619  0.407    619    116       0.187</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id3">
+<img alt="Two two-by-two tables of the current and the new decisions with the count and the event rate of each group, once with every outcome known and once with only the outcomes of the applicants that the current score approves" class="plot-directive" src="../_images/strategy-2.svg" />
+<figcaption>
+<p><span class="caption-text">The four groups of <code class="docutils literal notranslate"><span class="pre">swap_set</span></code>: the swap-outs, in red, that only the current score approves, and the swap-ins, in teal, that only the new one approves. With the observed outcomes, right, the applicants that the current score declines have no known outcome.</span><a class="headerlink" href="#id3" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>The new score swaps out 105 applicants with a bad rate of 15.2% and swaps in 118 with a bad rate of 6.8%. Because of tied scores, its cut-off approves 797 applicants, 13 more than the current one, and the bad rate of the approved book falls from 6.25% to 5.1%:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cutoff_table</span><span class="p">(</span><span class="n">new</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">cutoffs</span><span class="o">=</span><span class="p">[</span><span class="n">new_cutoff</span><span class="p">])[[</span><span class="s2">"approved"</span><span class="p">,</span> <span class="s2">"approved_event_rate"</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">          approved  approved_event_rate</span>
+<span class="go">cutoff</span>
+<span class="go">0.105181       797                0.051</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id5">
+<img alt="Bad rate of the approved book against the approval rate for the current and the new score, with the cut-offs of the swap set marked" class="plot-directive" src="../_images/strategy-3.svg" />
+<figcaption>
+<p><span class="caption-text">The bad rate of the approved book at each approval rate. Up to an approval rate of about 65%, the new score approves a book with a lower bad rate; above it, the two curves run close together, with the new score mostly a little higher. The points mark the cut-offs of the swap set.</span><a class="headerlink" href="#id5" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>A new score is worth adopting when its swap-ins are better than its swap-outs; the applicants both scores approve or decline do not change. The row shares give the approval rate of each score, for example <code class="docutils literal notranslate"><span class="pre">swaps[&quot;share&quot;].xs(&quot;approve&quot;,</span> <span class="pre">level=&quot;new&quot;).sum()</span></code> for the new one.</p>
+<p>In practice the outcomes of the swap-ins are unknown: the current score declined them, so they never received a loan. Pass a target with missing values for unknown outcomes. They count in <code class="docutils literal notranslate"><span class="pre">total</span></code> and <code class="docutils literal notranslate"><span class="pre">share</span></code> but not in <code class="docutils literal notranslate"><span class="pre">known</span></code>, <code class="docutils literal notranslate"><span class="pre">event</span></code> and <code class="docutils literal notranslate"><span class="pre">event_rate</span></code>:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">observed</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">current</span> <span class="o">&lt;=</span> <span class="mf">0.1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">swap_set</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="n">new</span><span class="p">,</span> <span class="n">observed</span><span class="p">,</span> <span class="n">current_cutoff</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">new_cutoff</span><span class="o">=</span><span class="n">new_cutoff</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">                 total  share  known  event  event_rate</span>
+<span class="go">current new</span>
+<span class="go">approve approve    679  0.446    679     33       0.049</span>
+<span class="go">        decline    105  0.069    105     16       0.152</span>
+<span class="go">decline approve    118  0.078      0      0         NaN</span>
+<span class="go">        decline    619  0.407      0      0         NaN</span>
+</pre></div>
+</div>
+<p>The swap-outs are known, but the bad rate of the swap-ins is missing, and with it half of the comparison. Reject inference, described in <a class="reference internal" href="reject_inference.html"><span class="doc">Reject inference</span></a>, estimates the outcomes of declined applicants from their scores and the outcomes of similar approved ones. Pass the inferred labels, or the augmented sample with its weights, to fill in the table, and treat the result as an estimate: it depends on the assumptions of the inference.</p>
+</section>
+<section id="expected-loss">
+<h2>Expected loss<a class="headerlink" href="#expected-loss" title="Link to this heading">#</a></h2>
+<p>The expected loss of an exposure is the product of its probability of default, its loss given default and its exposure at default:</p>
+<div class="math notranslate nohighlight">
+\[\mathrm{EL} = \mathrm{PD} \times \mathrm{LGD} \times \mathrm{EAD}.\]</div>
+<p>The bank data have no loan amounts, so the examples take the average balance as the exposure, with negative balances set to zero, and one LGD of 45% for all applicants. <a class="reference internal" href="../api/strategy.html#kivi.strategy.expected_loss" title="kivi.strategy.expected_loss"><code class="xref py py-func docutils literal notranslate"><span class="pre">expected_loss()</span></code></a> accepts one value or one per applicant for the LGD and the EAD, and keeps the index of a Series:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.strategy</span><span class="w"> </span><span class="kn">import</span> <span class="n">expected_loss</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ead</span> <span class="o">=</span> <span class="n">applicants</span><span class="p">[</span><span class="s2">"balance"</span><span class="p">]</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">lower</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">el</span> <span class="o">=</span> <span class="n">expected_loss</span><span class="p">(</span><span class="n">new</span><span class="p">,</span> <span class="mf">0.45</span><span class="p">,</span> <span class="n">ead</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">el</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">3000     17.38</span>
+<span class="go">3001      0.00</span>
+<span class="go">3002    181.98</span>
+<span class="go">Name: expected_loss, dtype: float64</span>
+</pre></div>
+</div>
+<p>Pass the expected losses as <code class="docutils literal notranslate"><span class="pre">loss</span></code> to <a class="reference internal" href="../api/strategy.html#kivi.strategy.cutoff_table" title="kivi.strategy.cutoff_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">cutoff_table()</span></code></a> to add the expected loss of the approved book:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">table</span> <span class="o">=</span> <span class="n">cutoff_table</span><span class="p">(</span><span class="n">new</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">cutoffs</span><span class="o">=</span><span class="n">cutoffs</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="n">el</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">loss_per_approved</span><span class="o">=</span><span class="n">table</span><span class="p">[</span><span class="s2">"approved_loss"</span><span class="p">]</span> <span class="o">/</span> <span class="n">table</span><span class="p">[</span><span class="s2">"approved"</span><span class="p">])[</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="s2">"approval_rate"</span><span class="p">,</span> <span class="s2">"approved_event_rate"</span><span class="p">,</span> <span class="s2">"approved_loss"</span><span class="p">,</span> <span class="s2">"loss_per_approved"</span><span class="p">]</span>
+<span class="gp">... </span><span class="p">]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">        approval_rate  approved_event_rate  approved_loss  loss_per_approved</span>
+<span class="go">cutoff</span>
+<span class="go">0.05            0.189                0.031       5824.612             20.295</span>
+<span class="go">0.08            0.462                0.050      24451.010             34.830</span>
+<span class="go">0.10            0.494                0.049      26478.520             35.258</span>
+<span class="go">0.15            0.763                0.078      63693.305             54.861</span>
+<span class="go">0.20            0.910                0.085      89103.859             64.381</span>
+<span class="go">1.00            1.000                0.114     125487.469             82.503</span>
+</pre></div>
+</div>
+<p>Approving everyone carries an expected loss of 125,487, or 82.50 per applicant. A cut-off of 0.10 approves half of the applicants and only a fifth of that expected loss, 35.26 per approved applicant. <code class="docutils literal notranslate"><span class="pre">approved_loss</span></code> adds up whatever is passed as <code class="docutils literal notranslate"><span class="pre">loss</span></code>: pass realized losses to see the losses each cut-off lets through, whose difference from the last row is the loss it avoids, or pass the exposures to see the volume it approves.</p>
+</section>
+<section id="revenue-and-profit">
+<h2>Revenue and profit<a class="headerlink" href="#revenue-and-profit" title="Link to this heading">#</a></h2>
+<p>A cut-off that avoids losses also gives up the revenue of the loans it declines. Pass the revenue of each applicant as <code class="docutils literal notranslate"><span class="pre">revenue</span></code>, such as the interest margin its loan would earn, and <a class="reference internal" href="../api/strategy.html#kivi.strategy.cutoff_table" title="kivi.strategy.cutoff_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">cutoff_table()</span></code></a> adds <code class="docutils literal notranslate"><span class="pre">approved_revenue</span></code>, the revenue of the approved book; with <code class="docutils literal notranslate"><span class="pre">loss</span></code> as well, it also adds <code class="docutils literal notranslate"><span class="pre">profit</span></code>, the revenue minus the losses. Below, each loan earns a margin of 4% of its exposure over the year in which the expected loss is measured:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">revenue</span> <span class="o">=</span> <span class="mf">0.04</span> <span class="o">*</span> <span class="n">ead</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span> <span class="o">=</span> <span class="n">cutoff_table</span><span class="p">(</span><span class="n">new</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">cutoffs</span><span class="o">=</span><span class="n">cutoffs</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="n">el</span><span class="p">,</span> <span class="n">revenue</span><span class="o">=</span><span class="n">revenue</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span><span class="p">[[</span><span class="s2">"approval_rate"</span><span class="p">,</span> <span class="s2">"approved_loss"</span><span class="p">,</span> <span class="s2">"approved_revenue"</span><span class="p">,</span> <span class="s2">"profit"</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">        approval_rate  approved_loss  approved_revenue   profit</span>
+<span class="go">cutoff</span>
+<span class="go">0.05              0.2         5824.6           14117.4   8292.8</span>
+<span class="go">0.08              0.5        24451.0           39711.8  15260.8</span>
+<span class="go">0.10              0.5        26478.5           41829.9  15351.4</span>
+<span class="go">0.15              0.8        63693.3           70492.7   6799.4</span>
+<span class="go">0.20              0.9        89103.9           84063.2  -5040.7</span>
+<span class="go">1.00              1.0       125487.5           92864.4 -32623.1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">float</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s2">"profit"</span><span class="p">]</span><span class="o">.</span><span class="n">idxmax</span><span class="p">())</span>
+<span class="go">0.1</span>
+</pre></div>
+</div>
+<p>Approving everyone loses 32,623, because the margin does not cover the expected loss of the riskiest applicants. The cut-offs of 0.08 and 0.10 both earn about 15,300, and 0.10 earns the most of the six. Per unit of exposure, a loan with a PD <span class="math notranslate nohighlight">\(p\)</span> earns 0.04 and is expected to lose <span class="math notranslate nohighlight">\(0.45\,p\)</span>, so it pays for itself while <span class="math notranslate nohighlight">\(p &lt; 0.04 / 0.45 \approx 8.9\%\)</span>. For well-calibrated PDs the most profitable cut-off therefore lies near that break-even PD, and a finer grid of cut-offs finds it:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fine</span> <span class="o">=</span> <span class="n">cutoff_table</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">new</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">cutoffs</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">0.02</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">loss</span><span class="o">=</span><span class="n">el</span><span class="p">,</span> <span class="n">revenue</span><span class="o">=</span><span class="n">revenue</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fine</span><span class="o">.</span><span class="n">loc</span><span class="p">[[</span><span class="n">fine</span><span class="p">[</span><span class="s2">"profit"</span><span class="p">]</span><span class="o">.</span><span class="n">idxmax</span><span class="p">()],</span> <span class="p">[</span><span class="s2">"approval_rate"</span><span class="p">,</span> <span class="s2">"approved_event_rate"</span><span class="p">,</span> <span class="s2">"profit"</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">        approval_rate  approved_event_rate    profit</span>
+<span class="go">cutoff</span>
+<span class="go">0.09            0.473                0.049  15393.88</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id7">
+<img alt="The revenue, the expected loss and the profit of the approved book against the PD cut-off, with the most profitable cut-off and the break-even PD marked" class="plot-directive" src="../_images/strategy-4.svg" />
+<figcaption>
+<p><span class="caption-text">Revenue, expected loss and profit of the approved book at each cut-off of the finer grid. The profit is highest at 0.09, next to the break-even PD of 0.04 / 0.45, dashed, and falls below zero from a cut-off of 0.18 on.</span><a class="headerlink" href="#id7" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>The profit adds up whatever is passed in. With expected losses it is the expected profit of the approved book; with the realized losses of a past cohort, the profit the cut-offs would have earned on it. <code class="docutils literal notranslate"><span class="pre">revenue</span></code>, like <code class="docutils literal notranslate"><span class="pre">loss</span></code>, must be non-negative, so put costs such as funding, acquisition or servicing into <code class="docutils literal notranslate"><span class="pre">loss</span></code>. <a class="reference internal" href="../api/metrics.html#kivi.metrics.expected_maximum_profit" title="kivi.metrics.expected_maximum_profit"><code class="xref py py-func docutils literal notranslate"><span class="pre">expected_maximum_profit()</span></code></a> measures the profit of the best cut-off of a score when the loss of a default is uncertain, as a share of the loan amount; <a class="reference internal" href="metrics.html"><span class="doc">Model performance</span></a> describes it.</p>
+</section>
+<section id="expected-loss-by-grade">
+<h2>Expected loss by grade<a class="headerlink" href="#expected-loss-by-grade" title="Link to this heading">#</a></h2>
+<p><a class="reference internal" href="../api/strategy.html#kivi.strategy.expected_loss_table" title="kivi.strategy.expected_loss_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">expected_loss_table()</span></code></a> adds up the exposures and expected losses of each grade or other group. Cut the PDs of the new score at the edges of a master scale, as in <a class="reference internal" href="calibration.html"><span class="doc">Calibration</span></a>:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.strategy</span><span class="w"> </span><span class="kn">import</span> <span class="n">expected_loss_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pd_edges</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.08</span><span class="p">,</span> <span class="mf">0.12</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">grades</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">new</span><span class="p">,</span> <span class="n">pd_edges</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="s2">"ABCDEF"</span><span class="p">),</span> <span class="n">include_lowest</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">by_grade</span> <span class="o">=</span> <span class="n">expected_loss_table</span><span class="p">(</span><span class="n">grades</span><span class="p">,</span> <span class="n">new</span><span class="p">,</span> <span class="mf">0.45</span><span class="p">,</span> <span class="n">ead</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">by_grade</span><span class="p">[[</span><span class="s2">"total"</span><span class="p">,</span> <span class="s2">"exposure"</span><span class="p">,</span> <span class="s2">"expected_loss"</span><span class="p">,</span> <span class="s2">"expected_loss_rate"</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">     total  exposure  expected_loss  expected_loss_rate</span>
+<span class="go">bin</span>
+<span class="go">A      287  352935.0      5824.6120              0.0165</span>
+<span class="go">B      415  639860.0     18626.3984              0.0291</span>
+<span class="go">C      375  674173.0     33932.5102              0.0503</span>
+<span class="go">D      307  434612.0     30720.3387              0.0707</span>
+<span class="go">E       92  157964.0     18291.2384              0.1158</span>
+<span class="go">F       45   62065.0     18092.3717              0.2915</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">by_grade</span><span class="p">[</span><span class="s2">"exposure_weighted_probability"</span><span class="p">]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">bin</span>
+<span class="go">A    0.0367</span>
+<span class="go">B    0.0647</span>
+<span class="go">C    0.1118</span>
+<span class="go">D    0.1571</span>
+<span class="go">E    0.2573</span>
+<span class="go">F    0.6478</span>
+<span class="go">Name: exposure_weighted_probability, dtype: float64</span>
+</pre></div>
+</div>
+<p>The expected loss rate, expected loss divided by exposure, rises from 1.7% in grade A to 29% in grade F. With one LGD for everyone it is the LGD times the exposure-weighted PD; with an LGD per applicant it also reflects the collateral of each grade. The rows follow the grades of the scale, as in <a class="reference internal" href="../api/calibration.html#kivi.calibration.calibration_table" title="kivi.calibration.calibration_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">calibration_table()</span></code></a>, and grades without applicants are left out.</p>
+<p>The portfolio totals are the sums of the columns, and its expected loss rate is the ratio of two sums:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">total_el</span> <span class="o">=</span> <span class="n">by_grade</span><span class="p">[</span><span class="s2">"expected_loss"</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"EL = </span><span class="si">{</span><span class="n">total_el</span><span class="si">:</span><span class="s2">,.0f</span><span class="si">}</span><span class="s2">, EL rate = </span><span class="si">{</span><span class="n">total_el</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">by_grade</span><span class="p">[</span><span class="s1">'exposure'</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">EL = 125,487, EL rate = 0.0541</span>
+</pre></div>
+</div>
+<p>Comparing each grade’s share of the exposure with its share of the expected loss shows where the losses concentrate:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s2">"exposure"</span><span class="p">:</span> <span class="n">by_grade</span><span class="p">[</span><span class="s2">"exposure"</span><span class="p">]</span> <span class="o">/</span> <span class="n">by_grade</span><span class="p">[</span><span class="s2">"exposure"</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span>
+<span class="gp">... </span>    <span class="s2">"expected_loss"</span><span class="p">:</span> <span class="n">by_grade</span><span class="p">[</span><span class="s2">"expected_loss"</span><span class="p">]</span> <span class="o">/</span> <span class="n">total_el</span><span class="p">,</span>
+<span class="gp">... </span><span class="p">})</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">     exposure  expected_loss</span>
+<span class="go">bin</span>
+<span class="go">A       0.152          0.046</span>
+<span class="go">B       0.276          0.148</span>
+<span class="go">C       0.290          0.270</span>
+<span class="go">D       0.187          0.245</span>
+<span class="go">E       0.068          0.146</span>
+<span class="go">F       0.027          0.144</span>
+</pre></div>
+</div>
+<p>Grades E and F hold under a tenth of the exposure but almost 30% of the expected loss. A policy that declines grade F, a PD above 0.4, gives up 2.7% of the exposure and avoids 14.4% of the expected loss; the price of those loans would otherwise have to cover a loss rate of 29%.</p>
+</section>
+<section id="sample-weights">
+<h2>Sample weights<a class="headerlink" href="#sample-weights" title="Link to this heading">#</a></h2>
+<p><a class="reference internal" href="../api/strategy.html#kivi.strategy.cutoff_table" title="kivi.strategy.cutoff_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">cutoff_table()</span></code></a>, <a class="reference internal" href="../api/strategy.html#kivi.strategy.confusion_table" title="kivi.strategy.confusion_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">confusion_table()</span></code></a>, <a class="reference internal" href="../api/strategy.html#kivi.strategy.swap_set" title="kivi.strategy.swap_set"><code class="xref py py-func docutils literal notranslate"><span class="pre">swap_set()</span></code></a> and <a class="reference internal" href="../api/strategy.html#kivi.strategy.expected_loss_table" title="kivi.strategy.expected_loss_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">expected_loss_table()</span></code></a> take <code class="docutils literal notranslate"><span class="pre">weights</span></code>, one non-negative weight per applicant, as the functions of <a class="reference internal" href="../api/metrics.html#module-kivi.metrics" title="kivi.metrics"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.metrics</span></code></a> do. Counts, exposures, losses and revenue become sums of weights, and integer weights give the same counts and sums as repeating rows. For <code class="docutils literal notranslate"><span class="pre">cutoff_table</span></code> and <code class="docutils literal notranslate"><span class="pre">confusion_table</span></code> this holds on explicit cut-offs: an integer <code class="docutils literal notranslate"><span class="pre">cutoffs</span></code> uses the weighted quantiles of <a class="reference internal" href="../api/binning.html#kivi.binning.bin_edges" title="kivi.binning.bin_edges"><code class="xref py py-func docutils literal notranslate"><span class="pre">bin_edges()</span></code></a>, which can differ from the quantiles of repeated rows. Use the weights of an outcome-based sample, which keeps all bad outcomes but only some of the good ones, to report approval and bad rates for the whole population.</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="lgd.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">LGD and EAD</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="rules.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Policy rules</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#score-direction-and-the-approval-rule">Score direction and the approval rule</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pds-of-two-scorecards">PDs of two scorecards</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#choosing-a-cut-off">Choosing a cut-off</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#confusion-matrix">Confusion matrix</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#swap-sets">Swap sets</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#expected-loss">Expected loss</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#revenue-and-profit">Revenue and profit</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#expected-loss-by-grade">Expected loss by grade</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sample-weights">Sample weights</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1.
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

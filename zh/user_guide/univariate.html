@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>单变量概况 &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=d005c095" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=14f9d491"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script src="../_static/translations.js?v=540d3cec"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/univariate';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="next" title="分箱" href="binning.html" />
+    <link rel="prev" title="时间窗特征" href="features.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+  <meta name="docsearch:version" content="1.9.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">跳转至主要内容</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>回到顶部</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="版本警告"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="网页导航" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 1.9.0">1.9.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    教程
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../../en/user_guide/univariate.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="当前页面" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    教程
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../../en/user_guide/univariate.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="章节导航">
+  <p class="bd-links__title" role="heading" aria-level="1">章节导航</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="risk_workflow.html">风控建模流程</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">时间窗特征</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">单变量概况</a></li>
+<li class="toctree-l1"><a class="reference internal" href="binning.html">分箱</a></li>
+<li class="toctree-l1"><a class="reference internal" href="woe_iv.html">证据权重与信息值</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selection.html">变量筛选</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reject_inference.html">拒绝推断</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scorecard.html">评分卡</a></li>
+<li class="toctree-l1"><a class="reference internal" href="expert.html">专家评分卡</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">模型表现</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">校准</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lgd.html">LGD 与 EAD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">信贷策略</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rules.html">政策规则</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spec.html">分箱方案</a></li>
+<li class="toctree-l1"><a class="reference internal" href="psi.html">群体稳定性指标</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">模型监控</a></li>
+<li class="toctree-l1"><a class="reference internal" href="validation.html">模型验证</a></li>
+<li class="toctree-l1"><a class="reference internal" href="capital.html">监管资本</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vintage.html">Vintage 与滚动率分析</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lifetime.html">存续期 PD 与预期信用损失</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html">图表</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">示例数据</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="初始页面">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">用户指南</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">单变量概况</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="univariate-profile">
+<h1>单变量概况<a class="headerlink" href="#univariate-profile" title="链接到此标题。">#</a></h1>
+<p>在仔细地为任何变量分箱之前，先把所有变量放在一起看：每个变量的完整程度如何，取值如何分布，单独区分事件与非事件的能力有多强。 <a class="reference internal" href="../api/univariate.html#kivi.univariate.profile_table" title="kivi.univariate.profile_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">kivi.univariate.profile_table()</span></code></a> 用一行概括数据框的每一列，因此全部候选变量可以放在一张表中。</p>
+<p>概况是对模型候选变量的第一次审视：候选变量包括申请数据中的列，以及 <a class="reference internal" href="features.html"><span class="doc">时间窗特征</span></a> 由交易流水和还款历史计算的特征。通过筛选的候选变量接下来按 <a class="reference internal" href="binning.html"><span class="doc">分箱</span></a> 中的方法仔细分箱， <a class="reference internal" href="risk_workflow.html"><span class="doc">风控建模流程</span></a> 则沿后续各步继续处理它们。</p>
+<section id="profiling-the-candidates">
+<h2>分析候选变量<a class="headerlink" href="#profiling-the-candidates" title="链接到此标题。">#</a></h2>
+<p>自带的银行数据用标签 <code class="docutils literal notranslate"><span class="pre">unknown</span></code> 表示类别变量的缺失值。先把它们转换为缺失值，让概况表统计它们：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_bank</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.univariate</span><span class="w"> </span><span class="kn">import</span> <span class="n">profile_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">load_bank</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">development</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="mi">3000</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">candidates</span> <span class="o">=</span> <span class="n">development</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s2">"target"</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"unknown"</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">profile</span> <span class="o">=</span> <span class="n">profile_table</span><span class="p">(</span><span class="n">candidates</span><span class="p">,</span> <span class="n">development</span><span class="p">[</span><span class="s2">"target"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">profile</span><span class="p">[[</span><span class="s2">"kind"</span><span class="p">,</span> <span class="s2">"count"</span><span class="p">,</span> <span class="s2">"missing_share"</span><span class="p">,</span> <span class="s2">"distinct"</span><span class="p">,</span> <span class="s2">"top"</span><span class="p">,</span> <span class="s2">"top_share"</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">                  kind  count  missing_share  distinct         top  top_share</span>
+<span class="go">variable</span>
+<span class="go">age            numeric   3000          0.000        64          34      0.053</span>
+<span class="go">job        categorical   2975          0.008        11  management      0.220</span>
+<span class="go">marital    categorical   3000          0.000         3     married      0.613</span>
+<span class="go">education  categorical   2875          0.042         3   secondary      0.526</span>
+<span class="go">default    categorical   3000          0.000         2          no      0.984</span>
+<span class="go">balance        numeric   3000          0.000      1808           0      0.077</span>
+<span class="go">housing    categorical   3000          0.000         2         yes      0.567</span>
+<span class="go">loan       categorical   3000          0.000         2          no      0.844</span>
+<span class="go">contact    categorical   2137          0.288         2    cellular      0.916</span>
+<span class="go">day            numeric   3000          0.000        31          20      0.053</span>
+<span class="go">month      categorical   3000          0.000        12         may      0.307</span>
+<span class="go">duration       numeric   3000          0.000       764         121      0.007</span>
+<span class="go">campaign       numeric   3000          0.000        29           1      0.385</span>
+<span class="go">pdays          numeric   3000          0.000       246          -1      0.825</span>
+<span class="go">previous       numeric   3000          0.000        18           0      0.825</span>
+<span class="go">poutcome   categorical    525          0.825         3     failure      0.613</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id1">
+<img alt="五个候选列的六行数据（缺失值为灰色），以及这五列在概况中的行，含类型、缺失占比、不同取值数和 IV" class="plot-directive" src="../_images/univariate-1.svg" />
+<figcaption>
+<p><span class="caption-text"><code class="docutils literal notranslate"><span class="pre">profile_table</span></code> 把数据框的每一列变成概况中的一行；这里展示十六列中的五列、29 项统计中的四项。灰色的缺失值计入 <code class="docutils literal notranslate"><span class="pre">missing_share</span></code> 。</span><a class="headerlink" href="#id1" title="链接到此图片">#</a></p>
+</figcaption>
+</figure>
+<p>每一列占一行，以列名为索引：</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">kind</span></code> 对 bool 以外的数值 dtype 为 <code class="docutils literal notranslate"><span class="pre">numeric</span></code> ，对其他所有 dtype 为 <code class="docutils literal notranslate"><span class="pre">categorical</span></code> ，与 <a class="reference internal" href="../api/spec.html#kivi.spec.fit_spec" title="kivi.spec.fit_spec"><code class="xref py py-func docutils literal notranslate"><span class="pre">fit_spec()</span></code></a> 相同。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">count</span></code> 和 <code class="docutils literal notranslate"><span class="pre">missing</span></code> 统计有取值和无取值的行数， <code class="docutils literal notranslate"><span class="pre">missing_share</span></code> 是无取值的行所占的比例。 <code class="docutils literal notranslate"><span class="pre">poutcome</span></code> 对 82.5% 的客户缺失，即未参加上一次营销活动的客户。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">distinct</span></code> 是不同取值的个数。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">top</span></code> 是最常见的取值， <code class="docutils literal notranslate"><span class="pre">top_share</span></code> 是它在有取值的行中所占的比例。比例接近 1 表示该变量几乎是常数：98.4% 的客户的 <code class="docutils literal notranslate"><span class="pre">default</span></code> 为 no。</p></li>
+</ul>
+</section>
+<section id="distribution-of-numeric-variables">
+<h2>数值变量的分布<a class="headerlink" href="#distribution-of-numeric-variables" title="链接到此标题。">#</a></h2>
+<p>数值列还给出均值、样本标准差、最小值、1%、50% 和 99% 分位数以及最大值。类别列为 NaN：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">numeric</span> <span class="o">=</span> <span class="n">profile</span><span class="p">[</span><span class="s2">"kind"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"numeric"</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">profile</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">numeric</span><span class="p">,</span> <span class="p">[</span><span class="s2">"min"</span><span class="p">,</span> <span class="s2">"q01"</span><span class="p">,</span> <span class="s2">"q50"</span><span class="p">,</span> <span class="s2">"q99"</span><span class="p">,</span> <span class="s2">"max"</span><span class="p">]]</span>
+<span class="go">             min    q01    q50       q99      max</span>
+<span class="go">variable</span>
+<span class="go">age         19.0   23.0   39.0     71.01     86.0</span>
+<span class="go">balance  -2082.0 -701.0  461.5  13343.52  42045.0</span>
+<span class="go">day          1.0    2.0   16.0     31.00     31.0</span>
+<span class="go">duration     4.0   11.0  185.0   1259.16   3025.0</span>
+<span class="go">campaign     1.0    1.0    2.0     15.00     50.0</span>
+<span class="go">pdays       -1.0   -1.0   -1.0    370.01    871.0</span>
+<span class="go">previous     0.0    0.0    0.0      8.00     20.0</span>
+</pre></div>
+</div>
+<p>1% 和 99% 分位数显示了大部分取值的范围。 <code class="docutils literal notranslate"><span class="pre">balance</span></code> 的最大值是其 99% 分位数的三倍，说明少数客户的余额远高于其他人。 <code class="docutils literal notranslate"><span class="pre">pdays</span></code> 的中位数为 -1，这是此前从未联系过的客户的编码。</p>
+<p>另有三列描述数值分布的形态。 <code class="docutils literal notranslate"><span class="pre">skewness</span></code> 和 <code class="docutils literal notranslate"><span class="pre">kurtosis</span></code> 是偏差校正后的样本偏度和超额峰度，与 <code class="docutils literal notranslate"><span class="pre">pandas.Series.skew</span></code> 和 <code class="docutils literal notranslate"><span class="pre">pandas.Series.kurt</span></code> 的计算相同； <code class="docutils literal notranslate"><span class="pre">cv</span></code> 是变异系数，即标准差除以均值：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">profile</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">numeric</span><span class="p">,</span> <span class="p">[</span><span class="s2">"mean"</span><span class="p">,</span> <span class="s2">"std"</span><span class="p">,</span> <span class="s2">"cv"</span><span class="p">,</span> <span class="s2">"skewness"</span><span class="p">,</span> <span class="s2">"kurtosis"</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">              mean       std     cv  skewness  kurtosis</span>
+<span class="go">variable</span>
+<span class="go">age         40.995    10.483  0.256     0.686     0.316</span>
+<span class="go">balance   1382.438  2757.764  1.995     4.860    37.641</span>
+<span class="go">day         15.890     8.217  0.517     0.094    -1.032</span>
+<span class="go">duration   264.170   258.600  0.979     2.711    11.764</span>
+<span class="go">campaign     2.753     3.001  1.090     4.755    39.061</span>
+<span class="go">pdays       38.198    98.245  2.572     2.768     8.220</span>
+<span class="go">previous     0.513     1.553  3.026     4.996    35.354</span>
+</pre></div>
+</div>
+<p>正态分布的偏度和超额峰度都为 0。 <code class="docutils literal notranslate"><span class="pre">balance</span></code> 、 <code class="docutils literal notranslate"><span class="pre">campaign</span></code> 和 <code class="docutils literal notranslate"><span class="pre">previous</span></code> 的偏度接近 5，峰度超过 35：少数极大的取值形成长长的右尾，等频分箱能吸收它们，但它们会主导均值以及对原始取值的任何线性拟合。 <code class="docutils literal notranslate"><span class="pre">day</span></code> 在一个月内分布得几乎均匀，峰度为 -1。变异系数可以比较不同尺度上的离散程度： <code class="docutils literal notranslate"><span class="pre">previous</span></code> 的标准差是其均值的三倍， <code class="docutils literal notranslate"><span class="pre">age</span></code> 的标准差只有均值的四分之一。它的符号与均值相同，均值为 0 时为 NaN。偏度至少需要 3 个取值，峰度至少需要 4 个；所有取值都相等时两者均为 NaN。</p>
+</section>
+<section id="screening-by-iv">
+<h2>按 IV 筛选变量<a class="headerlink" href="#screening-by-iv" title="链接到此标题。">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">iv</span></code> 列是快速分箱的信息值：数值列使用 <a class="reference internal" href="../api/binning.html#kivi.binning.bin_edges" title="kivi.binning.bin_edges"><code class="xref py py-func docutils literal notranslate"><span class="pre">bin_edges()</span></code></a> 的 <code class="docutils literal notranslate"><span class="pre">bins</span></code> 个等频箱，每个特殊值编码单独成组；类别列使用其标签。缺失值单独成组。 <code class="docutils literal notranslate"><span class="pre">gini</span></code> 列是把数值列的取值作为评分时的 Gini 系数：事件的取值较高时为正，较低时为负。</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ranking</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">"iv"</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ranking</span><span class="p">[[</span><span class="s2">"kind"</span><span class="p">,</span> <span class="s2">"iv"</span><span class="p">,</span> <span class="s2">"tied_bins"</span><span class="p">,</span> <span class="s2">"gini"</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">                  kind     iv  tied_bins   gini</span>
+<span class="go">variable</span>
+<span class="go">duration       numeric  1.594      False  0.627</span>
+<span class="go">poutcome   categorical  0.423      False    NaN</span>
+<span class="go">month      categorical  0.334      False    NaN</span>
+<span class="go">contact    categorical  0.215      False    NaN</span>
+<span class="go">job        categorical  0.137      False    NaN</span>
+<span class="go">housing    categorical  0.108      False    NaN</span>
+<span class="go">balance        numeric  0.099      False  0.183</span>
+<span class="go">loan       categorical  0.059      False    NaN</span>
+<span class="go">education  categorical  0.050      False    NaN</span>
+<span class="go">marital    categorical  0.049      False    NaN</span>
+<span class="go">campaign       numeric  0.031       True -0.093</span>
+<span class="go">age            numeric  0.019      False  0.009</span>
+<span class="go">day            numeric  0.011      False -0.048</span>
+<span class="go">default    categorical  0.000      False    NaN</span>
+<span class="go">pdays          numeric  0.000       True  0.175</span>
+<span class="go">previous       numeric  0.000       True  0.199</span>
+</pre></div>
+</div>
+<p>这些正是 <a class="reference internal" href="risk_workflow.html"><span class="doc">风控建模流程</span></a> 筛选步骤中的 IV，该步骤以同样的方式为每个候选变量分箱。 <code class="docutils literal notranslate"><span class="pre">bin_edges</span></code> 会对重合的分位数发出警告； <a class="reference internal" href="../api/univariate.html#kivi.univariate.profile_table" title="kivi.univariate.profile_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">profile_table()</span></code></a> 则将其记录在 <code class="docutils literal notranslate"><span class="pre">tied_bins</span></code> 中，因此分析很多列时不会产生警告。 <code class="docutils literal notranslate"><span class="pre">pdays</span></code> 和 <code class="docutils literal notranslate"><span class="pre">previous</span></code> 的大多数取值分别是 -1 和 0，因此它们重合的分位数合并为一个箱，在仔细分箱之前，IV 为 0 会低估它们的作用： <code class="docutils literal notranslate"><span class="pre">pdays</span></code> 要像下文那样使用特殊值编码， <code class="docutils literal notranslate"><span class="pre">previous</span></code> 要使用自定义边界。</p>
+<p>另外两列从其他角度衡量区分能力。 <code class="docutils literal notranslate"><span class="pre">ks</span></code> 是把数值列的取值当作评分时的 KS 统计量，即事件与非事件累计分布之间的最大差距，与 <a class="reference internal" href="../api/metrics.html#kivi.metrics.ks" title="kivi.metrics.ks"><code class="xref py py-func docutils literal notranslate"><span class="pre">ks()</span></code></a> 的计算相同；与 <code class="docutils literal notranslate"><span class="pre">gini</span></code> 不同，它没有符号，无论取值方向如何都在 0 到 1 之间。 <code class="docutils literal notranslate"><span class="pre">chi2_p_value</span></code> 是目标与快速分箱各组（与 <code class="docutils literal notranslate"><span class="pre">iv</span></code> 的分组相同）之间卡方独立性检验的 p 值，自由度比组数少 1：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ranking</span><span class="p">[[</span><span class="s2">"iv"</span><span class="p">,</span> <span class="s2">"chi2_p_value"</span><span class="p">,</span> <span class="s2">"ks"</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">              iv  chi2_p_value     ks</span>
+<span class="go">variable</span>
+<span class="go">duration   1.594         0.000  0.473</span>
+<span class="go">poutcome   0.423         0.000    NaN</span>
+<span class="go">month      0.334         0.000    NaN</span>
+<span class="go">contact    0.215         0.000    NaN</span>
+<span class="go">job        0.137         0.000    NaN</span>
+<span class="go">housing    0.108         0.000    NaN</span>
+<span class="go">balance    0.099         0.000  0.150</span>
+<span class="go">loan       0.059         0.000    NaN</span>
+<span class="go">education  0.050         0.002    NaN</span>
+<span class="go">marital    0.049         0.000    NaN</span>
+<span class="go">campaign   0.031         0.016  0.072</span>
+<span class="go">age        0.019         0.205  0.062</span>
+<span class="go">day        0.011         0.511  0.057</span>
+<span class="go">default    0.000         0.796    NaN</span>
+<span class="go">pdays      0.000         1.000  0.192</span>
+<span class="go">previous   0.000         1.000  0.192</span>
+</pre></div>
+</div>
+<p>在 3000 行数据上，IV 高于 0.03 的每一列的 p 值都低于 0.05：行数这么多时，即使很弱的关系也是显著的，因此 p 值不能用来给各列排序。较大的 p 值更能说明问题： <code class="docutils literal notranslate"><span class="pre">age</span></code> 、 <code class="docutils literal notranslate"><span class="pre">day</span></code> 和 <code class="docutils literal notranslate"><span class="pre">default</span></code> 的快速分箱没有显示响应率依赖于它们的证据。 <code class="docutils literal notranslate"><span class="pre">pdays</span></code> 和 <code class="docutils literal notranslate"><span class="pre">previous</span></code> 只有一个组，因此 p 值为 1，而它们 0.192 的 <code class="docutils literal notranslate"><span class="pre">ks</span></code> 表明其取值确实能区分两类：卡方检验与 IV 一样，只看得到分组。</p>
+<p>快速分箱只给出初步排序而非最终排序。五个等频箱可能遗漏其他边界才能显示的规律，而含有许多稀有标签的类别变量，在按 <a class="reference internal" href="binning.html#category-groups"><span class="std std-ref">类别分组</span></a> 对类别分组之前，IV 会被高估。像工作流程中那样审慎地解读这一排序，并在 <a class="reference internal" href="binning.html"><span class="doc">分箱</span></a> 中仔细地为入选变量分箱。</p>
+</section>
+<section id="special-values">
+<h2>特殊值<a class="headerlink" href="#special-values" title="链接到此标题。">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">pdays</span> <span class="pre">==</span> <span class="pre">-1</span></code> 这样的特殊值编码是一个取值，而不是与其他取值处于同一尺度上的数。把它按列传入 <code class="docutils literal notranslate"><span class="pre">special</span></code> ，与 <a class="reference internal" href="../api/spec.html#kivi.spec.fit_spec" title="kivi.spec.fit_spec"><code class="xref py py-func docutils literal notranslate"><span class="pre">fit_spec()</span></code></a> 相同。该编码在 <code class="docutils literal notranslate"><span class="pre">count</span></code> 、 <code class="docutils literal notranslate"><span class="pre">distinct</span></code> 和 <code class="docutils literal notranslate"><span class="pre">top</span></code> 中仍算作取值，但 <code class="docutils literal notranslate"><span class="pre">special</span></code> 和 <code class="docutils literal notranslate"><span class="pre">special_share</span></code> 会单独统计它，数值汇总及其形态、Gini 系数、KS 统计量和快速分箱则不包含它：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">coded</span> <span class="o">=</span> <span class="n">profile_table</span><span class="p">(</span><span class="n">candidates</span><span class="p">,</span> <span class="n">development</span><span class="p">[</span><span class="s2">"target"</span><span class="p">],</span> <span class="n">special</span><span class="o">=</span><span class="p">{</span><span class="s2">"pdays"</span><span class="p">:</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">coded</span><span class="o">.</span><span class="n">loc</span><span class="p">[[</span><span class="s2">"pdays"</span><span class="p">],</span> <span class="p">[</span><span class="s2">"special_share"</span><span class="p">,</span> <span class="s2">"min"</span><span class="p">,</span> <span class="s2">"q50"</span><span class="p">,</span> <span class="s2">"max"</span><span class="p">,</span> <span class="s2">"gini"</span><span class="p">,</span> <span class="s2">"ks"</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">          special_share  min    q50    max   gini    ks</span>
+<span class="go">variable</span>
+<span class="go">pdays             0.825  1.0  188.0  871.0 -0.332  0.33</span>
+</pre></div>
+</div>
+<p>在此前联系过的客户中，一半客户的上次联系是在 188 天以前。</p>
+<p>从快速分箱中排除后，该编码单独成组，其余取值填满五个等频箱。 <code class="docutils literal notranslate"><span class="pre">pdays</span></code> 的 IV 从 0 升至 0.355，在全部候选变量中排第三：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">coded</span><span class="o">.</span><span class="n">loc</span><span class="p">[[</span><span class="s2">"pdays"</span><span class="p">],</span> <span class="p">[</span><span class="s2">"iv"</span><span class="p">,</span> <span class="s2">"tied_bins"</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">             iv  tied_bins</span>
+<span class="go">variable</span>
+<span class="go">pdays     0.355      False</span>
+</pre></div>
+</div>
+<p>它的 <code class="docutils literal notranslate"><span class="pre">chi2_p_value</span></code> 从 1 降到约 1e-35，因为各组的响应率现在有了差别。把编码 -1 当作最小值时， <code class="docutils literal notranslate"><span class="pre">pdays</span></code> 的 Gini 系数为 0.175；在此前联系过的客户中，上次联系越近，响应越多，因此符号反转。 <code class="docutils literal notranslate"><span class="pre">ks</span></code> 没有符号，它从 0.192 升到 0.330。</p>
+</section>
+<section id="missing-values">
+<h2>缺失值<a class="headerlink" href="#missing-values" title="链接到此标题。">#</a></h2>
+<p>有目标变量时，每一列还给出全部行的事件率 <code class="docutils literal notranslate"><span class="pre">event_rate</span></code> ，以及无取值和有取值的行的事件率 <code class="docutils literal notranslate"><span class="pre">missing_event_rate</span></code> 和 <code class="docutils literal notranslate"><span class="pre">non_missing_event_rate</span></code> 。提升度是它们除以 <code class="docutils literal notranslate"><span class="pre">event_rate</span></code> 的结果，提升度大于 1 表示这些行的风险高于平均水平：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">missing</span> <span class="o">=</span> <span class="n">profile</span><span class="p">[</span><span class="s2">"missing"</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">profile</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">missing</span><span class="p">,</span> <span class="p">[</span><span class="s2">"missing_share"</span><span class="p">,</span> <span class="s2">"missing_event_rate"</span><span class="p">,</span> <span class="s2">"missing_lift"</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">           missing_share  missing_event_rate  missing_lift</span>
+<span class="go">variable</span>
+<span class="go">job                0.008               0.160         1.379</span>
+<span class="go">education          0.042               0.080         0.690</span>
+<span class="go">contact            0.288               0.050         0.430</span>
+<span class="go">poutcome           0.825               0.092         0.794</span>
+</pre></div>
+</div>
+<p>联系方式缺失的客户响应率为 5.0%，不到全部客户 11.6% 的一半。像这样携带信息的缺失值值得在分箱中单独成组， <a class="reference internal" href="../api/woe.html#kivi.woe.woe_table" title="kivi.woe.woe_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">woe_table()</span></code></a> 正是这样处理的。</p>
+<figure class="align-default" id="id3">
+<img alt="job、education、contact 和 poutcome 的缺失值占比及其提升度" class="plot-directive" src="../_images/univariate-2.svg" />
+<figcaption>
+<p><span class="caption-text">四个有缺失值的列的缺失值占比及其提升度。 <code class="docutils literal notranslate"><span class="pre">job</span></code> 缺失的客户响应率高于平均水平，其他列缺失的客户则低于平均水平。</span><a class="headerlink" href="#id3" title="链接到此图片">#</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="sample-weights">
+<h2>样本权重<a class="headerlink" href="#sample-weights" title="链接到此标题。">#</a></h2>
+<p><a class="reference internal" href="../api/univariate.html#kivi.univariate.profile_table" title="kivi.univariate.profile_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">profile_table()</span></code></a> 接受 <code class="docutils literal notranslate"><span class="pre">weights</span></code> ，例如每一行抽样比例的倒数。计数变为权重之和，每项统计量都加权计算，因此整数权重与重复相应行并使用单位权重得到的表格相同。此时分位数是逆累积分布意义下的加权分位数，与 <a class="reference internal" href="../api/binning.html#kivi.binning.bin_edges" title="kivi.binning.bin_edges"><code class="xref py py-func docutils literal notranslate"><span class="pre">bin_edges()</span></code></a> 的边界相同，而不加权的分位数会进行插值。因此，即使权重全为 1，也会改变分位数，并通过快速分箱的边界改变 <code class="docutils literal notranslate"><span class="pre">iv</span></code> 、 <code class="docutils literal notranslate"><span class="pre">chi2_p_value</span></code> 和 <code class="docutils literal notranslate"><span class="pre">tied_bins</span></code> ；其他各列都等于不加权的重复行的结果。 <code class="docutils literal notranslate"><span class="pre">skewness</span></code> 和 <code class="docutils literal notranslate"><span class="pre">kurtosis</span></code> 把总权重当作取值个数，因此权重之和须分别大于 2 和 3。没有 <code class="docutils literal notranslate"><span class="pre">target</span></code> 时，表格只包含描述变量的列。</p>
+<p>卡方检验把权重当作频数权重：权重为 3 的行算作三个观测。抽样比例的倒数作为权重时，其总和对应的是总体而不是样本，因此会使 p 值偏小；请把它当作筛选的辅助指标，而不是对样本的检验。</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="features.html"
+       title="上一页">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">上一页</p>
+        <p class="prev-next-title">时间窗特征</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="binning.html"
+       title="下一页">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">下一页</p>
+        <p class="prev-next-title">分箱</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 当前页面
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#profiling-the-candidates">分析候选变量</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#distribution-of-numeric-variables">数值变量的分布</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#screening-by-iv">按 IV 筛选变量</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#special-values">特殊值</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#missing-values">缺失值</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sample-weights">样本权重</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    由 <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1创建。
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

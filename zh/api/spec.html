@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>分箱方案 &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=d005c095" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=14f9d491"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script src="../_static/translations.js?v=540d3cec"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/spec';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="next" title="群体稳定性指标" href="stability.html" />
+    <link rel="prev" title="政策规则" href="rules.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+  <meta name="docsearch:version" content="1.9.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">跳转至主要内容</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>回到顶部</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="版本警告"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="网页导航" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 1.9.0">1.9.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    教程
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../../en/api/spec.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="当前页面" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    教程
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../../en/api/spec.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="章节导航">
+  <p class="bd-links__title" role="heading" aria-level="1">章节导航</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="conventions.html">约定</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compatibility.html">兼容性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">术语表</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">时间窗特征</a></li>
+<li class="toctree-l1"><a class="reference internal" href="univariate.html">单变量概况</a></li>
+<li class="toctree-l1"><a class="reference internal" href="binning.html">分箱</a></li>
+<li class="toctree-l1"><a class="reference internal" href="woe.html">证据权重与信息值</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selection.html">变量筛选</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reject_inference.html">拒绝推断</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scorecard.html">评分卡</a></li>
+<li class="toctree-l1"><a class="reference internal" href="expert.html">专家评分卡</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">模型表现</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">校准</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lgd.html">LGD 与 EAD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">信贷策略</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rules.html">政策规则</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">分箱方案</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stability.html">群体稳定性指标</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">模型监控</a></li>
+<li class="toctree-l1"><a class="reference internal" href="capital.html">监管资本</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vintage.html">Vintage 与滚动率分析</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lifetime.html">存续期 PD 与预期信用损失</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html">图表</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">示例数据</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="初始页面">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../api.html" class="nav-link">API 参考</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">分箱方案</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="module-kivi.spec">
+<span id="binning-specifications"></span><h1>分箱方案<a class="headerlink" href="#module-kivi.spec" title="链接到此标题。">#</a></h1>
+<p>一步完成数据框所有列的分箱和编码。 <a class="reference internal" href="#kivi.spec.fit_spec" title="kivi.spec.fit_spec"><code class="xref py py-func docutils literal notranslate"><span class="pre">fit_spec()</span></code></a> 拟合每一列的分箱和 WOE，得到的 <a class="reference internal" href="#kivi.spec.BinningSpec" title="kivi.spec.BinningSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">BinningSpec</span></code></a> 以同样的方式对其他任何样本分组和编码，并能保存为带版本号的 JSON。</p>
+<p>示例和文件格式见 <a class="reference internal" href="../user_guide/spec.html"><span class="doc">分箱方案</span></a> 。</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.spec.fit_spec" title="kivi.spec.fit_spec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_spec</span></code></a>(frame, target, *[, columns, ...])</p></td>
+<td><p>在开发样本上拟合每一列的分箱和 WOE。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.spec.BinningSpec" title="kivi.spec.BinningSpec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BinningSpec</span></code></a>(kinds, edges, special, tables, ...)</p></td>
+<td><p>在开发样本上拟合的、每一列的分箱和 WOE 编码。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.spec.fit_spec">
+<span class="sig-prename descclassname"><span class="pre">kivi.spec.</span></span><span class="sig-name descname"><span class="pre">fit_spec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'quantile'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">special</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unseen</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'raise'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smoothing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.spec.fit_spec" title="链接到此定义。">#</a></dt>
+<dd><p>在开发样本上拟合每一列的分箱和 WOE。</p>
+<p>数值列按为其选定的方法分箱，并用 <cite>kivi.binning.cut</cite> 分组。 <cite>method</cite> 中指定的类别列用 <cite>kivi.binning.category_groups</cite> 或 <cite>kivi.binning.chimerge_groups</cite> 以及 <cite>kivi.binning.group_categories</cite> 分组；其他类别列以自身标签作为分组。然后用 <cite>kivi.woe.woe_table</cite> 计算每个分组的 WOE。不会自动重新分箱：每一列分箱的粗细由其方法、箱数和选项决定。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>frame</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>开发样本，每个变量一列。数值 dtype（bool 和复数除外）的列会被分箱，复数列会引发错误。其他 dtype 的列（例如 object、string、category 或 bool）是类别列：除非 <cite>method</cite> 对该列分组，否则每个标签是一个分组。若要把整数编码当作标签，请先将其转换为 category dtype。</p>
+</dd>
+<dt><strong>target</strong><span class="classifier">array_like</span></dt><dd><p>二分类标签，1 表示事件， <cite>frame</cite> 的每一行一个。Series 必须与 <cite>frame</cite> 的索引相同；其他输入按位置对应。</p>
+</dd>
+<dt><strong>columns</strong><span class="classifier">str 序列，可选</span></dt><dd><p>要拟合的列，其顺序即分箱方案中的顺序。默认为 <cite>frame</cite> 的所有列。</p>
+</dd>
+<dt><strong>method</strong><span class="classifier">str 或 dict，默认 &quot;quantile&quot;</span></dt><dd><p>数值列的分箱方法： <code class="docutils literal notranslate"><span class="pre">&quot;quantile&quot;</span></code> 或 <code class="docutils literal notranslate"><span class="pre">&quot;uniform&quot;</span></code> 对应 <cite>kivi.binning.bin_edges</cite> ， <code class="docutils literal notranslate"><span class="pre">&quot;chimerge&quot;</span></code> 、 <code class="docutils literal notranslate"><span class="pre">&quot;tree&quot;</span></code> 、 <code class="docutils literal notranslate"><span class="pre">&quot;ks&quot;</span></code> 、 <code class="docutils literal notranslate"><span class="pre">&quot;monotonic&quot;</span></code> 或 <code class="docutils literal notranslate"><span class="pre">&quot;optimal&quot;</span></code> 分别对应 <cite>kivi.binning.chimerge_edges</cite> 、 <cite>kivi.binning.tree_edges</cite> 、 <cite>kivi.binning.ks_edges</cite> 、 <cite>kivi.binning.monotonic_edges</cite> 和 <cite>kivi.binning.optimal_edges</cite> 。dict 把列映射到方法，dict 中未列出的数值列使用 <code class="docutils literal notranslate"><span class="pre">&quot;quantile&quot;</span></code> 。方法只作用于 <cite>bins</cite> 中没有给出边界的列，因此 dict 不能列出边界由 <cite>bins</cite> 给出的列。dict 也可以对类别列分组： <code class="docutils literal notranslate"><span class="pre">&quot;rare&quot;</span></code> 对应 <cite>kivi.binning.category_groups</cite> ， <code class="docutils literal notranslate"><span class="pre">&quot;chimerge&quot;</span></code> 对应 <cite>kivi.binning.chimerge_groups</cite> ；dict 中未列出的类别列保留其标签。</p>
+</dd>
+<dt><strong>bins</strong><span class="classifier">int 或 dict，默认 5</span></dt><dd><p>箱数，作为 <code class="docutils literal notranslate"><span class="pre">bins</span></code> 传给 <cite>kivi.binning.bin_edges</cite> ，作为 <code class="docutils literal notranslate"><span class="pre">max_bins</span></code> 传给有监督方法，作为 <code class="docutils literal notranslate"><span class="pre">max_groups</span></code> 传给 <cite>kivi.binning.chimerge_groups</cite> 。dict 把列映射到箱数或边界；边界必须从 <code class="docutils literal notranslate"><span class="pre">-inf</span></code> 递增到 <code class="docutils literal notranslate"><span class="pre">inf</span></code> ，并按原样使用。对 <code class="docutils literal notranslate"><span class="pre">&quot;monotonic&quot;</span></code> ，None 表示只合并到 WOE 单调为止。dict 中未列出的数值列和 <code class="docutils literal notranslate"><span class="pre">&quot;chimerge&quot;</span></code> 列分为 5 箱。用 <code class="docutils literal notranslate"><span class="pre">&quot;rare&quot;</span></code> 分组的列不接受箱数。</p>
+</dd>
+<dt><strong>special</strong><span class="classifier">dict，可选</span></dt><dd><p>数值列和已分组类别列的特殊值编码，例如 <code class="docutils literal notranslate"><span class="pre">{&quot;pdays&quot;:</span> <span class="pre">[-1],</span> <span class="pre">&quot;job&quot;:</span> <span class="pre">[&quot;unknown&quot;]}</span></code> 。数值列的编码必须是数值，可以是无穷；类别列的编码是标签。拟合时排除这些编码，每个编码单独成组。</p>
+</dd>
+<dt><strong>options</strong><span class="classifier">dict，可选</span></dt><dd><p>传给每一列分箱或分组函数的其他关键字参数，例如配合 <code class="docutils literal notranslate"><span class="pre">&quot;chimerge&quot;</span></code> 使用的 <code class="docutils literal notranslate"><span class="pre">{&quot;balance&quot;:</span> <span class="pre">{&quot;alpha&quot;:</span> <span class="pre">None}}</span></code> 、配合 <code class="docutils literal notranslate"><span class="pre">&quot;optimal&quot;</span></code> 使用的 <code class="docutils literal notranslate"><span class="pre">{&quot;age&quot;:</span> <span class="pre">{&quot;trend&quot;:</span> <span class="pre">&quot;u_shaped&quot;}}</span></code> ，或配合 <code class="docutils literal notranslate"><span class="pre">&quot;rare&quot;</span></code> 使用的 <code class="docutils literal notranslate"><span class="pre">{&quot;job&quot;:</span> <span class="pre">{&quot;min_share&quot;:</span> <span class="pre">0.02}}</span></code> 。特殊值、权重、箱数，以及 <code class="docutils literal notranslate"><span class="pre">&quot;monotonic&quot;</span></code> 和用 <code class="docutils literal notranslate"><span class="pre">&quot;chimerge&quot;</span></code> 分组时的平滑参数，由 <cite>fit_spec</cite> 传入，不能在这里指定。</p>
+</dd>
+<dt><strong>unseen</strong><span class="classifier">float、&quot;raise&quot; 或 dict，默认 &quot;raise&quot;</span></dt><dd><p>编码样本时，分组不在该列 WOE 表中的取值所用的 WOE：新类别、开发样本中没有观测值的特殊值或区间，或开发样本没有缺失值时的缺失值。默认情况下，这类取值会引发错误。dict 把列映射到 WOE 或 <code class="docutils literal notranslate"><span class="pre">&quot;raise&quot;</span></code> ，dict 中未列出的列会引发错误。对已分组的列， <code class="docutils literal notranslate"><span class="pre">{&quot;group&quot;:</span> <span class="pre">label}</span></code> 让这类取值改用该组的 WOE，并且 <cite>BinningSpec.cut</cite> 会把新类别分配到该组；该组必须在拟合得到的 WOE 表中。dict 总是按列读取，因此请为每个已分组的列分别给出 <code class="docutils literal notranslate"><span class="pre">{&quot;group&quot;:</span> <span class="pre">label}</span></code> ，例如 <code class="docutils literal notranslate"><span class="pre">{&quot;job&quot;:</span> <span class="pre">{&quot;group&quot;:</span> <span class="pre">&quot;other&quot;}}</span></code> 。</p>
+</dd>
+<dt><strong>smoothing</strong><span class="classifier">float，默认 0.5</span></dt><dd><p>计算 WOE 时用这个正数替代零计数，含义与 <cite>kivi.woe.woe_table</cite> 相同。 <code class="docutils literal notranslate"><span class="pre">&quot;monotonic&quot;</span></code> 分箱使用同一取值，因此其单调趋势在 WOE 表中同样成立。 <code class="docutils literal notranslate"><span class="pre">&quot;optimal&quot;</span></code> 分箱不需要平滑，因为它的每个箱都含有两类。</p>
+</dd>
+<dt><strong>weights</strong><span class="classifier">array_like，可选</span></dt><dd><p>每一行的非负权重，对应方式与 <cite>target</cite> 相同，会传给分箱函数和 <cite>kivi.woe.woe_table</cite> 。此时计数为权重之和， <cite>smoothing</cite> 也以权重为单位。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>BinningSpec</dt><dd><p>每一列的类型、边界、特殊值、分组映射、WOE 表和未见分组策略。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果 <cite>frame</cite> 不是 DataFrame 或没有可拟合的列， <cite>columns</cite> 重复某一列或指定了 <cite>frame</cite> 中没有的列，列名不是字符串，某一列的 dtype 为复数，拟合的列包含目标变量，或 <cite>target</cite> 的标签不是每行一个 0 或 1，或者缺少两类中的一类。如果某个 dict 指定了未拟合的列， <cite>method</cite> 为类别列指定了 <code class="docutils literal notranslate"><span class="pre">&quot;chimerge&quot;</span></code> 或 <code class="docutils literal notranslate"><span class="pre">&quot;rare&quot;</span></code> 以外的方法， <cite>bins</cite> 、 <cite>special</cite> 或 <cite>options</cite> 指定了 <cite>method</cite> 未分组的类别列，或某个取值无效，例如数值列的特殊值编码不是数值。此外，如果 <cite>smoothing</cite> 或 <cite>weights</cite> 无效，某个数值列含有不属于特殊值的无穷值，或某一列分箱或分组失败；此时错误信息会指明该列。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">警告<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>UserWarning</dt><dd><p>如果重合的分位数使某一列的箱数少于期望值（与 <cite>kivi.binning.bin_edges</cite> 相同），某个数值列除缺失值、特殊值和零权重的取值外没有可拟合的值，从而其边界为 <code class="docutils literal notranslate"><span class="pre">[-inf,</span> <span class="pre">inf]</span></code> ，某个已分组的列没有这样的值，从而其分组只有特殊值，或者某个 object dtype 的列只含数值，使每个不同的数值各成一组。警告信息会指明该列。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.spec.BinningSpec" title="kivi.spec.BinningSpec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BinningSpec</span></code></a></dt><dd><p>对拟合好的列分组、编码并保存。</p>
+</dd>
+<dt><a class="reference internal" href="binning.html#kivi.binning.bin_edges" title="kivi.binning.bin_edges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.binning.bin_edges</span></code></a></dt><dd><p>拟合单列的边界。</p>
+</dd>
+<dt><a class="reference internal" href="binning.html#kivi.binning.chimerge_groups" title="kivi.binning.chimerge_groups"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.binning.chimerge_groups</span></code></a></dt><dd><p>对单列的类别分组。</p>
+</dd>
+<dt><a class="reference internal" href="woe.html#kivi.woe.woe_table" title="kivi.woe.woe_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.woe.woe_table</span></code></a></dt><dd><p>单列的 WOE 表。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>每一列都用公开函数单独拟合，因此分箱方案中某一列的边界和 WOE 表，与单独对该列执行 <a class="reference internal" href="../user_guide/binning.html"><span class="doc">分箱</span></a> 和 <a class="reference internal" href="../user_guide/woe_iv.html"><span class="doc">证据权重与信息值</span></a> 中的步骤所得的结果相同。</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.spec</span><span class="w"> </span><span class="kn">import</span> <span class="n">fit_spec</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">frame</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s2">"age"</span><span class="p">:</span> <span class="p">[</span><span class="mi">23</span><span class="p">,</span> <span class="mi">31</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">52</span><span class="p">,</span> <span class="mi">38</span><span class="p">,</span> <span class="mi">27</span><span class="p">,</span> <span class="mi">61</span><span class="p">,</span> <span class="mi">49</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s2">"housing"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"yes"</span><span class="p">,</span> <span class="s2">"no"</span><span class="p">,</span> <span class="s2">"yes"</span><span class="p">,</span> <span class="s2">"no"</span><span class="p">,</span> <span class="s2">"no"</span><span class="p">,</span> <span class="s2">"yes"</span><span class="p">,</span> <span class="s2">"no"</span><span class="p">,</span> <span class="s2">"yes"</span><span class="p">],</span>
+<span class="gp">... </span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spec</span> <span class="o">=</span> <span class="n">fit_spec</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spec</span><span class="o">.</span><span class="n">tables</span><span class="p">[</span><span class="s2">"age"</span><span class="p">][[</span><span class="s2">"non_event"</span><span class="p">,</span> <span class="s2">"event"</span><span class="p">,</span> <span class="s2">"woe"</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">              non_event  event     woe</span>
+<span class="go">bin</span>
+<span class="go">(-inf, 41.5]          1      3  1.4553</span>
+<span class="go">(41.5, inf]           4      0 -1.7228</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spec</span><span class="o">.</span><span class="n">woe_transform</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">      age  housing</span>
+<span class="go">0  1.4553   0.5108</span>
+<span class="go">1  1.4553  -0.5878</span>
+<span class="go">2 -1.7228   0.5108</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="kivi.spec.BinningSpec">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">kivi.spec.</span></span><span class="sig-name descname"><span class="pre">BinningSpec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kinds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edges</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">special</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tables</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unseen</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smoothing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kivi_version</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">groups</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.spec.BinningSpec" title="链接到此定义。">#</a></dt>
+<dd><p>在开发样本上拟合的、每一列的分箱和 WOE 编码。</p>
+<p>对每一列，分箱方案记录：它是数值列还是类别列、数值列的边界和特殊值、已分组类别列的分组映射、其各分组的 WOE 表，以及不在表中的分组的处理策略。 <cite>cut</cite> 用同样的边界和分组映射对任意样本分组， <cite>woe_transform</cite> 用同样的 WOE 编码， <cite>to_json</cite> 和 <cite>from_json</cite> 保存并加载分箱方案，且不会改变分组和编码。请用 <cite>fit_spec</cite> 拟合分箱方案，而不是直接调用构造函数。</p>
+<p>分箱方案不可变。其映射是只读的， <code class="docutils literal notranslate"><span class="pre">edges</span></code> 、 <code class="docutils literal notranslate"><span class="pre">groups</span></code> 和 <code class="docutils literal notranslate"><span class="pre">tables</span></code> 每次访问都返回数组、dict 或表的新副本，因此修改副本不会影响分箱方案。若要修改某个字段（例如未见分组策略），请使用 <cite>dataclasses.replace</cite> ，它会重新校验结果。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>kinds</strong><span class="classifier">mapping</span></dt><dd><p>每一列为 <code class="docutils literal notranslate"><span class="pre">&quot;numeric&quot;</span></code> 或 <code class="docutils literal notranslate"><span class="pre">&quot;categorical&quot;</span></code> ，顺序即分箱方案中的顺序。</p>
+</dd>
+<dt><strong>edges</strong><span class="classifier">mapping</span></dt><dd><p>每个数值列的边界，从 <code class="docutils literal notranslate"><span class="pre">-inf</span></code> 递增到 <code class="docutils literal notranslate"><span class="pre">inf</span></code> 。</p>
+</dd>
+<dt><strong>special</strong><span class="classifier">mapping</span></dt><dd><p>每个数值列的特殊值，可以为空。这些编码是数值，与 <cite>kivi.binning.cut</cite> 相同，每个编码单独成组。</p>
+</dd>
+<dt><strong>tables</strong><span class="classifier">mapping</span></dt><dd><p>每一列的 <cite>kivi.woe.woe_table</cite> 结果。数值列的分组是其特殊值和由边界构成的区间，区间可以使用 <cite>kivi.binning.cut</cite> 给出的标签，也可以用精确的边界表示；已分组列的分组是其分组映射中的各组。缺失值单独成组，标签为 NaN。保存的表使用 <cite>kivi.binning.cut</cite> 的标签。</p>
+</dd>
+<dt><strong>unseen</strong><span class="classifier">mapping</span></dt><dd><p>每列的 <code class="docutils literal notranslate"><span class="pre">&quot;raise&quot;</span></code> 或有限的 WOE，用于分组不在该列 WOE 表中的取值。已分组的列也可以用 <code class="docutils literal notranslate"><span class="pre">{&quot;group&quot;:</span> <span class="pre">label}</span></code> 指定其中一个组：这类取值改用该组的 WOE，并且 <cite>cut</cite> 会把分组映射中没有的类别分配到该组。</p>
+</dd>
+<dt><strong>smoothing</strong><span class="classifier">float，默认 0.5</span></dt><dd><p>计算 WOE 表时所用的平滑参数。</p>
+</dd>
+<dt><strong>kivi_version</strong><span class="classifier">str，可选</span></dt><dd><p>拟合该分箱方案的 kivi 版本。默认或为 None 时取已安装的版本。</p>
+</dd>
+<dt><strong>groups</strong><span class="classifier">mapping，可选</span></dt><dd><p>每个已分组类别列的分组映射：从类别到组的 dict，与 <cite>kivi.binning.category_groups</cite> 或 <cite>kivi.binning.chimerge_groups</cite> 的返回值相同。没有对应项的类别列以自身标签作为分组。默认不对任何列分组。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">属性<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>FORMAT_VERSION</strong><span class="classifier">int</span></dt><dd><p>JSON 格式的最新版本， <cite>from_json</cite> 能读取该版本，含已分组列的分箱方案由 <cite>to_json</cite> 按该版本写出。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果 <cite>kinds</cite> 为空、含有非字符串的列名或上述两种以外的类型；如果 <cite>edges</cite> 和 <cite>special</cite> 不是每个数值列恰好一项， <cite>groups</cite> 含有非类别列的项，或 <cite>tables</cite> 和 <cite>unseen</cite> 不是每列恰好一项；或某一项无效：边界没有从 <code class="docutils literal notranslate"><span class="pre">-inf</span></code> 递增到 <code class="docutils literal notranslate"><span class="pre">inf</span></code> 、特殊值缺失或类型不受支持、分组映射含有缺失或类型不受支持的类别或组、WOE 表没有有限的 <code class="docutils literal notranslate"><span class="pre">woe</span></code> 列或有重复分组、数值列的某个分组既不是其特殊值也不是其边界构成的区间、已分组列的某个分组不在其分组映射中，或未见分组策略既不是 <code class="docutils literal notranslate"><span class="pre">&quot;raise&quot;</span></code> 也不是有限数值，对已分组的列也不是其 WOE 表中的组。此外，如果 <cite>smoothing</cite> 不是有限正数，或 <cite>kivi_version</cite> 不是字符串，也会引发此异常。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.spec.fit_spec" title="kivi.spec.fit_spec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_spec</span></code></a></dt><dd><p>在开发样本上拟合分箱方案。</p>
+</dd>
+<dt><a class="reference internal" href="binning.html#kivi.binning.cut" title="kivi.binning.cut"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.binning.cut</span></code></a></dt><dd><p>对单个数值列分组。</p>
+</dd>
+<dt><a class="reference internal" href="woe.html#kivi.woe.woe_transform" title="kivi.woe.woe_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.woe.woe_transform</span></code></a></dt><dd><p>用单列的 WOE 表对该列编码。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>类别列的标签必须是字符串、整数、浮点数、布尔值或区间，JSON 格式会区分这些类型。在同一列中，相等的标签（例如 <code class="docutils literal notranslate"><span class="pre">True</span></code> 和 <code class="docutils literal notranslate"><span class="pre">1</span></code> ）属于同一分组，因为 <cite>kivi.woe.woe_table</cite> 和 <cite>kivi.woe.woe_transform</cite> 按相等关系匹配标签。分组映射中的类别和组同样如此；分组映射会把同一组的类别放在一起，并按各组首次出现的次序排列。</p>
+<p>当 <cite>to_json</cite> 为两个分箱方案给出相同的文本时，二者相等；文本中包含 <cite>kivi_version</cite> 。文本只计算一次并保留下来，因此再次比较或计算哈希的开销很小。</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.spec</span><span class="w"> </span><span class="kn">import</span> <span class="n">fit_spec</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">frame</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s2">"age"</span><span class="p">:</span> <span class="p">[</span><span class="mi">23</span><span class="p">,</span> <span class="mi">31</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">52</span><span class="p">,</span> <span class="mi">38</span><span class="p">,</span> <span class="mi">27</span><span class="p">,</span> <span class="mi">61</span><span class="p">,</span> <span class="mi">49</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s2">"housing"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"yes"</span><span class="p">,</span> <span class="s2">"no"</span><span class="p">,</span> <span class="s2">"yes"</span><span class="p">,</span> <span class="s2">"no"</span><span class="p">,</span> <span class="s2">"no"</span><span class="p">,</span> <span class="s2">"yes"</span><span class="p">,</span> <span class="s2">"no"</span><span class="p">,</span> <span class="s2">"yes"</span><span class="p">],</span>
+<span class="gp">... </span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spec</span> <span class="o">=</span> <span class="n">fit_spec</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spec</span>
+<span class="go">BinningSpec(columns=['age', 'housing'])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">dict</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">kinds</span><span class="p">)</span>
+<span class="go">{'age': 'numeric', 'housing': 'categorical'}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spec</span><span class="o">.</span><span class="n">edges</span><span class="p">[</span><span class="s2">"age"</span><span class="p">]</span>
+<span class="go">array([-inf, 41.5,  inf])</span>
+</pre></div>
+</div>
+<dl class="py property">
+<dt class="sig sig-object py" id="kivi.spec.BinningSpec.format_version">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">format_version</span></span><a class="headerlink" href="#kivi.spec.BinningSpec.format_version" title="链接到此定义。">#</a></dt>
+<dd><p><cite>to_json</cite> 写出的 JSON 格式的版本。</p>
+<p>版本 2 在版本 1 的基础上增加了类别列的分组映射。没有已分组列的分箱方案按版本 1 写出，早期版本的 kivi 也能读取。 <cite>FORMAT_VERSION</cite> 是最新的版本。</p>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.spec.BinningSpec.to_json" title="kivi.spec.BinningSpec.to_json"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_json</span></code></a></dt><dd><p>写出分箱方案。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.spec</span><span class="w"> </span><span class="kn">import</span> <span class="n">fit_spec</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">frame</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"housing"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"yes"</span><span class="p">,</span> <span class="s2">"no"</span><span class="p">,</span> <span class="s2">"yes"</span><span class="p">,</span> <span class="s2">"no"</span><span class="p">]})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fit_spec</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">format_version</span>
+<span class="go">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fit_spec</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">method</span><span class="o">=</span><span class="p">{</span><span class="s2">"housing"</span><span class="p">:</span> <span class="s2">"rare"</span><span class="p">})</span><span class="o">.</span><span class="n">format_version</span>
+<span class="go">2</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="kivi.spec.BinningSpec.columns">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">columns</span></span><a class="headerlink" href="#kivi.spec.BinningSpec.columns" title="链接到此定义。">#</a></dt>
+<dd><p>分箱方案中各列的名称。</p>
+<p>各列按拟合时的顺序排列，也就是 <cite>cut</cite> 和 <cite>woe_transform</cite> 结果中列的顺序。</p>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.spec.BinningSpec.select" title="kivi.spec.BinningSpec.select"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select</span></code></a></dt><dd><p>只含部分列的分箱方案。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.spec</span><span class="w"> </span><span class="kn">import</span> <span class="n">fit_spec</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">frame</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"age"</span><span class="p">:</span> <span class="p">[</span><span class="mi">23</span><span class="p">,</span> <span class="mi">31</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">52</span><span class="p">],</span> <span class="s2">"housing"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"yes"</span><span class="p">,</span> <span class="s2">"no"</span><span class="p">,</span> <span class="s2">"yes"</span><span class="p">,</span> <span class="s2">"no"</span><span class="p">]})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fit_spec</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">columns</span>
+<span class="go">Index(['age', 'housing'], dtype='object')</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kivi.spec.BinningSpec.cut">
+<span class="sig-name descname"><span class="pre">cut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.spec.BinningSpec.cut" title="链接到此定义。">#</a></dt>
+<dd><p>按开发时的方式对样本的每一列分组。</p>
+<p>数值列用 <cite>kivi.binning.cut</cite> 按拟合的边界和特殊值分箱；不属于特殊值的无穷值不落入任何分箱，保持缺失。已分组的类别列按 <cite>kivi.binning.group_categories</cite> 的方式分配到各组。分组映射中没有的类别归入该列未见分组策略指定的组；若没有指定，则保留自身标签，这样 <cite>kivi.stability.psi_table</cite> 会把它显示为一个新组。其他类别列原样返回，因为其标签就是分组。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>frame</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>包含分箱方案中所有列的样本。其他列会被忽略。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.DataFrame</dt><dd><p>分箱方案中每一列的分组，按分箱方案的顺序排列，索引与 <cite>frame</cite> 相同。数值列为分类型，类别依次为特殊值和由边界构成的全部区间。已分组列为分类型，类别依次为按分组映射顺序排列的各组，以及分组映射中没有、也没有归入未见分组的类别。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果 <cite>frame</cite> 不是 DataFrame、缺少分箱方案中的某一列或该列出现两次，或者按数值列拟合的某一列有取值但不是实数 dtype（例如字符串或复数 dtype），这可能使其特殊值无法匹配；请用 <code class="docutils literal notranslate"><span class="pre">pandas.to_numeric</span></code> 转换这样的列。此外，如果没有指定未见分组的已分组列含有分组映射中没有、却与其某个组的标签相同的类别，其分组就会含糊不清，也会引发错误。错误信息会指明该列。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.spec.BinningSpec.woe_transform" title="kivi.spec.BinningSpec.woe_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">woe_transform</span></code></a></dt><dd><p>用拟合的 WOE 对分组编码。</p>
+</dd>
+<dt><a class="reference internal" href="binning.html#kivi.binning.cut" title="kivi.binning.cut"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.binning.cut</span></code></a></dt><dd><p>对单个数值列分组。</p>
+</dd>
+<dt><a class="reference internal" href="binning.html#kivi.binning.group_categories" title="kivi.binning.group_categories"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.binning.group_categories</span></code></a></dt><dd><p>对单个类别列分组。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.spec</span><span class="w"> </span><span class="kn">import</span> <span class="n">fit_spec</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">frame</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"age"</span><span class="p">:</span> <span class="p">[</span><span class="mi">23</span><span class="p">,</span> <span class="mi">31</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">52</span><span class="p">],</span> <span class="s2">"housing"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"yes"</span><span class="p">,</span> <span class="s2">"no"</span><span class="p">,</span> <span class="s2">"yes"</span><span class="p">,</span> <span class="s2">"no"</span><span class="p">]})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spec</span> <span class="o">=</span> <span class="n">fit_spec</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spec</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"age"</span><span class="p">:</span> <span class="p">[</span><span class="mi">30</span><span class="p">,</span> <span class="mi">70</span><span class="p">],</span> <span class="s2">"housing"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"no"</span><span class="p">,</span> <span class="s2">"yes"</span><span class="p">]}))</span>
+<span class="go">            age housing</span>
+<span class="go">0  (-inf, 38.0]      no</span>
+<span class="go">1   (38.0, inf]     yes</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kivi.spec.BinningSpec.woe_transform">
+<span class="sig-name descname"><span class="pre">woe_transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.spec.BinningSpec.woe_transform" title="链接到此定义。">#</a></dt>
+<dd><p>用开发时拟合的 WOE 对样本的每一列编码。</p>
+<p>各列先按 <cite>cut</cite> 的方式分组，再由 <cite>kivi.woe.woe_transform</cite> 把每个分组替换为其 WOE。不在该列 WOE 表中的分组（例如新类别）按该列的未见分组策略处理，默认会引发错误。已分组列中分组映射没有的类别也按此处理，即使它与某个组的标签相同（此时 <cite>cut</cite> 会引发错误）。指定了未见分组时，这类取值使用该组的 WOE。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>frame</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>包含分箱方案中所有列的样本。其他列会被忽略。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.DataFrame</dt><dd><p>分箱方案中每一列的浮点 WOE 值，按分箱方案的顺序排列，索引与 <cite>frame</cite> 相同。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果 <cite>frame</cite> 不是 DataFrame、缺少分箱方案中的某一列或该列出现两次，按数值列拟合的某一列有取值但不是实数 dtype，或者未见分组策略为 <code class="docutils literal notranslate"><span class="pre">&quot;raise&quot;</span></code> 的列含有分组不在其 WOE 表中的取值、不属于特殊值的无穷值，或（对已分组的列而言）不在其分组映射中的类别。错误信息会指明该列。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.spec.BinningSpec.cut" title="kivi.spec.BinningSpec.cut"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cut</span></code></a></dt><dd><p>只对各列分组，不编码。</p>
+</dd>
+<dt><a class="reference internal" href="woe.html#kivi.woe.woe_transform" title="kivi.woe.woe_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.woe.woe_transform</span></code></a></dt><dd><p>对单列编码。</p>
+</dd>
+<dt><a class="reference internal" href="scorecard.html#kivi.scorecard.woe_to_points" title="kivi.scorecard.woe_to_points"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.scorecard.woe_to_points</span></code></a></dt><dd><p>把 WOE 值转换为分值。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>不属于该列特殊值的无穷值（例如除以零的结果）不属于任何分组： <cite>cut</cite> 把它留为缺失值，而 <cite>woe_transform</cite> 把它视为未见分组，而不是赋予缺失组或最后一个区间的 WOE。</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.spec</span><span class="w"> </span><span class="kn">import</span> <span class="n">fit_spec</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">frame</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s2">"age"</span><span class="p">:</span> <span class="p">[</span><span class="mi">23</span><span class="p">,</span> <span class="mi">31</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">52</span><span class="p">,</span> <span class="mi">38</span><span class="p">,</span> <span class="mi">27</span><span class="p">,</span> <span class="mi">61</span><span class="p">,</span> <span class="mi">49</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s2">"housing"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"yes"</span><span class="p">,</span> <span class="s2">"no"</span><span class="p">,</span> <span class="s2">"yes"</span><span class="p">,</span> <span class="s2">"no"</span><span class="p">,</span> <span class="s2">"no"</span><span class="p">,</span> <span class="s2">"yes"</span><span class="p">,</span> <span class="s2">"no"</span><span class="p">,</span> <span class="s2">"yes"</span><span class="p">],</span>
+<span class="gp">... </span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">new</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"age"</span><span class="p">:</span> <span class="p">[</span><span class="mi">30</span><span class="p">,</span> <span class="mi">70</span><span class="p">],</span> <span class="s2">"housing"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"no"</span><span class="p">,</span> <span class="s2">"rent"</span><span class="p">]})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fit_spec</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">woe_transform</span><span class="p">(</span><span class="n">new</span><span class="p">)</span>
+<span class="gt">Traceback (most recent call last):</span>
+<span class="c">...</span>
+<span class="gr">ValueError</span>: <span class="n">column 'housing': 1 group(s) are not in table, such as 'rent'; ...</span>
+</pre></div>
+</div>
+<p>为 <code class="docutils literal notranslate"><span class="pre">housing</span></code> 指定未见分组的 WOE 后，新标签得到 0：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">spec</span> <span class="o">=</span> <span class="n">fit_spec</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">unseen</span><span class="o">=</span><span class="p">{</span><span class="s2">"housing"</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spec</span><span class="o">.</span><span class="n">woe_transform</span><span class="p">(</span><span class="n">new</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">      age  housing</span>
+<span class="go">0  1.4553  -0.5878</span>
+<span class="go">1 -1.7228   0.0000</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kivi.spec.BinningSpec.select">
+<span class="sig-name descname"><span class="pre">select</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">columns</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.spec.BinningSpec.select" title="链接到此定义。">#</a></dt>
+<dd><p>返回只含部分列的分箱方案。</p>
+<p>在为生产环境保存分箱方案之前，可用它只保留最终模型的变量。选中的列保留各自的边界、特殊值、分组映射、WOE 表和未见分组策略。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>columns</strong><span class="classifier">str 序列</span></dt><dd><p>要保留的列，其顺序即新分箱方案中的顺序。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>BinningSpec</dt><dd><p>只含 <cite>columns</cite> 的分箱方案。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果 <cite>columns</cite> 是字符串、为空、重复某一列，或指定了分箱方案中没有的列。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.spec.BinningSpec.columns" title="kivi.spec.BinningSpec.columns"><code class="xref py py-obj docutils literal notranslate"><span class="pre">columns</span></code></a></dt><dd><p>分箱方案中的列。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.spec.BinningSpec.to_json" title="kivi.spec.BinningSpec.to_json"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_json</span></code></a></dt><dd><p>保存分箱方案。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.spec</span><span class="w"> </span><span class="kn">import</span> <span class="n">fit_spec</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">frame</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"age"</span><span class="p">:</span> <span class="p">[</span><span class="mi">23</span><span class="p">,</span> <span class="mi">31</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">52</span><span class="p">],</span> <span class="s2">"housing"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"yes"</span><span class="p">,</span> <span class="s2">"no"</span><span class="p">,</span> <span class="s2">"yes"</span><span class="p">,</span> <span class="s2">"no"</span><span class="p">]})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fit_spec</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">select</span><span class="p">([</span><span class="s2">"housing"</span><span class="p">])</span>
+<span class="go">BinningSpec(columns=['housing'])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kivi.spec.BinningSpec.to_dict">
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#kivi.spec.BinningSpec.to_dict" title="链接到此定义。">#</a></dt>
+<dd><p>以由 JSON 类型构成的 dict 返回分箱方案。</p>
+<p>结果只包含 dict、list、字符串、数值、布尔值和 None，因此 <code class="docutils literal notranslate"><span class="pre">json.dumps</span></code> 无需额外转换即可写出。其键的顺序始终相同。 <cite>to_json</cite> 写出的就是这个 dict。</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回值<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>dict</dt><dd><p>包含键 <code class="docutils literal notranslate"><span class="pre">format</span></code> 、 <code class="docutils literal notranslate"><span class="pre">format_version</span></code> 、 <code class="docutils literal notranslate"><span class="pre">kivi_version</span></code> 、 <code class="docutils literal notranslate"><span class="pre">smoothing</span></code> 和 <code class="docutils literal notranslate"><span class="pre">variables</span></code> ；后者是每列一个 dict 的列表。格式说明见用户指南。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.spec.BinningSpec.from_dict" title="kivi.spec.BinningSpec.from_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_dict</span></code></a></dt><dd><p>重建分箱方案。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.spec.BinningSpec.to_json" title="kivi.spec.BinningSpec.to_json"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_json</span></code></a></dt><dd><p>把该 dict 写成 JSON。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.spec</span><span class="w"> </span><span class="kn">import</span> <span class="n">fit_spec</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">frame</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"age"</span><span class="p">:</span> <span class="p">[</span><span class="mi">23</span><span class="p">,</span> <span class="mi">31</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">52</span><span class="p">]})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">fit_spec</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="go">['format', 'format_version', 'kivi_version', 'smoothing', 'variables']</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span><span class="p">[</span><span class="s2">"variables"</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">"edges"</span><span class="p">]</span>
+<span class="go">[{'float': '-inf'}, 38.0, {'float': 'inf'}]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kivi.spec.BinningSpec.from_dict">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.spec.BinningSpec.from_dict" title="链接到此定义。">#</a></dt>
+<dd><p>由 <cite>to_dict</cite> 的结果重建分箱方案。</p>
+<p>构建分箱方案之前会先检查该 dict，因此损坏或被手工改动的文件会报错并指明问题，而不会编码出错误的值。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>data</strong><span class="classifier">mapping</span></dt><dd><p>符合 <cite>to_dict</cite> 格式的 dict，例如来自 <code class="docutils literal notranslate"><span class="pre">json.load</span></code> 。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>BinningSpec</dt><dd><p>分箱方案，与写出 <cite>data</cite> 的那个相等。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果 <cite>data</cite> 不是 kivi 分箱方案、其 <code class="docutils literal notranslate"><span class="pre">format_version</span></code> 比当前 kivi 能读取的版本更新、缺少某个键或含有未知的键，或含有无效的值。错误信息会指明相应的列。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.spec.BinningSpec.to_dict" title="kivi.spec.BinningSpec.to_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_dict</span></code></a></dt><dd><p>dict 格式。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.spec.BinningSpec.from_json" title="kivi.spec.BinningSpec.from_json"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_json</span></code></a></dt><dd><p>从 JSON 文本读取分箱方案。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.spec</span><span class="w"> </span><span class="kn">import</span> <span class="n">BinningSpec</span><span class="p">,</span> <span class="n">fit_spec</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">frame</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"age"</span><span class="p">:</span> <span class="p">[</span><span class="mi">23</span><span class="p">,</span> <span class="mi">31</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">52</span><span class="p">]})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spec</span> <span class="o">=</span> <span class="n">fit_spec</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">BinningSpec</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">to_dict</span><span class="p">())</span> <span class="o">==</span> <span class="n">spec</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kivi.spec.BinningSpec.to_json">
+<span class="sig-name descname"><span class="pre">to_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">indent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.spec.BinningSpec.to_json" title="链接到此定义。">#</a></dt>
+<dd><p>以 JSON 文本返回分箱方案。</p>
+<p>该文本就是由 <code class="docutils literal notranslate"><span class="pre">json.dumps</span></code> 写出的 <cite>to_dict</cite> 的 dict。同一个分箱方案总是得到相同的文本，因此保存的分箱方案可以相互比较，并纳入版本控制。非 ASCII 标签按原样写出，因此请以 UTF-8 保存文本。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>indent</strong><span class="classifier">int，可选</span></dt><dd><p>嵌套值的缩进，含义与 <code class="docutils literal notranslate"><span class="pre">json.dumps</span></code> 相同。默认文本只有一行。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>str</dt><dd><p>JSON 文本， <cite>from_json</cite> 可将其读回为相等的分箱方案。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.spec.BinningSpec.from_json" title="kivi.spec.BinningSpec.from_json"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_json</span></code></a></dt><dd><p>读回分箱方案。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.spec.BinningSpec.to_dict" title="kivi.spec.BinningSpec.to_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_dict</span></code></a></dt><dd><p>以 dict 表示的相同内容。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.spec</span><span class="w"> </span><span class="kn">import</span> <span class="n">fit_spec</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">frame</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"age"</span><span class="p">:</span> <span class="p">[</span><span class="mi">23</span><span class="p">,</span> <span class="mi">31</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">52</span><span class="p">]})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spec</span> <span class="o">=</span> <span class="n">fit_spec</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+<span class="go">{</span>
+<span class="go">  "format": "kivi.BinningSpec",</span>
+<span class="go">  "format_version": 1,</span>
+<span class="go">  "kivi_version": "...",</span>
+<span class="go">  "smoothing": 0.5,</span>
+<span class="go">  "variables": [</span>
+<span class="go">    {</span>
+<span class="go">      "name": "age",</span>
+<span class="go">      "kind": "numeric",</span>
+<span class="go">      "edges": [</span>
+<span class="go">        {</span>
+<span class="go">          "float": "-inf"</span>
+<span class="go">        },</span>
+<span class="go">        38.0,</span>
+<span class="go">...</span>
+</pre></div>
+</div>
+<p>用 <code class="docutils literal notranslate"><span class="pre">Path(&quot;spec.json&quot;).write_text(text,</span> <span class="pre">encoding=&quot;utf-8&quot;)</span></code> 把文本写入文件。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kivi.spec.BinningSpec.from_json">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.spec.BinningSpec.from_json" title="链接到此定义。">#</a></dt>
+<dd><p>从 <cite>to_json</cite> 写出的 JSON 文本读取分箱方案。</p>
+<p>加载的分箱方案对每个样本的分组和编码，与保存时的分箱方案完全相同。由更新版本格式写出的文件会被拒绝，而不会只读取其中一部分。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>text</strong><span class="classifier">str 或 bytes</span></dt><dd><p>JSON 文本，例如来自 <code class="docutils literal notranslate"><span class="pre">Path(...).read_text(encoding=&quot;utf-8&quot;)</span></code> 。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>BinningSpec</dt><dd><p>分箱方案，与写出 <cite>text</cite> 的那个相等。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果 <cite>text</cite> 既不是 str 也不是 bytes、不是有效的 JSON、含有 <code class="docutils literal notranslate"><span class="pre">NaN</span></code> 或 <code class="docutils literal notranslate"><span class="pre">Infinity</span></code> ，或没有描述一个有效的分箱方案；参见 <cite>from_dict</cite> 。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.spec.BinningSpec.to_json" title="kivi.spec.BinningSpec.to_json"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_json</span></code></a></dt><dd><p>写出分箱方案。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.spec.BinningSpec.from_dict" title="kivi.spec.BinningSpec.from_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_dict</span></code></a></dt><dd><p>由 dict 重建分箱方案。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.spec</span><span class="w"> </span><span class="kn">import</span> <span class="n">BinningSpec</span><span class="p">,</span> <span class="n">fit_spec</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">frame</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"age"</span><span class="p">:</span> <span class="p">[</span><span class="mi">23</span><span class="p">,</span> <span class="mi">31</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">52</span><span class="p">]})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spec</span> <span class="o">=</span> <span class="n">fit_spec</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">loaded</span> <span class="o">=</span> <span class="n">BinningSpec</span><span class="o">.</span><span class="n">from_json</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">to_json</span><span class="p">())</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">loaded</span> <span class="o">==</span> <span class="n">spec</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">loaded</span><span class="o">.</span><span class="n">woe_transform</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">woe_transform</span><span class="p">(</span><span class="n">frame</span><span class="p">))</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="rules.html"
+       title="上一页">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">上一页</p>
+        <p class="prev-next-title">政策规则</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="stability.html"
+       title="下一页">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">下一页</p>
+        <p class="prev-next-title">群体稳定性指标</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 当前页面
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.spec.fit_spec"><code class="docutils literal notranslate"><span class="pre">fit_spec()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.spec.BinningSpec"><code class="docutils literal notranslate"><span class="pre">BinningSpec</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.spec.BinningSpec.format_version"><code class="docutils literal notranslate"><span class="pre">BinningSpec.format_version</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.spec.BinningSpec.columns"><code class="docutils literal notranslate"><span class="pre">BinningSpec.columns</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.spec.BinningSpec.cut"><code class="docutils literal notranslate"><span class="pre">BinningSpec.cut()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.spec.BinningSpec.woe_transform"><code class="docutils literal notranslate"><span class="pre">BinningSpec.woe_transform()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.spec.BinningSpec.select"><code class="docutils literal notranslate"><span class="pre">BinningSpec.select()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.spec.BinningSpec.to_dict"><code class="docutils literal notranslate"><span class="pre">BinningSpec.to_dict()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.spec.BinningSpec.from_dict"><code class="docutils literal notranslate"><span class="pre">BinningSpec.from_dict()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.spec.BinningSpec.to_json"><code class="docutils literal notranslate"><span class="pre">BinningSpec.to_json()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.spec.BinningSpec.from_json"><code class="docutils literal notranslate"><span class="pre">BinningSpec.from_json()</span></code></a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    由 <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1创建。
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

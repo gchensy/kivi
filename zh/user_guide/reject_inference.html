@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>拒绝推断 &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=d005c095" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=14f9d491"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script src="../_static/translations.js?v=540d3cec"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/reject_inference';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="next" title="评分卡" href="scorecard.html" />
+    <link rel="prev" title="变量筛选" href="selection.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+  <meta name="docsearch:version" content="1.9.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">跳转至主要内容</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>回到顶部</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="版本警告"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="网页导航" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 1.9.0">1.9.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    教程
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../../en/user_guide/reject_inference.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="当前页面" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    教程
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../../en/user_guide/reject_inference.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="章节导航">
+  <p class="bd-links__title" role="heading" aria-level="1">章节导航</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="risk_workflow.html">风控建模流程</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">时间窗特征</a></li>
+<li class="toctree-l1"><a class="reference internal" href="univariate.html">单变量概况</a></li>
+<li class="toctree-l1"><a class="reference internal" href="binning.html">分箱</a></li>
+<li class="toctree-l1"><a class="reference internal" href="woe_iv.html">证据权重与信息值</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selection.html">变量筛选</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">拒绝推断</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scorecard.html">评分卡</a></li>
+<li class="toctree-l1"><a class="reference internal" href="expert.html">专家评分卡</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">模型表现</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">校准</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lgd.html">LGD 与 EAD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">信贷策略</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rules.html">政策规则</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spec.html">分箱方案</a></li>
+<li class="toctree-l1"><a class="reference internal" href="psi.html">群体稳定性指标</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">模型监控</a></li>
+<li class="toctree-l1"><a class="reference internal" href="validation.html">模型验证</a></li>
+<li class="toctree-l1"><a class="reference internal" href="capital.html">监管资本</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vintage.html">Vintage 与滚动率分析</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lifetime.html">存续期 PD 与预期信用损失</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html">图表</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">示例数据</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="初始页面">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">用户指南</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">拒绝推断</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="reject-inference">
+<h1>拒绝推断<a class="headerlink" href="#reject-inference" title="链接到此标题。">#</a></h1>
+<p>评分卡在结果已知的历史申请人上开发，而只有以往政策批准的申请人才有已知结果。模型从他们身上学习，随后却应用于每一个申请人，包括过去会被拒绝的那类申请人。拒绝推断为拒绝申请人补上结果，使模型可以在全部申请人上重新拟合。 <a class="reference internal" href="../api/reject_inference.html#module-kivi.reject_inference" title="kivi.reject_inference"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.reject_inference</span></code></a> 以带权重的行返回这些结果，或者返回获批申请人的权重。 <a class="reference internal" href="../api/selection.html#kivi.selection.logistic_regression" title="kivi.selection.logistic_regression"><code class="xref py py-func docutils literal notranslate"><span class="pre">logistic_regression()</span></code></a> 、 <a class="reference internal" href="../api/woe.html#kivi.woe.woe_table" title="kivi.woe.woe_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">woe_table()</span></code></a> 和 <a class="reference internal" href="../api/spec.html#kivi.spec.fit_spec" title="kivi.spec.fit_spec"><code class="xref py py-func docutils literal notranslate"><span class="pre">fit_spec()</span></code></a> 的 <code class="docutils literal notranslate"><span class="pre">weights</span></code> 参数都可以接受这两种结果。</p>
+<p>拒绝推断位于 <a class="reference internal" href="selection.html"><span class="doc">变量筛选</span></a> 之后，在全部申请人上重新拟合其模型；之后是 <a class="reference internal" href="scorecard.html"><span class="doc">评分卡</span></a> ，对重新拟合的模型进行刻度。 <a class="reference internal" href="../api/reject_inference.html#kivi.reject_inference.fuzzy_augmentation" title="kivi.reject_inference.fuzzy_augmentation"><code class="xref py py-func docutils literal notranslate"><span class="pre">fuzzy_augmentation()</span></code></a> 和 <a class="reference internal" href="../api/reject_inference.html#kivi.reject_inference.parceling" title="kivi.reject_inference.parceling"><code class="xref py py-func docutils literal notranslate"><span class="pre">parceling()</span></code></a> 返回推断行， <a class="reference internal" href="../api/reject_inference.html#kivi.reject_inference.reweighting" title="kivi.reject_inference.reweighting"><code class="xref py py-func docutils literal notranslate"><span class="pre">reweighting()</span></code></a> 返回获批申请人的权重。</p>
+<p>每种方法都依赖一个关于拒绝申请人的假设，而获批申请人无法证实它。因此示例使用每个人结果都已知的合成申请数据，以便把每种方法与完整结果所能得到的模型相对照。真实数据永远无法做这样的检验。</p>
+<section id="applications-and-approvals">
+<h2>申请与审批<a class="headerlink" href="#applications-and-approvals" title="链接到此标题。">#</a></h2>
+<p><a class="reference internal" href="../api/datasets.html#kivi.datasets.make_applications" title="kivi.datasets.make_applications"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_applications()</span></code></a> 模拟由现行评分卡和两条政策规则决定审批的贷款申请， <a class="reference internal" href="datasets.html"><span class="doc">示例数据</span></a> 介绍了这些数据。政策拒绝的申请无论评分如何都会被拒绝，因此通常不纳入开发总体，这里也是如此。获批的申请人称为 <em>通过样本</em> ，其余称为 <em>拒绝样本</em> ：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_applications</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">applications</span> <span class="o">=</span> <span class="n">make_applications</span><span class="p">(</span><span class="n">rng</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">population</span> <span class="o">=</span> <span class="n">applications</span><span class="p">[</span><span class="o">~</span><span class="n">applications</span><span class="p">[</span><span class="s2">"policy_decline"</span><span class="p">]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">accepts</span> <span class="o">=</span> <span class="n">population</span><span class="p">[</span><span class="n">population</span><span class="p">[</span><span class="s2">"approved"</span><span class="p">]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rejects</span> <span class="o">=</span> <span class="n">population</span><span class="p">[</span><span class="o">~</span><span class="n">population</span><span class="p">[</span><span class="s2">"approved"</span><span class="p">]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">accepts</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">rejects</span><span class="p">)</span>
+<span class="go">(6770, 2467)</span>
+</pre></div>
+</div>
+<p>实际中拒绝样本的 <code class="docutils literal notranslate"><span class="pre">target</span></code> 是缺失的。这里它展示了拒绝推断试图还原的东西：拒绝样本的违约频率是通过样本的三倍。</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">population</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">"approved"</span><span class="p">)[</span><span class="s2">"target"</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">approved</span>
+<span class="go">False    0.301</span>
+<span class="go">True     0.097</span>
+<span class="go">Name: target, dtype: float64</span>
+</pre></div>
+</div>
+</section>
+<section id="the-accepts-only-model">
+<h2>仅用通过样本的模型<a class="headerlink" href="#the-accepts-only-model" title="链接到此标题。">#</a></h2>
+<p>下面所有模型都使用相同的分组和在通过样本上拟合的同一套 WOE 编码，以便比较它们的系数。分位数边界不需要结果，因此在总体的全部申请人上拟合。征信查询次数取值很少，因此给定显式边界：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.binning</span><span class="w"> </span><span class="kn">import</span> <span class="n">bin_edges</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">logistic_regression</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.spec</span><span class="w"> </span><span class="kn">import</span> <span class="n">fit_spec</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">features</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"age"</span><span class="p">,</span> <span class="s2">"income"</span><span class="p">,</span> <span class="s2">"debt_to_income"</span><span class="p">,</span> <span class="s2">"inquiries"</span><span class="p">,</span> <span class="s2">"housing"</span><span class="p">,</span> <span class="s2">"employment"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">edges</span> <span class="o">=</span> <span class="p">{</span>
+<span class="gp">... </span>    <span class="n">column</span><span class="p">:</span> <span class="n">bin_edges</span><span class="p">(</span><span class="n">population</span><span class="p">[</span><span class="n">column</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"age"</span><span class="p">,</span> <span class="s2">"income"</span><span class="p">,</span> <span class="s2">"debt_to_income"</span><span class="p">]</span>
+<span class="gp">... </span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">edges</span><span class="p">[</span><span class="s2">"inquiries"</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spec</span> <span class="o">=</span> <span class="n">fit_spec</span><span class="p">(</span><span class="n">accepts</span><span class="p">[</span><span class="n">features</span><span class="p">],</span> <span class="n">accepts</span><span class="p">[</span><span class="s2">"target"</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="n">edges</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">logistic_regression</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">woe_transform</span><span class="p">(</span><span class="n">accepts</span><span class="p">),</span> <span class="n">accepts</span><span class="p">[</span><span class="s2">"target"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">                 coef     se       z  p_value</span>
+<span class="go">variable</span>
+<span class="go">intercept      -2.230  0.043 -52.398      0.0</span>
+<span class="go">age             1.223  0.303   4.030      0.0</span>
+<span class="go">income          1.239  0.231   5.374      0.0</span>
+<span class="go">debt_to_income  1.356  0.182   7.436      0.0</span>
+<span class="go">inquiries       1.427  0.195   7.323      0.0</span>
+<span class="go">housing         1.057  0.204   5.174      0.0</span>
+<span class="go">employment      1.388  0.221   6.268      0.0</span>
+</pre></div>
+</div>
+<p>模型的 PD 是截距加上 WOE 值乘以系数之和的逻辑函数值：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">predict</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">frame</span><span class="p">,</span> <span class="n">spec</span><span class="o">=</span><span class="n">spec</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">coef</span> <span class="o">=</span> <span class="n">model</span><span class="p">[</span><span class="s2">"coef"</span><span class="p">]</span>
+<span class="gp">... </span>    <span class="n">log_odds</span> <span class="o">=</span> <span class="n">coef</span><span class="p">[</span><span class="s2">"intercept"</span><span class="p">]</span> <span class="o">+</span> <span class="n">spec</span><span class="o">.</span><span class="n">woe_transform</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span> <span class="o">@</span> <span class="n">coef</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s2">"intercept"</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">log_odds</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">accept_pd</span><span class="p">,</span> <span class="n">reject_pd</span> <span class="o">=</span> <span class="n">predict</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">accepts</span><span class="p">),</span> <span class="n">predict</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">rejects</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">reject_pd</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">0.191</span>
+</pre></div>
+</div>
+<p>模型预测拒绝样本的坏账率为 19.1%，而他们实际的违约率为 30.1%。现行评分卡像阅读征信报告的审批人员一样，用到了特征之外的信息，因此在特征相同时，拒绝样本比通过样本风险更高。只用通过样本拟合的模型看不到这一点。</p>
+</section>
+<section id="fuzzy-augmentation">
+<h2>模糊扩充<a class="headerlink" href="#fuzzy-augmentation" title="链接到此标题。">#</a></h2>
+<p><a class="reference internal" href="../api/reject_inference.html#kivi.reject_inference.fuzzy_augmentation" title="kivi.reject_inference.fuzzy_augmentation"><code class="xref py py-func docutils literal notranslate"><span class="pre">fuzzy_augmentation()</span></code></a> 把每个拒绝申请人拆成以其 PD 为权重的一行坏样本和以总权重 1 的其余部分为权重的一行好样本。这些行重复拒绝样本的索引，因此 <code class="docutils literal notranslate"><span class="pre">rejects.loc[inferred.index]</span></code> 给出它们的特征：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.reject_inference</span><span class="w"> </span><span class="kn">import</span> <span class="n">fuzzy_augmentation</span><span class="p">,</span> <span class="n">parceling</span><span class="p">,</span> <span class="n">reweighting</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">inferred</span> <span class="o">=</span> <span class="n">fuzzy_augmentation</span><span class="p">(</span><span class="n">reject_pd</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">inferred</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">    target  weight</span>
+<span class="go">14       1   0.423</span>
+<span class="go">14       0   0.577</span>
+<span class="go">15       1   0.250</span>
+<span class="go">15       0   0.750</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id1">
+<img alt="三个拒绝申请人及其 PD，每人拆成一行目标为 1 和一行目标为 0" class="plot-directive" src="../_images/reject_inference-1.svg" />
+<figcaption>
+<p><span class="caption-text"><code class="docutils literal notranslate"><span class="pre">fuzzy_augmentation</span></code> 把每个拒绝申请人拆成两行，索引不变：目标为 1 的行以其 PD 为权重，目标为 0 的行取权重 1 的其余部分。</span><a class="headerlink" href="#id1" title="链接到此图片">#</a></p>
+</figcaption>
+</figure>
+<p>重新拟合时，把权重为 1 的通过样本与推断出的行拼接起来，并传入权重。进入拟合的只有拒绝样本的特征，绝不包括其 <code class="docutils literal notranslate"><span class="pre">target</span></code> 列：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">refit</span><span class="p">(</span><span class="n">inferred</span><span class="p">,</span> <span class="n">accept_weight</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">frame</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">accepts</span><span class="p">[</span><span class="n">features</span><span class="p">],</span> <span class="n">rejects</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">inferred</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">features</span><span class="p">]])</span>
+<span class="gp">... </span>    <span class="n">target</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">accepts</span><span class="p">[</span><span class="s2">"target"</span><span class="p">],</span> <span class="n">inferred</span><span class="p">[</span><span class="s2">"target"</span><span class="p">]])</span>
+<span class="gp">... </span>    <span class="n">weights</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">accept_weight</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">accepts</span><span class="o">.</span><span class="n">index</span><span class="p">),</span> <span class="n">inferred</span><span class="p">[</span><span class="s2">"weight"</span><span class="p">]])</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">logistic_regression</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">woe_transform</span><span class="p">(</span><span class="n">frame</span><span class="p">),</span> <span class="n">target</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fuzzy</span> <span class="o">=</span> <span class="n">refit</span><span class="p">(</span><span class="n">inferred</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">fuzzy</span><span class="p">[</span><span class="s2">"coef"</span><span class="p">],</span> <span class="n">model</span><span class="p">[</span><span class="s2">"coef"</span><span class="p">])</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">(</span><span class="n">fuzzy</span><span class="p">[</span><span class="s2">"se"</span><span class="p">]</span> <span class="o">/</span> <span class="n">model</span><span class="p">[</span><span class="s2">"se"</span><span class="p">])</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">variable</span>
+<span class="go">intercept         0.91</span>
+<span class="go">age               0.75</span>
+<span class="go">income            0.72</span>
+<span class="go">debt_to_income    0.80</span>
+<span class="go">inquiries         0.68</span>
+<span class="go">housing           0.78</span>
+<span class="go">employment        0.72</span>
+<span class="go">Name: se, dtype: float64</span>
+</pre></div>
+</div>
+<p>重新拟合的系数就是仅用通过样本的模型的系数。在这组系数下，每个拒绝申请人坏样本行的权重恰好等于其拟合 PD，因此推断出的行不会改变拟合结果。只有标准误变小，尽管推断出的行并没有增加任何信息：它们被计为观测，因此任何包含推断行的拟合，其标准误都偏小。应在通过样本上选择变量，而不是依据扩充后拟合的 p 值。倍数为 1 时，只有在扩充后的样本上重新拟合编码或变量发生变化时，模糊扩充才会改变模型。</p>
+</section>
+<section id="sensitivity-to-the-factor">
+<h2>对倍数的敏感性<a class="headerlink" href="#sensitivity-to-the-factor" title="链接到此标题。">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">factor</span></code> 乘以拒绝样本的 PD，因此大于 1 的倍数假定拒绝样本比 PD 相同的通过样本风险更高。通过样本无法告诉我们高出多少，所以要比较几个倍数。 <code class="docutils literal notranslate"><span class="pre">summary</span></code> 汇总三项结果：拒绝样本推断的坏账率、它们在重新拟合的模型下的平均 PD，以及在同一生成器产生的第二个样本上的 Gini，该样本中每个申请人的结果都已知。 <em>known</em> 模型用全部申请人及其真实结果拟合，是真实数据永远无法提供的基准；它的推断坏账率就是拒绝样本的真实坏账率：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">gini</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">holdout</span> <span class="o">=</span> <span class="n">make_applications</span><span class="p">(</span><span class="n">rng</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">holdout</span> <span class="o">=</span> <span class="n">holdout</span><span class="p">[</span><span class="o">~</span><span class="n">holdout</span><span class="p">[</span><span class="s2">"policy_decline"</span><span class="p">]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">summary</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">inferred</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">rate</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+<span class="gp">... </span>    <span class="k">if</span> <span class="n">inferred</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+<span class="gp">... </span>        <span class="n">rate</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">inferred</span><span class="p">[</span><span class="s2">"target"</span><span class="p">],</span> <span class="n">weights</span><span class="o">=</span><span class="n">inferred</span><span class="p">[</span><span class="s2">"weight"</span><span class="p">])</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="p">{</span>
+<span class="gp">... </span>        <span class="s2">"inferred"</span><span class="p">:</span> <span class="n">rate</span><span class="p">,</span>
+<span class="gp">... </span>        <span class="s2">"reject_pd"</span><span class="p">:</span> <span class="n">predict</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">rejects</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span>
+<span class="gp">... </span>        <span class="s2">"gini"</span><span class="p">:</span> <span class="n">gini</span><span class="p">(</span><span class="n">predict</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">holdout</span><span class="p">),</span> <span class="n">holdout</span><span class="p">[</span><span class="s2">"target"</span><span class="p">]),</span>
+<span class="gp">... </span>    <span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">known</span> <span class="o">=</span> <span class="n">logistic_regression</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">woe_transform</span><span class="p">(</span><span class="n">population</span><span class="p">),</span> <span class="n">population</span><span class="p">[</span><span class="s2">"target"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">models</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"accepts"</span><span class="p">:</span> <span class="n">model</span><span class="p">,</span> <span class="s2">"known"</span><span class="p">:</span> <span class="n">known</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"accepts"</span><span class="p">:</span> <span class="n">summary</span><span class="p">(</span><span class="n">model</span><span class="p">),</span> <span class="s2">"known"</span><span class="p">:</span> <span class="n">summary</span><span class="p">(</span><span class="n">known</span><span class="p">,</span> <span class="n">rejects</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">weight</span><span class="o">=</span><span class="mf">1.0</span><span class="p">))}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">factor</span> <span class="ow">in</span> <span class="p">[</span><span class="mf">1.25</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mi">2</span><span class="p">]:</span>
+<span class="gp">... </span>    <span class="n">inferred</span> <span class="o">=</span> <span class="n">fuzzy_augmentation</span><span class="p">(</span><span class="n">reject_pd</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="n">factor</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">models</span><span class="p">[</span><span class="sa">f</span><span class="s2">"fuzzy </span><span class="si">{</span><span class="n">factor</span><span class="si">}</span><span class="s2">"</span><span class="p">]</span> <span class="o">=</span> <span class="n">refit</span><span class="p">(</span><span class="n">inferred</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">results</span><span class="p">[</span><span class="sa">f</span><span class="s2">"fuzzy </span><span class="si">{</span><span class="n">factor</span><span class="si">}</span><span class="s2">"</span><span class="p">]</span> <span class="o">=</span> <span class="n">summary</span><span class="p">(</span><span class="n">models</span><span class="p">[</span><span class="sa">f</span><span class="s2">"fuzzy </span><span class="si">{</span><span class="n">factor</span><span class="si">}</span><span class="s2">"</span><span class="p">],</span> <span class="n">inferred</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">results</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">            inferred  reject_pd   gini</span>
+<span class="go">accepts          NaN      0.191  0.422</span>
+<span class="go">known          0.301      0.252  0.425</span>
+<span class="go">fuzzy 1.25     0.238      0.221  0.421</span>
+<span class="go">fuzzy 1.5      0.286      0.251  0.420</span>
+<span class="go">fuzzy 2        0.381      0.312  0.419</span>
+</pre></div>
+</div>
+<p>倍数为 1.5 时，拒绝样本推断的坏账率为 28.6%，接近其真实的 30.1%；它们在重新拟合的模型下的平均 PD 为 25.1%，接近 known 模型的 25.2%。即使 known 模型对拒绝样本的预测也低于 30.1%：它在全部申请人上拟合，缺少使拒绝样本与众不同的那部分信息。Gini 几乎不变。在这些数据上，拒绝推断纠正的是模型认为拒绝样本有多大风险，而不是模型如何对申请人排序。</p>
+<figure class="align-default" id="id3">
+<img alt="倍数从 1 到 2.5 时拒绝样本推断的坏账率和重新拟合后的平均 PD，虚线为拒绝样本的真实坏账率和 known 模型的平均 PD" class="plot-directive" src="../_images/reject_inference-2.svg" />
+<figcaption>
+<p><span class="caption-text">拒绝样本推断的坏账率和重新拟合后的平均 PD 都随 <code class="docutils literal notranslate"><span class="pre">factor</span></code> 上升。虚线分别是拒绝样本的真实坏账率，以及 known 模型给出的平均 PD；倍数为 1.5 时与后者相交。</span><a class="headerlink" href="#id3" title="链接到此图片">#</a></p>
+</figcaption>
+</figure>
+<p>这里已知的结果告诉我们哪个倍数合适。对于真实数据，倍数是一个假设，最好从开发样本之外寻找依据：在别处借款的拒绝申请人的征信结果、有意批准的一小部分拒绝申请人，或者业务判断。像上面那样报告一系列倍数下的结果。</p>
+</section>
+<section id="parceling">
+<h2>打包法<a class="headerlink" href="#parceling" title="链接到此标题。">#</a></h2>
+<p><a class="reference internal" href="../api/reject_inference.html#kivi.reject_inference.parceling" title="kivi.reject_inference.parceling"><code class="xref py py-func docutils literal notranslate"><span class="pre">parceling()</span></code></a> 把通过样本和拒绝样本的评分划分为评分段，默认是两个样本合并后的十个分位数评分段。在每个评分段内，按通过样本的坏账率乘以 <code class="docutils literal notranslate"><span class="pre">factor</span></code> 把拒绝样本标记为坏。标签用局部生成器抽取，因此在 <code class="docutils literal notranslate"><span class="pre">rng</span></code> 中给定种子即可复现：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">parcels</span> <span class="o">=</span> <span class="n">parceling</span><span class="p">(</span><span class="n">accept_pd</span><span class="p">,</span> <span class="n">accepts</span><span class="p">[</span><span class="s2">"target"</span><span class="p">],</span> <span class="n">reject_pd</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">parcels</span><span class="p">[</span><span class="s2">"target"</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
+<span class="go">target</span>
+<span class="go">0    1818</span>
+<span class="go">1     649</span>
+<span class="go">Name: count, dtype: int64</span>
+</pre></div>
+</div>
+<p>拒绝样本中有 26.3% 被标记为坏，低于同一倍数下模糊扩充推断的 28.6%。打包法只知道拒绝申请人所在的评分段，不知道其特征和自身的 PD。风险最高的评分段上端开放，容纳了近三分之一的拒绝样本，它们都得到该评分段通过样本的坏账率，而这一坏账率低于模型给它们的平均 PD。</p>
+<p>随机抽取给重新拟合带来噪声。在十个种子下，第二个样本上的 Gini 相差千分之几：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ginis</span> <span class="o">=</span> <span class="p">[</span>
+<span class="gp">... </span>    <span class="n">summary</span><span class="p">(</span><span class="n">refit</span><span class="p">(</span><span class="n">parceling</span><span class="p">(</span><span class="n">accept_pd</span><span class="p">,</span> <span class="n">accepts</span><span class="p">[</span><span class="s2">"target"</span><span class="p">],</span> <span class="n">reject_pd</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="n">seed</span><span class="p">)))</span>
+<span class="gp">... </span>    <span class="k">for</span> <span class="n">seed</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+<span class="gp">... </span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">min</span><span class="p">(</span><span class="n">g</span><span class="p">[</span><span class="s1">'gini'</span><span class="p">]</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">g</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">ginis</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="nb">max</span><span class="p">(</span><span class="n">g</span><span class="p">[</span><span class="s1">'gini'</span><span class="p">]</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">g</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">ginis</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">0.418 to 0.425</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">expected=True</span></code> 则像 <a class="reference internal" href="../api/reject_inference.html#kivi.reject_inference.fuzzy_augmentation" title="kivi.reject_inference.fuzzy_augmentation"><code class="xref py py-func docutils literal notranslate"><span class="pre">fuzzy_augmentation()</span></code></a> 那样，以评分段的坏账率作为坏样本行的权重、以其补数作为好样本行的权重。这样消除了抽样噪声，因此下面的比较使用这种方式：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">parcels</span> <span class="o">=</span> <span class="n">parceling</span><span class="p">(</span><span class="n">accept_pd</span><span class="p">,</span> <span class="n">accepts</span><span class="p">[</span><span class="s2">"target"</span><span class="p">],</span> <span class="n">reject_pd</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">expected</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">models</span><span class="p">[</span><span class="s2">"parceling"</span><span class="p">]</span> <span class="o">=</span> <span class="n">refit</span><span class="p">(</span><span class="n">parcels</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span><span class="p">[</span><span class="s2">"parceling"</span><span class="p">]</span> <span class="o">=</span> <span class="n">summary</span><span class="p">(</span><span class="n">models</span><span class="p">[</span><span class="s2">"parceling"</span><span class="p">],</span> <span class="n">parcels</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="reweighting">
+<h2>重新加权<a class="headerlink" href="#reweighting" title="链接到此标题。">#</a></h2>
+<p><a class="reference internal" href="../api/reject_inference.html#kivi.reject_inference.reweighting" title="kivi.reject_inference.reweighting"><code class="xref py py-func docutils literal notranslate"><span class="pre">reweighting()</span></code></a> 不增加任何行。在每个评分段内，它给每个通过样本权重（通过样本 + 拒绝样本）/ 通过样本，使加权后的通过样本代表该评分段的全部申请人：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">weights</span> <span class="o">=</span> <span class="n">reweighting</span><span class="p">(</span><span class="n">accept_pd</span><span class="p">,</span> <span class="n">reject_pd</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">weights</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">weights</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">, total </span><span class="si">{</span><span class="n">weights</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">1.01 to 6.33, total 9237</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">models</span><span class="p">[</span><span class="s2">"reweighting"</span><span class="p">]</span> <span class="o">=</span> <span class="n">logistic_regression</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">spec</span><span class="o">.</span><span class="n">woe_transform</span><span class="p">(</span><span class="n">accepts</span><span class="p">),</span> <span class="n">accepts</span><span class="p">[</span><span class="s2">"target"</span><span class="p">],</span> <span class="n">weights</span><span class="o">=</span><span class="n">weights</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span><span class="p">[</span><span class="s2">"reweighting"</span><span class="p">]</span> <span class="o">=</span> <span class="n">summary</span><span class="p">(</span><span class="n">models</span><span class="p">[</span><span class="s2">"reweighting"</span><span class="p">])</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id5">
+<img alt="十个评分段及其获批和拒绝申请人数、事件率，打包法的坏样本权重和重新加权的权重" class="plot-directive" src="../_images/reject_inference-3.svg" />
+<figcaption>
+<p><span class="caption-text">两个样本的评分合起来划分的十个评分段。打包法按评分段内获批申请人的事件率乘以 <code class="docutils literal notranslate"><span class="pre">factor</span></code> 把该段的拒绝申请人标为坏；重新加权给评分段内的获批申请人权重（获批 + 拒绝）/ 获批。拒绝申请人集中在风险最高的评分段，而那里的获批申请人最少。</span><a class="headerlink" href="#id5" title="链接到此图片">#</a></p>
+</figcaption>
+</figure>
+<p>重新加权假定拒绝样本与评分相同的通过样本违约情况相同，而这里恰恰不成立。权重之和等于总体的全部 9,237 个申请人，而只有 6,770 个通过样本有观测到的结果，因此拟合的标准误偏小。每个评分段还必须有通过样本。现行评分卡的 PD 以硬截断决定审批，按它划分时，截断点以上的评分段只有拒绝样本：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">reweighting</span><span class="p">(</span><span class="n">accepts</span><span class="p">[</span><span class="s2">"incumbent_pd"</span><span class="p">],</span> <span class="n">rejects</span><span class="p">[</span><span class="s2">"incumbent_pd"</span><span class="p">])</span>
+<span class="gt">Traceback (most recent call last):</span>
+<span class="c">...</span>
+<span class="gr">ValueError</span>: <span class="n">the score band (0.17118, 0.22683999999999996] holds 924 rejected applicant(s) but no accepted one, so no accepted applicant can stand in for them; use fewer bins or wider edges</span>
+</pre></div>
+</div>
+</section>
+<section id="hard-cut-off">
+<h2>硬截断<a class="headerlink" href="#hard-cut-off" title="链接到此标题。">#</a></h2>
+<p>最简单的方法不需要专门的函数：用仅用通过样本的模型给拒绝样本打分，把 PD 高于截断点的标记为坏、其余标记为好，然后重新拟合。这里的截断点把风险最高的 30% 拒绝样本标记为坏，接近它们的真实坏账率；与倍数一样，这个比例是借助已知结果选定的：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cut_off</span> <span class="o">=</span> <span class="n">reject_pd</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="mf">0.7</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hard</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"target"</span><span class="p">:</span> <span class="p">(</span><span class="n">reject_pd</span> <span class="o">&gt;</span> <span class="n">cut_off</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span> <span class="s2">"weight"</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">models</span><span class="p">[</span><span class="s2">"cut-off"</span><span class="p">]</span> <span class="o">=</span> <span class="n">refit</span><span class="p">(</span><span class="n">hard</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span><span class="p">[</span><span class="s2">"cut-off"</span><span class="p">]</span> <span class="o">=</span> <span class="n">summary</span><span class="p">(</span><span class="n">models</span><span class="p">[</span><span class="s2">"cut-off"</span><span class="p">],</span> <span class="n">hard</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="comparison">
+<h2>比较<a class="headerlink" href="#comparison" title="链接到此标题。">#</a></h2>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">results</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">             inferred  reject_pd   gini</span>
+<span class="go">accepts           NaN      0.191  0.422</span>
+<span class="go">known           0.301      0.252  0.425</span>
+<span class="go">fuzzy 1.25      0.238      0.221  0.421</span>
+<span class="go">fuzzy 1.5       0.286      0.251  0.420</span>
+<span class="go">fuzzy 2         0.381      0.312  0.419</span>
+<span class="go">parceling       0.263      0.229  0.421</span>
+<span class="go">reweighting       NaN      0.186  0.422</span>
+<span class="go">cut-off         0.300      0.311  0.418</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">compared</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"accepts"</span><span class="p">,</span> <span class="s2">"known"</span><span class="p">,</span> <span class="s2">"fuzzy 1.5"</span><span class="p">,</span> <span class="s2">"parceling"</span><span class="p">,</span> <span class="s2">"reweighting"</span><span class="p">,</span> <span class="s2">"cut-off"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="n">name</span><span class="p">:</span> <span class="n">models</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="s2">"coef"</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">compared</span><span class="p">})</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">                accepts  known  fuzzy 1.5  parceling  reweighting  cut-off</span>
+<span class="go">variable</span>
+<span class="go">intercept        -2.230 -2.067     -2.130     -2.104       -2.228   -2.574</span>
+<span class="go">age               1.223  1.640      1.652      1.404        1.201    2.644</span>
+<span class="go">income            1.239  1.345      1.624      1.373        1.146    2.980</span>
+<span class="go">debt_to_income    1.356  1.824      1.798      1.627        1.391    2.574</span>
+<span class="go">inquiries         1.427  1.899      1.901      1.596        1.286    3.459</span>
+<span class="go">housing           1.057  1.136      1.114      0.938        1.006    2.545</span>
+<span class="go">employment        1.388  1.504      1.817      1.542        1.393    3.192</span>
+</pre></div>
+</div>
+<p>在通过样本的 WOE 编码下，known 模型给每个变量的权重都高于仅用通过样本的模型：在全部申请人中，特征区分好坏的能力比在通过样本中更强。各方法的比较如下：</p>
+<ul class="simple">
+<li><p><strong>排序。</strong> 表中每种方法在第二个样本上的 Gini 都在 0.418 到 0.422 之间，known 模型也只有 0.425；打包法的随机标签只是偶然达到这一水平。拒绝样本额外的风险来自任何特征都不包含的信息，因此没有方法能把它找回来。</p></li>
+<li><p><strong>模糊扩充和打包法。</strong> 倍数大于 1 时，两者都会把拒绝样本的预测坏账率推向其真实值，并使大多数系数向 known 模型的系数靠拢。倍数为 1.5 时，模糊扩充使截距和六个变量中的四个与 known 模型的差距在 0.07 以内，但 <code class="docutils literal notranslate"><span class="pre">income</span></code> 和 <code class="docutils literal notranslate"><span class="pre">employment</span></code> 的系数超过了 known 模型。打包法降低了 <code class="docutils literal notranslate"><span class="pre">housing</span></code> 的系数，而 known 模型提高了它。两种方法的作用都以倍数正确为限。</p></li>
+<li><p><strong>重新加权。</strong> 它在这里没有帮助：权重无法使拒绝样本比同一评分段的通过样本风险更高。</p></li>
+<li><p><strong>硬截断。</strong> 它把截断点以上的拒绝样本视为必然为坏、其余视为必然为好，因此推断的结果与模型自身的评分完全一致。重新拟合使每个变量的系数变为原来的 1.9 到 2.4 倍，排序能力也略差。</p></li>
+</ul>
+</section>
+<section id="refitting-the-woe">
+<h2>重新拟合 WOE<a class="headerlink" href="#refitting-the-woe" title="链接到此标题。">#</a></h2>
+<p>上面的比较保留了通过样本的 WOE 编码。实际中常常用推断出的权重在扩充后的样本上重新拟合分组，使拒绝样本也影响它们所在分组的 WOE。 <a class="reference internal" href="../api/spec.html#kivi.spec.fit_spec" title="kivi.spec.fit_spec"><code class="xref py py-func docutils literal notranslate"><span class="pre">fit_spec()</span></code></a> 接受这些权重：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">inferred</span> <span class="o">=</span> <span class="n">fuzzy_augmentation</span><span class="p">(</span><span class="n">reject_pd</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="mf">1.5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">frame</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">accepts</span><span class="p">[</span><span class="n">features</span><span class="p">],</span> <span class="n">rejects</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">inferred</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">features</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">accepts</span><span class="p">[</span><span class="s2">"target"</span><span class="p">],</span> <span class="n">inferred</span><span class="p">[</span><span class="s2">"target"</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">weights</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">accepts</span><span class="o">.</span><span class="n">index</span><span class="p">),</span> <span class="n">inferred</span><span class="p">[</span><span class="s2">"weight"</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">augmented_spec</span> <span class="o">=</span> <span class="n">fit_spec</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="n">edges</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">augmented</span> <span class="o">=</span> <span class="n">logistic_regression</span><span class="p">(</span><span class="n">augmented_spec</span><span class="o">.</span><span class="n">woe_transform</span><span class="p">(</span><span class="n">frame</span><span class="p">),</span> <span class="n">target</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">known_spec</span> <span class="o">=</span> <span class="n">fit_spec</span><span class="p">(</span><span class="n">population</span><span class="p">[</span><span class="n">features</span><span class="p">],</span> <span class="n">population</span><span class="p">[</span><span class="s2">"target"</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="n">edges</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">known_refit</span> <span class="o">=</span> <span class="n">logistic_regression</span><span class="p">(</span><span class="n">known_spec</span><span class="o">.</span><span class="n">woe_transform</span><span class="p">(</span><span class="n">population</span><span class="p">),</span> <span class="n">population</span><span class="p">[</span><span class="s2">"target"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s2">"accepts"</span><span class="p">:</span> <span class="n">gini</span><span class="p">(</span><span class="n">predict</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">holdout</span><span class="p">),</span> <span class="n">holdout</span><span class="p">[</span><span class="s2">"target"</span><span class="p">]),</span>
+<span class="gp">... </span>    <span class="s2">"fuzzy 1.5, WOE refitted"</span><span class="p">:</span> <span class="n">gini</span><span class="p">(</span>
+<span class="gp">... </span>        <span class="n">predict</span><span class="p">(</span><span class="n">augmented</span><span class="p">,</span> <span class="n">holdout</span><span class="p">,</span> <span class="n">augmented_spec</span><span class="p">),</span> <span class="n">holdout</span><span class="p">[</span><span class="s2">"target"</span><span class="p">]</span>
+<span class="gp">... </span>    <span class="p">),</span>
+<span class="gp">... </span>    <span class="s2">"known, WOE refitted"</span><span class="p">:</span> <span class="n">gini</span><span class="p">(</span><span class="n">predict</span><span class="p">(</span><span class="n">known_refit</span><span class="p">,</span> <span class="n">holdout</span><span class="p">,</span> <span class="n">known_spec</span><span class="p">),</span> <span class="n">holdout</span><span class="p">[</span><span class="s2">"target"</span><span class="p">]),</span>
+<span class="gp">... </span><span class="p">})</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">accepts                    0.422</span>
+<span class="go">fuzzy 1.5, WOE refitted    0.425</span>
+<span class="go">known, WOE refitted        0.430</span>
+<span class="go">dtype: float64</span>
+</pre></div>
+</div>
+<p>重新拟合 WOE 使 Gini 从 0.422 升到 0.425，而用已知结果及其自身 WOE 编码的模型为 0.430。它弥补了一部分差距，而这个差距本来就很小；倍数为 1 时效果也差不多：提升来自重新拟合拒绝样本所在分组的 WOE，而不是来自倍数。</p>
+</section>
+<section id="limits">
+<h2>局限<a class="headerlink" href="#limits" title="链接到此标题。">#</a></h2>
+<ul class="simple">
+<li><p>这些方法都从通过样本推断结果，因此无法揭示通过样本没有体现的东西。大于 1 的倍数表达的是拒绝样本风险高出多少，而数据无法估计它。</p></li>
+<li><p>每种方法的权重都会使 <a class="reference internal" href="../api/selection.html#kivi.selection.logistic_regression" title="kivi.selection.logistic_regression"><code class="xref py py-func docutils literal notranslate"><span class="pre">logistic_regression()</span></code></a> 的标准误偏小、 <a class="reference internal" href="../api/selection.html#kivi.selection.stepwise" title="kivi.selection.stepwise"><code class="xref py py-func docutils literal notranslate"><span class="pre">stepwise()</span></code></a> 的 p 值偏低，因为推断出的行和额外的权重被计为观测。应在通过样本上选择变量，并把重新拟合的 p 值视为偏乐观的结果。</p></li>
+<li><p>kivi 没有实现 Heckman 两阶段模型或其他样本选择的双变量 probit 模型，也没有实现迭代重分类。</p></li>
+</ul>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="selection.html"
+       title="上一页">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">上一页</p>
+        <p class="prev-next-title">变量筛选</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="scorecard.html"
+       title="下一页">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">下一页</p>
+        <p class="prev-next-title">评分卡</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 当前页面
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#applications-and-approvals">申请与审批</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-accepts-only-model">仅用通过样本的模型</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fuzzy-augmentation">模糊扩充</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sensitivity-to-the-factor">对倍数的敏感性</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#parceling">打包法</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#reweighting">重新加权</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#hard-cut-off">硬截断</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#comparison">比较</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#refitting-the-woe">重新拟合 WOE</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#limits">局限</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    由 <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1创建。
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

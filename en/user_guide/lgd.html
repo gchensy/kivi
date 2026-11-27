@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>LGD and EAD &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=d005c095" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=25d9e9fd"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/lgd';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Credit strategy" href="strategy.html" />
+    <link rel="prev" title="Calibration" href="calibration.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="1.9.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 1.9.0">1.9.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    Tutorial
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/user_guide/lgd.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    Tutorial
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/user_guide/lgd.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="risk_workflow.html">Risk modeling workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">Time-window features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="univariate.html">Univariate profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="binning.html">Binning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="woe_iv.html">Weight of evidence and information value</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selection.html">Variable selection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reject_inference.html">Reject inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scorecard.html">Scorecard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="expert.html">Expert scorecards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">Model performance</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">Calibration</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">LGD and EAD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">Credit strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rules.html">Policy rules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spec.html">Binning specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="psi.html">Population stability index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">Model monitoring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="validation.html">Model validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="capital.html">Regulatory capital</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vintage.html">Vintage and roll-rate analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lifetime.html">Lifetime PD and expected credit loss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html">Charts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">Example data</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">User guide</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">LGD and EAD</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="lgd-and-ead">
+<h1>LGD and EAD<a class="headerlink" href="#lgd-and-ead" title="Link to this heading">#</a></h1>
+<p>When a borrower defaults, the bank loses the part of the exposure that the workout does not recover. The loss given default (LGD) is that loss as a share of the exposure at default (EAD), and for a credit line the EAD includes what the borrower draws between a reference date and the default, which the credit conversion factor (CCF) measures. With the PD, the LGD and the EAD make up the expected loss and the capital requirement of each exposure.</p>
+<p>The PDs come from <a class="reference internal" href="calibration.html"><span class="doc">Calibration</span></a>, the previous guide, the expected loss that the three parameters give is that of <a class="reference internal" href="strategy.html"><span class="doc">Credit strategy</span></a>, the next guide, <a class="reference internal" href="validation.html"><span class="doc">Model validation</span></a> back-tests LGD and CCF estimates as supervisors ask, and <a class="reference internal" href="capital.html"><span class="doc">Regulatory capital</span></a> turns them into the capital requirement. <a class="reference internal" href="../api/lgd.html#kivi.lgd.workout_lgd" title="kivi.lgd.workout_lgd"><code class="xref py py-func docutils literal notranslate"><span class="pre">workout_lgd()</span></code></a> gives the realized LGD of each defaulted loan from the cash flows of its workout, and <a class="reference internal" href="../api/lgd.html#kivi.lgd.conversion_factor" title="kivi.lgd.conversion_factor"><code class="xref py py-func docutils literal notranslate"><span class="pre">conversion_factor()</span></code></a> the realized CCF of each credit line. <a class="reference internal" href="../api/lgd.html#kivi.lgd.lgd_table" title="kivi.lgd.lgd_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">lgd_table()</span></code></a> summarizes realized LGDs by group, <a class="reference internal" href="../api/binning.html#kivi.binning.variance_edges" title="kivi.binning.variance_edges"><code class="xref py py-func docutils literal notranslate"><span class="pre">variance_edges()</span></code></a> fits the bins of a driver to them, and <a class="reference internal" href="../api/lgd.html#kivi.lgd.fractional_regression" title="kivi.lgd.fractional_regression"><code class="xref py py-func docutils literal notranslate"><span class="pre">fractional_regression()</span></code></a> models them on several drivers at once.</p>
+<section id="definitions">
+<h2>Definitions<a class="headerlink" href="#definitions" title="Link to this heading">#</a></h2>
+<p>A workout recovers money from a defaulted loan, through repayments, the sale of collateral or a cure, and costs money, such as legal fees. A flow of amount <span class="math notranslate nohighlight">\(a_j\)</span> on the date <span class="math notranslate nohighlight">\(t_j\)</span>, positive for a recovery and negative for a cost, is discounted at the annual rate <span class="math notranslate nohighlight">\(r\)</span> to the date of default <span class="math notranslate nohighlight">\(t_D\)</span>, with the days counted ACT/365:</p>
+<div class="math notranslate nohighlight">
+\[\mathrm{PV}_j = a_j \, (1 + r)^{-(t_j - t_D) / 365}.\]</div>
+<p>With <span class="math notranslate nohighlight">\(R\)</span> the sum of the present values of the recoveries and <span class="math notranslate nohighlight">\(C\)</span> that of the costs, as a positive amount, the realized LGD is the economic loss as a share of the exposure at default:</p>
+<div class="math notranslate nohighlight">
+\[\mathrm{LGD} = \frac{\mathrm{EAD} + C - R}{\mathrm{EAD}}.\]</div>
+<p>A credit line with the limit <span class="math notranslate nohighlight">\(L\)</span> and the amount <span class="math notranslate nohighlight">\(D\)</span> drawn at the reference date, and the amount <span class="math notranslate nohighlight">\(E\)</span> drawn at default, has the realized CCF</p>
+<div class="math notranslate nohighlight">
+\[\mathrm{CCF} = \frac{E - D}{L - D},\]</div>
+<p>the share of its undrawn part that was drawn by the time of default. Neither measure is clipped: recoveries above the exposure give a negative LGD, costs above the recoveries an LGD above 1, a repayment after the reference date a negative CCF and a limit raised after it a CCF above 1.</p>
+</section>
+<section id="a-worked-example">
+<h2>A worked example<a class="headerlink" href="#a-worked-example" title="Link to this heading">#</a></h2>
+<p>Three loans defaulted on 1 January 2023, and their workouts are discounted at 10% a year. Loan A recovers 55 and costs 11 a year after default, loan B recovers its exposure on the day of default after a legal cost of 5 a year before, and loan C has no flows yet:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.lgd</span><span class="w"> </span><span class="kn">import</span> <span class="n">workout_lgd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">workout_lgd</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="s2">"A"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"C"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="s2">"2023-01-01"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">3</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="mf">100.0</span><span class="p">,</span> <span class="mf">200.0</span><span class="p">,</span> <span class="mf">50.0</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="s2">"A"</span><span class="p">,</span> <span class="s2">"A"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="s2">"2024-01-01"</span><span class="p">,</span> <span class="s2">"2024-01-01"</span><span class="p">,</span> <span class="s2">"2022-01-01"</span><span class="p">,</span> <span class="s2">"2023-01-01"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="mf">55.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">11.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">5.0</span><span class="p">,</span> <span class="mf">200.0</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">rate</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+<span class="gp">... </span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">        ead  recovery  cost     lgd</span>
+<span class="go">loan</span>
+<span class="go">A     100.0      50.0  10.0  0.6000</span>
+<span class="go">B     200.0     200.0   5.5  0.0275</span>
+<span class="go">C      50.0       0.0   0.0  1.0000</span>
+</pre></div>
+</div>
+<p>A year after default, the flows of loan A are worth 55 / 1.1 = 50 and 11 / 1.1 = 10, so it lost 100 + 10 − 50 = 60 of its exposure of 100. The cost of loan B a year before default is compounded to 5 × 1.1 = 5.5, so B lost 5.5 of 200 although it recovered its exposure. Loan C has an LGD of 1 because nothing has been recovered yet, which is its realized LGD only if its workout has closed.</p>
+</section>
+<section id="workout-lgd">
+<h2>Workout LGD<a class="headerlink" href="#workout-lgd" title="Link to this heading">#</a></h2>
+<p>The defaulted loans come as one table with a row per loan, and the cash flows of their workouts as another with a row per flow, as a bank’s systems record them. <a class="reference internal" href="../api/datasets.html#kivi.datasets.make_defaults" title="kivi.datasets.make_defaults"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_defaults()</span></code></a> and <a class="reference internal" href="../api/datasets.html#kivi.datasets.make_recoveries" title="kivi.datasets.make_recoveries"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_recoveries()</span></code></a> simulate such tables, which <a class="reference internal" href="datasets.html"><span class="doc">Example data</span></a> describes. Each loan has its own <code class="docutils literal notranslate"><span class="pre">discount_rate</span></code>, the money-market rate of its month of default plus 5 percentage points as paragraph 143 of the EBA’s guidelines asks, so it is passed as <code class="docutils literal notranslate"><span class="pre">rate</span></code>:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_defaults</span><span class="p">,</span> <span class="n">make_recoveries</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">defaults</span> <span class="o">=</span> <span class="n">make_defaults</span><span class="p">(</span><span class="n">rng</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">flows</span> <span class="o">=</span> <span class="n">make_recoveries</span><span class="p">(</span><span class="n">defaults</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">workout_lgd</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">defaults</span><span class="p">[</span><span class="s2">"loan_id"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">defaults</span><span class="p">[</span><span class="s2">"default_date"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">defaults</span><span class="p">[</span><span class="s2">"ead"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">flows</span><span class="p">[</span><span class="s2">"loan_id"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">flows</span><span class="p">[</span><span class="s2">"date"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">flows</span><span class="p">[</span><span class="s2">"amount"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">rate</span><span class="o">=</span><span class="n">defaults</span><span class="p">[</span><span class="s2">"discount_rate"</span><span class="p">],</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span><span class="o">.</span><span class="n">head</span><span class="p">()</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">            ead     recovery       cost     lgd</span>
+<span class="go">loan</span>
+<span class="go">1     307147.39  221340.3613  9282.0042  0.3096</span>
+<span class="go">2       2471.68     392.8536   190.9515  0.9183</span>
+<span class="go">3      23456.26   22385.7845    26.7730  0.0468</span>
+<span class="go">4      14235.26    2049.2144   508.3363  0.8918</span>
+<span class="go">5       7642.49     227.7722   236.7750  1.0012</span>
+</pre></div>
+</div>
+<p>These are the LGDs that <a class="reference internal" href="datasets.html"><span class="doc">Example data</span></a> computes with pandas, flow by flow. The secured loan 1 sold its collateral after a year and a half, the unsecured loan 3 cured, and the costs of loan 5 exceeded its recoveries, so it lost more than its exposure. The legal costs that 101 loans paid before their default count compounded to the date of default.</p>
+<section id="closed-workouts">
+<h3>Closed workouts<a class="headerlink" href="#closed-workouts" title="Link to this heading">#</a></h3>
+<p><a class="reference internal" href="../api/lgd.html#kivi.lgd.workout_lgd" title="kivi.lgd.workout_lgd"><code class="xref py py-func docutils literal notranslate"><span class="pre">workout_lgd()</span></code></a> does not know whether a workout has ended and gives the loss of the flows so far. The realized LGD exists only for a closed workout: the long-run average and the back-tests use the defaults whose recovery process has closed, by the bank’s definition of its end, and leave out the expected future recoveries of the others. Here the workouts with a <code class="docutils literal notranslate"><span class="pre">closing_date</span></code> have closed:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">loans</span> <span class="o">=</span> <span class="n">defaults</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">"loan_id"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">closed</span> <span class="o">=</span> <span class="n">loans</span><span class="p">[</span><span class="s2">"closing_date"</span><span class="p">]</span><span class="o">.</span><span class="n">notna</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">int</span><span class="p">(</span><span class="n">closed</span><span class="o">.</span><span class="n">sum</span><span class="p">()),</span> <span class="nb">int</span><span class="p">((</span><span class="o">~</span><span class="n">closed</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+<span class="go">(1722, 278)</span>
+</pre></div>
+</div>
+<p>The open workouts still count in the long-run average of the regulations, which adjusts for them; kivi leaves that adjustment to the bank’s own estimate of the future recoveries.</p>
+</section>
+<section id="drawings-write-offs-and-cures">
+<h3>Drawings, write-offs and cures<a class="headerlink" href="#drawings-write-offs-and-cures" title="Link to this heading">#</a></h3>
+<p>The flows and the exposure are the caller’s to choose, and the EBA’s guidelines say how:</p>
+<ul class="simple">
+<li><p><strong>A cure</strong> returns the loan to performing. It counts as a recovery of the amount outstanding on the date of the cure, as the flows of <code class="docutils literal notranslate"><span class="pre">kind</span></code> <code class="docutils literal notranslate"><span class="pre">&quot;cure&quot;</span></code> of the simulated data do.</p></li>
+<li><p><strong>An amount written off</strong> at or before default belongs in the exposure, so that it counts in the loss and in the EAD alike.</p></li>
+<li><p><strong>Interest and fees capitalized after default</strong> are not flows, but their recoveries are.</p></li>
+<li><p><strong>A drawing after default</strong> is a negative flow, like a cost, so that it counts in the loss. Where the CCF includes the drawings, the EBA counts them in the exposure as well. Then add their present value to <code class="docutils literal notranslate"><span class="pre">ead</span></code> instead of passing them as flows, because the exposure counts in the loss too.</p></li>
+</ul>
+<p>A credit line with an exposure of 10,000 at default drew 2,000 two months later and recovered 9,000 after a year. As a flow, the drawing raises the loss:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">line</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"loan"</span><span class="p">:</span> <span class="p">[</span><span class="mi">7</span><span class="p">],</span> <span class="s2">"default_date"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"2023-03-01"</span><span class="p">]}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">workout_lgd</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="o">*</span><span class="n">line</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span> <span class="p">[</span><span class="mf">10_000.0</span><span class="p">],</span> <span class="p">[</span><span class="mi">7</span><span class="p">,</span> <span class="mi">7</span><span class="p">],</span> <span class="p">[</span><span class="s2">"2023-05-01"</span><span class="p">,</span> <span class="s2">"2024-02-29"</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mf">2_000.0</span><span class="p">,</span> <span class="mf">9_000.0</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">rate</span><span class="o">=</span><span class="mf">0.06</span><span class="p">,</span>
+<span class="gp">... </span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">          ead  recovery       cost    lgd</span>
+<span class="go">loan</span>
+<span class="go">7     10000.0  8490.566  1980.6183  0.349</span>
+</pre></div>
+</div>
+<p>Where the CCF includes it, the present value of the drawing, the <code class="docutils literal notranslate"><span class="pre">cost</span></code> of a call with the drawing alone, moves to the exposure:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">drawing</span> <span class="o">=</span> <span class="n">workout_lgd</span><span class="p">(</span><span class="o">*</span><span class="n">line</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span> <span class="p">[</span><span class="mf">10_000.0</span><span class="p">],</span> <span class="p">[</span><span class="mi">7</span><span class="p">],</span> <span class="p">[</span><span class="s2">"2023-05-01"</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mf">2_000.0</span><span class="p">],</span> <span class="n">rate</span><span class="o">=</span><span class="mf">0.06</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ead</span> <span class="o">=</span> <span class="mf">10_000.0</span> <span class="o">+</span> <span class="n">drawing</span><span class="p">[</span><span class="s2">"cost"</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">workout_lgd</span><span class="p">(</span><span class="o">*</span><span class="n">line</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span> <span class="n">ead</span><span class="p">,</span> <span class="p">[</span><span class="mi">7</span><span class="p">],</span> <span class="p">[</span><span class="s2">"2024-02-29"</span><span class="p">],</span> <span class="p">[</span><span class="mf">9_000.0</span><span class="p">],</span> <span class="n">rate</span><span class="o">=</span><span class="mf">0.06</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">             ead  recovery  cost     lgd</span>
+<span class="go">loan</span>
+<span class="go">7     11980.6183  8490.566   0.0  0.2913</span>
+</pre></div>
+</div>
+<p>The drawing still counts once in the loss, and now also in the exposure, so the LGD falls from 0.349 to 0.2913.</p>
+</section>
+</section>
+<section id="credit-conversion-factors">
+<h2>Credit conversion factors<a class="headerlink" href="#credit-conversion-factors" title="Link to this heading">#</a></h2>
+<p>The CCF of a defaulted credit line compares the amount drawn at default with the limit and the amount drawn at a reference date. The regulations take the reference date 12 months before default, the fixed-horizon approach, and the limit at that date, the larger of the advised and the unadvised limit; a limit raised later stays out of the denominator. The revolving lines of the simulated defaults have their <code class="docutils literal notranslate"><span class="pre">limit</span></code> and <code class="docutils literal notranslate"><span class="pre">drawn</span></code> amount of that date:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.lgd</span><span class="w"> </span><span class="kn">import</span> <span class="n">conversion_factor</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">revolving</span> <span class="o">=</span> <span class="n">loans</span><span class="p">[</span><span class="n">loans</span><span class="p">[</span><span class="s2">"segment"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"revolving"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ccf</span> <span class="o">=</span> <span class="n">conversion_factor</span><span class="p">(</span><span class="n">revolving</span><span class="p">[</span><span class="s2">"ead"</span><span class="p">],</span> <span class="n">revolving</span><span class="p">[</span><span class="s2">"drawn"</span><span class="p">],</span> <span class="n">revolving</span><span class="p">[</span><span class="s2">"limit"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ccf</span><span class="o">.</span><span class="n">describe</span><span class="p">()</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">count    464.000</span>
+<span class="go">mean       0.553</span>
+<span class="go">std        0.707</span>
+<span class="go">min       -3.263</span>
+<span class="go">25%        0.291</span>
+<span class="go">50%        0.554</span>
+<span class="go">75%        0.823</span>
+<span class="go">max        9.332</span>
+<span class="go">Name: ccf, dtype: float64</span>
+</pre></div>
+</div>
+<p>The median line drew 55% of its undrawn limit by default. A negative CCF comes from a line that repaid part of its balance before default, and a CCF above 1 from a line that ended above its limit. The 25 other lines were fully drawn or overdrawn at the reference date, so they have no undrawn part and no CCF: the formula would divide by 0, or by a negative amount and reverse the sign. The EBA’s consultation on CCF estimation measures such lines by the amount drawn at default over the limit, and the ECB’s validation report back-tests their EAD instead of a CCF:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fully_drawn</span> <span class="o">=</span> <span class="n">revolving</span><span class="p">[</span><span class="s2">"limit"</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">revolving</span><span class="p">[</span><span class="s2">"drawn"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">int</span><span class="p">(</span><span class="n">fully_drawn</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+<span class="go">25</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="nb">round</span><span class="p">((</span><span class="n">revolving</span><span class="p">[</span><span class="s2">"ead"</span><span class="p">]</span> <span class="o">/</span> <span class="n">revolving</span><span class="p">[</span><span class="s2">"limit"</span><span class="p">])[</span><span class="n">fully_drawn</span><span class="p">]</span><span class="o">.</span><span class="n">median</span><span class="p">(),</span> <span class="mi">4</span><span class="p">))</span>
+<span class="go">1.0943</span>
+</pre></div>
+</div>
+<p>A negative CCF still ranks the risk of the lines, but the quantification of the CRR3 counts it as 0, and no CCF may be capped at 1. <a class="reference internal" href="../api/lgd.html#kivi.lgd.lgd_table" title="kivi.lgd.lgd_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">lgd_table()</span></code></a>, whose floor of 0 does just that, gives the CCFs by the usage of the lines at the reference date:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.lgd</span><span class="w"> </span><span class="kn">import</span> <span class="n">lgd_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">undrawn</span> <span class="o">=</span> <span class="n">ccf</span><span class="o">.</span><span class="n">notna</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">usage</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">revolving</span><span class="p">[</span><span class="s2">"drawn"</span><span class="p">]</span> <span class="o">/</span> <span class="n">revolving</span><span class="p">[</span><span class="s2">"limit"</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">,</span> <span class="mi">1</span><span class="p">])[</span><span class="n">undrawn</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lgd_table</span><span class="p">(</span><span class="n">usage</span><span class="p">,</span> <span class="n">ccf</span><span class="p">[</span><span class="n">undrawn</span><span class="p">])[[</span><span class="s2">"total"</span><span class="p">,</span> <span class="s2">"mean"</span><span class="p">,</span> <span class="s2">"zero_share"</span><span class="p">,</span> <span class="s2">"full_share"</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">             total   mean  zero_share  full_share</span>
+<span class="go">bin</span>
+<span class="go">(0.0, 0.5]     138  0.582       0.094       0.109</span>
+<span class="go">(0.5, 0.75]    203  0.555       0.103       0.084</span>
+<span class="go">(0.75, 1.0]    123  0.719       0.073       0.106</span>
+</pre></div>
+</div>
+<p>The lines that had drawn more than three quarters of their limit by the reference date drew more of what was left.</p>
+</section>
+<section id="lgd-tables">
+<h2>LGD tables<a class="headerlink" href="#lgd-tables" title="Link to this heading">#</a></h2>
+<p><a class="reference internal" href="../api/lgd.html#kivi.lgd.lgd_table" title="kivi.lgd.lgd_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">lgd_table()</span></code></a> summarizes the realized LGDs of each group: the number of defaults, the average LGD, its standard deviation, its range and the shares of defaults without loss and with a total loss. The average counts every default once, as the regulations ask of the long-run average LGD, and negative LGDs count as 0 by default. The closed workouts by segment:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">realized</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="n">closed</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span> <span class="o">=</span> <span class="n">lgd_table</span><span class="p">(</span><span class="n">loans</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">closed</span><span class="p">,</span> <span class="s2">"segment"</span><span class="p">],</span> <span class="n">realized</span><span class="p">[</span><span class="s2">"lgd"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s2">"total_share"</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">           total    mean     std     min     max  zero_share  full_share</span>
+<span class="go">bin</span>
+<span class="go">secured      704  0.0957  0.1176  0.0000  0.6555       0.054      0.0000</span>
+<span class="go">unsecured    580  0.7773  0.2961  0.0136  1.2490       0.000      0.1190</span>
+<span class="go">revolving    438  0.6853  0.3512  0.0120  1.3985       0.000      0.1142</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id1">
+<img alt="Histograms of the realized LGDs of the closed workouts of the secured, unsecured and revolving loans, with lines at 0 and 100%" class="plot-directive" src="../_images/lgd-1.svg" />
+<figcaption>
+<p><span class="caption-text">Realized LGDs of the closed workouts by segment, before the floor. The secured loans lose little, while the unsecured loans and revolving lines either cure, near 0, or lose most of their exposure, some of them more than all of it.</span><a class="headerlink" href="#id1" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>The LGDs of the unsecured loans and revolving lines are bimodal, with the cures near 0 and the liquidations near 1, while most secured loans lose less than 10%. <code class="docutils literal notranslate"><span class="pre">zero_share</span></code> holds the 38 secured loans whose collateral covered more than their exposure, which <code class="docutils literal notranslate"><span class="pre">floor=None</span></code> keeps negative; these values still tell the drivers of the loss apart:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">lgd_table</span><span class="p">(</span><span class="n">loans</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">closed</span><span class="p">,</span> <span class="s2">"segment"</span><span class="p">],</span> <span class="n">realized</span><span class="p">[</span><span class="s2">"lgd"</span><span class="p">],</span> <span class="n">floor</span><span class="o">=</span><span class="kc">None</span><span class="p">)[[</span><span class="s2">"mean"</span><span class="p">,</span> <span class="s2">"min"</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">             mean     min</span>
+<span class="go">bin</span>
+<span class="go">secured    0.0941 -0.0950</span>
+<span class="go">unsecured  0.7773  0.0136</span>
+<span class="go">revolving  0.6853  0.0120</span>
+</pre></div>
+</div>
+<p>The table works like <a class="reference internal" href="../api/woe.html#kivi.woe.woe_table" title="kivi.woe.woe_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">woe_table()</span></code></a> for a continuous target: pass the bins of a driver, such as the loan-to-value ratio of the secured loans, to see how the average LGD changes from bin to bin. The bins may also come from <a class="reference internal" href="../api/binning.html#kivi.binning.bin_edges" title="kivi.binning.bin_edges"><code class="xref py py-func docutils literal notranslate"><span class="pre">bin_edges()</span></code></a> and <a class="reference internal" href="../api/binning.html#kivi.binning.cut" title="kivi.binning.cut"><code class="xref py py-func docutils literal notranslate"><span class="pre">cut()</span></code></a>:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">secured</span> <span class="o">=</span> <span class="n">closed</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">loans</span><span class="p">[</span><span class="s2">"segment"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"secured"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ltv</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">cut</span><span class="p">((</span><span class="n">loans</span><span class="p">[</span><span class="s2">"ead"</span><span class="p">]</span> <span class="o">/</span> <span class="n">loans</span><span class="p">[</span><span class="s2">"collateral_value"</span><span class="p">])[</span><span class="n">secured</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lgd_table</span><span class="p">(</span><span class="n">ltv</span><span class="p">,</span> <span class="n">realized</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">secured</span><span class="p">[</span><span class="n">closed</span><span class="p">],</span> <span class="s2">"lgd"</span><span class="p">])[[</span><span class="s2">"total"</span><span class="p">,</span> <span class="s2">"mean"</span><span class="p">,</span> <span class="s2">"zero_share"</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">            total   mean  zero_share</span>
+<span class="go">bin</span>
+<span class="go">(0.0, 0.6]    156  0.040       0.141</span>
+<span class="go">(0.6, 0.8]    235  0.053       0.055</span>
+<span class="go">(0.8, 1.0]    191  0.115       0.016</span>
+<span class="go">(1.0, inf]    122  0.220       0.000</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id3">
+<img alt="Bars of the mean LGD and of the share of loans without loss for four loan-to-value bands of the secured loans" class="plot-directive" src="../_images/lgd-2.svg" />
+<figcaption>
+<p><span class="caption-text">Mean LGD and share of loans without loss of the closed secured workouts by loan-to-value band. The mean rises from 4% to 22% as the collateral covers less of the exposure, and the loans without loss vanish.</span><a class="headerlink" href="#id3" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>The loans that owe more than their collateral is worth lose five times as much as those with a loan-to-value ratio of 60% or less.</p>
+<section id="bands-of-a-driver-fitted-to-the-lgds">
+<h3>Bands of a driver fitted to the LGDs<a class="headerlink" href="#bands-of-a-driver-fitted-to-the-lgds" title="Link to this heading">#</a></h3>
+<p>The four bands above are a judgement. <a class="reference internal" href="../api/binning.html#kivi.binning.variance_edges" title="kivi.binning.variance_edges"><code class="xref py py-func docutils literal notranslate"><span class="pre">variance_edges()</span></code></a> fits the bands to the LGDs instead: of the merges of 20 quantile bins of the ratio, it returns the bins whose mean LGDs explain the largest share of the variance of the LGDs, with at least 5% of the loans in each bin and a mean that rises, or falls, from bin to bin. Floor the LGDs at 0 first, as <a class="reference internal" href="../api/lgd.html#kivi.lgd.lgd_table" title="kivi.lgd.lgd_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">lgd_table()</span></code></a> does, so that the bands are fitted to the LGDs that the table averages:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.binning</span><span class="w"> </span><span class="kn">import</span> <span class="n">cut</span><span class="p">,</span> <span class="n">variance_edges</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ratio</span> <span class="o">=</span> <span class="p">(</span><span class="n">loans</span><span class="p">[</span><span class="s2">"ead"</span><span class="p">]</span> <span class="o">/</span> <span class="n">loans</span><span class="p">[</span><span class="s2">"collateral_value"</span><span class="p">])[</span><span class="n">secured</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">secured_lgd</span> <span class="o">=</span> <span class="n">realized</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">secured</span><span class="p">[</span><span class="n">closed</span><span class="p">],</span> <span class="s2">"lgd"</span><span class="p">]</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">lower</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">edges</span> <span class="o">=</span> <span class="n">variance_edges</span><span class="p">(</span><span class="n">ratio</span><span class="p">,</span> <span class="n">secured_lgd</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">edges</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">array([ -inf, 0.76 , 0.897, 0.972, 1.189,   inf])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fitted</span> <span class="o">=</span> <span class="n">lgd_table</span><span class="p">(</span><span class="n">cut</span><span class="p">(</span><span class="n">ratio</span><span class="p">,</span> <span class="n">edges</span><span class="p">),</span> <span class="n">secured_lgd</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fitted</span><span class="p">[[</span><span class="s2">"total"</span><span class="p">,</span> <span class="s2">"mean"</span><span class="p">,</span> <span class="s2">"std"</span><span class="p">,</span> <span class="s2">"zero_share"</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">                total   mean    std  zero_share</span>
+<span class="go">bin</span>
+<span class="go">(-inf, 0.76]      352  0.044  0.048       0.091</span>
+<span class="go">(0.76, 0.897]     141  0.086  0.082       0.043</span>
+<span class="go">(0.897, 0.972]     70  0.131  0.117       0.000</span>
+<span class="go">(0.972, 1.189]    105  0.203  0.145       0.000</span>
+<span class="go">(1.189, inf]       36  0.253  0.221       0.000</span>
+</pre></div>
+</div>
+<p>The mean LGD rises from 4% to 25%, and the fitted bands put a cut near a ratio of 1, where the collateral stops covering the exposure. They explain more of the variance of the LGDs than the four fixed bands:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">explained</span><span class="p">(</span><span class="n">groups</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">means</span> <span class="o">=</span> <span class="n">secured_lgd</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">groups</span><span class="o">.</span><span class="n">cat</span><span class="o">.</span><span class="n">codes</span><span class="p">)</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="s2">"mean"</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">squares</span> <span class="o">=</span> <span class="p">((</span><span class="n">secured_lgd</span> <span class="o">-</span> <span class="n">means</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">squares</span> <span class="o">/</span> <span class="p">((</span><span class="n">secured_lgd</span> <span class="o">-</span> <span class="n">secured_lgd</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">explained</span><span class="p">(</span><span class="n">cut</span><span class="p">(</span><span class="n">ratio</span><span class="p">,</span><span class="w"> </span><span class="n">edges</span><span class="p">))</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">explained</span><span class="p">(</span><span class="n">ltv</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">0.321 0.295</span>
+</pre></div>
+</div>
+<p>As with the information value of a binary target, the share explained on the loans that fitted the bands is optimistic; check the bands on later defaults before using them. <code class="docutils literal notranslate"><span class="pre">max_bins</span></code>, <code class="docutils literal notranslate"><span class="pre">min_bin_share</span></code> and <code class="docutils literal notranslate"><span class="pre">trend</span></code> work as in <a class="reference internal" href="../api/binning.html#kivi.binning.optimal_edges" title="kivi.binning.optimal_edges"><code class="xref py py-func docutils literal notranslate"><span class="pre">optimal_edges()</span></code></a>, and a <code class="docutils literal notranslate"><span class="pre">special</span></code> code of the driver gets a group of its own from <a class="reference internal" href="../api/binning.html#kivi.binning.cut" title="kivi.binning.cut"><code class="xref py py-func docutils literal notranslate"><span class="pre">cut()</span></code></a>.</p>
+</section>
+</section>
+<section id="fractional-regression">
+<h2>Fractional regression<a class="headerlink" href="#fractional-regression" title="Link to this heading">#</a></h2>
+<p><a class="reference internal" href="../api/lgd.html#kivi.lgd.fractional_regression" title="kivi.lgd.fractional_regression"><code class="xref py py-func docutils literal notranslate"><span class="pre">fractional_regression()</span></code></a> models the mean LGD on several drivers at once with the fractional logit of Papke and Wooldridge:</p>
+<div class="math notranslate nohighlight">
+\[E(\mathrm{LGD} \mid x) = \frac{1}{1 + e^{-(\beta_0 + \sum_j \beta_j x_j)}}.\]</div>
+<p>The response must lie between 0 and 1, with 0 and 1 included, so cap the LGDs at 1 and floor them at 0 first. The coefficients maximize the same likelihood as <a class="reference internal" href="../api/selection.html#kivi.selection.logistic_regression" title="kivi.selection.logistic_regression"><code class="xref py py-func docutils literal notranslate"><span class="pre">logistic_regression()</span></code></a> and are read in the same way: a positive coefficient raises the mean LGD. The standard errors are robust, because the variance of a fractional response around its mean is not that of a binary one. A model of the closed workouts of the loans that defaulted from 2018 to 2020, on the segment and the coverage of the exposure by collateral:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.lgd</span><span class="w"> </span><span class="kn">import</span> <span class="n">fractional_regression</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">features</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">{</span>
+<span class="gp">... </span>        <span class="s2">"unsecured"</span><span class="p">:</span> <span class="p">(</span><span class="n">loans</span><span class="p">[</span><span class="s2">"segment"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"unsecured"</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+<span class="gp">... </span>        <span class="s2">"revolving"</span><span class="p">:</span> <span class="p">(</span><span class="n">loans</span><span class="p">[</span><span class="s2">"segment"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"revolving"</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+<span class="gp">... </span>        <span class="s2">"coverage"</span><span class="p">:</span> <span class="n">loans</span><span class="p">[</span><span class="s2">"collateral_value"</span><span class="p">]</span> <span class="o">/</span> <span class="n">loans</span><span class="p">[</span><span class="s2">"ead"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">}</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">response</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s2">"lgd"</span><span class="p">]</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">development</span> <span class="o">=</span> <span class="n">closed</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">loans</span><span class="p">[</span><span class="s2">"default_date"</span><span class="p">]</span> <span class="o">&lt;</span> <span class="s2">"2021-01-01"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">fractional_regression</span><span class="p">(</span><span class="n">features</span><span class="p">[</span><span class="n">development</span><span class="p">],</span> <span class="n">response</span><span class="p">[</span><span class="n">development</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">             coef      se       z  p_value</span>
+<span class="go">variable</span>
+<span class="go">intercept  0.1951  0.3182  0.6131   0.5398</span>
+<span class="go">unsecured  1.1444  0.3345  3.4214   0.0006</span>
+<span class="go">revolving  0.8236  0.3345  2.4621   0.0138</span>
+<span class="go">coverage  -1.9216  0.2479 -7.7513   0.0000</span>
+</pre></div>
+</div>
+<p>Collateral lowers the LGD, and an unsecured loan loses more than a revolving line. The fitted mean LGD of each loan follows from the coefficients, and on the development sample the fitted means average to its mean LGD, as the means of a logit with an intercept do:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">eta</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">"intercept"</span><span class="p">,</span> <span class="s2">"coef"</span><span class="p">]</span> <span class="o">+</span> <span class="nb">sum</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">model</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">column</span><span class="p">,</span> <span class="s2">"coef"</span><span class="p">]</span> <span class="o">*</span> <span class="n">features</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">features</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">estimated</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">eta</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">estimated</span><span class="p">[</span><span class="n">development</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">response</span><span class="p">[</span><span class="n">development</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">0.4840 0.4840</span>
+</pre></div>
+</div>
+</section>
+<section id="back-testing">
+<h2>Back-testing<a class="headerlink" href="#back-testing" title="Link to this heading">#</a></h2>
+<p>LGD and CCF estimates are back-tested against the realized values of closed workouts with the t-test of <a class="reference internal" href="../api/calibration.html#kivi.calibration.backtest_table" title="kivi.calibration.backtest_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">backtest_table()</span></code></a>, and their ranking is measured with the generalized AUC of <a class="reference internal" href="../api/metrics.html#kivi.metrics.generalized_auc" title="kivi.metrics.generalized_auc"><code class="xref py py-func docutils literal notranslate"><span class="pre">generalized_auc()</span></code></a>, as the ECB’s validation report asks. The closed workouts of the loans that defaulted from 2021 on validate the model:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">backtest_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">validation</span> <span class="o">=</span> <span class="n">closed</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">loans</span><span class="p">[</span><span class="s2">"default_date"</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="s2">"2021-01-01"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">backtest_table</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">loans</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">validation</span><span class="p">,</span> <span class="s2">"segment"</span><span class="p">],</span> <span class="n">result</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">validation</span><span class="p">,</span> <span class="s2">"lgd"</span><span class="p">],</span> <span class="n">estimated</span><span class="p">[</span><span class="n">validation</span><span class="p">]</span>
+<span class="gp">... </span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">           total  estimated  realized  difference  variance  statistic  p_value</span>
+<span class="go">bin</span>
+<span class="go">secured      364     0.0940    0.0920     -0.0020    0.0099    -0.3807   0.6482</span>
+<span class="go">unsecured    329     0.7924    0.7633     -0.0291    0.0979    -1.6891   0.9539</span>
+<span class="go">revolving    224     0.7347    0.6324     -0.1023    0.1493    -3.9646   1.0000</span>
+</pre></div>
+</div>
+<p>No segment rejects the estimates, whose p-values test whether they are too low, but the revolving lines realize 10 points less than estimated. The recent defaults that have closed are the short workouts, since the long ones are still open, and a quarter of the closed revolving lines of 2021 to 2024 cured, against an eighth of those of 2018 to 2020. This is why the long-run average adjusts for the open workouts.</p>
+<p>The gAUC compares the ranking of the estimates with that of the realized LGDs in the twelve LGD segments of the report, with the realized LGDs floored at 0 so that every one falls into a segment:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">generalized_auc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">segments</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">estimated_segment</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">estimated</span><span class="p">[</span><span class="n">validation</span><span class="p">],</span> <span class="n">segments</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">realized_segment</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">validation</span><span class="p">,</span> <span class="s2">"lgd"</span><span class="p">]</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">lower</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">segments</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">generalized_auc</span><span class="p">(</span><span class="n">estimated_segment</span><span class="p">,</span> <span class="n">realized_segment</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">           estimate      se   lower   upper</span>
+<span class="go">statistic</span>
+<span class="go">gauc         0.8384  0.0098  0.8191  0.8576</span>
+<span class="go">somers_d     0.6767  0.0196  0.6383  0.7152</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="validation.html"><span class="doc">Model validation</span></a> explains the tests and the segments of the report, and the comparison of the gAUC with that of the initial validation. Back-test realized CCFs in the same way, and the EAD of the fully drawn lines with the amount drawn at default as the realized value.</p>
+</section>
+<section id="rules-of-basel-the-eba-and-china">
+<h2>Rules of Basel, the EBA and China<a class="headerlink" href="#rules-of-basel-the-eba-and-china" title="Link to this heading">#</a></h2>
+<p>The functions compute realized values and leave the rules around them to the caller: which defaults count, the discount rate, the floors of the estimates. The tables list the rules of the Basel framework (the CRE chapters in force since 1 January 2023), of the EBA’s guidelines on PD and LGD estimation (EBA/GL/2017/16) and of the CRR3 (Regulation (EU) 2024/1623) next to those of China’s <em>Rules on capital management of commercial banks</em> (NFRA order 2023 No. 4), with the paragraphs and articles that state them.</p>
+<div class="pst-scrollable-table-container"><table class="table" id="id5">
+<caption><span class="caption-text">Loss given default</span><a class="headerlink" href="#id5" title="Link to this table">#</a></caption>
+<colgroup>
+<col style="width: 16.0%" />
+<col style="width: 34.0%" />
+<col style="width: 28.0%" />
+<col style="width: 22.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Rule</p></th>
+<th class="head"><p>Basel and EBA</p></th>
+<th class="head"><p>China, 2023 rules</p></th>
+<th class="head"><p>In kivi</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Realized LGD</p></td>
+<td><p>The economic loss over the amount outstanding at default (EBA 131): the amount outstanding plus material direct and indirect costs, minus the recoveries discounted to the date of default (EBA 132), also recoveries of unknown origin (EBA 133). The loss is economic, not accounting, with material discount effects and costs (CRE36.76).</p></td>
+<td><p>The loss over the exposure of the defaulted facility (annex 5, part VI(4) 1), which includes principal and accrued unpaid interest and fees; an economic loss with direct and indirect costs (VI(4) 2).</p></td>
+<td><p><a class="reference internal" href="../api/lgd.html#kivi.lgd.workout_lgd" title="kivi.lgd.workout_lgd"><code class="xref py py-func docutils literal notranslate"><span class="pre">workout_lgd()</span></code></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Discount rate</p></td>
+<td><p>The 3-month EURIBOR at the date of default, or a comparable liquid rate of the currency, plus 5 percentage points, for recoveries, costs and drawings (EBA 143), so it differs with the date of default and the currency.</p></td>
+<td><p>A rate that reflects the cost of holding the defaulted asset during the workout, with a risk premium for uncertain recoveries and the risk-free rate for certain ones (VI(4) 2(3)).</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">rate</span></code>, one per loan</p></td>
+</tr>
+<tr class="row-even"><td><p>Day count</p></td>
+<td><p>Not specified.</p></td>
+<td><p>Not specified.</p></td>
+<td><p>ACT/365</p></td>
+</tr>
+<tr class="row-odd"><td><p>Costs before default</p></td>
+<td><p>Material workout costs before default count, unless already in the amount outstanding or from an earlier default (EBA 144–146).</p></td>
+<td><p>No specific rule.</p></td>
+<td><p>Compounded to the date of default</p></td>
+</tr>
+<tr class="row-even"><td><p>Drawings after default</p></td>
+<td><p>Count in the loss (EBA 142), and in the exposure where the CCF includes them (EBA 140), which retail exposures without that treatment leave out (EBA 141).</p></td>
+<td><p>No specific rule.</p></td>
+<td><p>Negative flows, or their present value in <code class="docutils literal notranslate"><span class="pre">ead</span></code> where the CCF includes them</p></td>
+</tr>
+<tr class="row-odd"><td><p>Interest and fees capitalized after default</p></td>
+<td><p>Do not add to the loss; their recoveries count (EBA 137–138).</p></td>
+<td><p>No specific rule.</p></td>
+<td><p>Leave them out of the flows</p></td>
+</tr>
+<tr class="row-even"><td><p>Write-offs</p></td>
+<td><p>Amounts written off at or before default are added to the amount outstanding, in the loss and in the exposure (EBA 134).</p></td>
+<td><p>No specific rule.</p></td>
+<td><p>Add them to <code class="docutils literal notranslate"><span class="pre">ead</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Cures</p></td>
+<td><p>A recovery of the amount outstanding on the date of the cure, discounted like the others; multiple defaults count from the first (EBA 135).</p></td>
+<td><p>Not covered by annex 5.</p></td>
+<td><p>A recovery on the date of the cure</p></td>
+</tr>
+<tr class="row-even"><td><p>Open workouts</p></td>
+<td><p>The observed average uses closed workouts only, without expected future recoveries (EBA 154; closure as in EBA 157); the long-run average adjusts for open workouts (EBA 158), and no default of the period may be left out (EBA 163). The ECB back-tests closed workouts (sections 2.3(i) and 2.6.1(d) of its instructions).</p></td>
+<td><p>The bank sets and documents when the recovery is complete (VI(4) 7).</p></td>
+<td><p>Select the closed workouts first</p></td>
+</tr>
+<tr class="row-odd"><td><p>Long-run average</p></td>
+<td><p>The arithmetic average over defaults (EBA 150), not over years; retail may weight recent data more (EBA 150–152). The long-run default-weighted average (CRE36.83, CRE36.81).</p></td>
+<td><p>At least the long-run default-weighted average loss rate (VI(4) 4).</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">mean</span></code> of <a class="reference internal" href="../api/lgd.html#kivi.lgd.lgd_table" title="kivi.lgd.lgd_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">lgd_table()</span></code></a> without <code class="docutils literal notranslate"><span class="pre">weights</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>Negative LGDs and LGDs above 100%</p></td>
+<td><p>Negative realized LGDs count as 0 one by one in the observed and long-run averages, while the unclipped values may serve the risk differentiation (EBA 160); values far above 100% are kept and investigated or segmented (EBA 162).</p></td>
+<td><p>Samples below 0 count as 0 (VI(4) 15).</p></td>
+<td><p>Not clipped by <a class="reference internal" href="../api/lgd.html#kivi.lgd.workout_lgd" title="kivi.lgd.workout_lgd"><code class="xref py py-func docutils literal notranslate"><span class="pre">workout_lgd()</span></code></a>; <code class="docutils literal notranslate"><span class="pre">floor=0.0</span></code> of <a class="reference internal" href="../api/lgd.html#kivi.lgd.lgd_table" title="kivi.lgd.lgd_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">lgd_table()</span></code></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>LGD floors</p></td>
+<td><p>Apply to the estimates, not to realized LGDs: 25% for unsecured corporate exposures, 5% for residential mortgages, 50% for QRRE and 30% for other unsecured retail exposures (CRE32.16, CRE32.58–59).</p></td>
+<td><p>The same, except 10% for residential mortgages (article 92).</p></td>
+<td><p>Applied by the caller, such as <code class="docutils literal notranslate"><span class="pre">numpy.maximum</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="pst-scrollable-table-container"><table class="table" id="id6">
+<caption><span class="caption-text">Exposure at default and CCF</span><a class="headerlink" href="#id6" title="Link to this table">#</a></caption>
+<colgroup>
+<col style="width: 16.0%" />
+<col style="width: 34.0%" />
+<col style="width: 28.0%" />
+<col style="width: 22.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Rule</p></th>
+<th class="head"><p>Basel and EU</p></th>
+<th class="head"><p>China, 2023 rules</p></th>
+<th class="head"><p>In kivi</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Own CCF estimates</p></td>
+<td><p>Only for undrawn revolving commitments whose standardized CCF is below 100% (CRE32.36, for retail CRE32.63; CRR3 article 166(8b)).</p></td>
+<td><p>Revolving off-balance-sheet items; other items take the CCFs of article 82, and 100% stays 100% (article 93(3) and (4)).</p></td>
+<td><p>Not checked</p></td>
+</tr>
+<tr class="row-odd"><td><p>EAD floor</p></td>
+<td><p>The on-balance-sheet amount plus 50% of the off-balance-sheet amount at its standardized CCF (CRE32.36, for retail CRE32.64; CRR3 article 166(8c), except central governments).</p></td>
+<td><p>For corporate exposures, the larger of the internal estimate and that sum (article 93(3)); no floor for retail exposures (article 93(4)), unlike Basel.</p></td>
+<td><p>Applied by the caller</p></td>
+</tr>
+<tr class="row-even"><td><p>Reference date</p></td>
+<td><p>The 12-month fixed horizon: the characteristics of the borrower and the facility 12 months before default (CRE36.93; CRR3 article 182(1)(g); EBA/CP/2025/10 paragraph 59). A default within 12 months of origination takes the earliest date with a strictly positive undrawn amount (EBA/CP/2025/10 paragraph 60).</p></td>
+<td><p>The 12-month fixed horizon, or another method shown to be prudent (annex 5, part VI(5) 12).</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">drawn</span></code> and <code class="docutils literal notranslate"><span class="pre">limit</span></code> at the reference date</p></td>
+</tr>
+<tr class="row-odd"><td><p>Realized CCF</p></td>
+<td><p>The drawn amount at default minus that at the reference date, over the limit minus the drawn amount at the reference date (CRE36.95, footnote; EBA/CP/2025/10 paragraph 61(a)); the ECB uses the definition of the bank’s model (section 2.9.1(b)).</p></td>
+<td><p>The same, with the default-weighted long-run average (VI(5) 3).</p></td>
+<td><p><a class="reference internal" href="../api/lgd.html#kivi.lgd.conversion_factor" title="kivi.lgd.conversion_factor"><code class="xref py py-func docutils literal notranslate"><span class="pre">conversion_factor()</span></code></a></p></td>
+</tr>
+<tr class="row-even"><td><p>Limit</p></td>
+<td><p>The larger of the advised and the unadvised limit (CRR article 4(1)(56)); a later increase stays out of the denominator, so a CCF of 200% is possible (EBA/CP/2025/10 example 3).</p></td>
+<td><p>No specific rule.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">limit</span></code> at the reference date</p></td>
+</tr>
+<tr class="row-odd"><td><p>Fully drawn or overdrawn lines</p></td>
+<td><p>From a usage of 100%, the drawn amount at default over the limit at the reference date (EBA/CP/2025/10 paragraph 61(b)), or a threshold that the bank sets (paragraphs 61(c) and 73); the factor is unstable near full usage (CRE36.95). The ECB back-tests the EAD of facilities with an EAD approach instead of a CCF (sections 2.9.1(g) and 2.9.3).</p></td>
+<td><p>The instability of the factor near full usage needs attention (VI(5) 14).</p></td>
+<td><p>NaN; <code class="docutils literal notranslate"><span class="pre">ead</span> <span class="pre">/</span> <span class="pre">limit</span></code> by the caller</p></td>
+</tr>
+<tr class="row-even"><td><p>Negative CCFs</p></td>
+<td><p>Count as 0 in the quantification, while the unclipped values may serve the risk differentiation (CRR3 article 182(1); EBA/CP/2025/10 paragraph 99); the ECB reports the share of clipped values.</p></td>
+<td><p>No specific rule.</p></td>
+<td><p>Not clipped; <code class="docutils literal notranslate"><span class="pre">numpy.maximum(ccf,</span> <span class="pre">0)</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Cap</p></td>
+<td><p>No cap at 100%, and no capped reference data (CRE36.95–96; CRR3 article 182(1d); EBA/CP/2025/10 background, paragraph 22).</p></td>
+<td><p>No cap at the principal (VI(5) 15).</p></td>
+<td><p>Not capped</p></td>
+</tr>
+<tr class="row-even"><td><p>CCFs of the foundation approach</p></td>
+<td><p>Those of the standardized approach: 100%, 50%, 40% for commitments, 20% and 10% for unconditionally cancellable commitments (CRE32.33, CRE20.95–100); 75% was the earlier value.</p></td>
+<td><p>Those of article 82 (article 93(2)): 100%, 40% for loan commitments (10% if unconditionally cancellable), 40% or 20% for unused credit card lines and 50% for NIFs and RUFs.</p></td>
+<td><p>Not computed</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The EBA consultation on CCF estimation, EBA/CP/2025/10 of 2 July 2025, was not final when kivi 1.6 was written; article 182(5) of the CRR3 asks for the final guidelines by the end of 2026.</p>
+</section>
+<section id="missing-values">
+<h2>Missing values<a class="headerlink" href="#missing-values" title="Link to this heading">#</a></h2>
+<p><a class="reference internal" href="../api/lgd.html#kivi.lgd.workout_lgd" title="kivi.lgd.workout_lgd"><code class="xref py py-func docutils literal notranslate"><span class="pre">workout_lgd()</span></code></a> raises an error for a missing loan, date, exposure, amount or rate, because each decides a loss: a loan without flows is not missing but has recovered nothing. <a class="reference internal" href="../api/lgd.html#kivi.lgd.conversion_factor" title="kivi.lgd.conversion_factor"><code class="xref py py-func docutils literal notranslate"><span class="pre">conversion_factor()</span></code></a> gives NaN for a missing amount, so a portfolio with gaps keeps its shape. <a class="reference internal" href="../api/lgd.html#kivi.lgd.lgd_table" title="kivi.lgd.lgd_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">lgd_table()</span></code></a> raises an error for a missing LGD and counts missing groups as a group of their own, and <a class="reference internal" href="../api/lgd.html#kivi.lgd.fractional_regression" title="kivi.lgd.fractional_regression"><code class="xref py py-func docutils literal notranslate"><span class="pre">fractional_regression()</span></code></a> raises an error for missing drivers or responses.</p>
+</section>
+<section id="sample-weights">
+<h2>Sample weights<a class="headerlink" href="#sample-weights" title="Link to this heading">#</a></h2>
+<p><a class="reference internal" href="../api/lgd.html#kivi.lgd.lgd_table" title="kivi.lgd.lgd_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">lgd_table()</span></code></a> and <a class="reference internal" href="../api/lgd.html#kivi.lgd.fractional_regression" title="kivi.lgd.fractional_regression"><code class="xref py py-func docutils literal notranslate"><span class="pre">fractional_regression()</span></code></a> take frequency weights: integer weights give the same table, estimates and standard errors as repeating the rows. The long-run average of the regulations counts every default once, so weighting the defaults by their exposure gives an exposure-weighted average LGD, which is a different measure. Use weights that count defaults, such as the inverse of a sampling rate, and expect the standard errors of the regression to be too small with them, as in <a class="reference internal" href="../api/selection.html#kivi.selection.logistic_regression" title="kivi.selection.logistic_regression"><code class="xref py py-func docutils literal notranslate"><span class="pre">logistic_regression()</span></code></a>.</p>
+</section>
+<section id="limits">
+<h2>Limits<a class="headerlink" href="#limits" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>The realized LGD of an open workout is the loss so far. kivi does not estimate the future recoveries of open workouts, the adjustment of the long-run average for them, the LGD in-default or the ELBE.</p></li>
+<li><p>The downturn LGD, the margin of conservatism and the LGD and EAD floors of the estimates are the bank’s to apply.</p></li>
+<li><p><a class="reference internal" href="../api/lgd.html#kivi.lgd.conversion_factor" title="kivi.lgd.conversion_factor"><code class="xref py py-func docutils literal notranslate"><span class="pre">conversion_factor()</span></code></a> leaves out the factor of fully drawn lines of the EBA’s consultation, which was not final, and <a class="reference internal" href="../api/lgd.html#kivi.lgd.workout_lgd" title="kivi.lgd.workout_lgd"><code class="xref py py-func docutils literal notranslate"><span class="pre">workout_lgd()</span></code></a> does not tell flow kinds apart, so the adjustment of the exposure for drawings is a second call, as shown above.</p></li>
+<li><p>The fractional logit models the mean LGD. Bimodal LGDs, with many cures and total losses, are often modelled in two stages, such as a logistic regression of a cure and a fractional regression of the loss without one, which combine the existing functions.</p></li>
+</ul>
+</section>
+<section id="errors-and-warnings">
+<h2>Errors and warnings<a class="headerlink" href="#errors-and-warnings" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>A recovery before the date of default.</strong> A repayment before default is not part of the workout; check the dates, or count the payment in the exposure.</p></li>
+<li><p><strong>A flow of a loan that is not in loan.</strong> Every flow must belong to one of the defaulted loans, each listed once.</p></li>
+<li><p><strong>A response outside [0, 1].</strong> Floor the realized LGDs at 0 and cap them at 1 before <a class="reference internal" href="../api/lgd.html#kivi.lgd.fractional_regression" title="kivi.lgd.fractional_regression"><code class="xref py py-func docutils literal notranslate"><span class="pre">fractional_regression()</span></code></a>.</p></li>
+<li><p><strong>SeparationError.</strong> A driver separates the losses of 0 from the losses of 1 while no loss in between bounds its coefficient, such as a segment in which every loan lost everything. Merge the segment with a neighbour or leave the driver out.</p></li>
+<li><p><strong>RuntimeWarning: fractional regression did not converge.</strong> The fit stopped after 100 iterations; check the drivers for extreme values.</p></li>
+</ul>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="calibration.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Calibration</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="strategy.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Credit strategy</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#definitions">Definitions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-worked-example">A worked example</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#workout-lgd">Workout LGD</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#closed-workouts">Closed workouts</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#drawings-write-offs-and-cures">Drawings, write-offs and cures</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#credit-conversion-factors">Credit conversion factors</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#lgd-tables">LGD tables</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bands-of-a-driver-fitted-to-the-lgds">Bands of a driver fitted to the LGDs</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fractional-regression">Fractional regression</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#back-testing">Back-testing</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#rules-of-basel-the-eba-and-china">Rules of Basel, the EBA and China</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#missing-values">Missing values</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sample-weights">Sample weights</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#limits">Limits</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#errors-and-warnings">Errors and warnings</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1.
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

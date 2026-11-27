@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>LGD 与 EAD &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=d005c095" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=14f9d491"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script src="../_static/translations.js?v=540d3cec"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/lgd';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="next" title="信贷策略" href="strategy.html" />
+    <link rel="prev" title="校准" href="calibration.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+  <meta name="docsearch:version" content="1.9.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">跳转至主要内容</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>回到顶部</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="版本警告"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="网页导航" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 1.9.0">1.9.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    教程
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../../en/api/lgd.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="当前页面" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    教程
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../../en/api/lgd.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="章节导航">
+  <p class="bd-links__title" role="heading" aria-level="1">章节导航</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="conventions.html">约定</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compatibility.html">兼容性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">术语表</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">时间窗特征</a></li>
+<li class="toctree-l1"><a class="reference internal" href="univariate.html">单变量概况</a></li>
+<li class="toctree-l1"><a class="reference internal" href="binning.html">分箱</a></li>
+<li class="toctree-l1"><a class="reference internal" href="woe.html">证据权重与信息值</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selection.html">变量筛选</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reject_inference.html">拒绝推断</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scorecard.html">评分卡</a></li>
+<li class="toctree-l1"><a class="reference internal" href="expert.html">专家评分卡</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">模型表现</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">校准</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">LGD 与 EAD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">信贷策略</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rules.html">政策规则</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spec.html">分箱方案</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stability.html">群体稳定性指标</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">模型监控</a></li>
+<li class="toctree-l1"><a class="reference internal" href="capital.html">监管资本</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vintage.html">Vintage 与滚动率分析</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lifetime.html">存续期 PD 与预期信用损失</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html">图表</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">示例数据</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="初始页面">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../api.html" class="nav-link">API 参考</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">LGD 与 EAD</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="module-kivi.lgd">
+<span id="lgd-and-ead"></span><h1>LGD 与 EAD<a class="headerlink" href="#module-kivi.lgd" title="链接到此标题。">#</a></h1>
+<p>度量违约贷款的违约损失率和信用转换系数并为其建模。 <a class="reference internal" href="#kivi.lgd.workout_lgd" title="kivi.lgd.workout_lgd"><code class="xref py py-func docutils literal notranslate"><span class="pre">workout_lgd()</span></code></a> 把每笔清收的回收和费用折现到违约日， <a class="reference internal" href="#kivi.lgd.conversion_factor" title="kivi.lgd.conversion_factor"><code class="xref py py-func docutils literal notranslate"><span class="pre">conversion_factor()</span></code></a> 给出授信额度的实际 CCF， <a class="reference internal" href="#kivi.lgd.lgd_table" title="kivi.lgd.lgd_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">lgd_table()</span></code></a> 按分组汇总实际 LGD， <a class="reference internal" href="#kivi.lgd.fractional_regression" title="kivi.lgd.fractional_regression"><code class="xref py py-func docutils literal notranslate"><span class="pre">fractional_regression()</span></code></a> 对 LGD 及其驱动因素拟合分数 logit。</p>
+<p>示例以及巴塞尔框架、EBA 和中国资本管理办法的规则见 <a class="reference internal" href="../user_guide/lgd.html"><span class="doc">LGD 与 EAD</span></a> 。</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.lgd.workout_lgd" title="kivi.lgd.workout_lgd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workout_lgd</span></code></a>(loan, default_date, ead, ...)</p></td>
+<td><p>由清收现金流计算违约贷款的实际 LGD。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.lgd.conversion_factor" title="kivi.lgd.conversion_factor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">conversion_factor</span></code></a>(ead, drawn, limit)</p></td>
+<td><p>计算每个授信额度的实际信用转换系数。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.lgd.lgd_table" title="kivi.lgd.lgd_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lgd_table</span></code></a>(groups, lgd, *[, floor, weights])</p></td>
+<td><p>按分组汇总实际 LGD。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.lgd.fractional_regression" title="kivi.lgd.fractional_regression"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fractional_regression</span></code></a>(X, response, *[, weights])</p></td>
+<td><p>对取值在 0 到 1 之间的响应拟合分数 logit 回归。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.lgd.workout_lgd">
+<span class="sig-prename descclassname"><span class="pre">kivi.lgd.</span></span><span class="sig-name descname"><span class="pre">workout_lgd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">loan</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ead</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flow_loan</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flow_date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flow_amount</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rate</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.lgd.workout_lgd" title="链接到此定义。">#</a></dt>
+<dd><p>由清收现金流计算违约贷款的实际 LGD。</p>
+<p>违约贷款的经济损失是其违约风险敞口加上清收费用、减去回收，全部折现到违约日。它与违约风险敞口之比就是清收法下的实际违约损失率。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>loan</strong><span class="classifier">array_like</span></dt><dd><p>违约贷款，每笔一次。结果每笔贷款一行，顺序与此相同。</p>
+</dd>
+<dt><strong>default_date</strong><span class="classifier">array_like</span></dt><dd><p>每笔贷款的违约日，可以是日期，也可以是 <cite>pandas.to_datetime</cite> 能读取的日期字符串。时刻会被忽略。</p>
+</dd>
+<dt><strong>ead</strong><span class="classifier">array_like</span></dt><dd><p>每笔贷款的违约风险敞口，为有限正数：违约时的未偿金额，包括应计利息和费用，再加上违约时或违约前核销的金额。</p>
+</dd>
+<dt><strong>flow_loan</strong><span class="classifier">array_like</span></dt><dd><p>清收中每笔现金流所属的贷款。每一笔都必须是 <cite>loan</cite> 中的贷款；没有现金流的贷款视为没有任何回收。现金流无需排序，其 Series 可以有任意索引。</p>
+</dd>
+<dt><strong>flow_date</strong><span class="classifier">array_like</span></dt><dd><p>每笔现金流的日期，读法与 <cite>default_date</cite> 相同。</p>
+</dd>
+<dt><strong>flow_amount</strong><span class="classifier">array_like</span></dt><dd><p>每笔现金流的金额，为有限值：回收为正，例如还款、处置押品所得或治愈；清收费用或违约后的追加提款为负。费用可以早于违约日，回收不可以。</p>
+</dd>
+<dt><strong>rate</strong><span class="classifier">float 或 array_like</span></dt><dd><p>年折现率，大于 -1；可以为所有贷款给出一个利率，也可以每笔贷款一个，与 <cite>loan</cite> 的对应方式和 <cite>ead</cite> 相同，例如违约日的 3 个月银行间利率加 5 个百分点。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.DataFrame</dt><dd><p>每笔贷款一行，以 <cite>loan</cite> 为索引，索引名为 <code class="docutils literal notranslate"><span class="pre">loan</span></code> ，列为 <code class="docutils literal notranslate"><span class="pre">ead</span></code> ； <code class="docutils literal notranslate"><span class="pre">recovery</span></code> ，正现金流的现值； <code class="docutils literal notranslate"><span class="pre">cost</span></code> ，负现金流的现值，记为正数；以及 <code class="docutils literal notranslate"><span class="pre">lgd</span></code> ，等于 <code class="docutils literal notranslate"><span class="pre">(ead</span> <span class="pre">+</span> <span class="pre">cost</span> <span class="pre">-</span> <span class="pre">recovery)</span> <span class="pre">/</span> <span class="pre">ead</span></code> 。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果贷款的输入或现金流的输入不是一维的、长度不同或是索引不同的 Series，或者 <cite>loan</cite> 为空。另外，如果贷款或日期缺失或贷款重复，日期无法读取， <cite>ead</cite> 缺失或不是有限正数，金额缺失、无穷或不是数值，某笔现金流所属的贷款不在 <cite>loan</cite> 中，回收早于其贷款的违约日，或者 <cite>rate</cite> 缺失、不是有限值、不大于 -1，或既不是一个利率也不是每笔贷款一个利率，也会引发此异常。布尔值不能作为金额或利率。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.lgd.lgd_table" title="kivi.lgd.lgd_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lgd_table</span></code></a></dt><dd><p>按分组的长期平均 LGD。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.lgd.fractional_regression" title="kivi.lgd.fractional_regression"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fractional_regression</span></code></a></dt><dd><p>对 LGD 及其驱动因素建模。</p>
+</dd>
+<dt><a class="reference internal" href="calibration.html#kivi.calibration.backtest_table" title="kivi.calibration.backtest_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.calibration.backtest_table</span></code></a></dt><dd><p>用实际 LGD 回测 LGD 估计值。</p>
+</dd>
+<dt><a class="reference internal" href="vintage.html#kivi.vintage.delinquency_panel" title="kivi.vintage.delinquency_panel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.vintage.delinquency_panel</span></code></a></dt><dd><p>以同样的方式读取日期。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>违约日为 <span class="math notranslate nohighlight">\(t_D\)</span> 、年利率为 <span class="math notranslate nohighlight">\(r\)</span> 的贷款在日期 <span class="math notranslate nohighlight">\(t_j\)</span> 发生的金额为 <span class="math notranslate nohighlight">\(a_j\)</span> 的现金流，其现值为</p>
+<div class="math notranslate nohighlight">
+\[\mathrm{PV}_j = a_j \, (1 + r)^{-(t_j - t_D) / 365},\]</div>
+<p>天数按 ACT/365 计算。违约日之前的费用指数为负，即复利计算到违约日。记正现金流现值之和为 <span class="math notranslate nohighlight">\(R\)</span> ，负现金流现值之和（记为正数）为 <span class="math notranslate nohighlight">\(C\)</span> ，则</p>
+<div class="math notranslate nohighlight">
+\[\mathrm{LGD} = \frac{\mathrm{EAD} + C - R}{\mathrm{EAD}}.\]</div>
+<p>这就是 <a class="reference internal" href="#r857870815ee0-1" id="id2">[1]</a> 第 131 至 146 段和巴塞尔框架 CRE36.76 中的经济损失。LGD 不截断到 [0, 1]：回收超过敞口与费用之和时为负，费用超过回收时大于 1。计算长期平均时 <cite>lgd_table</cite> 把它的下限设为 0（ <a class="reference internal" href="#r857870815ee0-1" id="id1">[1]</a> 第 160 段）。</p>
+<p>函数不知道清收是否已经结束，给出的是到目前为止的现金流造成的损失：没有现金流的贷款 LGD 为 1。实际 LGD 只对已结案的清收成立（ <a class="reference internal" href="#r857870815ee0-1" id="id3">[1]</a> 第 154 段； <a class="reference internal" href="#r857870815ee0-2" id="id4">[2]</a> 第 2.6.1 节），因此在求平均或回测之前，应按银行对清收结束的定义筛选出回收过程已结案的贷款。</p>
+<p>现金流由调用者选定：</p>
+<ul class="simple">
+<li><p>违约后的追加提款是负现金流，与费用相同，从而计入损失（ <a class="reference internal" href="#r857870815ee0-1" id="id6">[1]</a> 第 142 段）。若信用转换系数包含追加提款， <a class="reference internal" href="#r857870815ee0-1" id="id5">[1]</a> 第 140 段把它们也计入敞口：此时把它们的现值加到 <cite>ead</cite> 上，而不是作为现金流传入，因为 <cite>ead</cite> 也计入损失。只传入追加提款（取相反数）调用一次所得的 <code class="docutils literal notranslate"><span class="pre">cost</span></code> 就是这一现值。</p></li>
+<li><p>违约时或违约前核销的金额属于 <cite>ead</cite> ，从而同时计入损失和敞口（ <a class="reference internal" href="#r857870815ee0-1" id="id7">[1]</a> 第 134 段）。</p></li>
+<li><p>治愈是一笔回收，金额为治愈日的未偿金额（ <a class="reference internal" href="#r857870815ee0-1" id="id8">[1]</a> 第 135 段）。</p></li>
+<li><p>违约后资本化的利息和费用不是现金流（ <a class="reference internal" href="#r857870815ee0-1" id="id9">[1]</a> 第 137 和 138 段），但它们的回收是。</p></li>
+</ul>
+<p class="rubric">参考文献</p>
+<div role="list" class="citation-list">
+<div class="citation" id="r857870815ee0-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id1">1</a>,<a role="doc-backlink" href="#id2">2</a>,<a role="doc-backlink" href="#id3">3</a>,<a role="doc-backlink" href="#id5">4</a>,<a role="doc-backlink" href="#id6">5</a>,<a role="doc-backlink" href="#id7">6</a>,<a role="doc-backlink" href="#id8">7</a>,<a role="doc-backlink" href="#id9">8</a>)</span>
+<p>European Banking Authority, &quot;Guidelines on PD estimation, LGD estimation and the treatment of defaulted exposures&quot;, EBA/GL/2017/16, 2017 年 11 月 20 日，第 131 至 163 段。</p>
+</div>
+<div class="citation" id="r857870815ee0-2" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id4">2</a><span class="fn-bracket">]</span></span>
+<p>European Central Bank, &quot;Instructions for reporting the validation results of internal models: IRB Pillar I models for credit risk&quot;, 2019 年 2 月，第 2.6.1 节。</p>
+</div>
+</div>
+<p class="rubric">示例</p>
+<p>三笔贷款于 2023 年 1 月 1 日违约。贷款 A 一年后回收 55、发生费用 11；贷款 B 在违约当天回收了全部敞口，此前一年发生了 5 的法律费用；贷款 C 还没有现金流：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.lgd</span><span class="w"> </span><span class="kn">import</span> <span class="n">workout_lgd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">workout_lgd</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="s2">"A"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"C"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="s2">"2023-01-01"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">3</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="mf">100.0</span><span class="p">,</span> <span class="mf">200.0</span><span class="p">,</span> <span class="mf">50.0</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="s2">"A"</span><span class="p">,</span> <span class="s2">"A"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="s2">"2024-01-01"</span><span class="p">,</span> <span class="s2">"2024-01-01"</span><span class="p">,</span> <span class="s2">"2022-01-01"</span><span class="p">,</span> <span class="s2">"2023-01-01"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="mf">55.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">11.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">5.0</span><span class="p">,</span> <span class="mf">200.0</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">rate</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+<span class="gp">... </span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">        ead  recovery  cost     lgd</span>
+<span class="go">loan</span>
+<span class="go">A     100.0      50.0  10.0  0.6000</span>
+<span class="go">B     200.0     200.0   5.5  0.0275</span>
+<span class="go">C      50.0       0.0   0.0  1.0000</span>
+</pre></div>
+</div>
+<p>按每年 10%，A 在违约一年后的现金流价值为 55 / 1.1 = 50 和 11 / 1.1 = 10；B 在违约前一年的费用折算到违约日为 5 × 1.1 = 5.5。</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.lgd.conversion_factor">
+<span class="sig-prename descclassname"><span class="pre">kivi.lgd.</span></span><span class="sig-name descname"><span class="pre">conversion_factor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ead</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drawn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.lgd.conversion_factor" title="链接到此定义。">#</a></dt>
+<dd><p>计算每个授信额度的实际信用转换系数。</p>
+<p>信用转换系数（CCF）是授信额度在参考日的未提用部分中，借款人到违约时已提用的比例。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>ead</strong><span class="classifier">array_like</span></dt><dd><p>违约时的提用金额，即实际违约风险敞口。</p>
+</dd>
+<dt><strong>drawn</strong><span class="classifier">array_like</span></dt><dd><p>参考日的提用金额。</p>
+</dd>
+<dt><strong>limit</strong><span class="classifier">array_like</span></dt><dd><p>参考日的授信额度。Series 输入必须有相同的索引；否则输入一起广播。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>float、pandas.Series 或 numpy.ndarray</dt><dd><p>实际 CCF，形状为各输入广播后的形状：额度在参考日已满额使用（ <cite>limit</cite> 不大于 <cite>drawn</cite> ）或某个输入缺失时为 NaN。若某个输入是 Series，结果是带其索引、名为 <code class="docutils literal notranslate"><span class="pre">ccf</span></code> 的 Series；标量输入得到 float。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果某个输入不是实数数值或含有无穷值，各输入无法一起广播，或 Series 输入的索引不同。布尔值不能作为金额。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.lgd.workout_lgd" title="kivi.lgd.workout_lgd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workout_lgd</span></code></a></dt><dd><p>同一批违约的实际 LGD。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.lgd.lgd_table" title="kivi.lgd.lgd_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lgd_table</span></code></a></dt><dd><p>用 <code class="docutils literal notranslate"><span class="pre">floor=None</span></code> 按分组汇总实际 CCF。</p>
+</dd>
+<dt><a class="reference internal" href="calibration.html#kivi.calibration.backtest_table" title="kivi.calibration.backtest_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.calibration.backtest_table</span></code></a></dt><dd><p>用实际 CCF 回测 CCF 估计值。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>记违约时的提用金额为 <span class="math notranslate nohighlight">\(E\)</span> ，参考日的提用金额为 <span class="math notranslate nohighlight">\(D\)</span> 、额度为 <span class="math notranslate nohighlight">\(L\)</span> ，则</p>
+<div class="math notranslate nohighlight">
+\[\mathrm{CCF} = \frac{E - D}{L - D}, \qquad L &gt; D.\]</div>
+<p>这就是巴塞尔框架 CRE36.95 和 EBA CCF 估计征求意见稿 <a class="reference internal" href="#r1aa1dc58aef4-1" id="id12">[1]</a> 第 61(a) 段中的实际 CCF。固定期限法的参考日在违约前 12 个月（CRE36.93；CRR3 第 182(1)(g) 条），额度取该日已告知额度与未告知额度中的较大者：之后提高的额度不进入分母，因此 CCF 可以超过 1。</p>
+<p>参考日已满额或超额使用的额度没有未提用部分，其 CCF 为 NaN，而不是超额额度符号相反的比值。征求意见稿用 <code class="docutils literal notranslate"><span class="pre">ead</span> <span class="pre">/</span> <span class="pre">limit</span></code> 度量这类额度（第 61(b) 段），ECB 的验证报告则改为回测它们的 EAD，而不是 CCF。</p>
+<p>CCF 不截断。参考日之后还款的额度给出负值，这些值仍能区分风险，但量化时记为 0（CRR3 第 182(1) 条），正如 <code class="docutils literal notranslate"><span class="pre">numpy.maximum(ccf,</span> <span class="pre">0)</span></code> 所做的；大于 1 的值保留，因为 CCF 不得封顶（CRE36.95-96）。</p>
+<p class="rubric">参考文献</p>
+<div role="list" class="citation-list">
+<div class="citation" id="r1aa1dc58aef4-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id12">1</a><span class="fn-bracket">]</span></span>
+<p>European Banking Authority, &quot;Consultation paper on draft guidelines on CCF estimation&quot;, EBA/CP/2025/10, 2025 年 7 月 2 日。</p>
+</div>
+</div>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.lgd</span><span class="w"> </span><span class="kn">import</span> <span class="n">conversion_factor</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">conversion_factor</span><span class="p">([</span><span class="mf">600.0</span><span class="p">,</span> <span class="mf">800.0</span><span class="p">,</span> <span class="mf">300.0</span><span class="p">,</span> <span class="mf">900.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">400.0</span><span class="p">,</span> <span class="mf">400.0</span><span class="p">,</span> <span class="mf">500.0</span><span class="p">,</span> <span class="mf">1000.0</span><span class="p">],</span> <span class="mf">1000.0</span><span class="p">)</span>
+<span class="go">array([ 0.33333333,  0.66666667, -0.4       ,         nan])</span>
+</pre></div>
+</div>
+<p>第一个额度提用了 600 未提用部分中的 200；第三个偿还了 500 未提用部分中的 200；第四个在参考日已满额使用。</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.lgd.lgd_table">
+<span class="sig-prename descclassname"><span class="pre">kivi.lgd.</span></span><span class="sig-name descname"><span class="pre">lgd_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">groups</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lgd</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">floor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.lgd.lgd_table" title="链接到此定义。">#</a></dt>
+<dd><p>按分组汇总实际 LGD。</p>
+<p>这张表给出每个分组的违约数、平均 LGD、其离散程度以及无损失违约和全额损失违约的份额，分组可以是分段、债项等级或某个驱动因素的箱：即每个分组的长期平均 LGD 以及组内 LGD 的双峰形状。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>groups</strong><span class="classifier">array_like</span></dt><dd><p>分组标签，例如债项等级，或用 <cite>kivi.binning.cut</cite> 切分的驱动因素的箱。缺失值单独成组。</p>
+</dd>
+<dt><strong>lgd</strong><span class="classifier">array_like</span></dt><dd><p>每笔违约的实际 LGD，例如 <cite>workout_lgd</cite> 的 <code class="docutils literal notranslate"><span class="pre">lgd</span></code> 列，为有限值且没有缺失值。若 <cite>groups</cite> 和 <cite>lgd</cite> 都是 Series，它们必须有相同的索引；否则按位置对应。</p>
+</dd>
+<dt><strong>floor</strong><span class="classifier">float 或 None，默认 0.0</span></dt><dd><p>在计算任何列之前施加于 LGD 的下限：默认把负的 LGD 记为 0，这是监管对长期平均的要求。None 保留 LGD 原值，适合分析驱动因素。</p>
+</dd>
+<dt><strong>weights</strong><span class="classifier">array_like，可选</span></dt><dd><p>每笔违约的非负频数权重，对应方式与 <cite>lgd</cite> 相同：整数权重与重复行得到相同的表，权重之和为零的分组被略去。关于按敞口加权见“说明”。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.DataFrame</dt><dd><p>每个分组一行，索引名为 <code class="docutils literal notranslate"><span class="pre">bin</span></code> ，各列见“说明”。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果输入不是一维的、为空，或者索引或长度不一致， <cite>lgd</cite> 不是实数数值或含有缺失值或无穷值，或者 <cite>floor</cite> 既不是 None 也不是有限数。另外，如果 <cite>weights</cite> 不是数值，没有为每笔违约给出一个有限非负的权重且总和为正，或其索引与 <cite>groups</cite> 不同，也会引发此异常。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.lgd.workout_lgd" title="kivi.lgd.workout_lgd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workout_lgd</span></code></a></dt><dd><p>由清收现金流计算实际 LGD。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.lgd.fractional_regression" title="kivi.lgd.fractional_regression"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fractional_regression</span></code></a></dt><dd><p>同时对 LGD 及其多个驱动因素建模。</p>
+</dd>
+<dt><a class="reference internal" href="woe.html#kivi.woe.woe_table" title="kivi.woe.woe_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.woe.woe_table</span></code></a></dt><dd><p>二元目标的对应表。</p>
+</dd>
+<dt><a class="reference internal" href="calibration.html#kivi.calibration.backtest_table" title="kivi.calibration.backtest_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.calibration.backtest_table</span></code></a></dt><dd><p>按分组回测 LGD 估计值。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>对分组中的违约 <span class="math notranslate nohighlight">\(i\)</span> ，记权重为 <span class="math notranslate nohighlight">\(w_i\)</span> （没有 <cite>weights</cite> 时为 1），在下限 <span class="math notranslate nohighlight">\(f\)</span> 处的 LGD 为 <span class="math notranslate nohighlight">\(x_i = \max(\mathrm{LGD}_i, f)\)</span> ，各列为：</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">total</span></code> ：违约数， <span class="math notranslate nohighlight">\(n = \sum_i w_i\)</span> ；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">total_share</span></code> ： <code class="docutils literal notranslate"><span class="pre">total</span></code> 除以全部违约数；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mean</span></code> ：平均 LGD， <span class="math notranslate nohighlight">\(\bar x = \sum_i w_i x_i / n\)</span> ；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">std</span></code> ：样本标准差， <span class="math notranslate nohighlight">\(\sqrt{\sum_i w_i (x_i - \bar x)^2 / (n - 1)}\)</span> ，总权重不超过 1 的分组为 NaN；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">min</span></code> 和 <code class="docutils literal notranslate"><span class="pre">max</span></code> ：权重为正的最小和最大 LGD；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">zero_share</span></code> ： <span class="math notranslate nohighlight">\(x_i \le 0\)</span> 即无损失的违约所占份额；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">full_share</span></code> ： <span class="math notranslate nohighlight">\(x_i \ge 1\)</span> 即全额损失的违约所占份额。</p></li>
+</ul>
+<p>平均值中每笔违约计一次，即 <a class="reference internal" href="#rd55d37e67d4b-1" id="id15">[1]</a> 第 150 段、巴塞尔框架 CRE36.83 以及中国 2023 年资本管理办法附件 5 六（四）中的违约加权平均，这些规则也把负的 LGD 记为 0（ <a class="reference internal" href="#rd55d37e67d4b-1" id="id14">[1]</a> 第 160 段；该附件六（四）15）。按违约风险敞口加权得到的是敞口加权平均，不是监管所指的长期平均；应使用计数违约的权重，例如抽样比例的倒数。</p>
+<p>分组的计数方式与 <cite>kivi.woe.woe_table</cite> 相同：分类型分组（例如 <code class="docutils literal notranslate"><span class="pre">pandas.cut</span></code> 的结果）按类别顺序排列，缺失值在最后；其他分组按首次出现的顺序排列。从未出现的类别被略去。</p>
+<p class="rubric">参考文献</p>
+<div role="list" class="citation-list">
+<div class="citation" id="rd55d37e67d4b-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id14">1</a>,<a role="doc-backlink" href="#id15">2</a>)</span>
+<p>European Banking Authority, &quot;Guidelines on PD estimation, LGD estimation and the treatment of defaulted exposures&quot;, EBA/GL/2017/16, 2017 年 11 月 20 日，第 150 至 162 段。</p>
+</div>
+</div>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.lgd</span><span class="w"> </span><span class="kn">import</span> <span class="n">lgd_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">grade</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"F1"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">4</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"F2"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">3</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lgd</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.10</span><span class="p">,</span> <span class="mf">0.35</span><span class="p">,</span> <span class="mf">0.80</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lgd_table</span><span class="p">(</span><span class="n">grade</span><span class="p">,</span> <span class="n">lgd</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">     total  total_share    mean     std  min   max  zero_share  full_share</span>
+<span class="go">bin</span>
+<span class="go">F1       4       0.5714  0.1125  0.1652  0.0  0.35         0.5      0.0000</span>
+<span class="go">F2       3       0.4286  1.0000  0.2000  0.8  1.20         0.0      0.6667</span>
+</pre></div>
+</div>
+<p>等级 F1 中 -0.05 的 LGD 来自超过敞口的回收，记为 0，因此 F1 的违约有一半没有损失；F2 的三笔违约中有两笔损失了全部敞口或更多。</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.lgd.fractional_regression">
+<span class="sig-prename descclassname"><span class="pre">kivi.lgd.</span></span><span class="sig-name descname"><span class="pre">fractional_regression</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">response</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.lgd.fractional_regression" title="链接到此定义。">#</a></dt>
+<dd><p>对取值在 0 到 1 之间的响应拟合分数 logit 回归。</p>
+<p>Papke 和 Wooldridge <a class="reference internal" href="#r7fa063f9a0b4-1" id="id17">[1]</a> 的模型把取值在 0 到 1 之间的响应（例如实际 LGD 或回收率）的均值表示为 <cite>X</cite> 各列线性组合的 logistic 函数。其系数使伯努利拟似然最大，标准误是稳健标准误，因此模型无需对响应在均值周围的分布作任何假定。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>X</strong><span class="classifier">pandas.DataFrame 或 array_like</span></dt><dd><p>二维数值，每个驱动因素一列，例如贷款价值比或分段的虚拟变量。</p>
+</dd>
+<dt><strong>response</strong><span class="classifier">array_like</span></dt><dd><p>每一行的响应，取值在 0 到 1 之间，可以恰为 0 或 1，例如下限设为 0、上限设为 1 的实际 LGD。若 <cite>X</cite> 是 DataFrame 而 <cite>response</cite> 是 Series，它们必须有相同的索引；否则按位置对应。</p>
+</dd>
+<dt><strong>weights</strong><span class="classifier">array_like，可选</span></dt><dd><p>每一行的非负频数权重，对应方式与 <cite>response</cite> 相同：整数权重与重复行得到相同的估计值、标准误和拟对数似然。权重为零的行不参与拟合。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.DataFrame</dt><dd><p>截距一行，标签为 <code class="docutils literal notranslate"><span class="pre">intercept</span></code> ， <cite>X</cite> 的每一列各一行，列为系数 <code class="docutils literal notranslate"><span class="pre">coef</span></code> 、其稳健标准误 <code class="docutils literal notranslate"><span class="pre">se</span></code> 、z 统计量 <code class="docutils literal notranslate"><span class="pre">z</span></code> 及其双侧 p 值 <code class="docutils literal notranslate"><span class="pre">p_value</span></code> ，索引名为 <code class="docutils literal notranslate"><span class="pre">variable</span></code> ，与 <cite>kivi.selection.logistic_regression</cite> 给出的相同。 <code class="docutils literal notranslate"><span class="pre">attrs[&quot;log_likelihood&quot;]</span></code> 是最大化的拟对数似然， <code class="docutils literal notranslate"><span class="pre">attrs[&quot;converged&quot;]</span></code> 表示拟合是否收敛。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>kivi.selection.SeparationError</dt><dd><p>如果各列把响应为 0 的行与响应为 1 的行分开，而没有介于二者之间的响应阻止系数无限增长，因而估计值不存在。</p>
+</dd>
+<dt>ValueError</dt><dd><p>如果 <cite>X</cite> 不是二维的，少于 2 行或没有列，列标签重复，有标签为 <code class="docutils literal notranslate"><span class="pre">intercept</span></code> 的列，或者某列不是数值、含有缺失值或无穷值、为常数、是截距和它前面各列的线性组合，或者接近线性组合到无法估计其系数；如果 <cite>response</cite> 不是一维的，其索引或长度与 <cite>X</cite> 不一致，不是实数数值，含有缺失值或 [0, 1] 之外的值，或者每一行都为 0 或每一行都为 1；或者如果 <cite>weights</cite> 不是数值，或没有为每一行给出一个有限非负的权重且总和为正。有 <cite>weights</cite> 时，常数列、线性组合以及响应每一行都为 0 或 1 的检查只针对权重为正的行。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">警告<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>RuntimeWarning</dt><dd><p>如果拟合因分离以外的原因未能收敛。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="selection.html#kivi.selection.logistic_regression" title="kivi.selection.logistic_regression"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.selection.logistic_regression</span></code></a></dt><dd><p>二元目标的同一模型。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.lgd.lgd_table" title="kivi.lgd.lgd_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lgd_table</span></code></a></dt><dd><p>按一个驱动因素分组的实际 LGD。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.lgd.workout_lgd" title="kivi.lgd.workout_lgd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workout_lgd</span></code></a></dt><dd><p>由清收现金流计算实际 LGD。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>模型为</p>
+<div class="math notranslate nohighlight">
+\[E(y \mid x) = \frac{1}{1 + e^{-\eta}}, \qquad
+\eta = \beta_0 + \sum_j \beta_j x_j,\]</div>
+<p>估计值使拟对数似然最大：</p>
+<div class="math notranslate nohighlight">
+\[\ell(\beta) = \sum_i w_i \left[ y_i \ln p_i + (1 - y_i) \ln(1 - p_i)
+\right],\]</div>
+<p>对二元响应，这就是 <cite>kivi.selection.logistic_regression</cite> 的对数似然，因此只含 0 和 1 的响应得到它的系数。拟合使用同样的迭代重加权最小二乘法。只要均值模型正确，均值就能一致地估计，但 Fisher 信息低估了分数响应的方差，因此协方差取 HC0 夹心估计</p>
+<div class="math notranslate nohighlight">
+\[\hat V = A^{-1} B A^{-1}, \qquad
+A = \sum_i w_i p_i (1 - p_i) x_i x_i^\top, \qquad
+B = \sum_i w_i (y_i - p_i)^2 x_i x_i^\top,\]</div>
+<p>其中 <span class="math notranslate nohighlight">\(x_i\)</span> 包括截距的 1，与 statsmodels 的 <code class="docutils literal notranslate"><span class="pre">GLM(family=Binomial(),</span> <span class="pre">freq_weights=w).fit(cov_type=&quot;HC0&quot;)</span></code> 给出的相同。z 统计量为 <span class="math notranslate nohighlight">\(\hat\beta / \mathrm{se}\)</span> ，p 值为 <span class="math notranslate nohighlight">\(P(|Z| &gt; |z|)\)</span> ，其中 <span class="math notranslate nohighlight">\(Z\)</span> 服从标准正态分布。对二元响应，稳健标准误与 <cite>kivi.selection.logistic_regression</cite> 基于模型的标准误不同。</p>
+<p>分数响应在两个方向上都约束线性预测值，因此只要不存在这样的列组合：它把恰为 0 的响应与恰为 1 的响应分开，并且使每个介于二者之间的响应的线性预测值保持不变，估计值就存在。</p>
+<p class="rubric">参考文献</p>
+<div role="list" class="citation-list">
+<div class="citation" id="r7fa063f9a0b4-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id17">1</a><span class="fn-bracket">]</span></span>
+<p>L. E. Papke and J. M. Wooldridge, &quot;Econometric methods for
+fractional response variables with an application to 401(k) plan
+participation rates&quot;, Journal of Applied Econometrics, 11(6),
+pp. 619-632, 1996.</p>
+</div>
+</div>
+<p class="rubric">示例</p>
+<p>只有一个虚拟变量时，拟合均值就是其两组的平均响应：有押品贷款为 0.2，无押品贷款为 0.65：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.lgd</span><span class="w"> </span><span class="kn">import</span> <span class="n">fractional_regression</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"unsecured"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lgd</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fractional_regression</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">lgd</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">             coef      se       z  p_value</span>
+<span class="go">variable</span>
+<span class="go">intercept -1.3863  0.5846 -2.3712   0.0177</span>
+<span class="go">unsecured  2.0053  0.8880  2.2582   0.0239</span>
+</pre></div>
+</div>
+<p>截距为 <span class="math notranslate nohighlight">\(\ln(0.2 / 0.8)\)</span> ，即有押品贷款均值的对数几率；其稳健方差在四个有押品的行上为 <span class="math notranslate nohighlight">\(\sum_i (y_i - 0.2)^2 / (4 \cdot 0.2 \cdot 0.8)^2 = 0.14 / 0.4096\)</span> 。</p>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="calibration.html"
+       title="上一页">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">上一页</p>
+        <p class="prev-next-title">校准</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="strategy.html"
+       title="下一页">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">下一页</p>
+        <p class="prev-next-title">信贷策略</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 当前页面
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.lgd.workout_lgd"><code class="docutils literal notranslate"><span class="pre">workout_lgd()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.lgd.conversion_factor"><code class="docutils literal notranslate"><span class="pre">conversion_factor()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.lgd.lgd_table"><code class="docutils literal notranslate"><span class="pre">lgd_table()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.lgd.fractional_regression"><code class="docutils literal notranslate"><span class="pre">fractional_regression()</span></code></a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    由 <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1创建。
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

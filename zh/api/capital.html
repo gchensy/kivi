@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>监管资本 &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=d005c095" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=14f9d491"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script src="../_static/translations.js?v=540d3cec"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/capital';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="next" title="Vintage 与滚动率分析" href="vintage.html" />
+    <link rel="prev" title="模型监控" href="monitoring.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+  <meta name="docsearch:version" content="1.9.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">跳转至主要内容</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>回到顶部</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="版本警告"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="网页导航" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 1.9.0">1.9.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    教程
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../../en/api/capital.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="当前页面" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    教程
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../../en/api/capital.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="章节导航">
+  <p class="bd-links__title" role="heading" aria-level="1">章节导航</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="conventions.html">约定</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compatibility.html">兼容性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">术语表</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">时间窗特征</a></li>
+<li class="toctree-l1"><a class="reference internal" href="univariate.html">单变量概况</a></li>
+<li class="toctree-l1"><a class="reference internal" href="binning.html">分箱</a></li>
+<li class="toctree-l1"><a class="reference internal" href="woe.html">证据权重与信息值</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selection.html">变量筛选</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reject_inference.html">拒绝推断</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scorecard.html">评分卡</a></li>
+<li class="toctree-l1"><a class="reference internal" href="expert.html">专家评分卡</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">模型表现</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">校准</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lgd.html">LGD 与 EAD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">信贷策略</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rules.html">政策规则</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spec.html">分箱方案</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stability.html">群体稳定性指标</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">模型监控</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">监管资本</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vintage.html">Vintage 与滚动率分析</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lifetime.html">存续期 PD 与预期信用损失</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html">图表</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">示例数据</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="初始页面">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../api.html" class="nav-link">API 参考</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">监管资本</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="module-kivi.capital">
+<span id="regulatory-capital"></span><h1>监管资本<a class="headerlink" href="#module-kivi.capital" title="链接到此标题。">#</a></h1>
+<p>按内部评级法计算信用风险敞口的监管资本。 <a class="reference internal" href="#kivi.capital.asset_correlation" title="kivi.capital.asset_correlation"><code class="xref py py-func docutils literal notranslate"><span class="pre">asset_correlation()</span></code></a> 和 <a class="reference internal" href="#kivi.capital.capital_requirement" title="kivi.capital.capital_requirement"><code class="xref py py-func docutils literal notranslate"><span class="pre">capital_requirement()</span></code></a> 计算巴塞尔框架和中国 2023 年资本规则的风险权重函数， <a class="reference internal" href="#kivi.capital.conditional_pd" title="kivi.capital.conditional_pd"><code class="xref py py-func docutils literal notranslate"><span class="pre">conditional_pd()</span></code></a> 、 <a class="reference internal" href="#kivi.capital.systematic_factor" title="kivi.capital.systematic_factor"><code class="xref py py-func docutils literal notranslate"><span class="pre">systematic_factor()</span></code></a> 和 <a class="reference internal" href="#kivi.capital.vasicek_fit" title="kivi.capital.vasicek_fit"><code class="xref py py-func docutils literal notranslate"><span class="pre">vasicek_fit()</span></code></a> 处理其背后的单因子模型， <a class="reference internal" href="#kivi.capital.most_prudent_pd" title="kivi.capital.most_prudent_pd"><code class="xref py py-func docutils literal notranslate"><span class="pre">most_prudent_pd()</span></code></a> 给出违约很少的组合的 PD 上界。</p>
+<p>示例和两地的参数见 <a class="reference internal" href="../user_guide/capital.html"><span class="doc">监管资本</span></a> 。</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.capital.asset_correlation" title="kivi.capital.asset_correlation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">asset_correlation</span></code></a>(probability, *, asset_class)</p></td>
+<td><p>计算内部评级法风险权重函数中的资产相关系数。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.capital.capital_requirement" title="kivi.capital.capital_requirement"><code class="xref py py-obj docutils literal notranslate"><span class="pre">capital_requirement</span></code></a>(probability, lgd, *, ...)</p></td>
+<td><p>计算内部评级法的资本要求 K，以占敞口的比例表示。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.capital.conditional_pd" title="kivi.capital.conditional_pd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">conditional_pd</span></code></a>(probability, *, correlation)</p></td>
+<td><p>计算单因子模型在给定经济状态下的 PD。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.capital.systematic_factor" title="kivi.capital.systematic_factor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">systematic_factor</span></code></a>(default_rate, probability, ...)</p></td>
+<td><p>计算观察到的违约率所对应的系统因子。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.capital.vasicek_fit" title="kivi.capital.vasicek_fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vasicek_fit</span></code></a>(default_rate)</p></td>
+<td><p>由一段违约率序列估计长期 PD 和资产相关系数。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.capital.most_prudent_pd" title="kivi.capital.most_prudent_pd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">most_prudent_pd</span></code></a>(event, total, *[, level, ...])</p></td>
+<td><p>计算 Pluto 和 Tasche 的最审慎估计：每个等级 PD 的上界。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.capital.asset_correlation">
+<span class="sig-prename descclassname"><span class="pre">kivi.capital.</span></span><span class="sig-name descname"><span class="pre">asset_correlation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">probability</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">asset_class</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">turnover</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">turnover_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(5.0,</span> <span class="pre">50.0)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">financial</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.capital.asset_correlation" title="链接到此定义。">#</a></dt>
+<dd><p>计算内部评级法风险权重函数中的资产相关系数。</p>
+<p>资产相关系数 <span class="math notranslate nohighlight">\(R\)</span> 是借款人资产的方差中由整体经济解释的比例。内部评级法按资产类别规定它；公司敞口和其他零售敞口的相关系数随 PD 上升而下降。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>probability</strong><span class="classifier">array_like</span></dt><dd><p>违约概率，取值在 0 与 1 之间。缺失值得到缺失的相关系数。</p>
+</dd>
+<dt><strong>asset_class</strong><span class="classifier">{&quot;corporate&quot;, &quot;hvcre&quot;, &quot;mortgage&quot;, &quot;revolving&quot;, &quot;other_retail&quot;}</span></dt><dd><p><code class="docutils literal notranslate"><span class="pre">&quot;corporate&quot;</span></code> 表示公司、主权和银行敞口， <code class="docutils literal notranslate"><span class="pre">&quot;hvcre&quot;</span></code> 表示高波动商业房地产， <code class="docutils literal notranslate"><span class="pre">&quot;mortgage&quot;</span></code> 表示个人住房抵押贷款， <code class="docutils literal notranslate"><span class="pre">&quot;revolving&quot;</span></code> 表示合格循环零售敞口， <code class="docutils literal notranslate"><span class="pre">&quot;other_retail&quot;</span></code> 表示其他零售敞口。</p>
+</dd>
+<dt><strong>turnover</strong><span class="classifier">array_like，可选</span></dt><dd><p>每个公司借款人的年销售额，单位与 <cite>turnover_range</cite> 相同，例如百万欧元。低于区间上限的值会降低相关系数，用于中小企业； <code class="docutils literal notranslate"><span class="pre">numpy.inf</span></code> 表示不做这项调整的借款人。只适用于 <code class="docutils literal notranslate"><span class="pre">asset_class=&quot;corporate&quot;</span></code> ；不能缺失。</p>
+</dd>
+<dt><strong>turnover_range</strong><span class="classifier">tuple of float，默认 (5.0, 50.0)</span></dt><dd><p>营业收入调整的下限和上限。默认值是巴塞尔的区间，单位为百万欧元；中国的规则使用 (3.0, 30.0)，单位为千万元人民币。</p>
+</dd>
+<dt><strong>financial</strong><span class="classifier">bool，默认 False</span></dt><dd><p>借款人是否为相关系数乘以 1.25 的金融机构。只适用于 <code class="docutils literal notranslate"><span class="pre">asset_class=&quot;corporate&quot;</span></code> ，且不能与低于 <cite>turnover_range</cite> 上限的营业收入同时给出。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>float、pandas.Series 或 numpy.ndarray</dt><dd><p>相关系数，形状为 <cite>probability</cite> 与 <cite>turnover</cite> 广播后的形状。若某个输入是 Series，结果是带有其索引、名为 <code class="docutils literal notranslate"><span class="pre">correlation</span></code> 的 Series；标量输入得到 float。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果 <cite>asset_class</cite> 不是五个类别之一， <cite>probability</cite> 不是实数数值或超出 [0, 1]，或者输入无法一起广播或 Series 索引不同。此外，如果对 <code class="docutils literal notranslate"><span class="pre">&quot;corporate&quot;</span></code> 以外的类别给出 <cite>turnover</cite> 或 <cite>financial</cite> ， <cite>turnover</cite> 缺失、为负或不是数值， <cite>turnover_range</cite> 不是满足 <code class="docutils literal notranslate"><span class="pre">0</span> <span class="pre">&lt;=</span> <span class="pre">lower</span> <span class="pre">&lt;</span> <span class="pre">upper</span></code> 的两个有限数， <cite>financial</cite> 不是布尔值，或者 <cite>financial</cite> 与低于上限的营业收入同时给出，也会引发此异常。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.capital.capital_requirement" title="kivi.capital.capital_requirement"><code class="xref py py-obj docutils literal notranslate"><span class="pre">capital_requirement</span></code></a></dt><dd><p>使用该相关系数的资本要求。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.capital.conditional_pd" title="kivi.capital.conditional_pd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">conditional_pd</span></code></a></dt><dd><p>单因子模型在给定经济状态下的 PD。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>公司敞口的相关系数如下；其他零售敞口把权重中的 50 换成 35，界限换成 0.03 和 0.16：</p>
+<div class="math notranslate nohighlight">
+\[w = \frac{1 - e^{-50\,\mathrm{PD}}}{1 - e^{-50}}, \qquad
+R = 0.12\,w + 0.24\,(1 - w).\]</div>
+<p>高波动商业房地产用 0.30 代替 0.24，个人住房抵押贷款 <span class="math notranslate nohighlight">\(R = 0.15\)</span> ，合格循环零售敞口 <span class="math notranslate nohighlight">\(R = 0.04\)</span> 。区间为 <span class="math notranslate nohighlight">\([l, u]\)</span> 时，营业收入 <span class="math notranslate nohighlight">\(S\)</span> 使公司敞口的相关系数降低 <span class="math notranslate nohighlight">\(0.04\,(1 - (\min(\max(S, l), u) - l) / (u - l))\)</span> ，在 <span class="math notranslate nohighlight">\(S \le l\)</span> 时为 0.04，在 <span class="math notranslate nohighlight">\(S \ge u\)</span> 时为 0；<cite>financial</cite> 使其乘以 1.25（巴塞尔 CRE31.5–31.16；中国，附件 6 和附件 8）。</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.capital</span><span class="w"> </span><span class="kn">import</span> <span class="n">asset_correlation</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">asset_correlation</span><span class="p">([</span><span class="mf">0.0003</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">],</span> <span class="n">asset_class</span><span class="o">=</span><span class="s2">"corporate"</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">array([0.2382, 0.1928, 0.12  ])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">asset_correlation</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span><span class="w"> </span><span class="n">asset_class</span><span class="o">=</span><span class="s1">'corporate'</span><span class="p">,</span><span class="w"> </span><span class="n">turnover</span><span class="o">=</span><span class="mf">5.0</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">0.1528</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.capital.capital_requirement">
+<span class="sig-prename descclassname"><span class="pre">kivi.capital.</span></span><span class="sig-name descname"><span class="pre">capital_requirement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">probability</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lgd</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">asset_class</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maturity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">turnover</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">turnover_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(5.0,</span> <span class="pre">50.0)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">financial</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">correlation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.999</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scaling</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.capital.capital_requirement" title="链接到此定义。">#</a></dt>
+<dd><p>计算内部评级法的资本要求 K，以占敞口的比例表示。</p>
+<p>K 覆盖未违约敞口的非预期损失：单因子模型在 <cite>level</cite> 分位数处的损失减去预期损失。风险加权资产为 <code class="docutils literal notranslate"><span class="pre">12.5</span> <span class="pre">*</span> <span class="pre">K</span> <span class="pre">*</span> <span class="pre">EAD</span></code> ，风险权重为 <code class="docutils literal notranslate"><span class="pre">12.5</span> <span class="pre">*</span> <span class="pre">K</span></code> 。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>probability</strong><span class="classifier">array_like</span></dt><dd><p>违约概率，严格介于 0 与 1 之间，已施加 PD 下限。缺失值得到缺失的资本要求。</p>
+</dd>
+<dt><strong>lgd</strong><span class="classifier">array_like</span></dt><dd><p>违约损失率，即损失占敞口的比例，取值在 0 与 1 之间。缺失值得到缺失的资本要求。</p>
+</dd>
+<dt><strong>asset_class</strong><span class="classifier">{&quot;corporate&quot;, &quot;hvcre&quot;, &quot;mortgage&quot;, &quot;revolving&quot;, &quot;other_retail&quot;}</span></dt><dd><p>资产类别，同 <cite>asset_correlation</cite> 。它也决定是否做期限调整： <code class="docutils literal notranslate"><span class="pre">&quot;corporate&quot;</span></code> 和 <code class="docutils literal notranslate"><span class="pre">&quot;hvcre&quot;</span></code> 做，三个零售类别不做。</p>
+</dd>
+<dt><strong>maturity</strong><span class="classifier">array_like，可选</span></dt><dd><p>有效期限，单位为年，必须为正且有限，只适用于 <code class="docutils literal notranslate"><span class="pre">&quot;corporate&quot;</span></code> 和 <code class="docutils literal notranslate"><span class="pre">&quot;hvcre&quot;</span></code> 。默认为 2.5 年。它不会被截到 1 至 5 年的区间，因为短期敞口有例外；不能缺失。</p>
+</dd>
+<dt><strong>turnover</strong><span class="classifier">array_like，可选</span></dt><dd><p>公司借款人的年销售额，同 <cite>asset_correlation</cite> 。</p>
+</dd>
+<dt><strong>turnover_range</strong><span class="classifier">tuple of float，默认 (5.0, 50.0)</span></dt><dd><p>营业收入调整的界限，同 <cite>asset_correlation</cite> 。</p>
+</dd>
+<dt><strong>financial</strong><span class="classifier">bool，默认 False</span></dt><dd><p>是否对金融机构乘以 1.25，同 <cite>asset_correlation</cite> 。</p>
+</dd>
+<dt><strong>correlation</strong><span class="classifier">array_like，可选</span></dt><dd><p>取值从 0 到 1（不含 1）的资产相关系数，用来替代公式中的相关系数，例如用于经济资本；此时不能给出 <cite>turnover</cite> 和 <cite>financial</cite> 。不能缺失。</p>
+</dd>
+<dt><strong>level</strong><span class="classifier">float，默认 0.999</span></dt><dd><p>单因子模型的置信水平，严格介于 0 与 1 之间。</p>
+</dd>
+<dt><strong>scaling</strong><span class="classifier">float，默认 1.0</span></dt><dd><p>乘在 K 上的正数因子。只有 2006 年的巴塞尔 II 框架把风险加权资产乘以 1.06；现行巴塞尔框架和中国 2023 年的规则都不乘。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>float、pandas.Series 或 numpy.ndarray</dt><dd><p>资本要求，形状为输入广播后的形状。若某个输入是 Series，结果是带有其索引、名为 <code class="docutils literal notranslate"><span class="pre">capital_requirement</span></code> 的 Series；标量输入得到 float。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果某个输入不是实数数值，输入无法一起广播或 Series 索引不同， <cite>probability</cite> 超出开区间 (0, 1)，或者对 <code class="docutils literal notranslate"><span class="pre">&quot;corporate&quot;</span></code> 或 <code class="docutils literal notranslate"><span class="pre">&quot;hvcre&quot;</span></code> 不高于约 2.927e-6，或者 <cite>lgd</cite> 超出 [0, 1]。此外，如果对零售类别给出 <cite>maturity</cite> ，或其缺失、非正或非有限， <cite>correlation</cite> 缺失、超出 [0, 1) 或与 <cite>turnover</cite> 或 <cite>financial</cite> 同时给出， <cite>level</cite> 超出 (0, 1)， <cite>scaling</cite> 不是正的有限数，或者某个参数像 <cite>asset_correlation</cite> 中那样无效，也会引发此异常。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.capital.asset_correlation" title="kivi.capital.asset_correlation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">asset_correlation</span></code></a></dt><dd><p>每个资产类别的相关系数。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.capital.conditional_pd" title="kivi.capital.conditional_pd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">conditional_pd</span></code></a></dt><dd><p>单因子模型在该置信水平下的 PD。</p>
+</dd>
+<dt><a class="reference internal" href="strategy.html#kivi.strategy.expected_loss" title="kivi.strategy.expected_loss"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.strategy.expected_loss</span></code></a></dt><dd><p>K 所不包含的预期损失 PD x LGD x EAD。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>记 <span class="math notranslate nohighlight">\(\Phi\)</span> 为标准正态分布函数， <span class="math notranslate nohighlight">\(\Phi^{-1}\)</span> 为其分位数函数， <span class="math notranslate nohighlight">\(R\)</span> 为 <cite>asset_correlation</cite> 的相关系数， <span class="math notranslate nohighlight">\(q\)</span> 为置信水平，</p>
+<div class="math notranslate nohighlight">
+\[K = \mathrm{LGD} \left[ \Phi\!\left(
+\frac{\Phi^{-1}(\mathrm{PD}) + \sqrt{R}\,\Phi^{-1}(q)}{\sqrt{1 - R}}
+\right) - \mathrm{PD} \right] \frac{1 + (M - 2.5)\,b}{1 - 1.5\,b},
+\qquad b = (0.11852 - 0.05478 \ln \mathrm{PD})^2,\]</div>
+<p>其中期限因子只适用于 <code class="docutils literal notranslate"><span class="pre">&quot;corporate&quot;</span></code> 和 <code class="docutils literal notranslate"><span class="pre">&quot;hvcre&quot;</span></code> （巴塞尔 CRE31.5–31.16；中国，附件 6）。然后 K 乘以 <cite>scaling</cite> 。</p>
+<p>期限因子要除以 <span class="math notranslate nohighlight">\(1 - 1.5\,b\)</span> ，它在 PD 约为 2.927e-6 时等于 0，因此这些 PD 会报错；在此之前，PD 低于约 1e-5 时，该因子增长很快，风险权重随 PD 下降反而上升。0.05% 的 PD 下限（巴塞尔 CRE32.4，中国第九十一条）高于这两个值；只有主权敞口没有下限。</p>
+<p>已违约敞口（PD = 1）也会报错：它的资本要求是 <span class="math notranslate nohighlight">\(\max(0, \mathrm{LGD} - \mathrm{ELBE})\)</span> ，其中用到其预期损失的最佳估计（巴塞尔 CRE31.3；中国，附件 6 第二部分）。</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.capital</span><span class="w"> </span><span class="kn">import</span> <span class="n">capital_requirement</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">k</span> <span class="o">=</span> <span class="n">capital_requirement</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.45</span><span class="p">,</span> <span class="n">asset_class</span><span class="o">=</span><span class="s2">"corporate"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"K = </span><span class="si">{</span><span class="n">k</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2">, risk weight = </span><span class="si">{</span><span class="mf">12.5</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">k</span><span class="si">:</span><span class="s2">.4%</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">K = 0.073853, risk weight = 92.3168%</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rw</span> <span class="o">=</span> <span class="mf">12.5</span> <span class="o">*</span> <span class="n">capital_requirement</span><span class="p">([</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.45</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">],</span> <span class="n">asset_class</span><span class="o">=</span><span class="s2">"other_retail"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rw</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">array([0.4577, 0.2543])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.capital.conditional_pd">
+<span class="sig-prename descclassname"><span class="pre">kivi.capital.</span></span><span class="sig-name descname"><span class="pre">conditional_pd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">probability</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">correlation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.capital.conditional_pd" title="链接到此定义。">#</a></dt>
+<dd><p>计算单因子模型在给定经济状态下的 PD。</p>
+<p>内部评级法风险权重函数背后是 Vasicek 的单因子模型：借款人的资产低于由其长期 PD 决定的阈值时违约，所有借款人的资产共享一个系统因子。给定该因子时，违约相互独立，按条件 PD 发生。它把跨周期（TTC）PD 转换为某个经济情景下的时点（PIT）PD，并在其置信水平下给出 <cite>capital_requirement</cite> 中的压力 PD。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>probability</strong><span class="classifier">array_like</span></dt><dd><p>长期（无条件）违约概率，严格介于 0 与 1 之间。缺失值得到缺失的 PD。</p>
+</dd>
+<dt><strong>correlation</strong><span class="classifier">array_like</span></dt><dd><p>取值从 0 到 1（不含 1）的资产相关系数，例如 <cite>asset_correlation</cite> 的结果。不能缺失。</p>
+</dd>
+<dt><strong>factor</strong><span class="classifier">array_like，可选</span></dt><dd><p>标准正态的系统因子取值，必须有限；正值表示经济好于平均，得到低于长期 PD 的 PD。缺失值得到缺失的 PD。</p>
+</dd>
+<dt><strong>level</strong><span class="classifier">array_like，可选</span></dt><dd><p>代替 <cite>factor</cite> ：经济好于该情景的概率，严格介于 0 与 1 之间；因子是下侧 <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">-</span> <span class="pre">level</span></code> 分位数 <code class="docutils literal notranslate"><span class="pre">-Phi^-1(level)</span></code> 。缺失值得到缺失的 PD。 <cite>factor</cite> 和 <cite>level</cite> 必须恰好给出一个。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>float、pandas.Series 或 numpy.ndarray</dt><dd><p>条件 PD，形状为输入广播后的形状。若某个输入是 Series，结果是带有其索引、名为 <code class="docutils literal notranslate"><span class="pre">conditional_pd</span></code> 的 Series；标量输入得到 float。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果没有恰好给出 <cite>factor</cite> 和 <cite>level</cite> 中的一个，某个输入不是实数数值，输入无法一起广播或 Series 索引不同， <cite>probability</cite> 或 <cite>level</cite> 超出开区间 (0, 1)， <cite>correlation</cite> 缺失或超出 [0, 1)，或者 <cite>factor</cite> 为无穷。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.capital.systematic_factor" title="kivi.capital.systematic_factor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">systematic_factor</span></code></a></dt><dd><p>违约率所对应的因子，即本函数的逆运算。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.capital.vasicek_fit" title="kivi.capital.vasicek_fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vasicek_fit</span></code></a></dt><dd><p>由违约率估计长期 PD 和相关系数。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.capital.capital_requirement" title="kivi.capital.capital_requirement"><code class="xref py py-obj docutils literal notranslate"><span class="pre">capital_requirement</span></code></a></dt><dd><p>资本要求，它使用置信水平 0.999 下的 PD。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>记标准正态分布函数为 <span class="math notranslate nohighlight">\(\Phi\)</span> ，相关系数为 <span class="math notranslate nohighlight">\(\rho\)</span> ，因子为 <span class="math notranslate nohighlight">\(z\)</span> ，</p>
+<div class="math notranslate nohighlight">
+\[\mathrm{PD}(z) = \Phi\!\left(
+\frac{\Phi^{-1}(\mathrm{PD}) - \sqrt{\rho}\,z}{\sqrt{1 - \rho}} \right),\]</div>
+<p><cite>level</cite> <span class="math notranslate nohighlight">\(q\)</span> 相当于 <span class="math notranslate nohighlight">\(z = -\Phi^{-1}(q)\)</span> ，因此 <code class="docutils literal notranslate"><span class="pre">level=0.999</span></code> 给出内部评级法公式中的 PD。对标准正态的 <span class="math notranslate nohighlight">\(z\)</span> 取平均，条件 PD 等于长期 PD。</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.capital</span><span class="w"> </span><span class="kn">import</span> <span class="n">conditional_pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">conditional_pd</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">correlation</span><span class="o">=</span><span class="mf">0.12</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="p">[</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">2.0</span><span class="p">])</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<span class="go">array([0.00064, 0.00657, 0.04081])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">conditional_pd</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span><span class="w"> </span><span class="n">correlation</span><span class="o">=</span><span class="mf">0.12</span><span class="p">,</span><span class="w"> </span><span class="n">level</span><span class="o">=</span><span class="mf">0.999</span><span class="p">)</span><span class="si">:</span><span class="s2">.4%</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">9.0326%</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.capital.systematic_factor">
+<span class="sig-prename descclassname"><span class="pre">kivi.capital.</span></span><span class="sig-name descname"><span class="pre">systematic_factor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">default_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">probability</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">correlation</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.capital.systematic_factor" title="链接到此定义。">#</a></dt>
+<dd><p>计算观察到的违约率所对应的系统因子。</p>
+<p>本函数是 <cite>conditional_pd</cite> 的逆运算：给出使条件 PD 等于违约率（例如某组合每年的违约率）的系统因子取值。因子为负表示该年差于平均。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>default_rate</strong><span class="classifier">array_like</span></dt><dd><p>观察到的违约率，严格介于 0 与 1 之间。缺失值得到缺失的因子。</p>
+</dd>
+<dt><strong>probability</strong><span class="classifier">array_like</span></dt><dd><p>长期违约概率，严格介于 0 与 1 之间，例如 <cite>vasicek_fit</cite> 的第一个结果。缺失值得到缺失的因子。</p>
+</dd>
+<dt><strong>correlation</strong><span class="classifier">array_like</span></dt><dd><p>资产相关系数，严格介于 0 与 1 之间，例如 <cite>vasicek_fit</cite> 的第二个结果。不能缺失。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>float、pandas.Series 或 numpy.ndarray</dt><dd><p>因子，形状为输入广播后的形状。若某个输入是 Series，结果是带有其索引、名为 <code class="docutils literal notranslate"><span class="pre">factor</span></code> 的 Series；标量输入得到 float。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果某个输入不是实数数值，输入无法一起广播或 Series 索引不同， <cite>default_rate</cite> 或 <cite>probability</cite> 超出开区间 (0, 1)，或者 <cite>correlation</cite> 缺失或超出 (0, 1)。违约率为 0 或 1 时没有有限的因子。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.capital.conditional_pd" title="kivi.capital.conditional_pd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">conditional_pd</span></code></a></dt><dd><p>给定因子时的 PD，即本函数的逆运算。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.capital.vasicek_fit" title="kivi.capital.vasicek_fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vasicek_fit</span></code></a></dt><dd><p>由违约率估计长期 PD 和相关系数。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>记违约率为 <span class="math notranslate nohighlight">\(\mathrm{DR}\)</span> ，</p>
+<div class="math notranslate nohighlight">
+\[z = \frac{\Phi^{-1}(\mathrm{PD}) - \sqrt{1 - \rho}\,\Phi^{-1}(\mathrm{DR})}{\sqrt{\rho}}.\]</div>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.capital</span><span class="w"> </span><span class="kn">import</span> <span class="n">conditional_pd</span><span class="p">,</span> <span class="n">systematic_factor</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">systematic_factor</span><span class="p">([</span><span class="mf">0.004</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.03</span><span class="p">],</span> <span class="mf">0.01</span><span class="p">,</span> <span class="n">correlation</span><span class="o">=</span><span class="mf">0.12</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">array([ 0.4663, -0.4158, -1.6224])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">conditional_pd</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span><span class="w"> </span><span class="n">correlation</span><span class="o">=</span><span class="mf">0.12</span><span class="p">,</span><span class="w"> </span><span class="n">factor</span><span class="o">=-</span><span class="mf">1.6224</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">0.0300</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.capital.vasicek_fit">
+<span class="sig-prename descclassname"><span class="pre">kivi.capital.</span></span><span class="sig-name descname"><span class="pre">vasicek_fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">default_rate</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.capital.vasicek_fit" title="链接到此定义。">#</a></dt>
+<dd><p>由一段违约率序列估计长期 PD 和资产相关系数。</p>
+<p>在单因子模型中，大型组合的违约率随系统因子逐年变化，其方差随资产相关系数增大。矩估计使观察到的违约率的均值和方差得到匹配。违约率为 0 的年份（没有违约的年份）也计入。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>default_rate</strong><span class="classifier">array_like</span></dt><dd><p>一个组合在连续各期（例如各年）的违约率，取值在 0 与 1 之间，至少两个，且没有缺失值。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>probability</strong><span class="classifier">float</span></dt><dd><p>长期 PD，即违约率的均值。</p>
+</dd>
+<dt><strong>correlation</strong><span class="classifier">float</span></dt><dd><p>资产相关系数，取值在 0 与 1 之间。常数序列得到 0。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果 <cite>default_rate</cite> 不是实数数值、不是一维、少于两个值、有缺失值或超出 [0, 1] 的值，其均值为 0 或 1，或者其方差不小于 <code class="docutils literal notranslate"><span class="pre">mean</span> <span class="pre">*</span> <span class="pre">(1</span> <span class="pre">-</span> <span class="pre">mean)</span></code> ，即相关系数为 1 时的方差。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.capital.conditional_pd" title="kivi.capital.conditional_pd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">conditional_pd</span></code></a></dt><dd><p>给定因子时的 PD，使用拟合的参数。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.capital.systematic_factor" title="kivi.capital.systematic_factor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">systematic_factor</span></code></a></dt><dd><p>每一期的因子，使用拟合的参数。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>记违约率的均值为 <span class="math notranslate nohighlight">\(m\)</span> 、方差为 <span class="math notranslate nohighlight">\(s^2\)</span> （ <code class="docutils literal notranslate"><span class="pre">ddof=1</span></code> ），相关系数 <span class="math notranslate nohighlight">\(\rho\)</span> 满足</p>
+<div class="math notranslate nohighlight">
+\[\Phi_2\!\left(\Phi^{-1}(m), \Phi^{-1}(m); \rho\right) - m^2 = s^2,\]</div>
+<p>其中 <span class="math notranslate nohighlight">\(\Phi_2\)</span> 是二元标准正态分布函数：组合中两个借款人同时违约的概率为 <span class="math notranslate nohighlight">\(\Phi_2\)</span> 。左边随 <span class="math notranslate nohighlight">\(\rho\)</span> 从 0 增大到 <span class="math notranslate nohighlight">\(m (1 - m)\)</span> ，用二分法求解。这些矩描述的是足够大、违约率等于条件 PD 的组合，因此小组合的二项噪声会使估计偏高。</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.capital</span><span class="w"> </span><span class="kn">import</span> <span class="n">vasicek_fit</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">probability</span><span class="p">,</span> <span class="n">correlation</span> <span class="o">=</span> <span class="n">vasicek_fit</span><span class="p">([</span><span class="mf">0.004</span><span class="p">,</span> <span class="mf">0.012</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.031</span><span class="p">,</span> <span class="mf">0.008</span><span class="p">,</span> <span class="mf">0.015</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"PD = </span><span class="si">{</span><span class="n">probability</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, correlation = </span><span class="si">{</span><span class="n">correlation</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">PD = 0.0117, correlation = 0.0994</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.capital.most_prudent_pd">
+<span class="sig-prename descclassname"><span class="pre">kivi.capital.</span></span><span class="sig-name descname"><span class="pre">most_prudent_pd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">total</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.95</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">correlation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.capital.most_prudent_pd" title="链接到此定义。">#</a></dt>
+<dd><p>计算 Pluto 和 Tasche 的最审慎估计：每个等级 PD 的上界。</p>
+<p>违约很少或没有违约的组合（例如银行或大型企业）的违约率太小，无法据以校准 PD。一个等级的最审慎估计，是该等级及所有更差等级中观察到的违约在置信水平 <cite>level</cite> 下不会拒绝的最大 PD，其前提是 PD 从一个等级到下一个更差等级不会下降。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>event</strong><span class="classifier">array_like</span></dt><dd><p>每个等级的违约数，为非负整数，等级按风险从低到高排列。不能缺失。</p>
+</dd>
+<dt><strong>total</strong><span class="classifier">array_like</span></dt><dd><p>每个等级的债务人数，为不小于 <cite>event</cite> 的整数；按位置对应，两者都是 Series 时按相同的索引对应。</p>
+</dd>
+<dt><strong>level</strong><span class="classifier">float，默认 0.95</span></dt><dd><p>置信水平，严格介于 0 与 1 之间。</p>
+</dd>
+<dt><strong>correlation</strong><span class="classifier">float，默认 0.0</span></dt><dd><p>单因子模型的资产相关系数，取值从 0 到 1（不含 1）。为 0 时违约相互独立；正的相关系数使同样的违约与更高的 PD 相容。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.Series 或 numpy.ndarray</dt><dd><p>每个等级 PD 的上界。若某个输入是 Series，结果是带有其索引、名为 <code class="docutils literal notranslate"><span class="pre">most_prudent_pd</span></code> 的 Series。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果 <cite>event</cite> 或 <cite>total</cite> 不是实数数值、不是一维、为空或长度不同，它们的 Series 索引不同，某个计数缺失或不是非负整数， <cite>event</cite> 超过 <cite>total</cite> ， <cite>level</cite> 超出 (0, 1)，或者 <cite>correlation</cite> 超出 [0, 1)。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="calibration.html#kivi.calibration.binomial_test" title="kivi.calibration.binomial_test"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.calibration.binomial_test</span></code></a></dt><dd><p>检验每个等级的 PD 与其违约数是否相符。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.capital.conditional_pd" title="kivi.capital.conditional_pd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">conditional_pd</span></code></a></dt><dd><p>单因子模型在给定因子下的 PD。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>等级 <span class="math notranslate nohighlight">\(k\)</span> 合并它自身及所有更差等级的债务人 <span class="math notranslate nohighlight">\(n_k = \sum_{i \ge k} N_i\)</span> 和违约 <span class="math notranslate nohighlight">\(d_k = \sum_{i \ge k} D_i\)</span> 。它的上界 <span class="math notranslate nohighlight">\(p_k\)</span> 是置信水平 <span class="math notranslate nohighlight">\(q\)</span> 下满足 <span class="math notranslate nohighlight">\(P(D \le d_k) \ge 1 - q\)</span> 的最大 PD。违约相互独立时， <span class="math notranslate nohighlight">\(D\)</span> 服从参数为 <span class="math notranslate nohighlight">\(n_k\)</span> 和 <span class="math notranslate nohighlight">\(p_k\)</span> 的二项分布，因此 <span class="math notranslate nohighlight">\(p_k\)</span> 是参数为 <span class="math notranslate nohighlight">\(d_k + 1\)</span> 和 <span class="math notranslate nohighlight">\(n_k - d_k\)</span> 的贝塔分布的 <span class="math notranslate nohighlight">\(q\)</span> 分位数；没有违约时 <span class="math notranslate nohighlight">\(p_k = 1 - (1 - q)^{1/n_k}\)</span> 。相关系数为 <span class="math notranslate nohighlight">\(\rho\)</span> 时，给定因子的违约服从二项分布，</p>
+<div class="math notranslate nohighlight">
+\[P(D \le d_k) = \int P\left(\mathrm{Bin}(n_k, \mathrm{PD}(z)) \le d_k\right)
+\varphi(z) \, dz,\]</div>
+<p>其中条件 PD 来自 <cite>conditional_pd</cite> ；积分在因子的 -9 到 9 之间用复合 Gauss-Legendre 求积（64 段，每段 8 个节点），再用二分法求解。合并后的债务人全部违约或没有债务人的等级得到 1。这些上界针对单期；若因子在多年间相关，就需要模拟，kivi 不做。Pluto 和 Tasche <a class="reference internal" href="#ra3c7650a73eb-1" id="id1">[1]</a> 对其算例算出了同样的上界，相关的算例取相关系数 0.12。</p>
+<p class="rubric">参考文献</p>
+<div role="list" class="citation-list">
+<div class="citation" id="ra3c7650a73eb-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>K. Pluto and D. Tasche, &quot;Estimating probabilities of default for
+low default portfolios&quot;, arXiv:cond-mat/0411699, 2004; also
+&quot;Thinking positively&quot;, Risk 18 (8), 2005, pp. 72-78.</p>
+</div>
+</div>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.capital</span><span class="w"> </span><span class="kn">import</span> <span class="n">most_prudent_pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">(</span><span class="mi">100</span> <span class="o">*</span> <span class="n">most_prudent_pd</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">400</span><span class="p">,</span> <span class="mi">300</span><span class="p">],</span> <span class="n">level</span><span class="o">=</span><span class="mf">0.9</span><span class="p">))</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">array([0.29, 0.33, 0.76])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="monitoring.html"
+       title="上一页">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">上一页</p>
+        <p class="prev-next-title">模型监控</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="vintage.html"
+       title="下一页">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">下一页</p>
+        <p class="prev-next-title">Vintage 与滚动率分析</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 当前页面
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.capital.asset_correlation"><code class="docutils literal notranslate"><span class="pre">asset_correlation()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.capital.capital_requirement"><code class="docutils literal notranslate"><span class="pre">capital_requirement()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.capital.conditional_pd"><code class="docutils literal notranslate"><span class="pre">conditional_pd()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.capital.systematic_factor"><code class="docutils literal notranslate"><span class="pre">systematic_factor()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.capital.vasicek_fit"><code class="docutils literal notranslate"><span class="pre">vasicek_fit()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.capital.most_prudent_pd"><code class="docutils literal notranslate"><span class="pre">most_prudent_pd()</span></code></a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    由 <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1创建。
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

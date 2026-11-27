@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Regulatory capital &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=d005c095" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=25d9e9fd"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/capital';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Vintage and roll-rate analysis" href="vintage.html" />
+    <link rel="prev" title="Model validation" href="validation.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="1.9.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 1.9.0">1.9.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    Tutorial
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/user_guide/capital.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    Tutorial
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/user_guide/capital.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="risk_workflow.html">Risk modeling workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">Time-window features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="univariate.html">Univariate profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="binning.html">Binning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="woe_iv.html">Weight of evidence and information value</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selection.html">Variable selection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reject_inference.html">Reject inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scorecard.html">Scorecard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="expert.html">Expert scorecards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">Model performance</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lgd.html">LGD and EAD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">Credit strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rules.html">Policy rules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spec.html">Binning specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="psi.html">Population stability index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">Model monitoring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="validation.html">Model validation</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">Regulatory capital</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vintage.html">Vintage and roll-rate analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lifetime.html">Lifetime PD and expected credit loss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html">Charts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">Example data</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">User guide</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Regulatory capital</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="regulatory-capital">
+<h1>Regulatory capital<a class="headerlink" href="#regulatory-capital" title="Link to this heading">#</a></h1>
+<p>A bank that uses the internal ratings-based (IRB) approach sets its capital requirement for credit risk from its own estimates of the probability of default (PD), the loss given default (LGD), the exposure at default (EAD) and the maturity of each exposure. Capital covers the unexpected loss: the loss of a year in which the economy is as bad as once in a thousand years, minus the expected loss that pricing and provisions already cover. The risk-weight functions that turn the estimates into that requirement are fixed by the Basel framework and by national rules such as China’s capital rules of 2023, and both rest on the one-factor model of Vasicek.</p>
+<p>The PDs come from the master scale of <a class="reference internal" href="calibration.html"><span class="doc">Calibration</span></a> and are reviewed in <a class="reference internal" href="validation.html"><span class="doc">Model validation</span></a>, the previous guide, and the expected loss that capital leaves out is that of <a class="reference internal" href="strategy.html"><span class="doc">Credit strategy</span></a>. <a class="reference internal" href="vintage.html"><span class="doc">Vintage and roll-rate analysis</span></a>, the next guide, follows the loans themselves, and <a class="reference internal" href="lifetime.html"><span class="doc">Lifetime PD and expected credit loss</span></a> turns the same PDs into the loss allowance of IFRS 9. <a class="reference internal" href="../api/capital.html#kivi.capital.asset_correlation" title="kivi.capital.asset_correlation"><code class="xref py py-func docutils literal notranslate"><span class="pre">asset_correlation()</span></code></a> gives the asset correlation of each asset class and <a class="reference internal" href="../api/capital.html#kivi.capital.capital_requirement" title="kivi.capital.capital_requirement"><code class="xref py py-func docutils literal notranslate"><span class="pre">capital_requirement()</span></code></a> the capital requirement. <a class="reference internal" href="../api/capital.html#kivi.capital.conditional_pd" title="kivi.capital.conditional_pd"><code class="xref py py-func docutils literal notranslate"><span class="pre">conditional_pd()</span></code></a> gives the PD of the one-factor model in a scenario of the economy, <a class="reference internal" href="../api/capital.html#kivi.capital.systematic_factor" title="kivi.capital.systematic_factor"><code class="xref py py-func docutils literal notranslate"><span class="pre">systematic_factor()</span></code></a> the state of the economy that an observed default rate implies, and <a class="reference internal" href="../api/capital.html#kivi.capital.vasicek_fit" title="kivi.capital.vasicek_fit"><code class="xref py py-func docutils literal notranslate"><span class="pre">vasicek_fit()</span></code></a> estimates the long-run PD and the correlation from a series of default rates. <a class="reference internal" href="../api/capital.html#kivi.capital.most_prudent_pd" title="kivi.capital.most_prudent_pd"><code class="xref py py-func docutils literal notranslate"><span class="pre">most_prudent_pd()</span></code></a> bounds the PDs of a portfolio with too few defaults to calibrate them.</p>
+<section id="definitions">
+<h2>Definitions<a class="headerlink" href="#definitions" title="Link to this heading">#</a></h2>
+<p>In the one-factor model, the assets of a borrower are <span class="math notranslate nohighlight">\(\sqrt{\rho}\,Z + \sqrt{1 - \rho}\,\varepsilon\)</span>, with a systematic factor <span class="math notranslate nohighlight">\(Z\)</span> that all borrowers share, an idiosyncratic factor <span class="math notranslate nohighlight">\(\varepsilon\)</span>, both standard normal, and the asset correlation <span class="math notranslate nohighlight">\(\rho\)</span>. The borrower defaults when its assets fall below <span class="math notranslate nohighlight">\(\Phi^{-1}(\mathrm{PD})\)</span>, where <span class="math notranslate nohighlight">\(\Phi\)</span> is the standard normal distribution function. Given the factor <span class="math notranslate nohighlight">\(z\)</span>, defaults are independent and occur with the conditional PD</p>
+<div class="math notranslate nohighlight">
+\[\mathrm{PD}(z) = \Phi\!\left( \frac{\Phi^{-1}(\mathrm{PD}) - \sqrt{\rho}\,z}{\sqrt{1 - \rho}} \right).\]</div>
+<p>A positive <span class="math notranslate nohighlight">\(z\)</span> stands for an economy better than on average. In a large portfolio the default rate equals the conditional PD, so the loss at the <span class="math notranslate nohighlight">\(q\)</span> quantile of the economy is that of <span class="math notranslate nohighlight">\(z = -\Phi^{-1}(q)\)</span>. The IRB approach takes <span class="math notranslate nohighlight">\(q = 0.999\)</span> and sets the capital requirement <span class="math notranslate nohighlight">\(K\)</span>, as a share of the EAD, to that loss minus the expected loss:</p>
+<div class="math notranslate nohighlight">
+\[K = \mathrm{LGD} \left[ \Phi\!\left(
+\frac{\Phi^{-1}(\mathrm{PD}) + \sqrt{R}\,\Phi^{-1}(0.999)}{\sqrt{1 - R}}
+\right) - \mathrm{PD} \right] \frac{1 + (M - 2.5)\,b}{1 - 1.5\,b},
+\qquad b = (0.11852 - 0.05478 \ln \mathrm{PD})^2.\]</div>
+<p>The asset correlation <span class="math notranslate nohighlight">\(R\)</span> depends on the asset class, and for corporate exposures falls from 0.24 to 0.12 as the PD rises:</p>
+<div class="math notranslate nohighlight">
+\[w = \frac{1 - e^{-50\,\mathrm{PD}}}{1 - e^{-50}}, \qquad R = 0.12\,w + 0.24\,(1 - w).\]</div>
+<p>The last factor is the maturity adjustment, with the effective maturity <span class="math notranslate nohighlight">\(M\)</span> in years; retail exposures have none. The risk-weighted assets are <span class="math notranslate nohighlight">\(\mathrm{RWA} = 12.5\,K\,\mathrm{EAD}\)</span>, and <span class="math notranslate nohighlight">\(12.5\,K\)</span> is the risk weight: the capital ratio of 8% applied to the RWA gives back <span class="math notranslate nohighlight">\(K\,\mathrm{EAD}\)</span>.</p>
+</section>
+<section id="a-worked-example">
+<h2>A worked example<a class="headerlink" href="#a-worked-example" title="Link to this heading">#</a></h2>
+<p>A corporate loan with a PD of 1%, an LGD of 45% and an effective maturity of 2.5 years:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.capital</span><span class="w"> </span><span class="kn">import</span> <span class="n">asset_correlation</span><span class="p">,</span> <span class="n">capital_requirement</span><span class="p">,</span> <span class="n">conditional_pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r</span> <span class="o">=</span> <span class="n">asset_correlation</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">asset_class</span><span class="o">=</span><span class="s2">"corporate"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stressed</span> <span class="o">=</span> <span class="n">conditional_pd</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">correlation</span><span class="o">=</span><span class="n">r</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mf">0.999</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">k</span> <span class="o">=</span> <span class="n">capital_requirement</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.45</span><span class="p">,</span> <span class="n">asset_class</span><span class="o">=</span><span class="s2">"corporate"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"R = </span><span class="si">{</span><span class="n">r</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2">, stressed PD = </span><span class="si">{</span><span class="n">stressed</span><span class="si">:</span><span class="s2">.4%</span><span class="si">}</span><span class="s2">, K = </span><span class="si">{</span><span class="n">k</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2">, risk weight = </span><span class="si">{</span><span class="mf">12.5</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">k</span><span class="si">:</span><span class="s2">.2%</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">R = 0.192784, stressed PD = 14.0273%, K = 0.073853, risk weight = 92.32%</span>
+</pre></div>
+</div>
+<p>With <span class="math notranslate nohighlight">\(w = (1 - e^{-0.5}) / (1 - e^{-50}) = 0.3935\)</span>, the correlation is 0.12 × 0.3935 + 0.24 × 0.6065 = 0.1928. In the worst year of a thousand, 14.03% of such loans default instead of 1%, so the loss beyond the expected one is 0.45 × (0.1403 − 0.01) = 0.0586 of the EAD. At 2.5 years the maturity adjustment is <span class="math notranslate nohighlight">\(1 / (1 - 1.5\,b) = 1.2598\)</span> with <span class="math notranslate nohighlight">\(b = 0.1375\)</span>, which gives K = 0.0739 and a risk weight of 92.32%, the value of Annex 5 of Basel II. An exposure of 1,000,000 has an RWA of 923,168 and needs 73,853 of capital.</p>
+</section>
+<section id="asset-classes">
+<h2>Asset classes<a class="headerlink" href="#asset-classes" title="Link to this heading">#</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">asset_class</span></code> argument selects the correlation and whether the maturity adjustment applies:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;corporate&quot;</span></code>: corporate, sovereign and bank exposures, with the correlation above and the maturity adjustment. <code class="docutils literal notranslate"><span class="pre">turnover</span></code> lowers the correlation of small and medium-sized enterprises (SMEs) by up to 0.04, and <code class="docutils literal notranslate"><span class="pre">financial=True</span></code> multiplies it by 1.25 for large or unregulated financial institutions.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;hvcre&quot;</span></code>: high-volatility commercial real estate, with 0.30 instead of 0.24 and the maturity adjustment.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;mortgage&quot;</span></code>: residential mortgages, with <span class="math notranslate nohighlight">\(R = 0.15\)</span>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;revolving&quot;</span></code>: qualifying revolving retail exposures, such as credit cards, with <span class="math notranslate nohighlight">\(R = 0.04\)</span>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;other_retail&quot;</span></code>: other retail exposures, with weights <span class="math notranslate nohighlight">\(e^{-35\,\mathrm{PD}}\)</span> and bounds 0.03 and 0.16 instead of 0.12 and 0.24.</p></li>
+</ul>
+<p>At a PD of 1% and an LGD of 45%, the classes differ by a factor of seven:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">classes</span> <span class="o">=</span> <span class="p">{</span>
+<span class="gp">... </span>    <span class="s2">"corporate"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"asset_class"</span><span class="p">:</span> <span class="s2">"corporate"</span><span class="p">},</span>
+<span class="gp">... </span>    <span class="s2">"SME, S = 5"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"asset_class"</span><span class="p">:</span> <span class="s2">"corporate"</span><span class="p">,</span> <span class="s2">"turnover"</span><span class="p">:</span> <span class="mf">5.0</span><span class="p">},</span>
+<span class="gp">... </span>    <span class="s2">"financial"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"asset_class"</span><span class="p">:</span> <span class="s2">"corporate"</span><span class="p">,</span> <span class="s2">"financial"</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+<span class="gp">... </span>    <span class="s2">"hvcre"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"asset_class"</span><span class="p">:</span> <span class="s2">"hvcre"</span><span class="p">},</span>
+<span class="gp">... </span>    <span class="s2">"mortgage"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"asset_class"</span><span class="p">:</span> <span class="s2">"mortgage"</span><span class="p">},</span>
+<span class="gp">... </span>    <span class="s2">"revolving"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"asset_class"</span><span class="p">:</span> <span class="s2">"revolving"</span><span class="p">},</span>
+<span class="gp">... </span>    <span class="s2">"other_retail"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"asset_class"</span><span class="p">:</span> <span class="s2">"other_retail"</span><span class="p">},</span>
+<span class="gp">... </span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">weights</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">{</span>
+<span class="gp">... </span>        <span class="n">name</span><span class="p">:</span> <span class="p">{</span>
+<span class="gp">... </span>            <span class="s2">"correlation"</span><span class="p">:</span> <span class="n">asset_correlation</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">),</span>
+<span class="gp">... </span>            <span class="s2">"risk_weight"</span><span class="p">:</span> <span class="mf">12.5</span> <span class="o">*</span> <span class="n">capital_requirement</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.45</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">),</span>
+<span class="gp">... </span>        <span class="p">}</span>
+<span class="gp">... </span>        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">options</span> <span class="ow">in</span> <span class="n">classes</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+<span class="gp">... </span>    <span class="p">}</span>
+<span class="gp">... </span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">weights</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">              correlation  risk_weight</span>
+<span class="go">corporate          0.1928       0.9232</span>
+<span class="go">SME, S = 5         0.1528       0.7239</span>
+<span class="go">financial          0.2410       1.1795</span>
+<span class="go">hvcre              0.2292       1.1150</span>
+<span class="go">mortgage           0.1500       0.5640</span>
+<span class="go">revolving          0.0400       0.1722</span>
+<span class="go">other_retail       0.1216       0.4577</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id1">
+<img alt="Risk weight against the PD on a logarithmic axis for the seven asset classes of the table, with an LGD of 45%" class="plot-directive" src="../_images/capital-1.svg" />
+<figcaption>
+<p><span class="caption-text">Risk weight of each asset class against the PD at an LGD of 45% and a maturity of 2.5 years, from 0.05%, the PD floor of most classes, to 30%. The corporate classes start highest, mortgages rise steepest and pass the corporate exposures at a PD of about 5%, and the qualifying revolving exposures weigh least up to a PD of about 7%.</span><a class="headerlink" href="#id1" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>A turnover <span class="math notranslate nohighlight">\(S\)</span> within the range <span class="math notranslate nohighlight">\([l, u]\)</span> of <code class="docutils literal notranslate"><span class="pre">turnover_range</span></code> lowers the corporate correlation by <span class="math notranslate nohighlight">\(0.04\,(1 - (S - l) / (u - l))\)</span>: by the full 0.04 at or below the lower bound, and not at all from the upper bound on. Pass <code class="docutils literal notranslate"><span class="pre">numpy.inf</span></code> for the borrowers of a portfolio that are not SMEs. With <code class="docutils literal notranslate"><span class="pre">financial=True</span></code>, a turnover below the upper bound raises an error, because the printed formula for financial institutions has no turnover term in either jurisdiction.</p>
+</section>
+<section id="parameters-of-basel-and-china">
+<h2>Parameters of Basel and China<a class="headerlink" href="#parameters-of-basel-and-china" title="Link to this heading">#</a></h2>
+<p>The risk-weight functions are the same in the current Basel framework (the CRE chapters in force since 1 January 2023) and in China’s <em>Rules on capital management of commercial banks</em> (NFRA order 2023 No. 4). The parameters around them differ, and kivi builds in neither set: the keywords take the Basel values by default, and the other rules are applied to the inputs before the call, such as a PD floor with <code class="docutils literal notranslate"><span class="pre">numpy.maximum</span></code>.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 18.0%" />
+<col style="width: 41.0%" />
+<col style="width: 41.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Basel framework</p></th>
+<th class="head"><p>China, 2023 rules</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Scaling factor 1.06</p></td>
+<td><p>Not applied; only Basel II of 2006 multiplied the RWA by 1.06, which the reforms of December 2017 removed (d424, footnote 3 of the table in the introduction). <code class="docutils literal notranslate"><span class="pre">scaling</span></code> defaults to 1.0.</p></td>
+<td><p>Not applied: RWA = K × 12.5 × EAD (annex 6, part I (4)).</p></td>
+</tr>
+<tr class="row-odd"><td><p>SME adjustment</p></td>
+<td><p><span class="math notranslate nohighlight">\(-0.04\,(1 - (S - 5) / 45)\)</span>, with <span class="math notranslate nohighlight">\(S\)</span> the annual sales in millions of euros, clipped to [5, 50] (CRE31.8); supervisors may allow total assets instead (CRE31.9). <code class="docutils literal notranslate"><span class="pre">turnover_range=(5.0,</span> <span class="pre">50.0)</span></code>.</p></td>
+<td><p><span class="math notranslate nohighlight">\(-0.04\,(1 - (S - 3) / 27)\)</span>, with <span class="math notranslate nohighlight">\(S\)</span> the average operating revenue of the last three years in tens of millions of yuan, and 3 below 3 (annex 6); an SME has at most 300 million yuan (annex 4, part II (3)). <code class="docutils literal notranslate"><span class="pre">turnover_range=(3.0,</span> <span class="pre">30.0)</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p>Financial institutions, × 1.25</p></td>
+<td><p>Regulated financial institutions with total assets of at least USD 100 billion, and unregulated financial institutions of any size (CRE31.7).</p></td>
+<td><p>Every financial institution except non-systemically important banks, which use the corporate correlation, with no threshold on assets (annex 6, part I (1) 2).</p></td>
+</tr>
+<tr class="row-odd"><td><p>High-volatility commercial real estate</p></td>
+<td><p><span class="math notranslate nohighlight">\(R = 0.12\,w + 0.30\,(1 - w)\)</span> (CRE31.11).</p></td>
+<td><p>The same (annex 8, part I (2)).</p></td>
+</tr>
+<tr class="row-even"><td><p>PD floors</p></td>
+<td><p>0.05% for all exposures except sovereigns (CRE32.4); for retail 0.05%, and 0.1% for revolving QRRE (CRE32.58). Basel II had 0.03%.</p></td>
+<td><p>0.05% for corporate exposures and financial institutions, none for sovereigns (article 91); for retail 0.05%, and 0.1% for general revolving retail. The rules of 2012 had 0.03%.</p></td>
+</tr>
+<tr class="row-odd"><td><p>LGD floors of the advanced approach</p></td>
+<td><p>Unsecured corporate 25%; secured by financial collateral 0%, by receivables or real estate 10%, by other physical collateral 15% (CRE32.16–32.17). Residential mortgages 5%, QRRE 50%, other unsecured retail 30% (CRE32.58–32.59).</p></td>
+<td><p>The same, except 10% for residential mortgages (article 92).</p></td>
+</tr>
+<tr class="row-even"><td><p>LGDs of the foundation approach</p></td>
+<td><p>Senior unsecured exposures to sovereigns, banks, securities firms and other financial institutions 45%, to other corporates 40%; subordinated exposures 75% (CRE32.6–32.7).</p></td>
+<td><p>The same: 45%, 40% and 75%.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Effective maturity</p></td>
+<td><p>2.5 years in the foundation approach, 0.5 years for repo-style transactions (CRE32.44); otherwise clipped to [1, 5] years (CRE32.46), with exceptions down to one day for short-term exposures (CRE32.51–32.54); 2.5 years when no other rule applies (CRE32.55).</p></td>
+<td><p>2.5 years in the foundation approach, 0.5 years for repo-style transactions; in the advanced approach the larger of the internal estimate and one year, at most five years, and 2.5 years allowed for SMEs (article 94).</p></td>
+</tr>
+<tr class="row-even"><td><p>Scope of the advanced approach</p></td>
+<td><p>Not for corporates with consolidated revenues above 500 million euros, nor for banks and other financial institutions (CRE30.34–30.35).</p></td>
+<td><p>Not for financial institutions, nor for corporates with annual revenues above 3 billion yuan (article 89).</p></td>
+</tr>
+<tr class="row-odd"><td><p>Output floor</p></td>
+<td><p>The RWA of the IRB approach may not fall below 72.5% of those of the standardized approach.</p></td>
+<td><p>RWA = max(RWA of the IRB approach, 72.5% × RWA of the standardized approach) (annex 21, part IV).</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">maturity</span></code> is not clipped to [1, 5] years, because of the short-term exceptions, so clip it with <code class="docutils literal notranslate"><span class="pre">numpy.clip</span></code> where the rules ask for it. The output floor applies to a whole portfolio and needs the RWA of the standardized approach, so kivi leaves it out.</p>
+<p>The SME adjustment of China’s rules, with <code class="docutils literal notranslate"><span class="pre">turnover</span></code> in tens of millions of yuan:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">asset_correlation</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="mf">0.01</span><span class="p">,</span> <span class="n">asset_class</span><span class="o">=</span><span class="s2">"corporate"</span><span class="p">,</span> <span class="n">turnover</span><span class="o">=</span><span class="p">[</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">,</span> <span class="mf">30.0</span><span class="p">],</span> <span class="n">turnover_range</span><span class="o">=</span><span class="p">(</span><span class="mf">3.0</span><span class="p">,</span> <span class="mf">30.0</span><span class="p">)</span>
+<span class="gp">... </span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">array([0.1528, 0.1632, 0.1928])</span>
+</pre></div>
+</div>
+</section>
+<section id="risk-weighted-assets-of-a-portfolio">
+<h2>Risk-weighted assets of a portfolio<a class="headerlink" href="#risk-weighted-assets-of-a-portfolio" title="Link to this heading">#</a></h2>
+<p>The value-by-value functions take arrays and Series, so one call per asset class covers a portfolio. A small book of corporate loans, mortgages and credit cards, with the PD floor of 0.05% applied first:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">book</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">{</span>
+<span class="gp">... </span>        <span class="s2">"asset_class"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"corporate"</span><span class="p">,</span> <span class="s2">"corporate"</span><span class="p">,</span> <span class="s2">"corporate"</span><span class="p">,</span> <span class="s2">"mortgage"</span><span class="p">,</span> <span class="s2">"mortgage"</span><span class="p">,</span> <span class="s2">"revolving"</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="s2">"probability"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.0003</span><span class="p">,</span> <span class="mf">0.004</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">,</span> <span class="mf">0.006</span><span class="p">,</span> <span class="mf">0.03</span><span class="p">,</span> <span class="mf">0.015</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="s2">"lgd"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.45</span><span class="p">,</span> <span class="mf">0.40</span><span class="p">,</span> <span class="mf">0.45</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.20</span><span class="p">,</span> <span class="mf">0.80</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="s2">"ead"</span><span class="p">:</span> <span class="p">[</span><span class="mf">5_000_000.0</span><span class="p">,</span> <span class="mf">2_000_000.0</span><span class="p">,</span> <span class="mf">800_000.0</span><span class="p">,</span> <span class="mf">300_000.0</span><span class="p">,</span> <span class="mf">250_000.0</span><span class="p">,</span> <span class="mf">20_000.0</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="s2">"maturity"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">}</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">floored</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">book</span><span class="p">[</span><span class="s2">"probability"</span><span class="p">],</span> <span class="mf">0.0005</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">requirement</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">book</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">asset_class</span><span class="p">,</span> <span class="n">rows</span> <span class="ow">in</span> <span class="n">book</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">"asset_class"</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">options</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"maturity"</span><span class="p">:</span> <span class="n">rows</span><span class="p">[</span><span class="s2">"maturity"</span><span class="p">]}</span> <span class="k">if</span> <span class="n">asset_class</span> <span class="o">==</span> <span class="s2">"corporate"</span> <span class="k">else</span> <span class="p">{}</span>
+<span class="gp">... </span>    <span class="n">requirement</span><span class="p">[</span><span class="n">rows</span><span class="o">.</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">capital_requirement</span><span class="p">(</span>
+<span class="gp">... </span>        <span class="n">floored</span><span class="p">[</span><span class="n">rows</span><span class="o">.</span><span class="n">index</span><span class="p">],</span> <span class="n">rows</span><span class="p">[</span><span class="s2">"lgd"</span><span class="p">],</span> <span class="n">asset_class</span><span class="o">=</span><span class="n">asset_class</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span>
+<span class="gp">... </span>    <span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">book</span><span class="p">[</span><span class="s2">"risk_weight"</span><span class="p">]</span> <span class="o">=</span> <span class="mf">12.5</span> <span class="o">*</span> <span class="n">requirement</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">book</span><span class="p">[</span><span class="s2">"rwa"</span><span class="p">]</span> <span class="o">=</span> <span class="n">book</span><span class="p">[</span><span class="s2">"risk_weight"</span><span class="p">]</span> <span class="o">*</span> <span class="n">book</span><span class="p">[</span><span class="s2">"ead"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">book</span><span class="p">[[</span><span class="s2">"asset_class"</span><span class="p">,</span> <span class="s2">"risk_weight"</span><span class="p">,</span> <span class="s2">"rwa"</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">({</span><span class="s2">"risk_weight"</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">"rwa"</span><span class="p">:</span> <span class="mi">0</span><span class="p">})</span>
+<span class="go">  asset_class  risk_weight        rwa</span>
+<span class="go">0   corporate       0.1122   560871.0</span>
+<span class="go">1   corporate       0.5575  1114981.0</span>
+<span class="go">2   corporate       1.3394  1071502.0</span>
+<span class="go">3    mortgage       0.1328    39848.0</span>
+<span class="go">4    mortgage       0.4977   124431.0</span>
+<span class="go">5   revolving       0.4159     8318.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">book</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">"asset_class"</span><span class="p">)[</span><span class="s2">"rwa"</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="go">asset_class</span>
+<span class="go">corporate    2747354.0</span>
+<span class="go">mortgage      164279.0</span>
+<span class="go">revolving       8318.0</span>
+<span class="go">Name: rwa, dtype: float64</span>
+</pre></div>
+</div>
+<p>The first loan has a PD of 0.03%, below the floor, so it is weighted at 0.05%, and its maturity of one year gives it a risk weight of 11.22% instead of the 19.65% of 2.5 years. The capital requirement is 8% of the RWA, 233,596 in total. <a class="reference internal" href="../api/strategy.html#kivi.strategy.expected_loss" title="kivi.strategy.expected_loss"><code class="xref py py-func docutils literal notranslate"><span class="pre">expected_loss()</span></code></a> gives the expected loss of the same exposures, which the IRB approach compares with the provisions.</p>
+</section>
+<section id="stressed-pds-and-the-systematic-factor">
+<h2>Stressed PDs and the systematic factor<a class="headerlink" href="#stressed-pds-and-the-systematic-factor" title="Link to this heading">#</a></h2>
+<p>The conditional PD of the one-factor model turns a long-run PD into the PD of a scenario of the economy. A factor of 0 is the median economy, which is better than the average one, and the 0.1% worst economy has <span class="math notranslate nohighlight">\(z = -\Phi^{-1}(0.999) = -3.09\)</span>:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">conditional_pd</span><span class="p">(</span><span class="mf">0.02</span><span class="p">,</span> <span class="n">correlation</span><span class="o">=</span><span class="mf">0.12</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">3.0902</span><span class="p">])</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">array([0.0053, 0.0143, 0.0344, 0.1473])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">conditional_pd</span><span class="p">(</span><span class="mf">0.02</span><span class="p">,</span><span class="w"> </span><span class="n">correlation</span><span class="o">=</span><span class="mf">0.12</span><span class="p">,</span><span class="w"> </span><span class="n">level</span><span class="o">=</span><span class="mf">0.999</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">0.1473</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">level=0.999</span></code> gives the PD that the capital formula uses. The factor of each year follows from its default rate with <a class="reference internal" href="../api/capital.html#kivi.capital.systematic_factor" title="kivi.capital.systematic_factor"><code class="xref py py-func docutils literal notranslate"><span class="pre">systematic_factor()</span></code></a>, the inverse of <a class="reference internal" href="../api/capital.html#kivi.capital.conditional_pd" title="kivi.capital.conditional_pd"><code class="xref py py-func docutils literal notranslate"><span class="pre">conditional_pd()</span></code></a>, and <a class="reference internal" href="../api/capital.html#kivi.capital.vasicek_fit" title="kivi.capital.vasicek_fit"><code class="xref py py-func docutils literal notranslate"><span class="pre">vasicek_fit()</span></code></a> estimates the long-run PD and the correlation from the mean and the variance of the default rates. Twenty years of a portfolio of 5,000 borrowers, simulated with a long-run PD of 2% and a correlation of 0.1:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.capital</span><span class="w"> </span><span class="kn">import</span> <span class="n">systematic_factor</span><span class="p">,</span> <span class="n">vasicek_fit</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">factor</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">standard_normal</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">defaults</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">binomial</span><span class="p">(</span><span class="mi">5000</span><span class="p">,</span> <span class="n">conditional_pd</span><span class="p">(</span><span class="mf">0.02</span><span class="p">,</span> <span class="n">correlation</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="n">factor</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">default_rate</span> <span class="o">=</span> <span class="n">defaults</span> <span class="o">/</span> <span class="mi">5000</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">probability</span><span class="p">,</span> <span class="n">correlation</span> <span class="o">=</span> <span class="n">vasicek_fit</span><span class="p">(</span><span class="n">default_rate</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"PD = </span><span class="si">{</span><span class="n">probability</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, correlation = </span><span class="si">{</span><span class="n">correlation</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">PD = 0.0217, correlation = 0.0927</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">implied</span> <span class="o">=</span> <span class="n">systematic_factor</span><span class="p">(</span><span class="n">default_rate</span><span class="p">,</span> <span class="n">probability</span><span class="p">,</span> <span class="n">correlation</span><span class="o">=</span><span class="n">correlation</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">corrcoef</span><span class="p">(</span><span class="n">implied</span><span class="p">,</span><span class="w"> </span><span class="n">factor</span><span class="p">)[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">0.989</span>
+</pre></div>
+</div>
+<p>Twenty years estimate the correlation only roughly: repeated simulations of this portfolio give estimates that scatter by about a third of the true correlation. The implied factors follow the simulated ones closely, and a scenario for the factor, such as a recession of <span class="math notranslate nohighlight">\(z = -2\)</span>, gives the stressed PD of each grade with <a class="reference internal" href="../api/capital.html#kivi.capital.conditional_pd" title="kivi.capital.conditional_pd"><code class="xref py py-func docutils literal notranslate"><span class="pre">conditional_pd()</span></code></a>.</p>
+</section>
+<section id="most-prudent-pds">
+<h2>Most prudent PDs<a class="headerlink" href="#most-prudent-pds" title="Link to this heading">#</a></h2>
+<p>A portfolio of banks, sovereigns or large corporates has so few defaults that its default rates cannot calibrate a PD. Pluto and Tasche bound the PD of each grade by the largest PD that the defaults observed in the grade and in all riskier grades do not reject at a confidence level, assuming only that the PD does not fall from one grade to the next riskier one. With <span class="math notranslate nohighlight">\(n_k\)</span> obligors and <span class="math notranslate nohighlight">\(d_k\)</span> defaults in grade <span class="math notranslate nohighlight">\(k\)</span> and the riskier grades together, the bound <span class="math notranslate nohighlight">\(p_k\)</span> solves</p>
+<div class="math notranslate nohighlight">
+\[P(D \le d_k) = 1 - q, \qquad D \sim \mathrm{Bin}(n_k, p_k),\]</div>
+<p>at the level <span class="math notranslate nohighlight">\(q\)</span>, so that without defaults <span class="math notranslate nohighlight">\(p_k = 1 - (1 - q)^{1/n_k}\)</span>. The example of their paper has three grades of 100, 400 and 300 obligors:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.capital</span><span class="w"> </span><span class="kn">import</span> <span class="n">most_prudent_pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">grades</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">([</span><span class="s2">"A"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"C"</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s2">"grade"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">total</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mi">100</span><span class="p">,</span> <span class="mi">400</span><span class="p">,</span> <span class="mi">300</span><span class="p">],</span> <span class="n">index</span><span class="o">=</span><span class="n">grades</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">{</span>
+<span class="gp">... </span>        <span class="s2">"no_defaults"</span><span class="p">:</span> <span class="n">most_prudent_pd</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">total</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mf">0.9</span><span class="p">),</span>
+<span class="gp">... </span>        <span class="s2">"defaults_0_2_1"</span><span class="p">:</span> <span class="n">most_prudent_pd</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">index</span><span class="o">=</span><span class="n">grades</span><span class="p">),</span> <span class="n">total</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mf">0.9</span><span class="p">),</span>
+<span class="gp">... </span>        <span class="s2">"correlated"</span><span class="p">:</span> <span class="n">most_prudent_pd</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">total</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span> <span class="n">correlation</span><span class="o">=</span><span class="mf">0.12</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="p">}</span>
+<span class="gp">... </span><span class="p">)</span><span class="o">.</span><span class="n">mul</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">       no_defaults  defaults_0_2_1  correlated</span>
+<span class="go">grade</span>
+<span class="go">A             0.29            0.83        0.86</span>
+<span class="go">B             0.33            0.95        0.96</span>
+<span class="go">C             0.76            1.29        1.89</span>
+</pre></div>
+</div>
+<p>Without defaults, grade A pools all 800 obligors: 1 − 0.1^(1/800) = 0.29%. Two defaults in B and one in C raise the bounds of every grade from C down, because they belong to the pooled grades. With the correlation of 0.12 that the paper takes from the Basel corporate formula, a year without defaults is less informative, since a good year makes defaults rare for all borrowers at once. The numbers are those of tables 1 to 9 of the paper at 90%.</p>
+</section>
+<section id="reading-the-result">
+<h2>Reading the result<a class="headerlink" href="#reading-the-result" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 75.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Result</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">correlation</span></code></p></td>
+<td><p>The asset correlation <span class="math notranslate nohighlight">\(R\)</span> of each exposure. A higher correlation means that defaults cluster in bad years, which raises the capital requirement.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">capital_requirement</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(K\)</span> as a share of the EAD. Multiply by 12.5 for the risk weight, by 12.5 × EAD for the RWA and by the EAD for the capital. It rises with the PD up to a PD of about 30% to 40%, beyond which the expected loss takes over the loss of the worst year, and in proportion to the LGD; for <code class="docutils literal notranslate"><span class="pre">&quot;corporate&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">&quot;hvcre&quot;</span></code> it also rises with the maturity.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">conditional_pd</span></code></p></td>
+<td><p>The PD in the scenario of the factor or the level. It lies below the long-run PD at a factor of 0, the median economy, and above it in bad enough years.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">factor</span></code></p></td>
+<td><p>The state of the economy that a default rate implies, in standard deviations; negative in years worse than on average.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">vasicek_fit</span></code></p></td>
+<td><p>The long-run PD and the asset correlation that the default rates imply, for comparison with the regulatory correlation or as inputs of a stress test.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">most_prudent_pd</span></code></p></td>
+<td><p>An upper bound of the PD of each grade at the level. Compare it with the PD of the grade: a PD above the bound is prudent enough for the data, and the bound shrinks as defaults stay absent and obligors accumulate.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="missing-values">
+<h2>Missing values<a class="headerlink" href="#missing-values" title="Link to this heading">#</a></h2>
+<p>The value-by-value functions give a missing result for a missing PD, LGD, default rate, factor or level, so a portfolio with gaps keeps its shape. A missing <code class="docutils literal notranslate"><span class="pre">turnover</span></code>, <code class="docutils literal notranslate"><span class="pre">maturity</span></code> or <code class="docutils literal notranslate"><span class="pre">correlation</span></code> raises an error instead, because it decides the formula: pass <code class="docutils literal notranslate"><span class="pre">numpy.inf</span></code> as the turnover of a borrower that is not an SME, and the maturity that the rules prescribe where it is unknown. Sums such as the RWA of a portfolio skip missing values in pandas, so check them before adding up. <a class="reference internal" href="../api/capital.html#kivi.capital.vasicek_fit" title="kivi.capital.vasicek_fit"><code class="xref py py-func docutils literal notranslate"><span class="pre">vasicek_fit()</span></code></a> and <a class="reference internal" href="../api/capital.html#kivi.capital.most_prudent_pd" title="kivi.capital.most_prudent_pd"><code class="xref py py-func docutils literal notranslate"><span class="pre">most_prudent_pd()</span></code></a> fit their inputs as a whole and raise on missing values.</p>
+</section>
+<section id="limits">
+<h2>Limits<a class="headerlink" href="#limits" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>The functions compute the risk-weight functions of exposures that are not in default. A defaulted exposure needs <span class="math notranslate nohighlight">\(K = \max(0, \mathrm{LGD} - \mathrm{ELBE})\)</span> with the best estimate of its expected loss (CRE31.3; China, annex 6, part II), which the bank computes directly.</p></li>
+<li><p>Credit risk mitigation, the substitution approach for guarantees, the EAD and its credit conversion factors, purchased receivables, specialized lending slotting and the output floor are outside kivi.</p></li>
+<li><p><a class="reference internal" href="../api/capital.html#kivi.capital.vasicek_fit" title="kivi.capital.vasicek_fit"><code class="xref py py-func docutils literal notranslate"><span class="pre">vasicek_fit()</span></code></a> assumes a portfolio large enough for its default rate to equal the conditional PD. The binomial noise of a small portfolio adds to the variance, and a short series estimates the correlation with a large error.</p></li>
+<li><p><a class="reference internal" href="../api/capital.html#kivi.capital.most_prudent_pd" title="kivi.capital.most_prudent_pd"><code class="xref py py-func docutils literal notranslate"><span class="pre">most_prudent_pd()</span></code></a> gives the bounds of one period. Over several years with correlated factors, the bounds of Pluto and Tasche need simulation, which kivi leaves out.</p></li>
+</ul>
+</section>
+<section id="errors-and-warnings">
+<h2>Errors and warnings<a class="headerlink" href="#errors-and-warnings" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>A PD at or below about 2.927e-6 for the corporate classes.</strong> The maturity adjustment divides by <span class="math notranslate nohighlight">\(1 - 1.5\,b\)</span>, which reaches 0 there, and below a PD of about 1e-5 the risk weight rises again as the PD falls: 2.8% at 1e-5, 46% at 3e-6 and 145% at 2.95e-6. Earlier versions of the framework set a negative requirement of a sovereign to zero; the current text has no such rule, so kivi raises an error. Apply the PD floor first, such as <code class="docutils literal notranslate"><span class="pre">numpy.maximum(probability,</span> <span class="pre">0.0005)</span></code>; sovereigns, which have no floor, still need a PD above the bound.</p></li>
+<li><p><strong>A PD of 1.</strong> The error names the formula of defaulted exposures above.</p></li>
+<li><p><strong>financial=True with a turnover below the upper bound.</strong> The formula for financial institutions has no SME term in either jurisdiction, so the two adjustments do not combine.</p></li>
+<li><p><strong>turnover, financial or maturity for a class that does not use them.</strong> <code class="docutils literal notranslate"><span class="pre">turnover</span></code> and <code class="docutils literal notranslate"><span class="pre">financial</span></code> belong to <code class="docutils literal notranslate"><span class="pre">&quot;corporate&quot;</span></code> only, and <code class="docutils literal notranslate"><span class="pre">maturity</span></code> to <code class="docutils literal notranslate"><span class="pre">&quot;corporate&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">&quot;hvcre&quot;</span></code>.</p></li>
+</ul>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="validation.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Model validation</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="vintage.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Vintage and roll-rate analysis</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#definitions">Definitions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-worked-example">A worked example</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#asset-classes">Asset classes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#parameters-of-basel-and-china">Parameters of Basel and China</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#risk-weighted-assets-of-a-portfolio">Risk-weighted assets of a portfolio</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#stressed-pds-and-the-systematic-factor">Stressed PDs and the systematic factor</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#most-prudent-pds">Most prudent PDs</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#reading-the-result">Reading the result</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#missing-values">Missing values</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#limits">Limits</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#errors-and-warnings">Errors and warnings</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1.
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

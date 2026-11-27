@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>约定 &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=d005c095" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=14f9d491"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script src="../_static/translations.js?v=540d3cec"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/conventions';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="next" title="兼容性" href="compatibility.html" />
+    <link rel="prev" title="API 参考" href="../api.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+  <meta name="docsearch:version" content="1.9.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">跳转至主要内容</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>回到顶部</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="版本警告"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="网页导航" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 1.9.0">1.9.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    教程
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../../en/api/conventions.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="当前页面" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    教程
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../../en/api/conventions.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="章节导航">
+  <p class="bd-links__title" role="heading" aria-level="1">章节导航</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">约定</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compatibility.html">兼容性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">术语表</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">时间窗特征</a></li>
+<li class="toctree-l1"><a class="reference internal" href="univariate.html">单变量概况</a></li>
+<li class="toctree-l1"><a class="reference internal" href="binning.html">分箱</a></li>
+<li class="toctree-l1"><a class="reference internal" href="woe.html">证据权重与信息值</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selection.html">变量筛选</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reject_inference.html">拒绝推断</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scorecard.html">评分卡</a></li>
+<li class="toctree-l1"><a class="reference internal" href="expert.html">专家评分卡</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">模型表现</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">校准</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lgd.html">LGD 与 EAD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">信贷策略</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rules.html">政策规则</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spec.html">分箱方案</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stability.html">群体稳定性指标</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">模型监控</a></li>
+<li class="toctree-l1"><a class="reference internal" href="capital.html">监管资本</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vintage.html">Vintage 与滚动率分析</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lifetime.html">存续期 PD 与预期信用损失</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html">图表</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">示例数据</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="初始页面">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../api.html" class="nav-link">API 参考</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">约定</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="conventions">
+<h1>约定<a class="headerlink" href="#conventions" title="链接到此标题。">#</a></h1>
+<p>kivi 的每个公共函数都遵守本页的规则。模块页面和各篇指南默认这些规则成立，docstring 只说明某个函数与之不同或在其之外补充的地方。</p>
+<section id="imports">
+<h2>导入<a class="headerlink" href="#imports" title="链接到此标题。">#</a></h2>
+<p>kivi 没有顶层导入。请从各自所在的模块导入函数，例如 <code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">kivi.woe</span> <span class="pre">import</span> <span class="pre">woe_table</span></code> ；每个模块在本参考中都有自己的页面。</p>
+<p>只有模块在 <code class="docutils literal notranslate"><span class="pre">__all__</span></code> 中列出的名称是公共的。 <a class="reference internal" href="compatibility.html"><span class="doc">兼容性</span></a> 说明版本可以改变其中哪些名称，以及如何预先公布这种改变。</p>
+<p>kivi 只依赖 NumPy 和 pandas。 <a class="reference internal" href="plotting.html#module-kivi.plotting" title="kivi.plotting"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.plotting</span></code></a> 还需要 matplotlib，可通过 <code class="docutils literal notranslate"><span class="pre">plot</span></code> 附加依赖安装（ <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">&quot;kivi[plot]&quot;</span></code> ）；它只在绘图时才导入 matplotlib，因此导入 kivi 从不需要 matplotlib。</p>
+</section>
+<section id="arguments">
+<h2>参数<a class="headerlink" href="#arguments" title="链接到此标题。">#</a></h2>
+<ul class="simple">
+<li><p>数据在前，目标变量在数据之后，例如 <code class="docutils literal notranslate"><span class="pre">woe_table(groups,</span> <span class="pre">target)</span></code> 、 <code class="docutils literal notranslate"><span class="pre">roc_auc(score,</span> <span class="pre">target)</span></code> 、 <code class="docutils literal notranslate"><span class="pre">stepwise(X,</span> <span class="pre">target)</span></code> 和 <code class="docutils literal notranslate"><span class="pre">fit_spec(frame,</span> <span class="pre">target)</span></code> 。有多个数据参数的函数先接收全部数据参数，再接收目标变量，例如 <code class="docutils literal notranslate"><span class="pre">swap_set(current,</span> <span class="pre">new,</span> <span class="pre">target)</span></code> ；预测概率放在目标变量之后，例如 <code class="docutils literal notranslate"><span class="pre">calibration_table(groups,</span> <span class="pre">target,</span> <span class="pre">probability)</span></code> 。连续型估计值的回测遵循同样的顺序，实际值处于目标变量的位置，估计值处于概率的位置，例如 <code class="docutils literal notranslate"><span class="pre">backtest_table(groups,</span> <span class="pre">realized,</span> <span class="pre">estimated)</span></code> ； <a class="reference internal" href="metrics.html#kivi.metrics.generalized_auc" title="kivi.metrics.generalized_auc"><code class="xref py py-func docutils literal notranslate"><span class="pre">generalized_auc()</span></code></a> 则像对待评分一样把估计分段作为数据，把实际分段作为目标，例如 <code class="docutils literal notranslate"><span class="pre">generalized_auc(estimated,</span> <span class="pre">realized)</span></code> 。scikit-learn 的指标函数把目标变量放在前面，从那里移植代码时请检查参数顺序。</p></li>
+<li><p>描述其他观测的数据（例如被拒绝的申请人）位于主样本的数据和目标变量之后，例如 <code class="docutils literal notranslate"><span class="pre">parceling(score,</span> <span class="pre">target,</span> <span class="pre">reject_score)</span></code> ，以及没有目标变量的 <code class="docutils literal notranslate"><span class="pre">reweighting(score,</span> <span class="pre">reject_score)</span></code> 。同样， <a class="reference internal" href="vintage.html#kivi.vintage.delinquency_panel" title="kivi.vintage.delinquency_panel"><code class="xref py py-func docutils literal notranslate"><span class="pre">delinquency_panel()</span></code></a> 的还款记录位于其还款计划之后，例如 <code class="docutils literal notranslate"><span class="pre">delinquency_panel(loan,</span> <span class="pre">due_date,</span> <span class="pre">amount_due,</span> <span class="pre">payment_loan,</span> <span class="pre">payment_date,</span> <span class="pre">payment_amount)</span></code> ； <a class="reference internal" href="lgd.html#kivi.lgd.workout_lgd" title="kivi.lgd.workout_lgd"><code class="xref py py-func docutils literal notranslate"><span class="pre">workout_lgd()</span></code></a> 的现金流位于其违约贷款之后，例如 <code class="docutils literal notranslate"><span class="pre">workout_lgd(loan,</span> <span class="pre">default_date,</span> <span class="pre">ead,</span> <span class="pre">flow_loan,</span> <span class="pre">flow_date,</span> <span class="pre">flow_amount,</span> <span class="pre">rate=rate)</span></code> ，回收为正，费用为负。</p></li>
+<li><p><a class="reference internal" href="features.html#module-kivi.features" title="kivi.features"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.features</span></code></a> 的函数与 <a class="reference internal" href="spec.html#kivi.spec.fit_spec" title="kivi.spec.fit_spec"><code class="xref py py-func docutils literal notranslate"><span class="pre">fit_spec()</span></code></a> 和 <a class="reference internal" href="univariate.html#kivi.univariate.profile_table" title="kivi.univariate.profile_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">profile_table()</span></code></a> 一样接受带列名的表：先是事件表或月度面板，然后是 <code class="docutils literal notranslate"><span class="pre">observations</span></code> ，每个主体和观察时间一行，例如申请人及其申请日期，如 <code class="docutils literal notranslate"><span class="pre">window_features(events,</span> <span class="pre">observations,</span> <span class="pre">id=...,</span> <span class="pre">time=...,</span> <span class="pre">observation_time=...)</span></code> 。列名以关键字参数给出。 <code class="docutils literal notranslate"><span class="pre">id</span></code> 在两张表中指明主体，其取值按相等匹配，因此 <code class="docutils literal notranslate"><span class="pre">1</span></code> 和 <code class="docutils literal notranslate"><span class="pre">&quot;1&quot;</span></code> 是不同的主体。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">X</span></code> 是数值型模型矩阵，例如 <a class="reference internal" href="selection.html#kivi.selection.stepwise" title="kivi.selection.stepwise"><code class="xref py py-func docutils literal notranslate"><span class="pre">stepwise()</span></code></a> 、 <a class="reference internal" href="selection.html#kivi.selection.logistic_regression" title="kivi.selection.logistic_regression"><code class="xref py py-func docutils literal notranslate"><span class="pre">logistic_regression()</span></code></a> 、 <a class="reference internal" href="selection.html#kivi.selection.selection_path" title="kivi.selection.selection_path"><code class="xref py py-func docutils literal notranslate"><span class="pre">selection_path()</span></code></a> 、 <a class="reference internal" href="selection.html#kivi.selection.vif" title="kivi.selection.vif"><code class="xref py py-func docutils literal notranslate"><span class="pre">vif()</span></code></a> 、 <a class="reference internal" href="selection.html#kivi.selection.vif_filter" title="kivi.selection.vif_filter"><code class="xref py py-func docutils literal notranslate"><span class="pre">vif_filter()</span></code></a> 、 <a class="reference internal" href="selection.html#kivi.selection.correlation_filter" title="kivi.selection.correlation_filter"><code class="xref py py-func docutils literal notranslate"><span class="pre">correlation_filter()</span></code></a> 和 <a class="reference internal" href="lgd.html#kivi.lgd.fractional_regression" title="kivi.lgd.fractional_regression"><code class="xref py py-func docutils literal notranslate"><span class="pre">fractional_regression()</span></code></a> 中的 <code class="docutils literal notranslate"><span class="pre">X</span></code> 。 <a class="reference internal" href="lgd.html#kivi.lgd.fractional_regression" title="kivi.lgd.fractional_regression"><code class="xref py py-func docutils literal notranslate"><span class="pre">fractional_regression()</span></code></a> 的 <code class="docutils literal notranslate"><span class="pre">response</span></code> 是 0 到 1 之间的连续目标，例如实际 LGD；二元目标则称为 <code class="docutils literal notranslate"><span class="pre">target</span></code> 。 <code class="docutils literal notranslate"><span class="pre">frame</span></code> 包含原始列，例如 <a class="reference internal" href="spec.html#kivi.spec.fit_spec" title="kivi.spec.fit_spec"><code class="xref py py-func docutils literal notranslate"><span class="pre">fit_spec()</span></code></a> 、 <a class="reference internal" href="univariate.html#kivi.univariate.profile_table" title="kivi.univariate.profile_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">profile_table()</span></code></a> 、 <a class="reference internal" href="rules.html#kivi.rules.rule_candidates" title="kivi.rules.rule_candidates"><code class="xref py py-func docutils literal notranslate"><span class="pre">rule_candidates()</span></code></a> 和 <a class="reference internal" href="spec.html#kivi.spec.BinningSpec.cut" title="kivi.spec.BinningSpec.cut"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BinningSpec.cut</span></code></a> 中的 <code class="docutils literal notranslate"><span class="pre">frame</span></code> ； <code class="docutils literal notranslate"><span class="pre">woe</span></code> 是 <a class="reference internal" href="scorecard.html#kivi.scorecard.woe_to_points" title="kivi.scorecard.woe_to_points"><code class="xref py py-func docutils literal notranslate"><span class="pre">woe_to_points()</span></code></a> 转换为分数的 WOE 值矩阵。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">rules</span></code> 是 <a class="reference internal" href="rules.html#module-kivi.rules" title="kivi.rules"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.rules</span></code></a> 中由政策规则组成的 DataFrame，每条规则一列，以规则命名，每个申请人一行，例如 <code class="docutils literal notranslate"><span class="pre">rule_table(rules,</span> <span class="pre">target)</span></code> 。每列为布尔值或 0 和 1，规则命中（即拒绝或标记该申请人）处为 True。 <a class="reference internal" href="rules.html#kivi.rules.rule_set_table" title="kivi.rules.rule_set_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">rule_set_table()</span></code></a> 按列的顺序应用这些规则。</p></li>
+<li><p>在 <a class="reference internal" href="expert.html#module-kivi.expert" title="kivi.expert"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.expert</span></code></a> 中， <code class="docutils literal notranslate"><span class="pre">matrix</span></code> 是两两比较的方阵：可以是索引和列以相同顺序给出相同因子标签的 DataFrame，也可以是数组或嵌套列表，此时因子从 0 起编号。其对角线必须为 1，元素必须互为倒数，即 <span class="math notranslate nohighlight">\(a_{ij} a_{ji} = 1\)</span> ，满足关键字参数 <code class="docutils literal notranslate"><span class="pre">rtol</span></code> 给出的相对容差，默认 1e-3，可以接受四舍五入到四位小数的倒数，例如用 0.3333 表示 1 / 3。 <a class="reference internal" href="lifetime.html#kivi.lifetime.transition_pd" title="kivi.lifetime.transition_pd"><code class="xref py py-func docutils literal notranslate"><span class="pre">transition_pd()</span></code></a> 的 <code class="docutils literal notranslate"><span class="pre">matrix</span></code> 则是转移矩阵，每行是总和为 1 的概率。</p></li>
+<li><p>在 <a class="reference internal" href="vintage.html#kivi.vintage.migration_bandwidth" title="kivi.vintage.migration_bandwidth"><code class="xref py py-func docutils literal notranslate"><span class="pre">migration_bandwidth()</span></code></a> 和 <a class="reference internal" href="vintage.html#kivi.vintage.migration_test" title="kivi.vintage.migration_test"><code class="xref py py-func docutils literal notranslate"><span class="pre">migration_test()</span></code></a> 中， <code class="docutils literal notranslate"><span class="pre">grades</span></code> 按从最好到最差的顺序列出评级体系的等级，至少两个。这两个函数像 <a class="reference internal" href="vintage.html#kivi.vintage.transition_matrix" title="kivi.vintage.transition_matrix"><code class="xref py py-func docutils literal notranslate"><span class="pre">transition_matrix()</span></code></a> 一样，接收每个客户在期初的等级和期末的状态，例如 <code class="docutils literal notranslate"><span class="pre">migration_test(before,</span> <span class="pre">after,</span> <span class="pre">grades=grades)</span></code> 。 <code class="docutils literal notranslate"><span class="pre">before</span></code> 的每个值都必须是等级；期末状态不是等级的客户（例如 <code class="docutils literal notranslate"><span class="pre">&quot;default&quot;</span></code> 或 <code class="docutils literal notranslate"><span class="pre">&quot;closed&quot;</span></code> ）只计入其期初等级的客户数。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">realized</span></code> 和 <code class="docutils literal notranslate"><span class="pre">estimated</span></code> 是连续值，例如一笔已结案违约的实际 LGD 及其估计值，可以落在 [0, 1] 之外。对 <a class="reference internal" href="metrics.html#kivi.metrics.generalized_auc" title="kivi.metrics.generalized_auc"><code class="xref py py-func docutils literal notranslate"><span class="pre">generalized_auc()</span></code></a> 而言，它们是有序的分段：数值按大小排序，有序分类变量按类别顺序排序。</p></li>
+<li><p>事件的预测概率（例如 PD）一律称为 <code class="docutils literal notranslate"><span class="pre">probability</span></code> ，例如 <code class="docutils literal notranslate"><span class="pre">brier_score(probability,</span> <span class="pre">target)</span></code> 、 <code class="docutils literal notranslate"><span class="pre">calibration_table(groups,</span> <span class="pre">target,</span> <span class="pre">probability)</span></code> 和 <code class="docutils literal notranslate"><span class="pre">expected_loss(probability,</span> <span class="pre">lgd,</span> <span class="pre">ead)</span></code> 。 <code class="docutils literal notranslate"><span class="pre">score</span></code> 的含义因模块而异，见 <a class="reference internal" href="#conventions-scores"><span class="std std-ref">目标变量、评分与概率</span></a> 。第二个概率参数按其含义命名，例如 <a class="reference internal" href="lifetime.html#kivi.lifetime.significant_increase" title="kivi.lifetime.significant_increase"><code class="xref py py-func docutils literal notranslate"><span class="pre">significant_increase()</span></code></a> 中的 <code class="docutils literal notranslate"><span class="pre">origination_probability</span></code> 。</p></li>
+<li><p>含义相同的选项在各个模块中同名，例如 <code class="docutils literal notranslate"><span class="pre">bins</span></code> 、 <code class="docutils literal notranslate"><span class="pre">special</span></code> 、 <code class="docutils literal notranslate"><span class="pre">smoothing</span></code> 、 <code class="docutils literal notranslate"><span class="pre">unseen</span></code> 和 <code class="docutils literal notranslate"><span class="pre">weights</span></code> 。 <code class="docutils literal notranslate"><span class="pre">level</span></code> 是区间或上界的置信水平，为严格介于 0 和 1 之间的数，默认 0.95，例如 <a class="reference internal" href="metrics.html#kivi.metrics.roc_auc_interval" title="kivi.metrics.roc_auc_interval"><code class="xref py py-func docutils literal notranslate"><span class="pre">roc_auc_interval()</span></code></a> 、 <a class="reference internal" href="metrics.html#kivi.metrics.generalized_auc" title="kivi.metrics.generalized_auc"><code class="xref py py-func docutils literal notranslate"><span class="pre">generalized_auc()</span></code></a> 和 <a class="reference internal" href="capital.html#kivi.capital.most_prudent_pd" title="kivi.capital.most_prudent_pd"><code class="xref py py-func docutils literal notranslate"><span class="pre">most_prudent_pd()</span></code></a> 。 <a class="reference internal" href="capital.html#kivi.capital.capital_requirement" title="kivi.capital.capital_requirement"><code class="xref py py-func docutils literal notranslate"><span class="pre">capital_requirement()</span></code></a> 的 <code class="docutils literal notranslate"><span class="pre">level</span></code> 是单因子模型的置信水平，按内部评级法的规定默认 0.999； <a class="reference internal" href="capital.html#kivi.capital.conditional_pd" title="kivi.capital.conditional_pd"><code class="xref py py-func docutils literal notranslate"><span class="pre">conditional_pd()</span></code></a> 的 <code class="docutils literal notranslate"><span class="pre">level</span></code> 则是经济状况的分位数，用来代替 <code class="docutils literal notranslate"><span class="pre">factor</span></code> 。</p></li>
+<li><p>对变量分箱时 <code class="docutils literal notranslate"><span class="pre">bins</span></code> 默认为 5，例如 <a class="reference internal" href="binning.html#kivi.binning.bin_edges" title="kivi.binning.bin_edges"><code class="xref py py-func docutils literal notranslate"><span class="pre">bin_edges()</span></code></a> 、 <a class="reference internal" href="spec.html#kivi.spec.fit_spec" title="kivi.spec.fit_spec"><code class="xref py py-func docutils literal notranslate"><span class="pre">fit_spec()</span></code></a> 和 <a class="reference internal" href="univariate.html#kivi.univariate.profile_table" title="kivi.univariate.profile_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">profile_table()</span></code></a> ；对评分划分区段时默认为 10，例如 <a class="reference internal" href="metrics.html#kivi.metrics.gains_table" title="kivi.metrics.gains_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">gains_table()</span></code></a> 、 <a class="reference internal" href="monitoring.html#kivi.monitoring.monitoring_table" title="kivi.monitoring.monitoring_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">monitoring_table()</span></code></a> 、 <a class="reference internal" href="reject_inference.html#kivi.reject_inference.parceling" title="kivi.reject_inference.parceling"><code class="xref py py-func docutils literal notranslate"><span class="pre">parceling()</span></code></a> 和 <a class="reference internal" href="reject_inference.html#kivi.reject_inference.reweighting" title="kivi.reject_inference.reweighting"><code class="xref py py-func docutils literal notranslate"><span class="pre">reweighting()</span></code></a> 。 <a class="reference internal" href="strategy.html#kivi.strategy.cutoff_table" title="kivi.strategy.cutoff_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">cutoff_table()</span></code></a> 和 <a class="reference internal" href="strategy.html#kivi.strategy.confusion_table" title="kivi.strategy.confusion_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">confusion_table()</span></code></a> 的 <code class="docutils literal notranslate"><span class="pre">cutoffs</span></code> 同样默认为 10 个区段。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">asset_class</span></code> 选择 <a class="reference internal" href="capital.html#module-kivi.capital" title="kivi.capital"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.capital</span></code></a> 的风险权重函数： <code class="docutils literal notranslate"><span class="pre">&quot;corporate&quot;</span></code> 、 <code class="docutils literal notranslate"><span class="pre">&quot;hvcre&quot;</span></code> 、 <code class="docutils literal notranslate"><span class="pre">&quot;mortgage&quot;</span></code> 、 <code class="docutils literal notranslate"><span class="pre">&quot;revolving&quot;</span></code> 或 <code class="docutils literal notranslate"><span class="pre">&quot;other_retail&quot;</span></code> 。它只能以关键字传入且没有默认值，因为资产类别决定公式。那里的 <code class="docutils literal notranslate"><span class="pre">correlation</span></code> 是不小于 0 且小于 1 的资产相关系数，在 <a class="reference internal" href="capital.html#kivi.capital.systematic_factor" title="kivi.capital.systematic_factor"><code class="xref py py-func docutils literal notranslate"><span class="pre">systematic_factor()</span></code></a> 中须大于 0； <code class="docutils literal notranslate"><span class="pre">turnover</span></code> 和 <code class="docutils literal notranslate"><span class="pre">maturity</span></code> 采用规则中的单位，例如百万欧元和年。</p></li>
+<li><p>在各行是分组的地方， <code class="docutils literal notranslate"><span class="pre">event</span></code> 是每组的事件数，例如 <a class="reference internal" href="calibration.html#kivi.calibration.fit_grade_pd" title="kivi.calibration.fit_grade_pd"><code class="xref py py-func docutils literal notranslate"><span class="pre">fit_grade_pd()</span></code></a> 和 <a class="reference internal" href="capital.html#kivi.capital.most_prudent_pd" title="kivi.capital.most_prudent_pd"><code class="xref py py-func docutils literal notranslate"><span class="pre">most_prudent_pd()</span></code></a> （二者把它与 <code class="docutils literal notranslate"><span class="pre">total</span></code> 一起传入），以及各表中的 <code class="docutils literal notranslate"><span class="pre">event</span></code> 列。在 <a class="reference internal" href="lifetime.html#kivi.lifetime.survival_table" title="kivi.lifetime.survival_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">survival_table()</span></code></a> 中，它则是每个账户的 0/1 标志，与之并列的 <code class="docutils literal notranslate"><span class="pre">competing</span></code> 是因其他原因（例如提前还款）退出的标志，二者在同一行上不会都为 1。 <code class="docutils literal notranslate"><span class="pre">duration</span></code> 是账户违约、退出或最后一次被观测的期数，为正整数； <code class="docutils literal notranslate"><span class="pre">entry</span></code> 是账户开始被观测之前经过的期数。</p></li>
+<li><p>对单个变量的函数， <code class="docutils literal notranslate"><span class="pre">special</span></code> 是特殊值的列表；对 <a class="reference internal" href="spec.html#kivi.spec.fit_spec" title="kivi.spec.fit_spec"><code class="xref py py-func docutils literal notranslate"><span class="pre">fit_spec()</span></code></a> 、 <a class="reference internal" href="univariate.html#kivi.univariate.profile_table" title="kivi.univariate.profile_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">profile_table()</span></code></a> 和 <a class="reference internal" href="rules.html#kivi.rules.rule_candidates" title="kivi.rules.rule_candidates"><code class="xref py py-func docutils literal notranslate"><span class="pre">rule_candidates()</span></code></a> ，它是按列给出的 dict，这些函数拒绝列表。</p></li>
+<li><p>有些选项名称相近但含义不同。 <a class="reference internal" href="binning.html#kivi.binning.category_groups" title="kivi.binning.category_groups"><code class="xref py py-func docutils literal notranslate"><span class="pre">category_groups()</span></code></a> 的 <code class="docutils literal notranslate"><span class="pre">min_share</span></code> 是低于它即视为稀有类别的占比，而 <a class="reference internal" href="binning.html#kivi.binning.chimerge_edges" title="kivi.binning.chimerge_edges"><code class="xref py py-func docutils literal notranslate"><span class="pre">chimerge_edges()</span></code></a> 、 <a class="reference internal" href="binning.html#kivi.binning.tree_edges" title="kivi.binning.tree_edges"><code class="xref py py-func docutils literal notranslate"><span class="pre">tree_edges()</span></code></a> 、 <a class="reference internal" href="binning.html#kivi.binning.ks_edges" title="kivi.binning.ks_edges"><code class="xref py py-func docutils literal notranslate"><span class="pre">ks_edges()</span></code></a> 、 <a class="reference internal" href="binning.html#kivi.binning.monotonic_edges" title="kivi.binning.monotonic_edges"><code class="xref py py-func docutils literal notranslate"><span class="pre">monotonic_edges()</span></code></a> 、 <a class="reference internal" href="binning.html#kivi.binning.optimal_edges" title="kivi.binning.optimal_edges"><code class="xref py py-func docutils literal notranslate"><span class="pre">optimal_edges()</span></code></a> 和 <a class="reference internal" href="binning.html#kivi.binning.variance_edges" title="kivi.binning.variance_edges"><code class="xref py py-func docutils literal notranslate"><span class="pre">variance_edges()</span></code></a> 的 <code class="docutils literal notranslate"><span class="pre">min_bin_share</span></code> 以及 <a class="reference internal" href="binning.html#kivi.binning.chimerge_groups" title="kivi.binning.chimerge_groups"><code class="xref py py-func docutils literal notranslate"><span class="pre">chimerge_groups()</span></code></a> 的 <code class="docutils literal notranslate"><span class="pre">min_group_share</span></code> 设定结果中最小的分箱或分组， <a class="reference internal" href="binning.html#kivi.binning.optimal_edges" title="kivi.binning.optimal_edges"><code class="xref py py-func docutils literal notranslate"><span class="pre">optimal_edges()</span></code></a> 的 <code class="docutils literal notranslate"><span class="pre">min_bin_events</span></code> 则设定每箱最少的事件数和非事件数，单位是权重。 <a class="reference internal" href="rules.html#kivi.rules.rule_candidates" title="kivi.rules.rule_candidates"><code class="xref py py-func docutils literal notranslate"><span class="pre">rule_candidates()</span></code></a> 的 <code class="docutils literal notranslate"><span class="pre">min_hit_rate</span></code> 是一条规则至少要命中的全部行的占比。只有 <a class="reference internal" href="binning.html#kivi.binning.monotonic_edges" title="kivi.binning.monotonic_edges"><code class="xref py py-func docutils literal notranslate"><span class="pre">monotonic_edges()</span></code></a> 接受 <code class="docutils literal notranslate"><span class="pre">max_bins=None</span></code> ，此时只合并分箱直到 WOE 单调。它的 <code class="docutils literal notranslate"><span class="pre">direction</span></code> 取 <code class="docutils literal notranslate"><span class="pre">&quot;increasing&quot;</span></code> 、 <code class="docutils literal notranslate"><span class="pre">&quot;decreasing&quot;</span></code> 或 <code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code> ，而 <a class="reference internal" href="binning.html#kivi.binning.optimal_edges" title="kivi.binning.optimal_edges"><code class="xref py py-func docutils literal notranslate"><span class="pre">optimal_edges()</span></code></a> 的 <code class="docutils literal notranslate"><span class="pre">trend</span></code> 像 <a class="reference internal" href="woe.html#kivi.woe.woe_trend" title="kivi.woe.woe_trend"><code class="xref py py-func docutils literal notranslate"><span class="pre">woe_trend()</span></code></a> 那样指定 WOE 的形状，包括 U 形， <a class="reference internal" href="binning.html#kivi.binning.variance_edges" title="kivi.binning.variance_edges"><code class="xref py py-func docutils literal notranslate"><span class="pre">variance_edges()</span></code></a> 的 <code class="docutils literal notranslate"><span class="pre">trend</span></code> 则以同样的方式指定平均响应的形状。 <code class="docutils literal notranslate"><span class="pre">unseen</span></code> 说明如何处理表中没有的分组，默认为 <code class="docutils literal notranslate"><span class="pre">&quot;raise&quot;</span></code> ；而 <code class="docutils literal notranslate"><span class="pre">unseen_points</span></code> 是一个分数值或 None。 <code class="docutils literal notranslate"><span class="pre">method</span></code> 在 <a class="reference internal" href="binning.html#kivi.binning.bin_edges" title="kivi.binning.bin_edges"><code class="xref py py-func docutils literal notranslate"><span class="pre">bin_edges()</span></code></a> 、 <a class="reference internal" href="spec.html#kivi.spec.fit_spec" title="kivi.spec.fit_spec"><code class="xref py py-func docutils literal notranslate"><span class="pre">fit_spec()</span></code></a> 和 <a class="reference internal" href="rules.html#kivi.rules.rule_candidates" title="kivi.rules.rule_candidates"><code class="xref py py-func docutils literal notranslate"><span class="pre">rule_candidates()</span></code></a> 中指分箱方法，在 <a class="reference internal" href="selection.html#kivi.selection.correlation_filter" title="kivi.selection.correlation_filter"><code class="xref py py-func docutils literal notranslate"><span class="pre">correlation_filter()</span></code></a> 中指相关系数，在 <a class="reference internal" href="expert.html#kivi.expert.ahp_weights" title="kivi.expert.ahp_weights"><code class="xref py py-func docutils literal notranslate"><span class="pre">ahp_weights()</span></code></a> 中指权重的估计方法。 <code class="docutils literal notranslate"><span class="pre">rate</span></code> 在 <a class="reference internal" href="lifetime.html#kivi.lifetime.expected_credit_loss" title="kivi.lifetime.expected_credit_loss"><code class="xref py py-func docutils literal notranslate"><span class="pre">expected_credit_loss()</span></code></a> 中是每期的利率，在 <a class="reference internal" href="lgd.html#kivi.lgd.workout_lgd" title="kivi.lgd.workout_lgd"><code class="xref py py-func docutils literal notranslate"><span class="pre">workout_lgd()</span></code></a> 中是年利率，可以所有贷款共用一个，也可以每笔贷款一个。</p></li>
+<li><p><a class="reference internal" href="strategy.html#kivi.strategy.cutoff_table" title="kivi.strategy.cutoff_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">cutoff_table()</span></code></a> 的 <code class="docutils literal notranslate"><span class="pre">loss</span></code> 和 <code class="docutils literal notranslate"><span class="pre">revenue</span></code> 是每个申请人的金额，须有限且非负，并像目标变量一样匹配；截断点的 <code class="docutils literal notranslate"><span class="pre">profit</span></code> 是其收益减去损失，因此资金成本、获客成本等费用应计入 <code class="docutils literal notranslate"><span class="pre">loss</span></code> 。 <a class="reference internal" href="metrics.html#kivi.metrics.expected_maximum_profit" title="kivi.metrics.expected_maximum_profit"><code class="xref py py-func docutils literal notranslate"><span class="pre">expected_maximum_profit()</span></code></a> 的 <code class="docutils literal notranslate"><span class="pre">no_loss_share</span></code> 、 <code class="docutils literal notranslate"><span class="pre">full_loss_share</span></code> 和 <code class="docutils literal notranslate"><span class="pre">roi</span></code> 则描述一个资产组合：违约毫无损失的概率、违约损失全部贷款的概率，以及以放款金额的比例表示的好贷款回报。</p></li>
+<li><p>可能有两种理解的参考对象会分成两个参数。 <a class="reference internal" href="monitoring.html#module-kivi.monitoring" title="kivi.monitoring"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.monitoring</span></code></a> 的函数要么接收 <code class="docutils literal notranslate"><span class="pre">reference_period</span></code> （期间参数中的一个标签），要么接收 <code class="docutils literal notranslate"><span class="pre">reference_score</span></code> 或 <code class="docutils literal notranslate"><span class="pre">reference_groups</span></code> 中的基准样本；两者必须恰好给出一个，否则引发错误。</p></li>
+<li><p>数据以及函数要应用的拟合结果（例如 <a class="reference internal" href="binning.html#kivi.binning.cut" title="kivi.binning.cut"><code class="xref py py-func docutils literal notranslate"><span class="pre">cut()</span></code></a> 的边界或 <a class="reference internal" href="woe.html#kivi.woe.woe_transform" title="kivi.woe.woe_transform"><code class="xref py py-func docutils literal notranslate"><span class="pre">woe_transform()</span></code></a> 的表）是位置参数。其后的所有选项都仅限关键字。 <a class="reference internal" href="binning.html#kivi.binning.bin_edges" title="kivi.binning.bin_edges"><code class="xref py py-func docutils literal notranslate"><span class="pre">bin_edges()</span></code></a> 的箱数是唯一也可以按位置传入的选项：</p></li>
+</ul>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.binning</span><span class="w"> </span><span class="kn">import</span> <span class="n">bin_edges</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bin_edges</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span>
+<span class="go">array([-inf,  2.5,  inf])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bin_edges</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="mi">2</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">"uniform"</span><span class="p">)</span>
+<span class="go">array([-inf,  2.5,  inf])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bin_edges</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">"uniform"</span><span class="p">)</span>
+<span class="gt">Traceback (most recent call last):</span>
+<span class="w">    </span><span class="o">...</span>
+<span class="gr">TypeError</span>: <span class="n">bin_edges() takes from 1 to 2 positional arguments but 3 were given</span>
+</pre></div>
+</div>
+</section>
+<section id="inputs-and-results">
+<h2>输入与结果<a class="headerlink" href="#inputs-and-results" title="链接到此标题。">#</a></h2>
+<ul class="simple">
+<li><p>一维输入是类数组（array_like）：列表、NumPy 数组或 pandas Series。同时处理多列的函数，例如 <a class="reference internal" href="selection.html#kivi.selection.stepwise" title="kivi.selection.stepwise"><code class="xref py py-func docutils literal notranslate"><span class="pre">stepwise()</span></code></a> 或 <a class="reference internal" href="spec.html#kivi.spec.fit_spec" title="kivi.spec.fit_spec"><code class="xref py py-func docutils literal notranslate"><span class="pre">fit_spec()</span></code></a> ，接收 DataFrame。</p></li>
+<li><p>分箱函数用 <code class="docutils literal notranslate"><span class="pre">pandas.to_numeric</span></code> 读取 <code class="docutils literal notranslate"><span class="pre">values</span></code> ，因此数字字符串和布尔值在那里都算作数值。特殊值不能是布尔值，因为 <code class="docutils literal notranslate"><span class="pre">True</span> <span class="pre">==</span> <span class="pre">1</span></code> ；而 <a class="reference internal" href="spec.html#kivi.spec.fit_spec" title="kivi.spec.fit_spec"><code class="xref py py-func docutils literal notranslate"><span class="pre">fit_spec()</span></code></a> 把布尔列当作类别列分组，而不是对其分箱。</p></li>
+<li><p>日期（例如 <a class="reference internal" href="vintage.html#kivi.vintage.delinquency_panel" title="kivi.vintage.delinquency_panel"><code class="xref py py-func docutils literal notranslate"><span class="pre">delinquency_panel()</span></code></a> 的到期日和还款日期、 <a class="reference internal" href="lgd.html#kivi.lgd.workout_lgd" title="kivi.lgd.workout_lgd"><code class="xref py py-func docutils literal notranslate"><span class="pre">workout_lgd()</span></code></a> 的违约日期和现金流日期，以及 <a class="reference internal" href="datasets.html#kivi.datasets.make_transactions" title="kivi.datasets.make_transactions"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_transactions()</span></code></a> 的申请日期）用 <code class="docutils literal notranslate"><span class="pre">pandas.to_datetime</span></code> 读取，可以是日期时间，也可以是字符串。数字会引发错误，而不会被当作自 1970 年起的纳秒数读取；一天中的时间被忽略；带时区的日期保留其当地日期。 <a class="reference internal" href="lgd.html#kivi.lgd.workout_lgd" title="kivi.lgd.workout_lgd"><code class="xref py py-func docutils literal notranslate"><span class="pre">workout_lgd()</span></code></a> 和 <a class="reference internal" href="datasets.html#kivi.datasets.make_transactions" title="kivi.datasets.make_transactions"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_transactions()</span></code></a> 还拒绝 Period，可以用 <code class="docutils literal notranslate"><span class="pre">.dt.to_timestamp()</span></code> 转换。</p></li>
+<li><p><a class="reference internal" href="features.html#module-kivi.features" title="kivi.features"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.features</span></code></a> 的时间列要求更严格：它们必须已经是日期时间类型，字符串会引发错误并提示使用 <code class="docutils literal notranslate"><span class="pre">pandas.to_datetime</span></code> ，因为解析大型事件表中的字符串很慢，其格式也可能有歧义。它们保留一天中的时间。事件和观察的时间要么都不带时区，要么在同一个时区（按名称比较），其他组合都会引发错误；有时区时，窗口边界按当地日历计算，事件按时刻比较。 <a class="reference internal" href="features.html#kivi.features.panel_features" title="kivi.features.panel_features"><code class="xref py py-func docutils literal notranslate"><span class="pre">panel_features()</span></code></a> 的 <code class="docutils literal notranslate"><span class="pre">month</span></code> 可以是月度 Period 或日期时间，月份和观察时间各按自己的日历取月，因此带时区的月份和带时区的观察时间必须在同一个时区。</p></li>
+<li><p>每个输入值对应一个结果值时，结果的形状与输入相同。传入 Series 得到索引和名称都相同的 Series，传入其他类数组得到 NumPy 数组，传入单个数得到 float。 <a class="reference internal" href="binning.html#kivi.binning.cut" title="kivi.binning.cut"><code class="xref py py-func docutils literal notranslate"><span class="pre">cut()</span></code></a> 和 <a class="reference internal" href="calibration.html#kivi.calibration.assign_grades" title="kivi.calibration.assign_grades"><code class="xref py py-func docutils literal notranslate"><span class="pre">assign_grades()</span></code></a> 返回的是分组，因此输入不是 Series 时，它们返回 <code class="docutils literal notranslate"><span class="pre">pandas.Categorical</span></code> ：</p></li>
+</ul>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">prior_correction</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rates</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">sample_rate</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">population_rate</span><span class="o">=</span><span class="mf">0.02</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">prior_correction</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">],</span> <span class="o">**</span><span class="n">rates</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">array([0.02  , 0.0051])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">prior_correction</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">],</span> <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="s2">"a"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s2">"pd"</span><span class="p">),</span> <span class="o">**</span><span class="n">rates</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">a    0.0200</span>
+<span class="go">b    0.0051</span>
+<span class="go">Name: pd, dtype: float64</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">round</span><span class="p">(</span><span class="n">prior_correction</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="o">**</span><span class="n">rates</span><span class="p">),</span> <span class="mi">4</span><span class="p">)</span>
+<span class="go">0.02</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Series 结果采用第一个数据参数的名称， <a class="reference internal" href="scorecard.html#kivi.scorecard.pd_to_score" title="kivi.scorecard.pd_to_score"><code class="xref py py-func docutils literal notranslate"><span class="pre">pd_to_score()</span></code></a> 、 <a class="reference internal" href="binning.html#kivi.binning.cut" title="kivi.binning.cut"><code class="xref py py-func docutils literal notranslate"><span class="pre">cut()</span></code></a> 和 <a class="reference internal" href="woe.html#kivi.woe.woe_transform" title="kivi.woe.woe_transform"><code class="xref py py-func docutils literal notranslate"><span class="pre">woe_transform()</span></code></a> 的结果都是如此，因此由名为 <code class="docutils literal notranslate"><span class="pre">pd</span></code> 的 Series 算出的评分也名为 <code class="docutils literal notranslate"><span class="pre">pd</span></code> 。表示新量的结果以该量命名： <a class="reference internal" href="woe.html#kivi.woe.woe" title="kivi.woe.woe"><code class="xref py py-func docutils literal notranslate"><span class="pre">woe()</span></code></a> 把结果命名为 <code class="docutils literal notranslate"><span class="pre">woe</span></code> ， <a class="reference internal" href="strategy.html#kivi.strategy.expected_loss" title="kivi.strategy.expected_loss"><code class="xref py py-func docutils literal notranslate"><span class="pre">expected_loss()</span></code></a> 命名为 <code class="docutils literal notranslate"><span class="pre">expected_loss</span></code> ， <a class="reference internal" href="lifetime.html#kivi.lifetime.significant_increase" title="kivi.lifetime.significant_increase"><code class="xref py py-func docutils literal notranslate"><span class="pre">significant_increase()</span></code></a> 命名为 <code class="docutils literal notranslate"><span class="pre">significant_increase</span></code> ， <a class="reference internal" href="lifetime.html#kivi.lifetime.assign_stages" title="kivi.lifetime.assign_stages"><code class="xref py py-func docutils literal notranslate"><span class="pre">assign_stages()</span></code></a> 命名为 <code class="docutils literal notranslate"><span class="pre">stage</span></code> ， <a class="reference internal" href="reject_inference.html#kivi.reject_inference.reweighting" title="kivi.reject_inference.reweighting"><code class="xref py py-func docutils literal notranslate"><span class="pre">reweighting()</span></code></a> 、 <a class="reference internal" href="expert.html#kivi.expert.ahp_weights" title="kivi.expert.ahp_weights"><code class="xref py py-func docutils literal notranslate"><span class="pre">ahp_weights()</span></code></a> 和 <a class="reference internal" href="expert.html#kivi.expert.combine_weights" title="kivi.expert.combine_weights"><code class="xref py py-func docutils literal notranslate"><span class="pre">combine_weights()</span></code></a> 命名为 <code class="docutils literal notranslate"><span class="pre">weight</span></code> ， <a class="reference internal" href="capital.html#kivi.capital.asset_correlation" title="kivi.capital.asset_correlation"><code class="xref py py-func docutils literal notranslate"><span class="pre">asset_correlation()</span></code></a> 命名为 <code class="docutils literal notranslate"><span class="pre">correlation</span></code> ， <a class="reference internal" href="capital.html#kivi.capital.capital_requirement" title="kivi.capital.capital_requirement"><code class="xref py py-func docutils literal notranslate"><span class="pre">capital_requirement()</span></code></a> 命名为 <code class="docutils literal notranslate"><span class="pre">capital_requirement</span></code> ， <a class="reference internal" href="capital.html#kivi.capital.conditional_pd" title="kivi.capital.conditional_pd"><code class="xref py py-func docutils literal notranslate"><span class="pre">conditional_pd()</span></code></a> 命名为 <code class="docutils literal notranslate"><span class="pre">conditional_pd</span></code> ， <a class="reference internal" href="capital.html#kivi.capital.systematic_factor" title="kivi.capital.systematic_factor"><code class="xref py py-func docutils literal notranslate"><span class="pre">systematic_factor()</span></code></a> 命名为 <code class="docutils literal notranslate"><span class="pre">factor</span></code> ， <a class="reference internal" href="capital.html#kivi.capital.most_prudent_pd" title="kivi.capital.most_prudent_pd"><code class="xref py py-func docutils literal notranslate"><span class="pre">most_prudent_pd()</span></code></a> 命名为 <code class="docutils literal notranslate"><span class="pre">most_prudent_pd</span></code> ， <a class="reference internal" href="lgd.html#kivi.lgd.conversion_factor" title="kivi.lgd.conversion_factor"><code class="xref py py-func docutils literal notranslate"><span class="pre">conversion_factor()</span></code></a> 命名为 <code class="docutils literal notranslate"><span class="pre">ccf</span></code> 。 <a class="reference internal" href="capital.html#module-kivi.capital" title="kivi.capital"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.capital</span></code></a> 中逐值计算的函数会把各输入相互广播，因此一次调用就能覆盖一个组合：每笔敞口有自己的 PD、LGD 和期限，资产类别则只有一个。</p></li>
+<li><p>有些输入即使只有一个敞口也必须是一维的。 <a class="reference internal" href="lifetime.html#kivi.lifetime.significant_increase" title="kivi.lifetime.significant_increase"><code class="xref py py-func docutils literal notranslate"><span class="pre">significant_increase()</span></code></a> 和 <a class="reference internal" href="lifetime.html#kivi.lifetime.assign_stages" title="kivi.lifetime.assign_stages"><code class="xref py py-func docutils literal notranslate"><span class="pre">assign_stages()</span></code></a> 对单个数值会引发错误，而 <a class="reference internal" href="lifetime.html#kivi.lifetime.expected_credit_loss" title="kivi.lifetime.expected_credit_loss"><code class="xref py py-func docutils literal notranslate"><span class="pre">expected_credit_loss()</span></code></a> 要求每个账户一行，因此请把 <a class="reference internal" href="lifetime.html#kivi.lifetime.convert_pd" title="kivi.lifetime.convert_pd"><code class="xref py py-func docutils literal notranslate"><span class="pre">convert_pd()</span></code></a> 返回的单条曲线以 <code class="docutils literal notranslate"><span class="pre">curve[None,</span> <span class="pre">:]</span></code> 传入。</p></li>
+<li><p>描述同一批观测的 Series，例如数据、目标变量、概率和权重，必须具有完全相同的索引；它们不会被对齐。这些输入的其他任何组合都按位置对应。描述其他观测的输入，例如 <a class="reference internal" href="stability.html#kivi.stability.psi_table" title="kivi.stability.psi_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">psi_table()</span></code></a> 的两个样本、 <a class="reference internal" href="reject_inference.html#kivi.reject_inference.parceling" title="kivi.reject_inference.parceling"><code class="xref py py-func docutils literal notranslate"><span class="pre">parceling()</span></code></a> 的拒绝申请人或 <a class="reference internal" href="vintage.html#kivi.vintage.delinquency_panel" title="kivi.vintage.delinquency_panel"><code class="xref py py-func docutils literal notranslate"><span class="pre">delinquency_panel()</span></code></a> 的还款记录，可以使用任意索引。每组的计数，例如 <a class="reference internal" href="woe.html#kivi.woe.woe" title="kivi.woe.woe"><code class="xref py py-func docutils literal notranslate"><span class="pre">woe()</span></code></a> 、 <a class="reference internal" href="woe.html#kivi.woe.iv" title="kivi.woe.iv"><code class="xref py py-func docutils literal notranslate"><span class="pre">iv()</span></code></a> 和 <a class="reference internal" href="stability.html#kivi.stability.psi" title="kivi.stability.psi"><code class="xref py py-func docutils literal notranslate"><span class="pre">psi()</span></code></a> 的输入，描述的是同一批分组，因此两个计数 Series 也必须具有完全相同的索引。</p></li>
+<li><p>表格是 DataFrame。由传入的分组构成的表格（例如 <a class="reference internal" href="woe.html#kivi.woe.woe_table" title="kivi.woe.woe_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">woe_table()</span></code></a> 的结果）以分组标签为索引，索引名为 <code class="docutils literal notranslate"><span class="pre">bin</span></code> 。其他表格按其行的含义命名索引，例如 <code class="docutils literal notranslate"><span class="pre">variable</span></code> 、 <code class="docutils literal notranslate"><span class="pre">grade</span></code> 、 <code class="docutils literal notranslate"><span class="pre">cutoff</span></code> 、 <code class="docutils literal notranslate"><span class="pre">threshold</span></code> 、 <code class="docutils literal notranslate"><span class="pre">statistic</span></code> 、 <code class="docutils literal notranslate"><span class="pre">step</span></code> 、 <code class="docutils literal notranslate"><span class="pre">period</span></code> 、 <code class="docutils literal notranslate"><span class="pre">cohort</span></code> 、 <code class="docutils literal notranslate"><span class="pre">start</span></code> 、 <code class="docutils literal notranslate"><span class="pre">state</span></code> 、 <code class="docutils literal notranslate"><span class="pre">stage</span></code> 、 <code class="docutils literal notranslate"><span class="pre">loan</span></code> 、 <code class="docutils literal notranslate"><span class="pre">rule</span></code> 或 <code class="docutils literal notranslate"><span class="pre">before</span></code> ；当列也是标签时还会为列命名，例如 <code class="docutils literal notranslate"><span class="pre">horizon</span></code> 、 <code class="docutils literal notranslate"><span class="pre">after</span></code> 或 <code class="docutils literal notranslate"><span class="pre">month_on_book</span></code> 。 <a class="reference internal" href="compatibility.html"><span class="doc">兼容性</span></a> 列出了每个表格的索引和列。合计是某一列的和，例如 <code class="docutils literal notranslate"><span class="pre">woe_table(groups,</span> <span class="pre">target)[&quot;iv&quot;].sum()</span></code> 。</p></li>
+<li><p><a class="reference internal" href="features.html#module-kivi.features" title="kivi.features"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.features</span></code></a> 的特征保留 <code class="docutils literal notranslate"><span class="pre">observations</span></code> 的索引及其顺序，以便拼回观察表。特征名称由参数决定：列名和 <code class="docutils literal notranslate"><span class="pre">prefix</span></code> 保持原样，只有 kivi 自己的部分，即聚合名和窗口，为小写，因此 <code class="docutils literal notranslate"><span class="pre">Amount</span></code> 和 <code class="docutils literal notranslate"><span class="pre">amount</span></code> 分别得到 <code class="docutils literal notranslate"><span class="pre">Amount_sum_3m</span></code> 和 <code class="docutils literal notranslate"><span class="pre">amount_sum_3m</span></code> 。</p></li>
+<li><p>具名的统计量以索引名为 <code class="docutils literal notranslate"><span class="pre">statistic</span></code> 的 Series 或 DataFrame 返回，例如 <a class="reference internal" href="metrics.html#kivi.metrics.roc_auc_interval" title="kivi.metrics.roc_auc_interval"><code class="xref py py-func docutils literal notranslate"><span class="pre">roc_auc_interval()</span></code></a> 、 <a class="reference internal" href="metrics.html#kivi.metrics.generalized_auc" title="kivi.metrics.generalized_auc"><code class="xref py py-func docutils literal notranslate"><span class="pre">generalized_auc()</span></code></a> 、 <a class="reference internal" href="calibration.html#kivi.calibration.brier_decomposition" title="kivi.calibration.brier_decomposition"><code class="xref py py-func docutils literal notranslate"><span class="pre">brier_decomposition()</span></code></a> 、 <a class="reference internal" href="calibration.html#kivi.calibration.concentration_test" title="kivi.calibration.concentration_test"><code class="xref py py-func docutils literal notranslate"><span class="pre">concentration_test()</span></code></a> 、 <a class="reference internal" href="vintage.html#kivi.vintage.migration_bandwidth" title="kivi.vintage.migration_bandwidth"><code class="xref py py-func docutils literal notranslate"><span class="pre">migration_bandwidth()</span></code></a> 、 <a class="reference internal" href="expert.html#kivi.expert.ahp_consistency" title="kivi.expert.ahp_consistency"><code class="xref py py-func docutils literal notranslate"><span class="pre">ahp_consistency()</span></code></a> 和 <a class="reference internal" href="metrics.html#kivi.metrics.expected_maximum_profit" title="kivi.metrics.expected_maximum_profit"><code class="xref py py-func docutils literal notranslate"><span class="pre">expected_maximum_profit()</span></code></a> ；或者以只用名称作索引的 Series 返回，例如 <a class="reference internal" href="metrics.html#kivi.metrics.delong_test" title="kivi.metrics.delong_test"><code class="xref py py-func docutils literal notranslate"><span class="pre">delong_test()</span></code></a> 。供另一个函数使用的参数以元组返回，例如 <a class="reference internal" href="calibration.html#kivi.calibration.platt_fit" title="kivi.calibration.platt_fit"><code class="xref py py-func docutils literal notranslate"><span class="pre">platt_fit()</span></code></a> 和 <a class="reference internal" href="calibration.html#kivi.calibration.quasi_moment_fit" title="kivi.calibration.quasi_moment_fit"><code class="xref py py-func docutils literal notranslate"><span class="pre">quasi_moment_fit()</span></code></a> 为 <a class="reference internal" href="calibration.html#kivi.calibration.platt_predict" title="kivi.calibration.platt_predict"><code class="xref py py-func docutils literal notranslate"><span class="pre">platt_predict()</span></code></a> 返回的斜率和截距、 <a class="reference internal" href="calibration.html#kivi.calibration.isotonic_fit" title="kivi.calibration.isotonic_fit"><code class="xref py py-func docutils literal notranslate"><span class="pre">isotonic_fit()</span></code></a> 为 <a class="reference internal" href="calibration.html#kivi.calibration.isotonic_predict" title="kivi.calibration.isotonic_predict"><code class="xref py py-func docutils literal notranslate"><span class="pre">isotonic_predict()</span></code></a> 返回的边界和概率，以及 <a class="reference internal" href="capital.html#kivi.capital.vasicek_fit" title="kivi.capital.vasicek_fit"><code class="xref py py-func docutils literal notranslate"><span class="pre">vasicek_fit()</span></code></a> 为 <a class="reference internal" href="capital.html#kivi.capital.conditional_pd" title="kivi.capital.conditional_pd"><code class="xref py py-func docutils literal notranslate"><span class="pre">conditional_pd()</span></code></a> 返回的长期 PD 和相关系数； <a class="reference internal" href="calibration.html#kivi.calibration.hosmer_lemeshow" title="kivi.calibration.hosmer_lemeshow"><code class="xref py py-func docutils literal notranslate"><span class="pre">hosmer_lemeshow()</span></code></a> 和 <a class="reference internal" href="calibration.html#kivi.calibration.spiegelhalter_test" title="kivi.calibration.spiegelhalter_test"><code class="xref py py-func docutils literal notranslate"><span class="pre">spiegelhalter_test()</span></code></a> 的统计量与 p 值也以元组返回。单个拟合参数是浮点数，例如 <a class="reference internal" href="calibration.html#kivi.calibration.central_tendency_shift" title="kivi.calibration.central_tendency_shift"><code class="xref py py-func docutils literal notranslate"><span class="pre">central_tendency_shift()</span></code></a> 返回的 log odds 平移量，由调用者加到 PD 的 log odds 或模型的截距上。</p></li>
+<li><p><a class="reference internal" href="plotting.html#module-kivi.plotting" title="kivi.plotting"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.plotting</span></code></a> 的图表函数先接收 kivi 函数返回的表，再以仅限关键字的 <code class="docutils literal notranslate"><span class="pre">ax</span></code> 接收要绘制的 Axes；不传 <code class="docutils literal notranslate"><span class="pre">ax</span></code> 时在新图形上绘制。它返回 Axes，从不显示图形，也不改动 matplotlib 的全局设置。它写入的文字只有列名、参数名和数值，因此一张图适用于所有语言。</p></li>
+<li><p>函数不会修改输入。随机抽样来自以 <code class="docutils literal notranslate"><span class="pre">rng</span></code> 为种子的局部生成器，因此不会改变 NumPy 的全局状态，相同的种子给出相同的结果。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">rng</span></code> 接受 <code class="docutils literal notranslate"><span class="pre">numpy.random.default_rng</span></code> 所接受的值，例如 None、整数、 <code class="docutils literal notranslate"><span class="pre">SeedSequence</span></code> 或 <code class="docutils literal notranslate"><span class="pre">Generator</span></code> 。 <code class="docutils literal notranslate"><span class="pre">Generator</span></code> 会被直接使用并推进，而不是被复制，因此用同一个 <code class="docutils literal notranslate"><span class="pre">Generator</span></code> 的两次调用抽样结果不同，而用同一个整数的两次调用结果一致。</p></li>
+</ul>
+</section>
+<section id="targets-scores-and-probabilities">
+<span id="conventions-scores"></span><h2>目标变量、评分与概率<a class="headerlink" href="#targets-scores-and-probabilities" title="链接到此标题。">#</a></h2>
+<ul class="simple">
+<li><p>目标变量中 1 表示事件（例如违约），0 表示非事件。其他任何标签以及缺失标签都会引发错误。 <a class="reference internal" href="strategy.html#kivi.strategy.swap_set" title="kivi.strategy.swap_set"><code class="xref py py-func docutils literal notranslate"><span class="pre">swap_set()</span></code></a> 、 <a class="reference internal" href="monitoring.html#kivi.monitoring.monitoring_table" title="kivi.monitoring.monitoring_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">monitoring_table()</span></code></a> 、 <a class="reference internal" href="rules.html#kivi.rules.rule_candidates" title="kivi.rules.rule_candidates"><code class="xref py py-func docutils literal notranslate"><span class="pre">rule_candidates()</span></code></a> 、 <a class="reference internal" href="rules.html#kivi.rules.rule_table" title="kivi.rules.rule_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">rule_table()</span></code></a> 和 <a class="reference internal" href="rules.html#kivi.rules.rule_set_table" title="kivi.rules.rule_set_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">rule_set_table()</span></code></a> 是例外：它们把缺失标签视为结果未知，例如被拒申请人的结果，或表现期尚未结束的贷款的结果，而且它们的目标变量是可选的，只有 <a class="reference internal" href="rules.html#kivi.rules.rule_candidates" title="kivi.rules.rule_candidates"><code class="xref py py-func docutils literal notranslate"><span class="pre">rule_candidates()</span></code></a> 除外，因为它要用结果来搜索。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">response</span></code> 是连续型结果，与二元的 <code class="docutils literal notranslate"><span class="pre">target</span></code> 相对，例如每笔违约贷款的实际 LGD 或 CCF，用于 <a class="reference internal" href="binning.html#kivi.binning.variance_edges" title="kivi.binning.variance_edges"><code class="xref py py-func docutils literal notranslate"><span class="pre">variance_edges()</span></code></a> 和 <a class="reference internal" href="lgd.html#kivi.lgd.fractional_regression" title="kivi.lgd.fractional_regression"><code class="xref py py-func docutils literal notranslate"><span class="pre">fractional_regression()</span></code></a> 。它是有限实数：在 <code class="docutils literal notranslate"><span class="pre">variance_edges</span></code> 中可以超出 [0, 1]（例如超过 1 的 LGD），在 <code class="docutils literal notranslate"><span class="pre">fractional_regression</span></code> 中必须位于 [0, 1] 之内。缺失值、无穷值和布尔值都会引发错误。</p></li>
+<li><p><a class="reference internal" href="vintage.html#kivi.vintage.vintage_table" title="kivi.vintage.vintage_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">vintage_table()</span></code></a> 的 <code class="docutils literal notranslate"><span class="pre">bad</span></code> 参数是贷款在某月的状态，例如逾期 90 天，而不是一次观测的目标变量。它接受布尔值或 0 和 1，不能有缺失值； <a class="reference internal" href="vintage.html#kivi.vintage.default_rate_table" title="kivi.vintage.default_rate_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">default_rate_table()</span></code></a> 的 <code class="docutils literal notranslate"><span class="pre">defaulted</span></code> （贷款在某月是否处于违约）也是如此。 <a class="reference internal" href="features.html#kivi.features.panel_features" title="kivi.features.panel_features"><code class="xref py py-func docutils literal notranslate"><span class="pre">panel_features()</span></code></a> 的 <code class="docutils literal notranslate"><span class="pre">bad</span></code> 则是有序状态列中第一个算坏的类别，默认为 <code class="docutils literal notranslate"><span class="pre">&quot;30-59&quot;</span></code> ：它和每个更差的状态都算坏。状态列必须是从最好到最差排列的有序分类，这样 <code class="docutils literal notranslate"><span class="pre">current</span></code> 之类的标签就不会按字母排序。</p></li>
+<li><p>在 <a class="reference internal" href="metrics.html#module-kivi.metrics" title="kivi.metrics"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.metrics</span></code></a> 、 <a class="reference internal" href="monitoring.html#module-kivi.monitoring" title="kivi.monitoring"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.monitoring</span></code></a> 和 <a class="reference internal" href="strategy.html#module-kivi.strategy" title="kivi.strategy"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.strategy</span></code></a> 中，评分随事件概率升高而增大。PD 可直接传入；评分卡分值随风险升高而降低，须先取负。 <a class="reference internal" href="strategy.html#module-kivi.strategy" title="kivi.strategy"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.strategy</span></code></a> 的截断点通过不高于它的评分。</p></li>
+<li><p>在 <a class="reference internal" href="scorecard.html#module-kivi.scorecard" title="kivi.scorecard"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.scorecard</span></code></a> 中， <code class="docutils literal notranslate"><span class="pre">score</span></code> 是评分卡分值，随风险升高而降低： <a class="reference internal" href="scorecard.html#kivi.scorecard.score_to_pd" title="kivi.scorecard.score_to_pd"><code class="xref py py-func docutils literal notranslate"><span class="pre">score_to_pd()</span></code></a> 对更高的评分给出更低的 PD。</p></li>
+<li><p><a class="reference internal" href="calibration.html#kivi.calibration.platt_fit" title="kivi.calibration.platt_fit"><code class="xref py py-func docutils literal notranslate"><span class="pre">platt_fit()</span></code></a> 接受任一方向的评分，对随风险升高而降低的评分会拟合出负的斜率。 <a class="reference internal" href="calibration.html#kivi.calibration.isotonic_fit" title="kivi.calibration.isotonic_fit"><code class="xref py py-func docutils literal notranslate"><span class="pre">isotonic_fit()</span></code></a> 默认评分随风险升高而增大，除非设置 <code class="docutils literal notranslate"><span class="pre">increasing=False</span></code> ； <a class="reference internal" href="calibration.html#kivi.calibration.quasi_moment_fit" title="kivi.calibration.quasi_moment_fit"><code class="xref py py-func docutils literal notranslate"><span class="pre">quasi_moment_fit()</span></code></a> 则要求评分随风险升高而增大，例如从最好的等级起算的等级序号。</p></li>
+<li><p>在目标变量、评分和概率中，以及在 <a class="reference internal" href="features.html#kivi.features.window_features" title="kivi.features.window_features"><code class="xref py py-func docutils literal notranslate"><span class="pre">window_features()</span></code></a> 的聚合中，True 和 False 分别计为 1 和 0，因此在那里一个标志的 <code class="docutils literal notranslate"><span class="pre">sum</span></code> 就是带有该标志的事件数。权重、LGD、敞口、损失、收益、 <a class="reference internal" href="capital.html#kivi.capital.systematic_factor" title="kivi.capital.systematic_factor"><code class="xref py py-func docutils literal notranslate"><span class="pre">systematic_factor()</span></code></a> 和 <a class="reference internal" href="capital.html#kivi.capital.vasicek_fit" title="kivi.capital.vasicek_fit"><code class="xref py py-func docutils literal notranslate"><span class="pre">vasicek_fit()</span></code></a> 的 <code class="docutils literal notranslate"><span class="pre">default_rate</span></code> 、 <a class="reference internal" href="vintage.html#kivi.vintage.delinquency_panel" title="kivi.vintage.delinquency_panel"><code class="xref py py-func docutils literal notranslate"><span class="pre">delinquency_panel()</span></code></a> 、 <a class="reference internal" href="lgd.html#kivi.lgd.workout_lgd" title="kivi.lgd.workout_lgd"><code class="xref py py-func docutils literal notranslate"><span class="pre">workout_lgd()</span></code></a> 和 <a class="reference internal" href="lgd.html#kivi.lgd.conversion_factor" title="kivi.lgd.conversion_factor"><code class="xref py py-func docutils literal notranslate"><span class="pre">conversion_factor()</span></code></a> 的金额、 <a class="reference internal" href="binning.html#kivi.binning.variance_edges" title="kivi.binning.variance_edges"><code class="xref py py-func docutils literal notranslate"><span class="pre">variance_edges()</span></code></a> 和 <a class="reference internal" href="lgd.html#kivi.lgd.fractional_regression" title="kivi.lgd.fractional_regression"><code class="xref py py-func docutils literal notranslate"><span class="pre">fractional_regression()</span></code></a> 的 <code class="docutils literal notranslate"><span class="pre">response</span></code> 、 <a class="reference internal" href="calibration.html#kivi.calibration.backtest_table" title="kivi.calibration.backtest_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">backtest_table()</span></code></a> 和 <a class="reference internal" href="metrics.html#kivi.metrics.generalized_auc" title="kivi.metrics.generalized_auc"><code class="xref py py-func docutils literal notranslate"><span class="pre">generalized_auc()</span></code></a> 的 <code class="docutils literal notranslate"><span class="pre">realized</span></code> 和 <code class="docutils literal notranslate"><span class="pre">estimated</span></code> 以及比较矩阵的元素拒绝布尔值，大多数数值选项也是如此，例如 <code class="docutils literal notranslate"><span class="pre">bins</span></code> 、 <code class="docutils literal notranslate"><span class="pre">max_bins</span></code> 、 <code class="docutils literal notranslate"><span class="pre">factor</span></code> 和各截断点。另有六个输入拒绝布尔值，因为布尔值出现在那里更可能是错误： <a class="reference internal" href="monitoring.html#kivi.monitoring.monitoring_table" title="kivi.monitoring.monitoring_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">monitoring_table()</span></code></a> 的 <code class="docutils literal notranslate"><span class="pre">reference_score</span></code> （布尔值通常是行掩码）、 <a class="reference internal" href="lifetime.html#kivi.lifetime.transition_pd" title="kivi.lifetime.transition_pd"><code class="xref py py-func docutils literal notranslate"><span class="pre">transition_pd()</span></code></a> 的 <code class="docutils literal notranslate"><span class="pre">matrix</span></code> 、 <a class="reference internal" href="lifetime.html#kivi.lifetime.stage_table" title="kivi.lifetime.stage_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">stage_table()</span></code></a> 的 <code class="docutils literal notranslate"><span class="pre">stage</span></code> 、 <a class="reference internal" href="lifetime.html#kivi.lifetime.assign_stages" title="kivi.lifetime.assign_stages"><code class="xref py py-func docutils literal notranslate"><span class="pre">assign_stages()</span></code></a> 的 <code class="docutils literal notranslate"><span class="pre">days_past_due</span></code> ，以及 <a class="reference internal" href="lifetime.html#kivi.lifetime.survival_table" title="kivi.lifetime.survival_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">survival_table()</span></code></a> 的 <code class="docutils literal notranslate"><span class="pre">duration</span></code> 和 <code class="docutils literal notranslate"><span class="pre">entry</span></code> ：</p></li>
+</ul>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">roc_auc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">roc_auc</span><span class="p">([</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">],</span> <span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">])</span>
+<span class="go">1.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.strategy</span><span class="w"> </span><span class="kn">import</span> <span class="n">expected_loss</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">expected_loss</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">]),</span> <span class="mf">100.0</span><span class="p">)</span>
+<span class="gt">Traceback (most recent call last):</span>
+<span class="w">    </span><span class="o">...</span>
+<span class="gr">ValueError</span>: <span class="n">lgd must be real and numeric, got dtype bool</span>
+</pre></div>
+</div>
+</section>
+<section id="groups-and-missing-values">
+<h2>分组与缺失值<a class="headerlink" href="#groups-and-missing-values" title="链接到此标题。">#</a></h2>
+<p>对分组计数的函数，例如 <a class="reference internal" href="woe.html#kivi.woe.woe_table" title="kivi.woe.woe_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">woe_table()</span></code></a> 、 <a class="reference internal" href="stability.html#kivi.stability.psi_table" title="kivi.stability.psi_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">psi_table()</span></code></a> 和 <a class="reference internal" href="calibration.html#kivi.calibration.calibration_table" title="kivi.calibration.calibration_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">calibration_table()</span></code></a> ，按原样接收标签： <code class="docutils literal notranslate"><span class="pre">pandas.cut</span></code> 或 <a class="reference internal" href="binning.html#kivi.binning.cut" title="kivi.binning.cut"><code class="xref py py-func docutils literal notranslate"><span class="pre">kivi.binning.cut()</span></code></a> 的区间、字符串、数字或类别。</p>
+<ul class="simple">
+<li><p>缺失值单独成组。</p></li>
+<li><p>只出现观测到的分组。未使用的类别不会出现，权重之和为零的分组也不会出现。行集合固定的表格是例外，会保留空行： <a class="reference internal" href="lifetime.html#kivi.lifetime.stage_table" title="kivi.lifetime.stage_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">stage_table()</span></code></a> 总有阶段 1、2 和 3， <a class="reference internal" href="strategy.html#kivi.strategy.swap_set" title="kivi.strategy.swap_set"><code class="xref py py-func docutils literal notranslate"><span class="pre">swap_set()</span></code></a> 总有四行， <a class="reference internal" href="monitoring.html#module-kivi.monitoring" title="kivi.monitoring"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.monitoring</span></code></a> 的逐期表格为类别型期间的每个类别都保留一行，使各份报告的行能够对齐。</p></li>
+<li><p>分类型分组（包括 <code class="docutils literal notranslate"><span class="pre">pandas.cut</span></code> 的区间）按类别顺序排列，缺失组排在最后。其他标签按首次出现的次序排列。</p></li>
+<li><p>两个样本（例如 <a class="reference internal" href="stability.html#kivi.stability.psi_table" title="kivi.stability.psi_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">psi_table()</span></code></a> 中的样本）只有在具有相同的分类型 dtype 时才按类别顺序排列。否则（例如一个是有序分类型、另一个是无序分类型时），分组按首次出现的次序排列，先看基准样本，再看当前样本。</p></li>
+</ul>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.woe</span><span class="w"> </span><span class="kn">import</span> <span class="n">woe_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">woe_table</span><span class="p">([</span><span class="s2">"b"</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])[[</span><span class="s2">"non_event"</span><span class="p">,</span> <span class="s2">"event"</span><span class="p">]]</span>
+<span class="go">     non_event  event</span>
+<span class="go">bin</span>
+<span class="go">b            0      1</span>
+<span class="go">a            2      0</span>
+<span class="go">NaN          0      1</span>
+</pre></div>
+</div>
+<p>没有特殊值时， <a class="reference internal" href="binning.html#kivi.binning.cut" title="kivi.binning.cut"><code class="xref py py-func docutils literal notranslate"><span class="pre">cut()</span></code></a> 返回 <code class="docutils literal notranslate"><span class="pre">pandas.cut</span></code> 的有序分类型；给出 <code class="docutils literal notranslate"><span class="pre">special</span></code> 时返回无序分类型，因为特殊值排在最前，与各区间之间没有顺序。</p>
+<p>类别按相等关系与拟合好的表格或分组匹配；表格或分组不认识的类别会引发错误，除非 <code class="docutils literal notranslate"><span class="pre">unseen</span></code> 指定了处理方式。 <a class="reference internal" href="woe.html#kivi.woe.woe_transform" title="kivi.woe.woe_transform"><code class="xref py py-func docutils literal notranslate"><span class="pre">woe_transform()</span></code></a> 、 <a class="reference internal" href="binning.html#kivi.binning.group_categories" title="kivi.binning.group_categories"><code class="xref py py-func docutils literal notranslate"><span class="pre">group_categories()</span></code></a> 和 <a class="reference internal" href="stability.html#kivi.stability.csi_table" title="kivi.stability.csi_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">csi_table()</span></code></a> 遵循同一规则，最后一个通过 <code class="docutils literal notranslate"><span class="pre">unseen_points</span></code> 指定。 <a class="reference internal" href="scorecard.html#kivi.scorecard.reason_codes" title="kivi.scorecard.reason_codes"><code class="xref py py-func docutils literal notranslate"><span class="pre">reason_codes()</span></code></a> 匹配的是分值而不是类别，它的 <code class="docutils literal notranslate"><span class="pre">unseen_points</span></code> 豁免 <code class="docutils literal notranslate"><span class="pre">woe_transform</span></code> 赋给未见分组的分值。</p>
+<p>拟合边界或分组的函数，例如 <a class="reference internal" href="binning.html#kivi.binning.bin_edges" title="kivi.binning.bin_edges"><code class="xref py py-func docutils literal notranslate"><span class="pre">bin_edges()</span></code></a> 、 <a class="reference internal" href="binning.html#kivi.binning.chimerge_edges" title="kivi.binning.chimerge_edges"><code class="xref py py-func docutils literal notranslate"><span class="pre">chimerge_edges()</span></code></a> 、 <a class="reference internal" href="binning.html#kivi.binning.optimal_edges" title="kivi.binning.optimal_edges"><code class="xref py py-func docutils literal notranslate"><span class="pre">optimal_edges()</span></code></a> 和 <a class="reference internal" href="binning.html#kivi.binning.category_groups" title="kivi.binning.category_groups"><code class="xref py py-func docutils literal notranslate"><span class="pre">category_groups()</span></code></a> ，在拟合时不使用缺失值；而 <a class="reference internal" href="binning.html#kivi.binning.cut" title="kivi.binning.cut"><code class="xref py py-func docutils literal notranslate"><span class="pre">cut()</span></code></a> 和 <a class="reference internal" href="binning.html#kivi.binning.group_categories" title="kivi.binning.group_categories"><code class="xref py py-func docutils literal notranslate"><span class="pre">group_categories()</span></code></a> 保持其缺失，因此计数时它们自成一组。 <a class="reference internal" href="rules.html#kivi.rules.rule_candidates" title="kivi.rules.rule_candidates"><code class="xref py py-func docutils literal notranslate"><span class="pre">rule_candidates()</span></code></a> 拟合阈值时同样不使用缺失值，缺失值也不命中它的任何规则。 <a class="reference internal" href="binning.html#kivi.binning.variance_edges" title="kivi.binning.variance_edges"><code class="xref py py-func docutils literal notranslate"><span class="pre">variance_edges()</span></code></a> 会把 <code class="docutils literal notranslate"><span class="pre">values</span></code> 的缺失值连同其响应一起排除，但遇到缺失的响应则引发错误。</p>
+<p>进行计数、排序或拟合的函数，例如 <a class="reference internal" href="metrics.html#kivi.metrics.roc_auc" title="kivi.metrics.roc_auc"><code class="xref py py-func docutils literal notranslate"><span class="pre">roc_auc()</span></code></a> 、 <a class="reference internal" href="calibration.html#kivi.calibration.calibration_table" title="kivi.calibration.calibration_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">calibration_table()</span></code></a> 、 <a class="reference internal" href="strategy.html#kivi.strategy.cutoff_table" title="kivi.strategy.cutoff_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">cutoff_table()</span></code></a> 和 <a class="reference internal" href="calibration.html#kivi.calibration.platt_fit" title="kivi.calibration.platt_fit"><code class="xref py py-func docutils literal notranslate"><span class="pre">platt_fit()</span></code></a> ，遇到缺失的评分或概率则会引发错误，因此请在传入之前决定如何为缺失值打分。逐个转换取值的函数，例如 <a class="reference internal" href="scorecard.html#kivi.scorecard.pd_to_score" title="kivi.scorecard.pd_to_score"><code class="xref py py-func docutils literal notranslate"><span class="pre">pd_to_score()</span></code></a> 、 <a class="reference internal" href="calibration.html#kivi.calibration.platt_predict" title="kivi.calibration.platt_predict"><code class="xref py py-func docutils literal notranslate"><span class="pre">platt_predict()</span></code></a> 和 <a class="reference internal" href="strategy.html#kivi.strategy.expected_loss" title="kivi.strategy.expected_loss"><code class="xref py py-func docutils literal notranslate"><span class="pre">expected_loss()</span></code></a> ，对缺失值返回 NaN， <a class="reference internal" href="calibration.html#kivi.calibration.assign_grades" title="kivi.calibration.assign_grades"><code class="xref py py-func docutils literal notranslate"><span class="pre">assign_grades()</span></code></a> 则返回缺失的等级。 <a class="reference internal" href="lifetime.html#module-kivi.lifetime" title="kivi.lifetime"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.lifetime</span></code></a> 的阶段划分函数虽然逐个处理取值，但遇到缺失值会引发错误，因为缺失的 PD 或逾期天数不应决定阶段； <a class="reference internal" href="monitoring.html#module-kivi.monitoring" title="kivi.monitoring"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.monitoring</span></code></a> 的函数遇到缺失的期间也会引发错误。 <a class="reference internal" href="capital.html#module-kivi.capital" title="kivi.capital"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.capital</span></code></a> 中逐值计算的函数对缺失的 PD、LGD、违约率、因子或水平返回 NaN，但缺失的 <code class="docutils literal notranslate"><span class="pre">turnover</span></code> 、 <code class="docutils literal notranslate"><span class="pre">maturity</span></code> 或 <code class="docutils literal notranslate"><span class="pre">correlation</span></code> 会引发错误，因为它们决定公式。 <a class="reference internal" href="lifetime.html#kivi.lifetime.survival_table" title="kivi.lifetime.survival_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">survival_table()</span></code></a> 、 <a class="reference internal" href="capital.html#kivi.capital.vasicek_fit" title="kivi.capital.vasicek_fit"><code class="xref py py-func docutils literal notranslate"><span class="pre">vasicek_fit()</span></code></a> 和 <a class="reference internal" href="capital.html#kivi.capital.most_prudent_pd" title="kivi.capital.most_prudent_pd"><code class="xref py py-func docutils literal notranslate"><span class="pre">most_prudent_pd()</span></code></a> 对输入整体计数或拟合，遇到缺失值会引发错误。 <a class="reference internal" href="lgd.html#kivi.lgd.workout_lgd" title="kivi.lgd.workout_lgd"><code class="xref py py-func docutils literal notranslate"><span class="pre">workout_lgd()</span></code></a> 遇到缺失的贷款、日期、敞口、金额或利率会引发错误， <a class="reference internal" href="lgd.html#kivi.lgd.lgd_table" title="kivi.lgd.lgd_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">lgd_table()</span></code></a> 遇到缺失的 LGD、 <a class="reference internal" href="lgd.html#kivi.lgd.fractional_regression" title="kivi.lgd.fractional_regression"><code class="xref py py-func docutils literal notranslate"><span class="pre">fractional_regression()</span></code></a> 遇到缺失的驱动因素或响应也会引发错误，而 <a class="reference internal" href="lgd.html#kivi.lgd.conversion_factor" title="kivi.lgd.conversion_factor"><code class="xref py py-func docutils literal notranslate"><span class="pre">conversion_factor()</span></code></a> 逐个换算每个额度，返回 NaN。 <a class="reference internal" href="vintage.html#kivi.vintage.delinquency_panel" title="kivi.vintage.delinquency_panel"><code class="xref py py-func docutils literal notranslate"><span class="pre">delinquency_panel()</span></code></a> 遇到缺失的贷款、日期或金额会引发错误， <a class="reference internal" href="expert.html#module-kivi.expert" title="kivi.expert"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.expert</span></code></a> 的函数遇到缺失的比较值或权重也会引发错误。 <a class="reference internal" href="vintage.html#kivi.vintage.default_rate_table" title="kivi.vintage.default_rate_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">default_rate_table()</span></code></a> 遇到缺失的贷款、月份或 <code class="docutils literal notranslate"><span class="pre">defaulted</span></code> 标记会引发错误，缺失的等级则自成一行、排在最后，这符合 EBA 指引对没有评级的债务人的要求；它只在作为队列起点的行上检查 <code class="docutils literal notranslate"><span class="pre">probability</span></code> ，因此违约贷款的行可以留空。 <a class="reference internal" href="calibration.html#kivi.calibration.central_tendency_shift" title="kivi.calibration.central_tendency_shift"><code class="xref py py-func docutils literal notranslate"><span class="pre">central_tendency_shift()</span></code></a> 和 <a class="reference internal" href="calibration.html#kivi.calibration.quasi_moment_fit" title="kivi.calibration.quasi_moment_fit"><code class="xref py py-func docutils literal notranslate"><span class="pre">quasi_moment_fit()</span></code></a> 对输入整体拟合，遇到缺失的 PD 或评分会引发错误。 <a class="reference internal" href="rules.html#kivi.rules.rule_table" title="kivi.rules.rule_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">rule_table()</span></code></a> 和 <a class="reference internal" href="rules.html#kivi.rules.rule_set_table" title="kivi.rules.rule_set_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">rule_set_table()</span></code></a> 遇到规则中的缺失值会引发错误，因为数据缺失时规则是否命中本身就是规则的一部分，所以请先用 <code class="docutils literal notranslate"><span class="pre">fillna</span></code> 决定。验证检验同样对缺失值引发错误： <a class="reference internal" href="calibration.html#kivi.calibration.backtest_table" title="kivi.calibration.backtest_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">backtest_table()</span></code></a> 针对缺失的实际值或估计值， <a class="reference internal" href="metrics.html#kivi.metrics.generalized_auc" title="kivi.metrics.generalized_auc"><code class="xref py py-func docutils literal notranslate"><span class="pre">generalized_auc()</span></code></a> 针对缺失的分段， <a class="reference internal" href="calibration.html#kivi.calibration.concentration_test" title="kivi.calibration.concentration_test"><code class="xref py py-func docutils literal notranslate"><span class="pre">concentration_test()</span></code></a> 针对缺失的计数， <a class="reference internal" href="vintage.html#kivi.vintage.migration_bandwidth" title="kivi.vintage.migration_bandwidth"><code class="xref py py-func docutils literal notranslate"><span class="pre">migration_bandwidth()</span></code></a> 和 <a class="reference internal" href="vintage.html#kivi.vintage.migration_test" title="kivi.vintage.migration_test"><code class="xref py py-func docutils literal notranslate"><span class="pre">migration_test()</span></code></a> 针对缺失的等级或状态，因此请为离开评级等级的客户指定单独的状态。 <a class="reference internal" href="features.html#module-kivi.features" title="kivi.features"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.features</span></code></a> 的函数遇到缺失的主体、时间、月份或状态会引发错误，被聚合列中的缺失值则不参与该列的聚合，而 <code class="docutils literal notranslate"><span class="pre">events</span></code> 特征计入每个事件。</p>
+</section>
+<section id="sample-weights">
+<h2>样本权重<a class="headerlink" href="#sample-weights" title="链接到此标题。">#</a></h2>
+<p>大多数对观测计数或拟合模型的函数都接受 <code class="docutils literal notranslate"><span class="pre">weights</span></code> ：每个观测一个有限的非负数，与数据的对应方式和目标变量相同。 <a class="reference internal" href="stability.html#kivi.stability.psi_table" title="kivi.stability.psi_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">psi_table()</span></code></a> 和 <a class="reference internal" href="stability.html#kivi.stability.csi_table" title="kivi.stability.csi_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">csi_table()</span></code></a> 为每个样本各接收一组权重，即 <code class="docutils literal notranslate"><span class="pre">reference_weights</span></code> 和 <code class="docutils literal notranslate"><span class="pre">current_weights</span></code> 。</p>
+<p><code class="docutils literal notranslate"><span class="pre">weights</span></code> 属于主数据，另一个样本的权重以该样本命名，例如 <a class="reference internal" href="monitoring.html#kivi.monitoring.monitoring_table" title="kivi.monitoring.monitoring_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">monitoring_table()</span></code></a> 和 <a class="reference internal" href="monitoring.html#kivi.monitoring.stability_table" title="kivi.monitoring.stability_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">stability_table()</span></code></a> 的 <code class="docutils literal notranslate"><span class="pre">reference_weights</span></code> 。 <a class="reference internal" href="selection.html#kivi.selection.vif" title="kivi.selection.vif"><code class="xref py py-func docutils literal notranslate"><span class="pre">vif()</span></code></a> 、 <a class="reference internal" href="selection.html#kivi.selection.vif_filter" title="kivi.selection.vif_filter"><code class="xref py py-func docutils literal notranslate"><span class="pre">vif_filter()</span></code></a> 、 <a class="reference internal" href="selection.html#kivi.selection.correlation_filter" title="kivi.selection.correlation_filter"><code class="xref py py-func docutils literal notranslate"><span class="pre">correlation_filter()</span></code></a> 、 <a class="reference internal" href="reject_inference.html#kivi.reject_inference.parceling" title="kivi.reject_inference.parceling"><code class="xref py py-func docutils literal notranslate"><span class="pre">parceling()</span></code></a> 和 <a class="reference internal" href="reject_inference.html#kivi.reject_inference.reweighting" title="kivi.reject_inference.reweighting"><code class="xref py py-func docutils literal notranslate"><span class="pre">reweighting()</span></code></a> 不接受权重，对每行一视同仁； <a class="reference internal" href="features.html#module-kivi.features" title="kivi.features"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.features</span></code></a> 的函数也是如此，每个事件只计一次。 <a class="reference internal" href="calibration.html#kivi.calibration.concentration_test" title="kivi.calibration.concentration_test"><code class="xref py py-func docutils literal notranslate"><span class="pre">concentration_test()</span></code></a> 接收各等级的计数或敞口，而不是逐行数据；接收每个等级债务人数和违约数的 <a class="reference internal" href="capital.html#kivi.capital.most_prudent_pd" title="kivi.capital.most_prudent_pd"><code class="xref py py-func docutils literal notranslate"><span class="pre">most_prudent_pd()</span></code></a> ，以及每期接收一个违约率的 <a class="reference internal" href="capital.html#kivi.capital.vasicek_fit" title="kivi.capital.vasicek_fit"><code class="xref py py-func docutils literal notranslate"><span class="pre">vasicek_fit()</span></code></a> ，也是如此。 <a class="reference internal" href="capital.html#module-kivi.capital" title="kivi.capital"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.capital</span></code></a> 中逐值计算的函数处理单笔敞口，不接受权重。 <a class="reference internal" href="selection.html#kivi.selection.selection_path" title="kivi.selection.selection_path"><code class="xref py py-func docutils literal notranslate"><span class="pre">selection_path()</span></code></a> 的验证样本每行只计一次。</p>
+<ul class="simple">
+<li><p>计数变为权重之和，权重为零的观测会被排除。因此整数权重与把每一行重复相应次数得到的计数相同。</p></li>
+<li><p>加权分位数采用逆累积分布（inverted CDF），因此每个内部分位数边界都是实际观测到的取值，而不加权的分位数会在观测之间插值。因此加权边界只在不需要插值时与重复行的结果一致，权重全为 1 也不等同于不加权。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">smoothing</span></code> 以权重为单位替换空单元格，不会随权重缩放。</p></li>
+<li><p><a class="reference internal" href="selection.html#kivi.selection.logistic_regression" title="kivi.selection.logistic_regression"><code class="xref py py-func docutils literal notranslate"><span class="pre">logistic_regression()</span></code></a> 、 <a class="reference internal" href="selection.html#kivi.selection.stepwise" title="kivi.selection.stepwise"><code class="xref py py-func docutils literal notranslate"><span class="pre">stepwise()</span></code></a> 、 <a class="reference internal" href="selection.html#kivi.selection.selection_path" title="kivi.selection.selection_path"><code class="xref py py-func docutils literal notranslate"><span class="pre">selection_path()</span></code></a> 、 <a class="reference internal" href="metrics.html#kivi.metrics.roc_auc_interval" title="kivi.metrics.roc_auc_interval"><code class="xref py py-func docutils literal notranslate"><span class="pre">roc_auc_interval()</span></code></a> 、 <a class="reference internal" href="metrics.html#kivi.metrics.delong_test" title="kivi.metrics.delong_test"><code class="xref py py-func docutils literal notranslate"><span class="pre">delong_test()</span></code></a> 、 <a class="reference internal" href="metrics.html#kivi.metrics.generalized_auc" title="kivi.metrics.generalized_auc"><code class="xref py py-func docutils literal notranslate"><span class="pre">generalized_auc()</span></code></a> 、 <a class="reference internal" href="calibration.html#kivi.calibration.spiegelhalter_test" title="kivi.calibration.spiegelhalter_test"><code class="xref py py-func docutils literal notranslate"><span class="pre">spiegelhalter_test()</span></code></a> 、 <a class="reference internal" href="calibration.html#kivi.calibration.backtest_table" title="kivi.calibration.backtest_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">backtest_table()</span></code></a> 和 <a class="reference internal" href="vintage.html#kivi.vintage.migration_test" title="kivi.vintage.migration_test"><code class="xref py py-func docutils literal notranslate"><span class="pre">migration_test()</span></code></a> 把权重视为频数权重，因此它们的标准误把权重总和当作观测数。 <a class="reference internal" href="lgd.html#kivi.lgd.fractional_regression" title="kivi.lgd.fractional_regression"><code class="xref py py-func docutils literal notranslate"><span class="pre">fractional_regression()</span></code></a> 也是如此， <a class="reference internal" href="lgd.html#kivi.lgd.lgd_table" title="kivi.lgd.lgd_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">lgd_table()</span></code></a> 用频数权重平均 LGD，而 <a class="reference internal" href="lgd.html#kivi.lgd.workout_lgd" title="kivi.lgd.workout_lgd"><code class="xref py py-func docutils literal notranslate"><span class="pre">workout_lgd()</span></code></a> 和 <a class="reference internal" href="lgd.html#kivi.lgd.conversion_factor" title="kivi.lgd.conversion_factor"><code class="xref py py-func docutils literal notranslate"><span class="pre">conversion_factor()</span></code></a> 处理单笔贷款，不接受权重。用于纠正抽样的权重（例如抽样比例的倒数）会使这些标准误偏小。</p></li>
+<li><p><a class="reference internal" href="vintage.html#kivi.vintage.default_rate_table" title="kivi.vintage.default_rate_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">default_rate_table()</span></code></a> 计入每笔贷款在其起点月那一行的权重， <a class="reference internal" href="calibration.html#kivi.calibration.central_tendency_shift" title="kivi.calibration.central_tendency_shift"><code class="xref py py-func docutils literal notranslate"><span class="pre">central_tendency_shift()</span></code></a> 和 <a class="reference internal" href="calibration.html#kivi.calibration.quasi_moment_fit" title="kivi.calibration.quasi_moment_fit"><code class="xref py py-func docutils literal notranslate"><span class="pre">quasi_moment_fit()</span></code></a> 把权重视为频数权重，例如各等级的债务人数。PD 校准中的违约率和中心趋势按债务人计数，因此权重只能用于校正抽样，不能按敞口加权（巴塞尔 CRE36.78）。</p></li>
+</ul>
+</section>
+<section id="periods-and-thresholds">
+<h2>期间与阈值<a class="headerlink" href="#periods-and-thresholds" title="链接到此标题。">#</a></h2>
+<ul class="simple">
+<li><p>类别型期间按类别顺序排列，其他期间按升序排列。期限结构或预期信用损失的第 1 期是起点之后的第一期，起点例如报告日； <a class="reference internal" href="lifetime.html#kivi.lifetime.expected_credit_loss" title="kivi.lifetime.expected_credit_loss"><code class="xref py py-func docutils literal notranslate"><span class="pre">expected_credit_loss()</span></code></a> 把第 <span class="math notranslate nohighlight">\(t\)</span> 期的违约折现 <span class="math notranslate nohighlight">\(t\)</span> 期。 <a class="reference internal" href="lgd.html#kivi.lgd.workout_lgd" title="kivi.lgd.workout_lgd"><code class="xref py py-func docutils literal notranslate"><span class="pre">workout_lgd()</span></code></a> 按违约日与现金流日期之间的天数除以 365 折现每笔现金流，违约前的费用按同样方式复利。在 <a class="reference internal" href="lifetime.html#kivi.lifetime.survival_table" title="kivi.lifetime.survival_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">survival_table()</span></code></a> 中， <code class="docutils literal notranslate"><span class="pre">entry</span></code> 为 <span class="math notranslate nohighlight">\(e\)</span> 、 <code class="docutils literal notranslate"><span class="pre">duration</span></code> 为 <span class="math notranslate nohighlight">\(T\)</span> 的账户在 <span class="math notranslate nohighlight">\(e &lt; t \le T\)</span> 的各期处于风险中；在某期被删失的账户在该期仍算作处于风险中，因为删失排在该期的违约和退出之后。</p></li>
+<li><p>阈值按其所实现规则的措辞进行比较。截断点通过不高于它的评分。 <a class="reference internal" href="lifetime.html#kivi.lifetime.significant_increase" title="kivi.lifetime.significant_increase"><code class="xref py py-func docutils literal notranslate"><span class="pre">significant_increase()</span></code></a> 仅在 PD 的增幅超过阈值时才标记； <a class="reference internal" href="lifetime.html#kivi.lifetime.assign_stages" title="kivi.lifetime.assign_stages"><code class="xref py py-func docutils literal notranslate"><span class="pre">assign_stages()</span></code></a> 在逾期超过 <code class="docutils literal notranslate"><span class="pre">stage_2_days</span></code> 天时把贷款划入第 2 阶段，在逾期达到 <code class="docutils literal notranslate"><span class="pre">stage_3_days</span></code> 天及以上时划入第 3 阶段，与 IFRS 9 对 30 天和 90 天推定的表述一致。</p></li>
+<li><p><a class="reference internal" href="vintage.html#kivi.vintage.delinquency_panel" title="kivi.vintage.delinquency_panel"><code class="xref py py-func docutils literal notranslate"><span class="pre">delinquency_panel()</span></code></a> 的 <code class="docutils literal notranslate"><span class="pre">end</span></code> 是观察的最后一个月，可以给出该月份、该月中的某个日期，或以该月结束的更长期间；每个月都在其最后一天观察，因此当天的还款计入。期款在到期日当天不算逾期，状态 <code class="docutils literal notranslate"><span class="pre">90+</span></code> 从逾期 90 天开始，与 <a class="reference internal" href="lifetime.html#kivi.lifetime.assign_stages" title="kivi.lifetime.assign_stages"><code class="xref py py-func docutils literal notranslate"><span class="pre">assign_stages()</span></code></a> 用 <code class="docutils literal notranslate"><span class="pre">stage_3_days</span></code> 划分阶段 3 的方式相同。</p></li>
+<li><p><a class="reference internal" href="vintage.html#kivi.vintage.default_rate_table" title="kivi.vintage.default_rate_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">default_rate_table()</span></code></a> 的起点月也按同样的方式给出，可以是 Period、日期或字符串，并代表其最后一个月，因此 <code class="docutils literal notranslate"><span class="pre">&quot;2024Q2&quot;</span></code> 是 2024 年 6 月。它的队列包含该月末未处于违约的贷款，按其在该月的等级分组；之后的 <code class="docutils literal notranslate"><span class="pre">horizon</span></code> 个月是计入违约的窗口，因此 2025 日历年的起点月是 2024 年 12 月。</p></li>
+</ul>
+</section>
+<section id="time-windows">
+<h2>时间窗口<a class="headerlink" href="#time-windows" title="链接到此标题。">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="features.html#module-kivi.features" title="kivi.features"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.features</span></code></a> 的特征只使用观察时间 <span class="math notranslate nohighlight">\(t\)</span> 时已知的信息，因此是 <em>时点正确</em> 的。 <a class="reference internal" href="features.html#kivi.features.window_features" title="kivi.features.window_features"><code class="xref py py-func docutils literal notranslate"><span class="pre">window_features()</span></code></a> 的窗口默认为 <span class="math notranslate nohighlight">\([t - k, t)\)</span> ，因此 <span class="math notranslate nohighlight">\(t\)</span> 当时及之后的事件不计入任何窗口； <code class="docutils literal notranslate"><span class="pre">closed=&quot;right&quot;</span></code> 给出 <span class="math notranslate nohighlight">\((t - k, t]\)</span> ，适用于在其自身时间就已知的事件，例如日终余额，这只能由调用者判断。 <a class="reference internal" href="features.html#kivi.features.panel_features" title="kivi.features.panel_features"><code class="xref py py-func docutils literal notranslate"><span class="pre">panel_features()</span></code></a> 的窗口包含 <span class="math notranslate nohighlight">\(t\)</span> 所在月之前的 <span class="math notranslate nohighlight">\(k\)</span> 个月，因为该月的月末状态在 <span class="math notranslate nohighlight">\(t\)</span> 时还不知道。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;3M&quot;</span></code> 按自然月计算，与 <code class="docutils literal notranslate"><span class="pre">pandas.DateOffset(months=3)</span></code> 相同，因此闰年 3 月 31 日之前一个月是 2 月 29 日； <code class="docutils literal notranslate"><span class="pre">&quot;90D&quot;</span></code> 按天计算。边界用大写字母书写， <a class="reference internal" href="features.html#kivi.features.panel_features" title="kivi.features.panel_features"><code class="xref py py-func docutils literal notranslate"><span class="pre">panel_features()</span></code></a> 只接受月。列名中的窗口为小写，例如 <code class="docutils literal notranslate"><span class="pre">3m</span></code> 和 <code class="docutils literal notranslate"><span class="pre">90d</span></code> 。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">windows</span></code> 是列表，只有一个窗口时也是，如 <code class="docutils literal notranslate"><span class="pre">windows=[&quot;3M&quot;]</span></code> 。一对单位相同、第一个更早的边界表示二者之间较早的那一期，例如 <code class="docutils literal notranslate"><span class="pre">(&quot;6M&quot;,</span> <span class="pre">&quot;3M&quot;)</span></code> 是 <span class="math notranslate nohighlight">\([t - 6M, t - 3M)\)</span> ，命名为 <code class="docutils literal notranslate"><span class="pre">6m_3m</span></code> 。窗口对只有作为列表中的一项才是一个窗口，如 <code class="docutils literal notranslate"><span class="pre">windows=[(&quot;6M&quot;,</span> <span class="pre">&quot;3M&quot;)]</span></code> ； <code class="docutils literal notranslate"><span class="pre">windows=(&quot;6M&quot;,</span> <span class="pre">&quot;3M&quot;)</span></code> 是 <code class="docutils literal notranslate"><span class="pre">6m</span></code> 和 <code class="docutils literal notranslate"><span class="pre">3m</span></code> 两个窗口。</p></li>
+</ul>
+</section>
+<section id="errors-and-warnings">
+<h2>错误与警告<a class="headerlink" href="#errors-and-warnings" title="链接到此标题。">#</a></h2>
+<ul class="simple">
+<li><p>无效输入会引发 <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> ，无法拟合的模型也是如此，例如类别完全分离时会引发 <a class="reference internal" href="selection.html#kivi.selection.SeparationError" title="kivi.selection.SeparationError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">kivi.selection.SeparationError</span></code></a> 。错误信息会写明参数名；如果问题出在某个取值上，还会给出收到的值：</p></li>
+</ul>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bin_edges</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gt">Traceback (most recent call last):</span>
+<span class="w">    </span><span class="o">...</span>
+<span class="gr">ValueError</span>: <span class="n">bins must be a positive integer, got 0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">roc_auc</span><span class="p">([</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+<span class="gt">Traceback (most recent call last):</span>
+<span class="w">    </span><span class="o">...</span>
+<span class="gr">ValueError</span>: <span class="n">target must contain only 0 and 1, got 2</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">UserWarning</span></code> 表示结果与请求不同，例如因取值重复而得到的箱数少于请求的箱数，并说明应如何修改。 <a class="reference internal" href="univariate.html#kivi.univariate.profile_table" title="kivi.univariate.profile_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">kivi.univariate.profile_table()</span></code></a> 则把这类重合记录在一列中，因此分析很多列时不会产生警告。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RuntimeWarning</span></code> 表示拟合在收敛之前停止。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">FutureWarning</span></code> 预先通知公共 API 的变更。 <a class="reference internal" href="compatibility.html"><span class="doc">兼容性</span></a> 说明变更何时生效。</p></li>
+<li><p>消息的措辞可能在任何版本中改变，因此匹配消息的测试可能需要更新；错误和警告的类型保持不变。</p></li>
+</ul>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../api.html"
+       title="上一页">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">上一页</p>
+        <p class="prev-next-title">API 参考</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="compatibility.html"
+       title="下一页">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">下一页</p>
+        <p class="prev-next-title">兼容性</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 当前页面
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#imports">导入</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#arguments">参数</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#inputs-and-results">输入与结果</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#targets-scores-and-probabilities">目标变量、评分与概率</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#groups-and-missing-values">分组与缺失值</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sample-weights">样本权重</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#periods-and-thresholds">期间与阈值</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#time-windows">时间窗口</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#errors-and-warnings">错误与警告</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    由 <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1创建。
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

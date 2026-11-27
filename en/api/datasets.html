@@ -1,0 +1,1329 @@
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Example data &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=d005c095" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=25d9e9fd"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/datasets';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Release notes" href="../release/index.html" />
+    <link rel="prev" title="Charts" href="plotting.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="1.9.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 1.9.0">1.9.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    Tutorial
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/api/datasets.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    Tutorial
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/api/datasets.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="conventions.html">Conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compatibility.html">Compatibility</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">Time-window features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="univariate.html">Univariate profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="binning.html">Binning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="woe.html">Weight of evidence and information value</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selection.html">Variable selection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reject_inference.html">Reject inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scorecard.html">Scorecard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="expert.html">Expert scorecards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">Model performance</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lgd.html">LGD and EAD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">Credit strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rules.html">Policy rules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spec.html">Binning specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stability.html">Population stability index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">Model monitoring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="capital.html">Regulatory capital</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vintage.html">Vintage and roll-rate analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lifetime.html">Lifetime PD and expected credit loss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html">Charts</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">Example data</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../api.html" class="nav-link">API reference</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Example data</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="module-kivi.datasets">
+<span id="example-data"></span><h1>Example data<a class="headerlink" href="#module-kivi.datasets" title="Link to this heading">#</a></h1>
+<p>Example data for the guides: the bank marketing data of <a class="reference internal" href="#kivi.datasets.load_bank" title="kivi.datasets.load_bank"><code class="xref py py-func docutils literal notranslate"><span class="pre">load_bank()</span></code></a>, the synthetic loan panel, loan applications and account transactions of <a class="reference internal" href="#kivi.datasets.make_loan_panel" title="kivi.datasets.make_loan_panel"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_loan_panel()</span></code></a>, <a class="reference internal" href="#kivi.datasets.make_applications" title="kivi.datasets.make_applications"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_applications()</span></code></a> and <a class="reference internal" href="#kivi.datasets.make_transactions" title="kivi.datasets.make_transactions"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_transactions()</span></code></a>, and the synthetic defaulted loans and cash flows of their workouts of <a class="reference internal" href="#kivi.datasets.make_defaults" title="kivi.datasets.make_defaults"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_defaults()</span></code></a> and <a class="reference internal" href="#kivi.datasets.make_recoveries" title="kivi.datasets.make_recoveries"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_recoveries()</span></code></a>.</p>
+<p>See <a class="reference internal" href="../user_guide/datasets.html"><span class="doc">Example data</span></a> for their columns and how the synthetic data are simulated.</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.datasets.load_bank" title="kivi.datasets.load_bank"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_bank</span></code></a>()</p></td>
+<td><p>Load 4,521 observations from UCI Bank Marketing.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.datasets.make_loan_panel" title="kivi.datasets.make_loan_panel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_loan_panel</span></code></a>(*[, n_loans, n_months, ...])</p></td>
+<td><p>Generate a synthetic monthly panel of instalment loans.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.datasets.make_applications" title="kivi.datasets.make_applications"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_applications</span></code></a>(*[, n_applicants, ...])</p></td>
+<td><p>Generate synthetic loan applications with an approval decision.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.datasets.make_transactions" title="kivi.datasets.make_transactions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_transactions</span></code></a>(applications, *, ...[, ...])</p></td>
+<td><p>Generate synthetic account transactions before the application dates.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.datasets.make_defaults" title="kivi.datasets.make_defaults"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_defaults</span></code></a>(*[, n_defaults, rng])</p></td>
+<td><p>Generate synthetic defaulted loans with their exposures and workouts.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.datasets.make_recoveries" title="kivi.datasets.make_recoveries"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_recoveries</span></code></a>(defaults, *[, rng])</p></td>
+<td><p>Generate synthetic cash flows of the workouts of defaulted loans.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.datasets.load_bank">
+<span class="sig-prename descclassname"><span class="pre">kivi.datasets.</span></span><span class="sig-name descname"><span class="pre">load_bank</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#kivi.datasets.load_bank" title="Link to this definition">#</a></dt>
+<dd><p>Load 4,521 observations from UCI Bank Marketing.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">y</span></code> response of the original data is returned as the binary
+<code class="docutils literal notranslate"><span class="pre">target</span></code> column.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>pandas.DataFrame</dt><dd><p>Sixteen features and the integer target. A value of 1 indicates a
+term deposit subscription.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="woe.html#kivi.woe.woe_table" title="kivi.woe.woe_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.woe.woe_table</span></code></a></dt><dd><p>Relate a feature to <code class="docutils literal notranslate"><span class="pre">target</span></code>.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.datasets.make_loan_panel" title="kivi.datasets.make_loan_panel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_loan_panel</span></code></a></dt><dd><p>Synthetic monthly history of a loan portfolio.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>Bank Marketing by S. Moro, P. Rita and P. Cortez (2014) is distributed
+under CC BY 4.0. The bundled CSV was converted from the legacy workbook.</p>
+<p class="rubric">References</p>
+<div role="list" class="citation-list">
+<div class="citation" id="rd093f8221f97-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<p>S. Moro, P. Rita and P. Cortez, “Bank Marketing”, UCI Machine
+Learning Repository, 2014. <a class="reference external" href="https://doi.org/10.24432/C5K306">https://doi.org/10.24432/C5K306</a></p>
+</div>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_bank</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">load_bank</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">(4521, 17)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span><span class="p">[</span><span class="s2">"target"</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+<span class="go">{0: 4000, 1: 521}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.datasets.make_loan_panel">
+<span class="sig-prename descclassname"><span class="pre">kivi.datasets.</span></span><span class="sig-name descname"><span class="pre">make_loan_panel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_loans</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_months</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">24</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prepayment</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">correlation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">factors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.datasets.make_loan_panel" title="Link to this definition">#</a></dt>
+<dd><p>Generate a synthetic monthly panel of instalment loans.</p>
+<p>The loans are originated over <cite>n_months</cite> months and observed at the end
+of every month on book until the month after the last origination month.
+Delinquency rolls forward when a borrower misses instalments and cures
+when the arrears are paid, and a loan that reaches 90 days past due stays
+there. The data is simulated, not drawn from a real portfolio.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>n_loans</strong><span class="classifier">int, default 5000</span></dt><dd><p>Number of loans, each assigned to an origination month at random.</p>
+</dd>
+<dt><strong>n_months</strong><span class="classifier">int, default 24</span></dt><dd><p>Number of origination months, starting with January 2024. The oldest
+cohort is observed for <cite>n_months</cite> months on book and the youngest
+for one.</p>
+</dd>
+<dt><strong>prepayment</strong><span class="classifier">float, default 0.0</span></dt><dd><p>Monthly probability that a current loan repays its whole balance
+before its last instalment is due, from 0 to 1. The default, 0,
+gives no early repayments and the same panel as earlier releases.</p>
+</dd>
+<dt><strong>correlation</strong><span class="classifier">float, default 0.0</span></dt><dd><p>Asset correlation of a systematic factor that moves the payments of
+all loans together each month, from 0 to below 1, as in
+<cite>kivi.lifetime.conditional_matrix</cite>. The default, 0, gives no
+economic cycle and the same panel as earlier releases.</p>
+</dd>
+<dt><strong>factors</strong><span class="classifier">array_like, optional</span></dt><dd><p>Value of the standard normal systematic factor in each of the
+<cite>n_months</cite> months, from February 2024 on; positive values stand for
+a better economy than on average. By default, with a positive
+<cite>correlation</cite>, the factors are drawn from <cite>rng</cite>. Only with a
+positive <cite>correlation</cite>.</p>
+</dd>
+<dt><strong>rng</strong><span class="classifier">{None, int, numpy.random.Generator}, optional</span></dt><dd><p>Seed or generator passed to <cite>numpy.random.default_rng</cite>. The global
+NumPy random state is not used, so the same seed always returns the
+same panel.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.DataFrame</dt><dd><p>One row per loan and month on book, sorted by loan and then by month
+on book, with the columns described in the Notes.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If <cite>n_loans</cite> or <cite>n_months</cite> is not a positive integer, <cite>prepayment</cite>
+is not a number from 0 to 1, <cite>correlation</cite> is not a number from 0 to
+below 1, <cite>factors</cite> is given without a positive <cite>correlation</cite> or does
+not hold <cite>n_months</cite> finite numbers, or <cite>rng</cite> is not a seed or
+generator that <cite>numpy.random.default_rng</cite> accepts.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="vintage.html#kivi.vintage.vintage_table" title="kivi.vintage.vintage_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.vintage.vintage_table</span></code></a></dt><dd><p>Cumulative bad rates by cohort and month on book.</p>
+</dd>
+<dt><a class="reference internal" href="vintage.html#kivi.vintage.transition_matrix" title="kivi.vintage.transition_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.vintage.transition_matrix</span></code></a></dt><dd><p>Movements between delinquency buckets.</p>
+</dd>
+<dt><a class="reference internal" href="lifetime.html#kivi.lifetime.survival_table" title="kivi.lifetime.survival_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.lifetime.survival_table</span></code></a></dt><dd><p>PD term structure with early repayments.</p>
+</dd>
+<dt><a class="reference internal" href="lifetime.html#kivi.lifetime.matrix_correlation" title="kivi.lifetime.matrix_correlation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.lifetime.matrix_correlation</span></code></a></dt><dd><p>The correlation of the factor, from the monthly movements.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.datasets.load_bank" title="kivi.datasets.load_bank"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_bank</span></code></a></dt><dd><p>Real data with a binary target.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>The columns are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">loan_id</span></code>: integer identifier, increasing with the origination month;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cohort</span></code>: the origination month, a monthly <code class="docutils literal notranslate"><span class="pre">pandas.Period</span></code>;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">month</span></code>: the month of the observation, <code class="docutils literal notranslate"><span class="pre">cohort</span> <span class="pre">+</span> <span class="pre">month_on_book</span></code>;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">month_on_book</span></code>: months since origination, from 1;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">term</span></code>: contractual number of monthly instalments, 12, 24 or 36;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">amount</span></code>: amount lent;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">balance</span></code>: outstanding principal at the end of the month;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">status</span></code>: days past due at the end of the month, an ordered
+categorical with the categories <code class="docutils literal notranslate"><span class="pre">current</span></code>, <code class="docutils literal notranslate"><span class="pre">1-29</span></code>, <code class="docutils literal notranslate"><span class="pre">30-59</span></code>,
+<code class="docutils literal notranslate"><span class="pre">60-89</span></code> and <code class="docutils literal notranslate"><span class="pre">90+</span></code>.</p></li>
+</ul>
+<p>Each loan is repaid in equal monthly instalments at 1% interest a month.
+Its status counts the months since its oldest unpaid instalment fell
+due: one is <code class="docutils literal notranslate"><span class="pre">1-29</span></code>, two <code class="docutils literal notranslate"><span class="pre">30-59</span></code>, three <code class="docutils literal notranslate"><span class="pre">60-89</span></code> and four or more
+<code class="docutils literal notranslate"><span class="pre">90+</span></code>. Within the term this is the number of instalments past due, and
+a loan that is still behind after its term keeps rolling.</p>
+<p>Every month, a current loan misses its instalment with a probability that
+rises over the first six months on book and then declines, scaled by a
+risk factor of the loan and one of its cohort, so cohorts differ in
+quality. A delinquent loan pays all its arrears and becomes current, pays
+one instalment and keeps its status, or pays nothing and rolls to the
+next bucket; the chance of curing falls and that of rolling rises with
+the days past due. A <code class="docutils literal notranslate"><span class="pre">90+</span></code> loan makes no further payments, so its
+balance stays the same. A loan leaves the panel after its last instalment
+is paid; loans are not charged off.</p>
+<p>With <cite>prepayment</cite>, every month, a loan that was current at the end of
+the month before, as every loan is at origination, and that has more
+instalments left than the one now due repays its whole balance with
+that probability, whatever its risk. Its balance is 0 in that month and
+it has no rows after it, so a balance of 0 before the term marks an
+early repayment, while a loan repaid on schedule reaches 0 at or after
+its term. The early repayments use random numbers of their own, drawn after
+all the others: with the same <cite>rng</cite>, every loan follows the same path as
+without <cite>prepayment</cite> until it repays early.</p>
+<p>With <cite>correlation</cite>, the payments depend on a systematic factor
+<span class="math notranslate nohighlight">\(z\)</span> of each month. A loan that is not yet 90 days past due
+misses its instalment, or fails to pay all of its arrears, with
+probability <span class="math notranslate nohighlight">\(w\)</span>, and rolls to the next bucket, paying nothing,
+with probability <span class="math notranslate nohighlight">\(v \le w\)</span>. Given the factor, each of them
+becomes</p>
+<div class="math notranslate nohighlight">
+\[\Phi\!\left(\frac{\Phi^{-1}(w) - \sqrt{\rho}\,z}{\sqrt{1 - \rho}}\right),\]</div>
+<p>the shift of <cite>kivi.lifetime.conditional_matrix</cite>, so averaged over the
+factor every loan keeps its probabilities. The factor moves the misses
+of current loans and the cures and rolls of delinquent ones together.
+The factors drawn by default come after all the other random numbers,
+also those of <cite>prepayment</cite>. The monthly movements of the whole panel
+mix loans of different risk and age, so their matrix shifts with the
+factor only approximately as <cite>conditional_matrix</cite> gives.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_loan_panel</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">panel</span> <span class="o">=</span> <span class="n">make_loan_panel</span><span class="p">(</span><span class="n">rng</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">panel</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">(59295, 8)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">panel</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">   loan_id   cohort    month  month_on_book  term   amount   balance   status</span>
+<span class="go">0        1  2024-01  2024-02              1    24  18300.0  17621.56  current</span>
+<span class="go">1        1  2024-01  2024-03              2    24  18300.0  16936.33  current</span>
+<span class="go">2        1  2024-01  2024-04              3    24  18300.0  16244.25  current</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">panel</span><span class="p">[</span><span class="s2">"status"</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">(</span><span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="go">status</span>
+<span class="go">current    55246</span>
+<span class="go">1-29        1490</span>
+<span class="go">30-59        506</span>
+<span class="go">60-89        320</span>
+<span class="go">90+         1733</span>
+<span class="go">Name: count, dtype: int64</span>
+</pre></div>
+</div>
+<p>With a 2% chance a month of repaying early, 962 loans repay before
+their term, and 182 loans reach 90+ instead of 205:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">repaying</span> <span class="o">=</span> <span class="n">make_loan_panel</span><span class="p">(</span><span class="n">prepayment</span><span class="o">=</span><span class="mf">0.02</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">last</span> <span class="o">=</span> <span class="n">repaying</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">"loan_id"</span><span class="p">)</span><span class="o">.</span><span class="n">tail</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">early</span> <span class="o">=</span> <span class="p">(</span><span class="n">last</span><span class="p">[</span><span class="s2">"balance"</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">last</span><span class="p">[</span><span class="s2">"month_on_book"</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">last</span><span class="p">[</span><span class="s2">"term"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">int</span><span class="p">(</span><span class="n">early</span><span class="o">.</span><span class="n">sum</span><span class="p">()),</span> <span class="nb">int</span><span class="p">((</span><span class="n">last</span><span class="p">[</span><span class="s2">"status"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"90+"</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+<span class="go">(962, 182)</span>
+</pre></div>
+</div>
+<p>In a year of bad months, more loans fall behind than in a year of good
+ones:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bad</span> <span class="o">=</span> <span class="n">make_loan_panel</span><span class="p">(</span><span class="n">n_months</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">correlation</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">factors</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mf">1.5</span><span class="p">]</span> <span class="o">*</span> <span class="mi">12</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">good</span> <span class="o">=</span> <span class="n">make_loan_panel</span><span class="p">(</span><span class="n">n_months</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">correlation</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">factors</span><span class="o">=</span><span class="p">[</span><span class="mf">1.5</span><span class="p">]</span> <span class="o">*</span> <span class="mi">12</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">int</span><span class="p">((</span><span class="n">bad</span><span class="p">[</span><span class="s2">"status"</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">"current"</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()),</span> <span class="nb">int</span><span class="p">((</span><span class="n">good</span><span class="p">[</span><span class="s2">"status"</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">"current"</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+<span class="go">(3790, 488)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.datasets.make_applications">
+<span class="sig-prename descclassname"><span class="pre">kivi.datasets.</span></span><span class="sig-name descname"><span class="pre">make_applications</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_applicants</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_risk</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.datasets.make_applications" title="Link to this definition">#</a></dt>
+<dd><p>Generate synthetic loan applications with an approval decision.</p>
+<p>Every applicant has a few numeric and categorical features, the PD of an
+incumbent scorecard and a true default flag. The incumbent PD and two
+policy rules decide who is approved, so the data show the selection that
+reject inference corrects for. The data is simulated, not drawn from a
+real portfolio.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>n_applicants</strong><span class="classifier">int, default 10000</span></dt><dd><p>Number of applications.</p>
+</dd>
+<dt><strong>include_risk</strong><span class="classifier">bool, default False</span></dt><dd><p>If True, append the hidden risk factor as the last column <code class="docutils literal notranslate"><span class="pre">risk</span></code>.
+Nothing else depends on it, so the same seed gives the same
+applications with and without the column.</p>
+</dd>
+<dt><strong>rng</strong><span class="classifier">{None, int, numpy.random.Generator}, optional</span></dt><dd><p>Seed or generator passed to <cite>numpy.random.default_rng</cite>. The global
+NumPy random state is not used, so the same seed always returns the
+same applications.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.DataFrame</dt><dd><p>One row per application with the columns described in the Notes.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If <cite>n_applicants</cite> is not a positive integer, <cite>include_risk</cite> is not
+True or False, or <cite>rng</cite> is not a seed or generator that
+<cite>numpy.random.default_rng</cite> accepts.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="reject_inference.html#kivi.reject_inference.fuzzy_augmentation" title="kivi.reject_inference.fuzzy_augmentation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.reject_inference.fuzzy_augmentation</span></code></a></dt><dd><p>Infer the outcomes of rejected applicants.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.datasets.make_loan_panel" title="kivi.datasets.make_loan_panel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_loan_panel</span></code></a></dt><dd><p>Synthetic monthly history of a loan portfolio.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.datasets.make_transactions" title="kivi.datasets.make_transactions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_transactions</span></code></a></dt><dd><p>Synthetic account transactions of the applicants.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.datasets.load_bank" title="kivi.datasets.load_bank"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_bank</span></code></a></dt><dd><p>Real data with a binary target.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>The columns are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">age</span></code>: age in years, from 18 to 75;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">income</span></code>: monthly income, rounded to tens;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">debt_to_income</span></code>: monthly debt payments over income, rounded to
+hundredths;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">inquiries</span></code>: number of credit inquiries in the last six months;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">housing</span></code>: a categorical with the categories <code class="docutils literal notranslate"><span class="pre">own</span></code>, <code class="docutils literal notranslate"><span class="pre">mortgage</span></code>
+and <code class="docutils literal notranslate"><span class="pre">rent</span></code>;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">employment</span></code>: a categorical with the categories <code class="docutils literal notranslate"><span class="pre">permanent</span></code>,
+<code class="docutils literal notranslate"><span class="pre">temporary</span></code> and <code class="docutils literal notranslate"><span class="pre">self_employed</span></code>;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">incumbent_pd</span></code>: the PD of the scorecard that decided the
+application, rounded to four decimals;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">policy_decline</span></code>: True if a policy rule declined the application,
+whatever its PD: a debt-to-income ratio above 0.6 or an age below 21;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">approved</span></code>: True if <code class="docutils literal notranslate"><span class="pre">incumbent_pd</span></code> is below 0.15 and no policy
+rule declined the application;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">target</span></code>: 1 if the applicant defaults, else 0;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">risk</span></code>: only with <code class="docutils literal notranslate"><span class="pre">include_risk=True</span></code>, the hidden risk factor, a
+standard normal draw that is not rounded.</p></li>
+</ul>
+<p>The default probability rises with the debt-to-income ratio and the
+number of inquiries, falls with age and income, and is higher for
+renters and for temporary and self-employed applicants. A hidden risk
+factor that no column holds, unless <code class="docutils literal notranslate"><span class="pre">include_risk</span></code> is True, also raises
+it, and the number of inquiries rises with that factor.</p>
+<p>The incumbent scorecard weighs the features differently, ignores
+<code class="docutils literal notranslate"><span class="pre">housing</span></code> and, like an underwriter with a credit bureau report, sees
+part of the hidden risk factor. Rejected applicants are therefore
+riskier than approved applicants with the same features, so a model
+fitted on the approved applicants alone underestimates their default
+rate.</p>
+<p>In practice, the outcome is known only for approved applicants. Here
+<code class="docutils literal notranslate"><span class="pre">target</span></code> is also given for rejected applicants, but only to evaluate
+reject inference: a model must not be fitted on it, or reject inference
+would be pointless. The same holds for <code class="docutils literal notranslate"><span class="pre">risk</span></code>: it is the information
+that no data set holds, given only to simulate data that depend on it, as
+<cite>make_transactions</cite> does.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_applications</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">applications</span> <span class="o">=</span> <span class="n">make_applications</span><span class="p">(</span><span class="n">rng</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">applications</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">(10000, 10)</span>
+</pre></div>
+</div>
+<p>The rejected applicants default three times as often as the approved
+ones, an outcome that only synthetic data can show:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">by_decision</span> <span class="o">=</span> <span class="n">applications</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">"policy_decline"</span><span class="p">,</span> <span class="s2">"approved"</span><span class="p">])[</span><span class="s2">"target"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">by_decision</span><span class="o">.</span><span class="n">agg</span><span class="p">([</span><span class="s2">"size"</span><span class="p">,</span> <span class="s2">"mean"</span><span class="p">])</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">                         size   mean</span>
+<span class="go">policy_decline approved</span>
+<span class="go">False          False     2467  0.301</span>
+<span class="go">               True      6770  0.097</span>
+<span class="go">True           False      763  0.274</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.datasets.make_transactions">
+<span class="sig-prename descclassname"><span class="pre">kivi.datasets.</span></span><span class="sig-name descname"><span class="pre">make_transactions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">applications</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">application_date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_months</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">12</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.datasets.make_transactions" title="Link to this definition">#</a></dt>
+<dd><p>Generate synthetic account transactions before the application dates.</p>
+<p>Every applicant has transactions on an account in each of the <cite>n_months</cite>
+months before the application: card purchases, cash withdrawals and
+instalment repayments. They depend on the hidden risk factor of the
+applicant and on the income, not on the outcome. Applicants at risk build
+up stress, withdraw more cash as the application nears and repay less,
+and the volumes scale with income, so that features of the transactions
+in time windows carry a clear but imperfect signal about <code class="docutils literal notranslate"><span class="pre">target</span></code>. The
+data is simulated, not drawn from a real portfolio.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>applications</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>One row per applicant with the columns <code class="docutils literal notranslate"><span class="pre">income</span></code>,
+<code class="docutils literal notranslate"><span class="pre">debt_to_income</span></code>, <code class="docutils literal notranslate"><span class="pre">incumbent_pd</span></code> and <code class="docutils literal notranslate"><span class="pre">risk</span></code> of
+<cite>kivi.datasets.make_applications</cite>, called with <code class="docutils literal notranslate"><span class="pre">include_risk=True</span></code>,
+and unique index labels. Other columns, <code class="docutils literal notranslate"><span class="pre">target</span></code> included, are
+ignored.</p>
+</dd>
+<dt><strong>application_date</strong><span class="classifier">{str, date, array_like}</span></dt><dd><p>The date of each application. A string that names a column of
+<cite>applications</cite> reads the dates from that column. Any other string, a
+<cite>datetime.date</cite>, a <cite>numpy.datetime64</cite> or a <cite>pandas.Timestamp</cite> is
+one date for every application. A Series with the index of
+<cite>applications</cite>, or an array_like with one date per row, gives each
+application its own. The dates are read as <cite>pandas.to_datetime</cite>
+reads them, as in <cite>kivi.vintage.delinquency_panel</cite>: a time of day is
+ignored and a time zone is dropped, and numbers and periods raise an
+error, so convert a period column with <code class="docutils literal notranslate"><span class="pre">.dt.to_timestamp()</span></code>.</p>
+</dd>
+<dt><strong>n_months</strong><span class="classifier">int, default 12</span></dt><dd><p>Number of months before the application date that the transactions
+cover. The transactions of an applicant lie from <cite>n_months</cite> calendar
+months before the application date, counted as <cite>pandas.DateOffset</cite>
+counts them, up to but not including the application date.</p>
+</dd>
+<dt><strong>rng</strong><span class="classifier">{None, int, numpy.random.Generator}, optional</span></dt><dd><p>Seed or generator passed to <cite>numpy.random.default_rng</cite>. The global
+NumPy random state is not used, so the same seed always returns the
+same transactions.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.DataFrame</dt><dd><p>One row per transaction, sorted by applicant, in the order of
+<cite>applications</cite>, and then by time, with the columns described in the
+Notes and a RangeIndex.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If <cite>applications</cite> is not a DataFrame, lacks a required column (the
+message names <code class="docutils literal notranslate"><span class="pre">include_risk</span></code> when it is <code class="docutils literal notranslate"><span class="pre">risk</span></code>), has repeated or
+non-flat index labels, or holds a missing, non-numeric or
+out-of-range value in a required column. If <cite>application_date</cite> is
+not a column name, a date or dates with one value per application,
+holds a missing value, or is a Series with an index different from
+that of <cite>applications</cite>. If <cite>n_months</cite> is not a positive integer or
+reaches back before the year 1678, or <cite>rng</cite> is not a seed or
+generator that <cite>numpy.random.default_rng</cite> accepts.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.datasets.make_applications" title="kivi.datasets.make_applications"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_applications</span></code></a></dt><dd><p>Synthetic loan applications with an approval decision.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.datasets.make_loan_panel" title="kivi.datasets.make_loan_panel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_loan_panel</span></code></a></dt><dd><p>Synthetic monthly history of a loan portfolio.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>The columns of the result are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">applicant_id</span></code>: the index label of the applicant in <cite>applications</cite>;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">timestamp</span></code>: the time of the transaction, to the second, on a day
+before the application date;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">amount</span></code>: the amount, positive and rounded to cents;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kind</span></code>: a categorical with the categories <code class="docutils literal notranslate"><span class="pre">purchase</span></code>,
+<code class="docutils literal notranslate"><span class="pre">cash_withdrawal</span></code> and <code class="docutils literal notranslate"><span class="pre">repayment</span></code>;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">merchant_category</span></code>: a categorical with eight categories such as
+<code class="docutils literal notranslate"><span class="pre">grocery</span></code> and <code class="docutils literal notranslate"><span class="pre">travel</span></code> for a purchase, missing for the other kinds.</p></li>
+</ul>
+<p>The transactions of each month are drawn independently. In a year an
+applicant has on average about 25 purchases, 8 cash withdrawals and 11
+repayments, 44 transactions in all. A purchase costs about 4.5% of the
+monthly income, a cash withdrawal about 3%, and a repayment is the
+instalment that <code class="docutils literal notranslate"><span class="pre">income</span> <span class="pre">*</span> <span class="pre">debt_to_income</span></code> implies, which varies by
+about 20% between applicants. Applicants with a higher <code class="docutils literal notranslate"><span class="pre">income</span></code> make
+a few more purchases and withdrawals, and purchases are more frequent in
+the months that start in November and December. An applicant whom the
+incumbent scorecard rates as riskier withdraws more cash and misses more
+repayments, and so does an applicant with a higher <code class="docutils literal notranslate"><span class="pre">risk</span></code>.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">risk</span></code> also drives a stress that builds up before the application.
+It starts between three and nine months before the application and is
+strongest in the last month. Its level rises with the risk plus noise,
+from almost none to a bounded maximum. Under stress, the cash
+withdrawals are more frequent and larger, the purchases a little rarer,
+and a repayment is more likely to be missed, or paid up to a tenth
+short. The number and sum of the cash withdrawals of the last months,
+the number of repayments and the change of their sum from the months
+before therefore carry a signal about <code class="docutils literal notranslate"><span class="pre">risk</span></code> and, through it, about
+<code class="docutils literal notranslate"><span class="pre">target</span></code>, which the same risk raises. The incumbent scorecard sees only
+part of the risk, so the signal remains within bands of
+<code class="docutils literal notranslate"><span class="pre">incumbent_pd</span></code>. The noise and the other differences between
+applicants keep every feature far from a perfect predictor.</p>
+<p>The transactions do not depend on <code class="docutils literal notranslate"><span class="pre">target</span></code>: they are drawn from the
+risk before the outcome, as a lender would observe them. <code class="docutils literal notranslate"><span class="pre">risk</span></code> is
+information that no lender has, so it exists only in simulated
+applications.</p>
+<p>The observations that the windows end at, one row per application with
+its date, follow from the applications and their dates, as the examples
+show.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_applications</span><span class="p">,</span> <span class="n">make_transactions</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">applications</span> <span class="o">=</span> <span class="n">make_applications</span><span class="p">(</span><span class="n">n_applicants</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">include_risk</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">days</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span> <span class="o">*</span> <span class="mi">366</span> <span class="o">//</span> <span class="mi">1000</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">applications</span><span class="p">[</span><span class="s2">"application_date"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="s2">"2024-01-01"</span><span class="p">)</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_timedelta</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">days</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">"D"</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">transactions</span> <span class="o">=</span> <span class="n">make_transactions</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">applications</span><span class="p">,</span> <span class="n">application_date</span><span class="o">=</span><span class="s2">"application_date"</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="mi">0</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">transactions</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+<span class="go">['applicant_id', 'timestamp', 'amount', 'kind', 'merchant_category']</span>
+</pre></div>
+</div>
+<p>The observations have one row per application, with its id and date, and
+the index of the applications, to which the features computed for them
+join back:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">observations</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">{</span>
+<span class="gp">... </span>        <span class="s2">"applicant_id"</span><span class="p">:</span> <span class="n">applications</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+<span class="gp">... </span>        <span class="s2">"application_date"</span><span class="p">:</span> <span class="n">applications</span><span class="p">[</span><span class="s2">"application_date"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">},</span>
+<span class="gp">... </span>    <span class="n">index</span><span class="o">=</span><span class="n">applications</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">observations</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">   applicant_id application_date</span>
+<span class="go">0             0       2024-01-01</span>
+<span class="go">1             1       2024-01-01</span>
+</pre></div>
+</div>
+<p>The dates may also be one date for every application, or a Series with
+the index of the applications:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">transactions</span> <span class="o">=</span> <span class="n">make_transactions</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">applications</span><span class="p">,</span> <span class="n">application_date</span><span class="o">=</span><span class="s2">"2024-06-30"</span><span class="p">,</span> <span class="n">n_months</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="mi">0</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">transactions</span><span class="p">[</span><span class="s2">"timestamp"</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="s2">"2024-06-30"</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.datasets.make_defaults">
+<span class="sig-prename descclassname"><span class="pre">kivi.datasets.</span></span><span class="sig-name descname"><span class="pre">make_defaults</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_defaults</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.datasets.make_defaults" title="Link to this definition">#</a></dt>
+<dd><p>Generate synthetic defaulted loans with their exposures and workouts.</p>
+<p>Every loan defaulted between 2018 and 2024 and is secured by collateral,
+unsecured or a revolving line of credit. The table holds what a lender
+knows about the loan at default, the limit and drawn amount of the
+revolving lines 12 months earlier, and the date the workout ended, if it
+ended by the data cut-off of 30 June 2025.
+<cite>kivi.datasets.make_recoveries</cite> simulates the cash flows of the
+workouts. The data is simulated, not drawn from a real portfolio.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>n_defaults</strong><span class="classifier">int, default 2000</span></dt><dd><p>Number of defaulted loans.</p>
+</dd>
+<dt><strong>rng</strong><span class="classifier">{None, int, numpy.random.Generator}, optional</span></dt><dd><p>Seed or generator passed to <cite>numpy.random.default_rng</cite>. The global
+NumPy random state is not used, so the same seed always returns the
+same loans.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.DataFrame</dt><dd><p>One row per defaulted loan, sorted by default date, with the columns
+described in the Notes and a RangeIndex.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If <cite>n_defaults</cite> is not a positive integer, or <cite>rng</cite> is not a seed or
+generator that <cite>numpy.random.default_rng</cite> accepts.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.datasets.make_recoveries" title="kivi.datasets.make_recoveries"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_recoveries</span></code></a></dt><dd><p>Synthetic cash flows of the workouts of these loans.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.datasets.make_loan_panel" title="kivi.datasets.make_loan_panel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_loan_panel</span></code></a></dt><dd><p>Synthetic monthly history of a loan portfolio.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>The columns are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">loan_id</span></code>: integer identifier from 1, increasing with the default
+date;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">segment</span></code>: a categorical with the categories <code class="docutils literal notranslate"><span class="pre">secured</span></code>,
+<code class="docutils literal notranslate"><span class="pre">unsecured</span></code> and <code class="docutils literal notranslate"><span class="pre">revolving</span></code>, about 40%, 35% and 25% of the loans;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">default_date</span></code>: the date of default, from 2018 to 2024;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ead</span></code>: the exposure at default, the amount outstanding on that date,
+rounded to cents;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">limit</span></code>: the limit of a revolving line 12 months before default,
+the reference date of the CCF, rounded to hundreds, and missing for
+the other segments;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">drawn</span></code>: the amount drawn on a revolving line on the reference date,
+rounded to cents, and missing for the other segments;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">collateral_value</span></code>: the value of the collateral of a secured loan at
+default, rounded to hundreds, and 0 for the other segments;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">discount_rate</span></code>: the annual rate at which to discount the cash flows
+of the workout to the default date, a simulated three-month
+money-market rate of the month of default plus five percentage points,
+as paragraph 143 of EBA/GL/2017/16 prescribes;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">closing_date</span></code>: the date the workout ended, with the cure, the sale
+of the collateral or the write-off of what was not recovered, and
+missing for the workouts still open at the cut-off of 30 June 2025.</p></li>
+</ul>
+<p>A workout lasts at least three months, the probation of a cure. About
+30% of the secured loans, 10% of the unsecured loans and 15% of the
+revolving lines cure, after seven months on average. A liquidation lasts
+about two and a half years on average for secured loans, a year and a
+half for unsecured loans and 15 months for revolving lines, so many of
+the workouts that started in the last years are still open at the
+cut-off.</p>
+<p>The secured loans have a median exposure of 120,000 and a median
+loan-to-value ratio of 75% at default, and some owe more than their
+collateral is worth; the unsecured loans have a median exposure of
+12,000.
+The revolving lines have a median limit of 6,000 and are about 60% drawn
+on the reference date, while 3% are drawn exactly to their limit and 3%
+beyond it. Most then draw part of the remaining limit before default,
+10% pay down part of their balance and 10% end above their limit, so
+that the realized CCF, <code class="docutils literal notranslate"><span class="pre">(ead</span> <span class="pre">-</span> <span class="pre">drawn)</span> <span class="pre">/</span> <span class="pre">(limit</span> <span class="pre">-</span> <span class="pre">drawn)</span></code>, mostly lies
+from 0 to 1, with some values below 0 and above 1; it is undefined for
+the fully drawn lines.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_defaults</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">defaults</span> <span class="o">=</span> <span class="n">make_defaults</span><span class="p">(</span><span class="n">rng</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">defaults</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">(2000, 9)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">defaults</span><span class="p">[</span><span class="s2">"segment"</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">(</span><span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="go">segment</span>
+<span class="go">secured      846</span>
+<span class="go">unsecured    665</span>
+<span class="go">revolving    489</span>
+<span class="go">Name: count, dtype: int64</span>
+</pre></div>
+</div>
+<p>The workouts of 278 loans, 13.9%, are still open at the cut-off:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">int</span><span class="p">(</span><span class="n">defaults</span><span class="p">[</span><span class="s2">"closing_date"</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+<span class="go">278</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.datasets.make_recoveries">
+<span class="sig-prename descclassname"><span class="pre">kivi.datasets.</span></span><span class="sig-name descname"><span class="pre">make_recoveries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">defaults</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.datasets.make_recoveries" title="Link to this definition">#</a></dt>
+<dd><p>Generate synthetic cash flows of the workouts of defaulted loans.</p>
+<p>Every loan of <cite>defaults</cite> gets the recoveries, costs and cure of its
+workout, from its default date up to its closing date or, for a workout
+still open, up to the data cut-off of 30 June 2025. Secured loans
+mostly recover their exposure from the sale of the collateral, unsecured
+loans and revolving lines little of it, and cured loans all of it, so
+the realized LGDs are bimodal. The data is simulated, not drawn from a
+real portfolio.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>defaults</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>One row per defaulted loan with the columns <code class="docutils literal notranslate"><span class="pre">loan_id</span></code>,
+<code class="docutils literal notranslate"><span class="pre">segment</span></code>, <code class="docutils literal notranslate"><span class="pre">default_date</span></code>, <code class="docutils literal notranslate"><span class="pre">ead</span></code>, <code class="docutils literal notranslate"><span class="pre">collateral_value</span></code> and
+<code class="docutils literal notranslate"><span class="pre">closing_date</span></code> of <cite>kivi.datasets.make_defaults</cite>. The dates must
+have a datetime64 dtype; a time of day is ignored. Other columns are
+ignored.</p>
+</dd>
+<dt><strong>rng</strong><span class="classifier">{None, int, numpy.random.Generator}, optional</span></dt><dd><p>Seed or generator passed to <cite>numpy.random.default_rng</cite>. The global
+NumPy random state is not used, so the same seed always returns the
+same cash flows.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.DataFrame</dt><dd><p>One row per cash flow, sorted by loan, in the order of <cite>defaults</cite>,
+and then by date, with the columns described in the Notes and a
+RangeIndex.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If <cite>defaults</cite> is not a DataFrame, lacks a required column or has two
+columns of that name, has a missing or repeated <code class="docutils literal notranslate"><span class="pre">loan_id</span></code>, a
+<code class="docutils literal notranslate"><span class="pre">segment</span></code> other than <code class="docutils literal notranslate"><span class="pre">secured</span></code>, <code class="docutils literal notranslate"><span class="pre">unsecured</span></code> or <code class="docutils literal notranslate"><span class="pre">revolving</span></code>,
+an <code class="docutils literal notranslate"><span class="pre">ead</span></code> that is not finite and positive, a <code class="docutils literal notranslate"><span class="pre">collateral_value</span></code>
+that is not finite and non-negative, dates without a datetime64
+dtype, a missing <code class="docutils literal notranslate"><span class="pre">default_date</span></code>, a <code class="docutils literal notranslate"><span class="pre">default_date</span></code> before
+1678 or after the cut-off, or a <code class="docutils literal notranslate"><span class="pre">closing_date</span></code> before the
+<code class="docutils literal notranslate"><span class="pre">default_date</span></code> or after the cut-off. If <cite>rng</cite> is not a seed or
+generator that <cite>numpy.random.default_rng</cite> accepts.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.datasets.make_defaults" title="kivi.datasets.make_defaults"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_defaults</span></code></a></dt><dd><p>Synthetic defaulted loans with their exposures and workouts.</p>
+</dd>
+<dt><a class="reference internal" href="calibration.html#kivi.calibration.backtest_table" title="kivi.calibration.backtest_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.calibration.backtest_table</span></code></a></dt><dd><p>Back-test LGD estimates against realized LGDs.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>The columns of the result are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">loan_id</span></code>: the <code class="docutils literal notranslate"><span class="pre">loan_id</span></code> of the loan in <cite>defaults</cite>;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">date</span></code>: the date of the cash flow;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">amount</span></code>: the amount, rounded to cents, positive for recoveries and
+cures and negative for costs;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kind</span></code>: a categorical with the categories <code class="docutils literal notranslate"><span class="pre">recovery</span></code>, <code class="docutils literal notranslate"><span class="pre">cost</span></code> and
+<code class="docutils literal notranslate"><span class="pre">cure</span></code>.</p></li>
+</ul>
+<p>A <code class="docutils literal notranslate"><span class="pre">cure</span></code> is the amount outstanding on the closing date of a cured
+loan, which paragraph 135 of EBA/GL/2017/16 treats as if the borrower
+had repaid it on that date. The realized LGD of a loan is
+<code class="docutils literal notranslate"><span class="pre">(ead</span> <span class="pre">+</span> <span class="pre">PV(costs)</span> <span class="pre">-</span> <span class="pre">PV(recoveries))</span> <span class="pre">/</span> <span class="pre">ead</span></code>, where recoveries include
+the cure and the present values discount the cash flows to the default
+date. Discounted with the <code class="docutils literal notranslate"><span class="pre">discount_rate</span></code> of <cite>make_defaults</cite>, it is
+close to 0 for most secured loans and for cured loans, close to 1 for
+unsecured loans and revolving lines that do not cure, below 0 for a few
+secured loans whose collateral covered the claim including the default
+interest, and above 1 for a few loans whose costs exceeded their
+recoveries.</p>
+<p>A workout does not depend on the dates in <cite>defaults</cite> other than through
+its length, and short workouts are more likely to be cures:</p>
+<ul class="simple">
+<li><p>a cured loan pays part of its arrears during the workout, sometimes
+with a small cost, and the cure follows on the closing date;</p></li>
+<li><p>a secured loan that does not cure pays a little during the workout,
+and the collateral is sold on the closing date. The bank recovers the
+proceeds up to its claim, the exposure plus default interest at 4% to
+10% a year, and pays 3% of the proceeds as costs of the sale and a
+few legal costs;</p></li>
+<li><p>an unsecured loan or a revolving line that does not cure recovers
+about 17% or 22% of its exposure on average, in several payments,
+with a few collection costs.</p></li>
+</ul>
+<p>About 5% of the loans have a legal cost up to 90 days before default,
+which paragraph 144 of EBA/GL/2017/16 counts in the economic loss, and
+3% of the liquidations have litigation costs of 10% to 40% of the
+exposure. A workout still open at the cut-off has the cash flows up to
+the cut-off and none after it, so its LGD so far overstates the LGD it
+will realize.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_defaults</span><span class="p">,</span> <span class="n">make_recoveries</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">defaults</span> <span class="o">=</span> <span class="n">make_defaults</span><span class="p">(</span><span class="n">rng</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">flows</span> <span class="o">=</span> <span class="n">make_recoveries</span><span class="p">(</span><span class="n">defaults</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">flows</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span>
+<span class="go">   loan_id       date     amount      kind</span>
+<span class="go">0        1 2018-04-10    -808.71      cost</span>
+<span class="go">1        1 2018-11-01   -1543.90      cost</span>
+<span class="go">2        1 2019-05-14    -552.91      cost</span>
+<span class="go">3        1 2019-07-11    3595.22  recovery</span>
+<span class="go">4        1 2019-08-02    2012.10  recovery</span>
+<span class="go">5        1 2019-08-17  233970.35  recovery</span>
+<span class="go">6        1 2019-08-17   -7019.11      cost</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">flows</span><span class="p">[</span><span class="s2">"kind"</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">(</span><span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="go">kind</span>
+<span class="go">recovery    6806</span>
+<span class="go">cost        4278</span>
+<span class="go">cure         413</span>
+<span class="go">Name: count, dtype: int64</span>
+</pre></div>
+</div>
+<p>The first loan is secured: after a few legal costs and two payments by
+the borrower, the collateral was sold on the closing date, 17 August
+2019, at a cost of 3% of the proceeds.</p>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="plotting.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Charts</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../release/index.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Release notes</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.datasets.load_bank"><code class="docutils literal notranslate"><span class="pre">load_bank()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.datasets.make_loan_panel"><code class="docutils literal notranslate"><span class="pre">make_loan_panel()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.datasets.make_applications"><code class="docutils literal notranslate"><span class="pre">make_applications()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.datasets.make_transactions"><code class="docutils literal notranslate"><span class="pre">make_transactions()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.datasets.make_defaults"><code class="docutils literal notranslate"><span class="pre">make_defaults()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.datasets.make_recoveries"><code class="docutils literal notranslate"><span class="pre">make_recoveries()</span></code></a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1.
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

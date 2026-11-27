@@ -1,0 +1,1438 @@
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Lifetime PD and expected credit loss &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=d005c095" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=25d9e9fd"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/lifetime';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Charts" href="plotting.html" />
+    <link rel="prev" title="Vintage and roll-rate analysis" href="vintage.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="1.9.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 1.9.0">1.9.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    Tutorial
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/user_guide/lifetime.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    Tutorial
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/user_guide/lifetime.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="risk_workflow.html">Risk modeling workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">Time-window features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="univariate.html">Univariate profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="binning.html">Binning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="woe_iv.html">Weight of evidence and information value</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selection.html">Variable selection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reject_inference.html">Reject inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scorecard.html">Scorecard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="expert.html">Expert scorecards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">Model performance</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lgd.html">LGD and EAD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">Credit strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rules.html">Policy rules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spec.html">Binning specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="psi.html">Population stability index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">Model monitoring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="validation.html">Model validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="capital.html">Regulatory capital</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vintage.html">Vintage and roll-rate analysis</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">Lifetime PD and expected credit loss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html">Charts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">Example data</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">User guide</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Lifetime PD and expected credit loss</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="lifetime-pd-and-expected-credit-loss">
+<h1>Lifetime PD and expected credit loss<a class="headerlink" href="#lifetime-pd-and-expected-credit-loss" title="Link to this heading">#</a></h1>
+<p>IFRS 9 requires a lender to hold a loss allowance for the credit losses that it expects on its loans. While the credit risk of a loan has not increased significantly since it was granted, the allowance covers the losses from defaults in the next 12 months; once it has, and once the loan is in default, it covers the losses over the remaining life of the loan. Both need the probability of a default in each period after the reporting date, a PD term structure, rather than the single 12-month PD of a scorecard.</p>
+<p>The term structures come from the vintage curves and the transition matrices of <a class="reference internal" href="vintage.html"><span class="doc">Vintage and roll-rate analysis</span></a>, or from the durations of the loans until they default, repay or are last observed, and the loss allowance is the last step of this user guide. <a class="reference internal" href="../api/lifetime.html#kivi.lifetime.convert_pd" title="kivi.lifetime.convert_pd"><code class="xref py py-func docutils literal notranslate"><span class="pre">convert_pd()</span></code></a> converts a term structure between cumulative, marginal and conditional PDs, <a class="reference internal" href="../api/lifetime.html#kivi.lifetime.transition_pd" title="kivi.lifetime.transition_pd"><code class="xref py py-func docutils literal notranslate"><span class="pre">transition_pd()</span></code></a> projects one from a transition matrix, <a class="reference internal" href="../api/lifetime.html#kivi.lifetime.conditional_matrix" title="kivi.lifetime.conditional_matrix"><code class="xref py py-func docutils literal notranslate"><span class="pre">conditional_matrix()</span></code></a> shifts a transition matrix to the economy of a scenario, <a class="reference internal" href="../api/lifetime.html#kivi.lifetime.matrix_factor" title="kivi.lifetime.matrix_factor"><code class="xref py py-func docutils literal notranslate"><span class="pre">matrix_factor()</span></code></a> and <a class="reference internal" href="../api/lifetime.html#kivi.lifetime.matrix_correlation" title="kivi.lifetime.matrix_correlation"><code class="xref py py-func docutils literal notranslate"><span class="pre">matrix_correlation()</span></code></a> estimate its factor and correlation from observed movements, <a class="reference internal" href="../api/lifetime.html#kivi.lifetime.survival_table" title="kivi.lifetime.survival_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">survival_table()</span></code></a> estimates one from loans that are censored, repaid early or observed only from some age on, <a class="reference internal" href="../api/lifetime.html#kivi.lifetime.expected_credit_loss" title="kivi.lifetime.expected_credit_loss"><code class="xref py py-func docutils literal notranslate"><span class="pre">expected_credit_loss()</span></code></a> gives the 12-month and the lifetime expected credit loss of each account, <a class="reference internal" href="../api/lifetime.html#kivi.lifetime.significant_increase" title="kivi.lifetime.significant_increase"><code class="xref py py-func docutils literal notranslate"><span class="pre">significant_increase()</span></code></a> and <a class="reference internal" href="../api/lifetime.html#kivi.lifetime.assign_stages" title="kivi.lifetime.assign_stages"><code class="xref py py-func docutils literal notranslate"><span class="pre">assign_stages()</span></code></a> allocate the accounts to the three stages, and <a class="reference internal" href="../api/lifetime.html#kivi.lifetime.stage_table" title="kivi.lifetime.stage_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">stage_table()</span></code></a> sums the loss allowance of each stage.</p>
+<section id="definitions">
+<h2>Definitions<a class="headerlink" href="#definitions" title="Link to this heading">#</a></h2>
+<p>A PD term structure describes the risk of each period after a starting point, such as the origination of a loan or the reporting date. For period <span class="math notranslate nohighlight">\(k\)</span>, the <em>cumulative PD</em> <span class="math notranslate nohighlight">\(C_k\)</span> is the probability of a default in periods 1 to <span class="math notranslate nohighlight">\(k\)</span>, the <em>marginal PD</em> <span class="math notranslate nohighlight">\(m_k\)</span> the probability of a default in period <span class="math notranslate nohighlight">\(k\)</span>, and the <em>conditional PD</em> <span class="math notranslate nohighlight">\(h_k\)</span>, also called the hazard rate, the probability of a default in period <span class="math notranslate nohighlight">\(k\)</span> given that there was none before. With <span class="math notranslate nohighlight">\(C_0 = 0\)</span>, each of them gives the others:</p>
+<div class="math notranslate nohighlight">
+\[m_k = C_k - C_{k-1}, \qquad
+h_k = \frac{m_k}{1 - C_{k-1}}, \qquad
+C_k = \sum_{j \le k} m_j = 1 - \prod_{j \le k} (1 - h_j).\]</div>
+<p>A loan leaves the risk of default when it defaults, when it is repaid, early or at its term, or when the data end. A loan last observed without a default or a repayment is <em>censored</em>: all that is known is that it had not defaulted by then. A repayment is a <em>competing risk</em>: once repaid, a loan can no longer default. With <span class="math notranslate nohighlight">\(n_t\)</span> loans at risk in period <span class="math notranslate nohighlight">\(t\)</span> of their life, <span class="math notranslate nohighlight">\(d_t\)</span> defaults and <span class="math notranslate nohighlight">\(c_t\)</span> repayments in it, the hazard rate of default is <span class="math notranslate nohighlight">\(h_t = d_t / n_t\)</span>, and the probability of being still on book at the end of the period is <span class="math notranslate nohighlight">\(S(t) = \prod_{s \le t} (1 - (d_s + c_s) / n_s)\)</span>. The cumulative PD is the <em>cumulative incidence</em> of default, the Aalen–Johansen estimate</p>
+<div class="math notranslate nohighlight">
+\[C_t = \sum_{s \le t} S(s - 1) \, h_s, \qquad S(0) = 1,\]</div>
+<p>and without competing exits it is the Kaplan–Meier estimate <span class="math notranslate nohighlight">\(1 - \prod_{s \le t} (1 - h_s)\)</span>.</p>
+<p>The expected credit loss (ECL) of an account adds up, over the periods <span class="math notranslate nohighlight">\(t = 1, \ldots, H\)</span> after the reporting date, the marginal PD of each period times the loss given default (LGD) and the exposure at default (EAD) in that period, discounted to the reporting date at the effective interest rate <span class="math notranslate nohighlight">\(r\)</span> per period:</p>
+<div class="math notranslate nohighlight">
+\[\mathrm{ECL} = \sum_{t=1}^{H} m_t \, \mathrm{LGD}_t \, \mathrm{EAD}_t \, (1 + r)^{-t}.\]</div>
+<p>The 12-month ECL adds up the periods of the next 12 months, and the lifetime ECL every period up to maturity. <a class="reference internal" href="../api/lifetime.html#kivi.lifetime.expected_credit_loss" title="kivi.lifetime.expected_credit_loss"><code class="xref py py-func docutils literal notranslate"><span class="pre">expected_credit_loss()</span></code></a> uses these conventions:</p>
+<ul class="simple">
+<li><p>Period 1 starts at the reporting date and ends one period later, so with monthly periods the 12-month ECL has <code class="docutils literal notranslate"><span class="pre">horizon=12</span></code>.</p></li>
+<li><p>The marginal PDs are seen from the reporting date. They are not conditional on survival, and they add up to the cumulative PD.</p></li>
+<li><p>A default in period <span class="math notranslate nohighlight">\(t\)</span> occurs at its end, so its loss is discounted over <span class="math notranslate nohighlight">\(t\)</span> periods. The rate is the effective interest rate per period, such as <span class="math notranslate nohighlight">\((1 + r_\text{annual})^{1/12} - 1\)</span> for monthly periods.</p></li>
+</ul>
+<p>IFRS 9 allocates each exposure to one of three stages, which decide its horizon:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 15.0%" />
+<col style="width: 55.0%" />
+<col style="width: 30.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Stage</p></th>
+<th class="head"><p>Exposures</p></th>
+<th class="head"><p>Loss allowance</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1</p></td>
+<td><p>Credit risk not increased significantly since initial recognition</p></td>
+<td><p>12-month ECL</p></td>
+</tr>
+<tr class="row-odd"><td><p>2</p></td>
+<td><p>Credit risk increased significantly since initial recognition</p></td>
+<td><p>Lifetime ECL</p></td>
+</tr>
+<tr class="row-even"><td><p>3</p></td>
+<td><p>Credit-impaired</p></td>
+<td><p>Lifetime ECL</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>IFRS 9 defines credit-impaired exposures by events that hurt their expected cash flows, such as a default or the significant financial difficulty of the borrower. In practice, lenders usually align them with their definition of default.</p>
+</section>
+<section id="a-worked-example">
+<h2>A worked example<a class="headerlink" href="#a-worked-example" title="Link to this heading">#</a></h2>
+<p>A loan defaults in its first year with probability 0.02, by the end of its second year with probability 0.05 and by the end of its third year with probability 0.08:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.lifetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">convert_pd</span><span class="p">,</span> <span class="n">expected_credit_loss</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cumulative</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.02</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.08</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">convert_pd</span><span class="p">(</span><span class="n">cumulative</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">"cumulative"</span><span class="p">,</span> <span class="n">to</span><span class="o">=</span><span class="s2">"marginal"</span><span class="p">)</span>
+<span class="go">array([0.02, 0.03, 0.03])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">convert_pd</span><span class="p">(</span><span class="n">cumulative</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">"cumulative"</span><span class="p">,</span> <span class="n">to</span><span class="o">=</span><span class="s2">"conditional"</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">array([0.02  , 0.0306, 0.0316])</span>
+</pre></div>
+</div>
+<p>The marginal PD of the second year is 0.05 − 0.02 = 0.03. Of the 98% of loans without a default in the first year, 0.03 / 0.98 = 3.06% default in the second, the conditional PD.</p>
+<p>With an LGD of 50%, an exposure that amortizes from 1,000 to 700 and 400, and an effective interest rate of 5% a year, the expected credit losses of the loan are:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">marginal</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">0.02</span><span class="p">,</span> <span class="mf">0.03</span><span class="p">,</span> <span class="mf">0.03</span><span class="p">]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ead</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">1000.0</span><span class="p">,</span> <span class="mf">700.0</span><span class="p">,</span> <span class="mf">400.0</span><span class="p">]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">expected_credit_loss</span><span class="p">(</span><span class="n">marginal</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">ead</span><span class="p">,</span> <span class="n">rate</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">array([24.23])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">expected_credit_loss</span><span class="p">(</span><span class="n">marginal</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">ead</span><span class="p">,</span> <span class="n">rate</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">horizon</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">array([9.52])</span>
+</pre></div>
+</div>
+<p>The first year contributes 0.02 × 0.5 × 1,000 / 1.05 = 9.52, which is the 12-month ECL. The second contributes 0.03 × 0.5 × 700 / 1.05² = 9.52 and the third 0.03 × 0.5 × 400 / 1.05³ = 5.18, so the lifetime ECL is 24.23. Each row of the PDs is one account, so a portfolio is computed in one call.</p>
+<figure class="align-default" id="id1">
+<img alt="The three years of the worked example with their cumulative, marginal and conditional PDs, LGD, EAD, discount factors and discounted losses" class="plot-directive" src="../_images/lifetime-1.svg" />
+<figcaption>
+<p><span class="caption-text">The worked example year by year. <code class="docutils literal notranslate"><span class="pre">convert_pd</span></code> gives the marginal and conditional PDs, and <code class="docutils literal notranslate"><span class="pre">expected_credit_loss</span></code> adds up the discounted losses: the first year with <code class="docutils literal notranslate"><span class="pre">horizon=1</span></code>, all three by default.</span><a class="headerlink" href="#id1" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="term-structures-from-vintage-curves">
+<h2>Term structures from vintage curves<a class="headerlink" href="#term-structures-from-vintage-curves" title="Link to this heading">#</a></h2>
+<p>A vintage table holds the cumulative bad rate of each cohort by month on book: a cumulative PD term structure from origination. The examples use the synthetic loan panel of <a class="reference internal" href="../api/datasets.html#kivi.datasets.make_loan_panel" title="kivi.datasets.make_loan_panel"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_loan_panel()</span></code></a>, which <a class="reference internal" href="datasets.html"><span class="doc">Example data</span></a> describes, and the 90+ bad definition of <a class="reference internal" href="vintage.html"><span class="doc">Vintage and roll-rate analysis</span></a>. The conditional PDs of each cohort follow from <a class="reference internal" href="../api/vintage.html#kivi.vintage.vintage_table" title="kivi.vintage.vintage_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">vintage_table()</span></code></a> and <a class="reference internal" href="../api/lifetime.html#kivi.lifetime.convert_pd" title="kivi.lifetime.convert_pd"><code class="xref py py-func docutils literal notranslate"><span class="pre">convert_pd()</span></code></a>:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_loan_panel</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.vintage</span><span class="w"> </span><span class="kn">import</span> <span class="n">vintage_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">panel</span> <span class="o">=</span> <span class="n">make_loan_panel</span><span class="p">(</span><span class="n">rng</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ever_90</span> <span class="o">=</span> <span class="n">vintage_table</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">panel</span><span class="p">[</span><span class="s2">"loan_id"</span><span class="p">],</span> <span class="n">panel</span><span class="p">[</span><span class="s2">"cohort"</span><span class="p">],</span> <span class="n">panel</span><span class="p">[</span><span class="s2">"month_on_book"</span><span class="p">],</span> <span class="n">panel</span><span class="p">[</span><span class="s2">"status"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"90+"</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hazard</span> <span class="o">=</span> <span class="n">convert_pd</span><span class="p">(</span><span class="n">ever_90</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">"cumulative"</span><span class="p">,</span> <span class="n">to</span><span class="o">=</span><span class="s2">"conditional"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hazard</span><span class="p">[[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="mi">24</span><span class="p">]]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[::</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">month_on_book      6       12      18   24</span>
+<span class="go">cohort</span>
+<span class="go">2024-01        0.0000  0.0091  0.0093  0.0</span>
+<span class="go">2024-04        0.0050  0.0051  0.0106  NaN</span>
+<span class="go">2024-07        0.0051  0.0053  0.0000  NaN</span>
+<span class="go">2024-10        0.0000  0.0000     NaN  NaN</span>
+<span class="go">2025-01        0.0000  0.0050     NaN  NaN</span>
+<span class="go">2025-04        0.0049     NaN     NaN  NaN</span>
+<span class="go">2025-07        0.0000     NaN     NaN  NaN</span>
+<span class="go">2025-10           NaN     NaN     NaN  NaN</span>
+</pre></div>
+</div>
+<p>Each entry is the share of a cohort’s loans that went bad at that month on book among the loans that had not gone bad before. The months on book that a cohort has not reached stay missing. A cohort has about 200 loans, so a single bad loan moves its rate by half a percentage point, and many entries are 0.</p>
+<p>Conditional PDs at the same month on book are comparable across cohorts, which makes them the quantity to pool. The mean of each column averages the cohorts that reached that month on book and skips the others, because <code class="docutils literal notranslate"><span class="pre">mean</span></code> ignores missing values. The early months rest on many cohorts and the late ones on few:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pooled</span> <span class="o">=</span> <span class="n">hazard</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hazard</span><span class="p">[[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="mi">24</span><span class="p">]]</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+<span class="go">month_on_book</span>
+<span class="go">6     19</span>
+<span class="go">12    13</span>
+<span class="go">18     7</span>
+<span class="go">24     1</span>
+<span class="go">dtype: int64</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">curve</span> <span class="o">=</span> <span class="n">convert_pd</span><span class="p">(</span><span class="n">pooled</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">"conditional"</span><span class="p">,</span> <span class="n">to</span><span class="o">=</span><span class="s2">"cumulative"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"pooled"</span><span class="p">:</span> <span class="n">curve</span><span class="p">,</span> <span class="s2">"2024-01"</span><span class="p">:</span> <span class="n">ever_90</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">"2024-01"</span><span class="p">]})</span><span class="o">.</span><span class="n">loc</span><span class="p">[[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="mi">24</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">               pooled  2024-01</span>
+<span class="go">month_on_book</span>
+<span class="go">6              0.0101   0.0000</span>
+<span class="go">12             0.0417   0.0684</span>
+<span class="go">18             0.0717   0.0940</span>
+<span class="go">24             0.0734   0.0940</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id3">
+<img alt="Cumulative 90+ bad rate of every cohort by month on book as thin lines, and the cumulative PD of the pooled conditional PDs as a bold line" class="plot-directive" src="../_images/lifetime-2.svg" />
+<figcaption>
+<p><span class="caption-text">Cumulative 90+ bad rate of each cohort by month on book (thin) and the curve of the pooled conditional PDs (bold). The young cohorts stop after a few months on book, while the pooled curve runs to the last month on book of the panel.</span><a class="headerlink" href="#id3" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>The pooled curve reaches the oldest month on book of the panel for every cohort. From month on book 12 on, it lies below the curve of the oldest cohort, 2024-01, which was riskier than the average one, and beyond month on book 18 it rests on seven cohorts or fewer.</p>
+<section id="from-the-reporting-date">
+<h3>From the reporting date<a class="headerlink" href="#from-the-reporting-date" title="Link to this heading">#</a></h3>
+<p><a class="reference internal" href="../api/lifetime.html#kivi.lifetime.expected_credit_loss" title="kivi.lifetime.expected_credit_loss"><code class="xref py py-func docutils literal notranslate"><span class="pre">expected_credit_loss()</span></code></a> takes PDs seen from the reporting date, for a loan that has not defaulted by then. For a loan of a given age, convert the conditional PDs of the months on book after that age to marginal PDs. A loan at month on book 6 has these marginal PDs for the next 12 months:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ahead</span> <span class="o">=</span> <span class="n">convert_pd</span><span class="p">(</span><span class="n">pooled</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">7</span><span class="p">:</span><span class="mi">18</span><span class="p">],</span> <span class="n">kind</span><span class="o">=</span><span class="s2">"conditional"</span><span class="p">,</span> <span class="n">to</span><span class="o">=</span><span class="s2">"marginal"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ahead</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">month_on_book</span>
+<span class="go">7    0.0063</span>
+<span class="go">8    0.0054</span>
+<span class="go">9    0.0048</span>
+<span class="go">dtype: float64</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">ahead</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">0.0623</span>
+</pre></div>
+</div>
+<p>Their sum, 6.23%, is the probability that a loan without a default by month on book 6 defaults by month on book 18, <span class="math notranslate nohighlight">\((C_{18} - C_6) / (1 - C_6)\)</span> on the pooled curve. A vintage table counts every loan of a cohort, also the loans repaid early, which can no longer go bad. These PDs therefore already allow for early repayment, and they go with the balance of a loan that is still on book, such as its contractual schedule.</p>
+</section>
+</section>
+<section id="term-structures-from-transition-matrices">
+<h2>Term structures from transition matrices<a class="headerlink" href="#term-structures-from-transition-matrices" title="Link to this heading">#</a></h2>
+<p>A transition matrix gives the probabilities of moving from each delinquency bucket or rating grade to each other one in a period, as in <a class="reference internal" href="vintage.html"><span class="doc">Vintage and roll-rate analysis</span></a>. If the movements follow a time-homogeneous Markov chain, the powers of the matrix give a term structure for each starting state. <a class="reference internal" href="../api/lifetime.html#kivi.lifetime.transition_pd" title="kivi.lifetime.transition_pd"><code class="xref py py-func docutils literal notranslate"><span class="pre">transition_pd()</span></code></a> makes the default state absorbing, so that loans that cure from default still count as defaulted, and returns the cumulative PD of each state at each horizon:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.lifetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">transition_pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.vintage</span><span class="w"> </span><span class="kn">import</span> <span class="n">transition_matrix</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">later</span> <span class="o">=</span> <span class="n">panel</span><span class="p">[[</span><span class="s2">"loan_id"</span><span class="p">,</span> <span class="s2">"month_on_book"</span><span class="p">,</span> <span class="s2">"status"</span><span class="p">]]</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">month_on_book</span><span class="o">=</span><span class="n">panel</span><span class="p">[</span><span class="s2">"month_on_book"</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pairs</span> <span class="o">=</span> <span class="n">panel</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">later</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">"loan_id"</span><span class="p">,</span> <span class="s2">"month_on_book"</span><span class="p">],</span> <span class="n">suffixes</span><span class="o">=</span><span class="p">(</span><span class="s2">""</span><span class="p">,</span> <span class="s2">"_next"</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">monthly</span> <span class="o">=</span> <span class="n">transition_matrix</span><span class="p">(</span><span class="n">pairs</span><span class="p">[</span><span class="s2">"status"</span><span class="p">],</span> <span class="n">pairs</span><span class="p">[</span><span class="s2">"status_next"</span><span class="p">],</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cumulative</span> <span class="o">=</span> <span class="n">transition_pd</span><span class="p">(</span><span class="n">monthly</span><span class="p">,</span> <span class="n">horizons</span><span class="o">=</span><span class="mi">36</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cumulative</span><span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">24</span><span class="p">,</span> <span class="mi">36</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">horizon      1       3       6       12      24      36</span>
+<span class="go">state</span>
+<span class="go">current  0.0000  0.0000  0.0113  0.0393  0.0932  0.1440</span>
+<span class="go">1-29     0.0000  0.1159  0.2177  0.2420  0.2845  0.3246</span>
+<span class="go">30-59    0.0000  0.5381  0.5922  0.6041  0.6263  0.6472</span>
+<span class="go">60-89    0.7118  0.8635  0.8694  0.8731  0.8802  0.8869</span>
+<span class="go">90+      1.0000  1.0000  1.0000  1.0000  1.0000  1.0000</span>
+</pre></div>
+</div>
+<p>The default state is the last one, here <code class="docutils literal notranslate"><span class="pre">90+</span></code>, unless <code class="docutils literal notranslate"><span class="pre">default_state</span></code> names another. A loan falls at most one bucket further behind per month, so a current loan needs four months to reach 90+ and its PD is 0 for three months. The PD of every state rises with the horizon, and the worse the bucket, the higher it starts: six in ten loans at 30 to 59 days past due reach 90+ within a year.</p>
+<p>Because <span class="math notranslate nohighlight">\(P^{a+b} = P^a P^b\)</span>, the PD at <span class="math notranslate nohighlight">\(a + b\)</span> months is the PD at <span class="math notranslate nohighlight">\(b\)</span> months of the states reached after <span class="math notranslate nohighlight">\(a\)</span> months. A monthly matrix therefore gives the PD over any number of months, but only as far as the movements are a Markov chain with the same probabilities in every month. The current state against the pooled vintage curve shows how far that holds:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"matrix"</span><span class="p">:</span> <span class="n">cumulative</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">"current"</span><span class="p">],</span> <span class="s2">"vintage"</span><span class="p">:</span> <span class="n">curve</span><span class="p">})</span><span class="o">.</span><span class="n">loc</span><span class="p">[[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="mi">24</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">    matrix  vintage</span>
+<span class="go">6   0.0113   0.0101</span>
+<span class="go">12  0.0393   0.0417</span>
+<span class="go">18  0.0666   0.0717</span>
+<span class="go">24  0.0932   0.0734</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id5">
+<img alt="Cumulative PD by horizon for the states current, 1-29, 30-59, 60-89 and 90+, with the pooled vintage curve as a dashed line next to the current state" class="plot-directive" src="../_images/lifetime-3.svg" />
+<figcaption>
+<p><span class="caption-text">Cumulative PD of each state by horizon from the monthly transition matrix. The dashed line is the pooled vintage curve, which follows the curve of the current state in the first year and levels off in the second.</span><a class="headerlink" href="#id5" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>The two agree in the first year and part in the second. The matrix mixes loans of every age, while the chance of missing an instalment depends on the month on book, and the vintage curve beyond month on book 18 rests on a few cohorts.</p>
+<p><a class="reference internal" href="../api/lifetime.html#kivi.lifetime.convert_pd" title="kivi.lifetime.convert_pd"><code class="xref py py-func docutils literal notranslate"><span class="pre">convert_pd()</span></code></a> gives the marginal PDs of each state, which add up to the PD at the last horizon:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">marginal</span> <span class="o">=</span> <span class="n">convert_pd</span><span class="p">(</span><span class="n">cumulative</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">"cumulative"</span><span class="p">,</span> <span class="n">to</span><span class="o">=</span><span class="s2">"marginal"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">marginal</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">state</span>
+<span class="go">current    0.1440</span>
+<span class="go">1-29       0.3246</span>
+<span class="go">30-59      0.6472</span>
+<span class="go">60-89      0.8869</span>
+<span class="go">90+        1.0000</span>
+<span class="go">dtype: float64</span>
+</pre></div>
+</div>
+<section id="the-economy-in-a-transition-matrix">
+<h3>The economy in a transition matrix<a class="headerlink" href="#the-economy-in-a-transition-matrix" title="Link to this heading">#</a></h3>
+<p>The monthly matrix averages the movements over the months of the panel. In a bad month more loans miss an instalment and fewer cure, and in a good one the reverse. <a class="reference internal" href="../api/lifetime.html#kivi.lifetime.conditional_matrix" title="kivi.lifetime.conditional_matrix"><code class="xref py py-func docutils literal notranslate"><span class="pre">conditional_matrix()</span></code></a> shifts the whole matrix with the one-factor model of Belkin, Suchower and Forest: the movements from each state follow a standard normal credit index, cut at thresholds that reproduce the row of the matrix, and the index of every loan shares a systematic factor <span class="math notranslate nohighlight">\(z\)</span> with the asset correlation <span class="math notranslate nohighlight">\(\rho\)</span>, as in <a class="reference internal" href="capital.html"><span class="doc">Regulatory capital</span></a>. The states must be ordered from the best to the worst, as the delinquency buckets are here. With a correlation of 0.05 and a factor 1.5 standard deviations below its median:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.lifetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">conditional_matrix</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">downturn</span> <span class="o">=</span> <span class="n">conditional_matrix</span><span class="p">(</span><span class="n">monthly</span><span class="p">,</span> <span class="n">correlation</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">factor</span><span class="o">=-</span><span class="mf">1.5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">downturn</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">after    current    1-29   30-59   60-89     90+</span>
+<span class="go">before</span>
+<span class="go">current   0.9562  0.0438  0.0000  0.0000  0.0000</span>
+<span class="go">1-29      0.3736  0.2093  0.4170  0.0000  0.0000</span>
+<span class="go">30-59     0.1575  0.0000  0.1582  0.6843  0.0000</span>
+<span class="go">60-89     0.0531  0.0000  0.0000  0.1264  0.8205</span>
+<span class="go">90+       0.0000  0.0000  0.0000  0.0000  1.0000</span>
+</pre></div>
+</div>
+<p>Nearly twice as many current loans miss an instalment as in <code class="docutils literal notranslate"><span class="pre">monthly</span></code>, 4.38% against 2.27%, delinquent loans cure less often and roll more often, and the movements that the matrix rules out, such as skipping a bucket, stay impossible. The default column is the conditional PD of <a class="reference internal" href="../api/capital.html#kivi.capital.conditional_pd" title="kivi.capital.conditional_pd"><code class="xref py py-func docutils literal notranslate"><span class="pre">conditional_pd()</span></code></a>: 0.8205 for a loan at 60 to 89 days past due, against 0.7118 in <code class="docutils literal notranslate"><span class="pre">monthly</span></code>.</p>
+<p>A factor of 0 is the economy of the median month, not of the average one. The PDs rise faster in bad months than they fall in good ones, so the median month has fewer misses than <code class="docutils literal notranslate"><span class="pre">monthly</span></code>, and only the average over the standard normal factor gives <code class="docutils literal notranslate"><span class="pre">monthly</span></code> back. With Gauss–Hermite quadrature over the factor:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">nodes</span><span class="p">,</span> <span class="n">weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">polynomial</span><span class="o">.</span><span class="n">hermite_e</span><span class="o">.</span><span class="n">hermegauss</span><span class="p">(</span><span class="mi">40</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">average</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">w</span> <span class="o">*</span> <span class="n">conditional_matrix</span><span class="p">(</span><span class="n">monthly</span><span class="p">,</span> <span class="n">correlation</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="n">z</span><span class="p">)</span> <span class="k">for</span> <span class="n">z</span><span class="p">,</span> <span class="n">w</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">nodes</span><span class="p">,</span> <span class="n">weights</span><span class="p">)</span>
+<span class="gp">... </span><span class="p">)</span> <span class="o">/</span> <span class="n">weights</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">median</span> <span class="o">=</span> <span class="n">conditional_matrix</span><span class="p">(</span><span class="n">monthly</span><span class="p">,</span> <span class="n">correlation</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">{</span>
+<span class="gp">... </span>        <span class="s2">"monthly"</span><span class="p">:</span> <span class="n">monthly</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">"current"</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="s2">"median"</span><span class="p">:</span> <span class="n">median</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">"current"</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="s2">"average"</span><span class="p">:</span> <span class="n">average</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">"current"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">}</span>
+<span class="gp">... </span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">         monthly  median  average</span>
+<span class="go">after</span>
+<span class="go">current   0.9773  0.9799   0.9773</span>
+<span class="go">1-29      0.0227  0.0201   0.0227</span>
+<span class="go">30-59     0.0000  0.0000   0.0000</span>
+<span class="go">60-89     0.0000  0.0000   0.0000</span>
+<span class="go">90+       0.0000  0.0000   0.0000</span>
+</pre></div>
+</div>
+<p>The factor and the correlation belong to the period of the matrix, here a month. A path with a factor for each month multiplies the shifted matrices, and the default column of the product is the cumulative PD, as <a class="reference internal" href="../api/lifetime.html#kivi.lifetime.transition_pd" title="kivi.lifetime.transition_pd"><code class="xref py py-func docutils literal notranslate"><span class="pre">transition_pd()</span></code></a> gives it for the powers of one matrix. Kept for a year, the downturn more than triples the 12-month PD of a current loan:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">{</span>
+<span class="gp">... </span>        <span class="s2">"monthly"</span><span class="p">:</span> <span class="n">transition_pd</span><span class="p">(</span><span class="n">monthly</span><span class="p">,</span> <span class="n">horizons</span><span class="o">=</span><span class="mi">12</span><span class="p">)[</span><span class="mi">12</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="s2">"downturn"</span><span class="p">:</span> <span class="n">transition_pd</span><span class="p">(</span><span class="n">downturn</span><span class="p">,</span> <span class="n">horizons</span><span class="o">=</span><span class="mi">12</span><span class="p">)[</span><span class="mi">12</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">}</span>
+<span class="gp">... </span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">         monthly  downturn</span>
+<span class="go">state</span>
+<span class="go">current   0.0393    0.1345</span>
+<span class="go">1-29      0.2420    0.4690</span>
+<span class="go">30-59     0.6041    0.7902</span>
+<span class="go">60-89     0.8731    0.9464</span>
+<span class="go">90+       1.0000    1.0000</span>
+</pre></div>
+</div>
+<p>The average over the factor gives <code class="docutils literal notranslate"><span class="pre">monthly</span></code> back for one month, and for twelve months when each month has a factor of its own. A factor kept for the whole year gives other PDs than the twelfth power of <code class="docutils literal notranslate"><span class="pre">monthly</span></code>. Averaged over the standard normal factor:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">kept</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">w</span> <span class="o">*</span> <span class="n">transition_pd</span><span class="p">(</span><span class="n">conditional_matrix</span><span class="p">(</span><span class="n">monthly</span><span class="p">,</span> <span class="n">correlation</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="n">z</span><span class="p">),</span> <span class="n">horizons</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="k">for</span> <span class="n">z</span><span class="p">,</span> <span class="n">w</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">nodes</span><span class="p">,</span> <span class="n">weights</span><span class="p">)</span>
+<span class="gp">... </span><span class="p">)</span> <span class="o">/</span> <span class="n">weights</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"monthly"</span><span class="p">:</span> <span class="n">transition_pd</span><span class="p">(</span><span class="n">monthly</span><span class="p">,</span> <span class="n">horizons</span><span class="o">=</span><span class="mi">12</span><span class="p">)[</span><span class="mi">12</span><span class="p">],</span> <span class="s2">"kept"</span><span class="p">:</span> <span class="n">kept</span><span class="p">[</span><span class="mi">12</span><span class="p">]})</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">         monthly    kept</span>
+<span class="go">state</span>
+<span class="go">current   0.0393  0.0507</span>
+<span class="go">1-29      0.2420  0.2584</span>
+<span class="go">30-59     0.6041  0.6061</span>
+<span class="go">60-89     0.8731  0.8701</span>
+<span class="go">90+       1.0000  1.0000</span>
+</pre></div>
+</div>
+<p>For a current loan, a bad year compounds the misses month after month, and the average rises from 3.93% to 5.07%. For a loan at 60 to 89 days past due, which defaults directly, it falls slightly, and with two states it always falls. The same factor in every month is a strong assumption about the economy.</p>
+</section>
+<section id="factors-from-observed-matrices">
+<h3>Factors from observed matrices<a class="headerlink" href="#factors-from-observed-matrices" title="Link to this heading">#</a></h3>
+<p>From the history of a portfolio, <a class="reference internal" href="../api/lifetime.html#kivi.lifetime.matrix_factor" title="kivi.lifetime.matrix_factor"><code class="xref py py-func docutils literal notranslate"><span class="pre">matrix_factor()</span></code></a> estimates the factor of each month: the maximum-likelihood factor under which the shifted matrix explains the movements of the month best. <a class="reference internal" href="../api/lifetime.html#kivi.lifetime.matrix_correlation" title="kivi.lifetime.matrix_correlation"><code class="xref py py-func docutils literal notranslate"><span class="pre">matrix_correlation()</span></code></a> estimates the correlation as Belkin, Suchower and Forest do, so that the factors of the months have a sample variance of 1, as the standard normal factor of the model has. The panel above has no economic cycle: its factors would follow the ageing of its young book, and their correlation would say nothing about the economy. <a class="reference internal" href="../api/datasets.html#kivi.datasets.make_loan_panel" title="kivi.datasets.make_loan_panel"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_loan_panel()</span></code></a> simulates a cycle with <code class="docutils literal notranslate"><span class="pre">correlation</span></code> and <code class="docutils literal notranslate"><span class="pre">factors</span></code>. Here are five years of months with a correlation of 0.05 and known factors, and each row of <code class="docutils literal notranslate"><span class="pre">moves</span></code> is the move of a loan into a month, driven by the factor of that month:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.lifetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">matrix_correlation</span><span class="p">,</span> <span class="n">matrix_factor</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">true_factors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">standard_normal</span><span class="p">(</span><span class="mi">60</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cyclical</span> <span class="o">=</span> <span class="n">make_loan_panel</span><span class="p">(</span><span class="n">n_months</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">correlation</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">factors</span><span class="o">=</span><span class="n">true_factors</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">earlier</span> <span class="o">=</span> <span class="n">cyclical</span><span class="p">[[</span><span class="s2">"loan_id"</span><span class="p">,</span> <span class="s2">"month_on_book"</span><span class="p">,</span> <span class="s2">"status"</span><span class="p">]]</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">month_on_book</span><span class="o">=</span><span class="n">cyclical</span><span class="p">[</span><span class="s2">"month_on_book"</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">all_moves</span> <span class="o">=</span> <span class="n">cyclical</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">earlier</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">"loan_id"</span><span class="p">,</span> <span class="s2">"month_on_book"</span><span class="p">],</span> <span class="n">suffixes</span><span class="o">=</span><span class="p">(</span><span class="s2">""</span><span class="p">,</span> <span class="s2">"_before"</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">moves</span> <span class="o">=</span> <span class="n">all_moves</span><span class="p">[</span><span class="n">all_moves</span><span class="p">[</span><span class="s2">"month"</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="s2">"2024-05"</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>The first months hold few loans, too young to fall behind: in March 2024 all 102 loans stayed current, which no finite factor explains best (see <a class="reference internal" href="#lifetime-errors"><span class="std std-ref">Errors and warnings</span></a>), and in April 6 of 186 fell behind, which gives a finite factor, but one that rests on a handful of young loans. The example therefore starts in May. The long-run matrix pools the months, and each month gets its own count matrix:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">long_run</span> <span class="o">=</span> <span class="n">transition_matrix</span><span class="p">(</span><span class="n">moves</span><span class="p">[</span><span class="s2">"status_before"</span><span class="p">],</span> <span class="n">moves</span><span class="p">[</span><span class="s2">"status"</span><span class="p">],</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">counts</span> <span class="o">=</span> <span class="p">{</span>
+<span class="gp">... </span>    <span class="n">month</span><span class="p">:</span> <span class="n">transition_matrix</span><span class="p">(</span><span class="n">group</span><span class="p">[</span><span class="s2">"status_before"</span><span class="p">],</span> <span class="n">group</span><span class="p">[</span><span class="s2">"status"</span><span class="p">],</span> <span class="n">states</span><span class="o">=</span><span class="n">long_run</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="k">for</span> <span class="n">month</span><span class="p">,</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">moves</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">"month"</span><span class="p">)</span>
+<span class="gp">... </span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">correlation</span> <span class="o">=</span> <span class="n">matrix_correlation</span><span class="p">(</span><span class="n">counts</span><span class="p">,</span> <span class="n">long_run</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">correlation</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">0.0521</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">factors</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">{</span><span class="n">month</span><span class="p">:</span> <span class="n">matrix_factor</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">long_run</span><span class="p">,</span> <span class="n">correlation</span><span class="o">=</span><span class="n">correlation</span><span class="p">)</span> <span class="k">for</span> <span class="n">month</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">counts</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">factors</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">factors</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">year</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">2024   -0.36</span>
+<span class="go">2025   -0.24</span>
+<span class="go">2026    0.20</span>
+<span class="go">2027   -0.17</span>
+<span class="go">2028    0.08</span>
+<span class="go">2029    0.23</span>
+<span class="go">dtype: float64</span>
+</pre></div>
+</div>
+<p>The mean of the factors is not forced to 0. The factor absorbs every change that moves all rows together, also a change in the mix of the portfolio, such as its age: in 2024 most loans are near the peak of their seasoning, around their sixth month on book, and miss more instalments than the long-run matrix of all ages gives, so the factors of 2024 come out lower than the economy alone would make them. The long-run matrix and the monthly counts should therefore describe comparable loans, segmented by age or by product if need be. With a real history, a macroeconomic model of the user’s own links the factors to forecasts of the economy. Another route estimates the correlation from a series of default rates with <a class="reference internal" href="../api/capital.html#kivi.capital.vasicek_fit" title="kivi.capital.vasicek_fit"><code class="xref py py-func docutils literal notranslate"><span class="pre">vasicek_fit()</span></code></a> and the factors with <a class="reference internal" href="../api/capital.html#kivi.capital.systematic_factor" title="kivi.capital.systematic_factor"><code class="xref py py-func docutils literal notranslate"><span class="pre">systematic_factor()</span></code></a>.</p>
+<div class="kivi-check admonition">
+<p class="admonition-title">Simulation check</p>
+<p>The panel was simulated with the factors <code class="docutils literal notranslate"><span class="pre">true_factors</span></code>, the first for February 2024:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">truth</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">true_factors</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">period_range</span><span class="p">(</span><span class="s2">"2024-02"</span><span class="p">,</span> <span class="n">periods</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="s2">"M"</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">truth</span> <span class="o">=</span> <span class="n">truth</span><span class="p">[</span><span class="n">factors</span><span class="o">.</span><span class="n">index</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">corrcoef</span><span class="p">(</span><span class="n">factors</span><span class="p">,</span><span class="w"> </span><span class="n">truth</span><span class="p">)[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">truth</span><span class="o">.</span><span class="n">var</span><span class="p">()</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">0.89, 0.78</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"estimated"</span><span class="p">:</span> <span class="n">factors</span><span class="p">,</span> <span class="s2">"true"</span><span class="p">:</span> <span class="n">truth</span><span class="p">})</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">factors</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">year</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">      estimated  true</span>
+<span class="go">2024      -0.36  0.10</span>
+<span class="go">2025      -0.24 -0.04</span>
+<span class="go">2026       0.20 -0.04</span>
+<span class="go">2027      -0.17 -0.34</span>
+<span class="go">2028       0.08  0.01</span>
+<span class="go">2029       0.23 -0.31</span>
+</pre></div>
+</div>
+<p>The estimated factors follow the true ones closely, with a correlation of 0.89, while their yearly means drift with the age of the book, from below the true ones in 2024 to above them later. Because their variance is set to 1, the estimated correlation is about the true 0.05 times the sample variance of the true factors, 0.78 here; the binomial noise of a few thousand loans a month and the ageing of the book add to the variance of the estimates and raise it.</p>
+</div>
+</section>
+</section>
+<section id="term-structures-from-survival-tables">
+<h2>Term structures from survival tables<a class="headerlink" href="#term-structures-from-survival-tables" title="Link to this heading">#</a></h2>
+<p>A vintage table needs cohorts that have been observed since origination, and it pools them only through their conditional PDs. <a class="reference internal" href="../api/lifetime.html#kivi.lifetime.survival_table" title="kivi.lifetime.survival_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">survival_table()</span></code></a> starts instead from one row per loan: <code class="docutils literal notranslate"><span class="pre">duration</span></code>, the month on book in which it defaulted, was repaid or was last observed, <code class="docutils literal notranslate"><span class="pre">event</span></code>, whether it defaulted, and <code class="docutils literal notranslate"><span class="pre">competing</span></code>, whether it was repaid. Eight loans over three months show the computation:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.lifetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">survival_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">duration</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">event</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">repaid</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">survival_table</span><span class="p">(</span><span class="n">duration</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">competing</span><span class="o">=</span><span class="n">repaid</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">        at_risk  event  competing  censored  hazard  survival  cumulative_pd</span>
+<span class="go">period</span>
+<span class="go">1             8      1          1         0  0.1250    0.7500         0.1250</span>
+<span class="go">2             6      1          1         1  0.1667    0.5000         0.2500</span>
+<span class="go">3             3      1          0         2  0.3333    0.3333         0.4167</span>
+</pre></div>
+</div>
+<p>In the second month, six loans are at risk and one defaults, so the hazard is 1/6. Three quarters of the loans got through the first month with neither a default nor a repayment, so the cumulative PD rises by 0.75 × 1/6 to 0.25. The loan censored in month 2 counts in the risk set of that month: its censoring comes after the defaults and repayments of the month.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 75.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Column</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">at_risk</span></code></p></td>
+<td><p>Loans at risk in the period: those with <code class="docutils literal notranslate"><span class="pre">entry</span> <span class="pre">&lt;</span> <span class="pre">period</span> <span class="pre">&lt;=</span> <span class="pre">duration</span></code>, or their total weight with <code class="docutils literal notranslate"><span class="pre">weights</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">event</span></code></p></td>
+<td><p>Loans that defaulted in the period.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">competing</span></code></p></td>
+<td><p>Loans that left for another reason in the period, such as a repayment. Only with <code class="docutils literal notranslate"><span class="pre">competing</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">censored</span></code></p></td>
+<td><p>Loans last observed in the period without a default or an exit.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">hazard</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">event</span></code> divided by <code class="docutils literal notranslate"><span class="pre">at_risk</span></code>: the conditional PD of a loan still on book. NaN without loans at risk.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">survival</span></code></p></td>
+<td><p>Probability of neither a default nor an exit by the end of the period.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cumulative_pd</span></code></p></td>
+<td><p>Probability of a default by the end of the period: the cumulative incidence with <code class="docutils literal notranslate"><span class="pre">competing</span></code>, 1 − Kaplan–Meier without it.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">cumulative_pd</span></code> is a cumulative term structure, which <a class="reference internal" href="../api/lifetime.html#kivi.lifetime.convert_pd" title="kivi.lifetime.convert_pd"><code class="xref py py-func docutils literal notranslate"><span class="pre">convert_pd()</span></code></a> turns into marginal or conditional PDs, as for a vintage curve.</p>
+<section id="durations-from-a-loan-panel">
+<h3>Durations from a loan panel<a class="headerlink" href="#durations-from-a-loan-panel" title="Link to this heading">#</a></h3>
+<p>The loans of <a class="reference internal" href="../api/datasets.html#kivi.datasets.make_loan_panel" title="kivi.datasets.make_loan_panel"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_loan_panel()</span></code></a> repay early when <code class="docutils literal notranslate"><span class="pre">prepayment</span></code> gives the monthly probability that a current loan repays its whole balance, as <a class="reference internal" href="datasets.html"><span class="doc">Example data</span></a> describes. A loan defaults in the first month on book at which it is 90+, it is repaid in its last row if its balance is 0 there, early or at its term, and otherwise it is censored at the last month of the panel:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">repaying</span> <span class="o">=</span> <span class="n">make_loan_panel</span><span class="p">(</span><span class="n">prepayment</span><span class="o">=</span><span class="mf">0.02</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bad</span> <span class="o">=</span> <span class="n">repaying</span><span class="p">[</span><span class="s2">"status"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"90+"</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">last</span> <span class="o">=</span> <span class="n">repaying</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">"loan_id"</span><span class="p">)</span><span class="o">.</span><span class="n">tail</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">"loan_id"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">default_month</span> <span class="o">=</span> <span class="n">repaying</span><span class="p">[</span><span class="n">bad</span><span class="p">]</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">"loan_id"</span><span class="p">)[</span><span class="s2">"month_on_book"</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">loans</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">{</span>
+<span class="gp">... </span>        <span class="s2">"cohort"</span><span class="p">:</span> <span class="n">last</span><span class="p">[</span><span class="s2">"cohort"</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="s2">"duration"</span><span class="p">:</span> <span class="n">default_month</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">last</span><span class="o">.</span><span class="n">index</span><span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">last</span><span class="p">[</span><span class="s2">"month_on_book"</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+<span class="gp">... </span>        <span class="s2">"event"</span><span class="p">:</span> <span class="n">last</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">default_month</span><span class="o">.</span><span class="n">index</span><span class="p">),</span>
+<span class="gp">... </span>        <span class="s2">"competing"</span><span class="p">:</span> <span class="n">last</span><span class="p">[</span><span class="s2">"balance"</span><span class="p">]</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="p">}</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">loans</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+<span class="go">          cohort  duration  event  competing</span>
+<span class="go">loan_id</span>
+<span class="go">1        2024-01        24  False       True</span>
+<span class="go">2        2024-01        16  False       True</span>
+<span class="go">3        2024-01        24  False      False</span>
+<span class="go">4        2024-01        11   True      False</span>
+<span class="go">5        2024-01         2  False       True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">int</span><span class="p">(</span><span class="n">loans</span><span class="p">[</span><span class="s2">"event"</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()),</span> <span class="nb">int</span><span class="p">(</span><span class="n">loans</span><span class="p">[</span><span class="s2">"competing"</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+<span class="go">(182, 1416)</span>
+</pre></div>
+</div>
+<p>Of the 1,416 repaid loans, the 962 with a balance of 0 before their term repaid early. Loan 4 reached 90+ at month on book 11 and stays in the panel at 90+, but it leaves the risk set there. One call pools all the cohorts:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">table</span> <span class="o">=</span> <span class="n">survival_table</span><span class="p">(</span><span class="n">loans</span><span class="p">[</span><span class="s2">"duration"</span><span class="p">],</span> <span class="n">loans</span><span class="p">[</span><span class="s2">"event"</span><span class="p">],</span> <span class="n">competing</span><span class="o">=</span><span class="n">loans</span><span class="p">[</span><span class="s2">"competing"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span><span class="o">.</span><span class="n">loc</span><span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="mi">24</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">        at_risk  event  competing  censored  hazard  survival  cumulative_pd</span>
+<span class="go">period</span>
+<span class="go">1          5000      0         95       225  0.0000    0.9810         0.0000</span>
+<span class="go">4          4100     10         88       207  0.0024    0.9189         0.0023</span>
+<span class="go">6          3530     15         57       196  0.0042    0.8812         0.0093</span>
+<span class="go">12         2083     11        420       127  0.0053    0.6176         0.0376</span>
+<span class="go">18          778      5         13       113  0.0064    0.5214         0.0625</span>
+<span class="go">24          120      0         60        60  0.0000    0.2344         0.0641</span>
+</pre></div>
+</div>
+<p>Every cohort counts from its first month on book, and the risk set shrinks as loans default, repay and reach the end of the panel: 225 loans of the youngest cohort are censored at month on book 1. The repayments at month on book 12 are mostly the 12-month loans that reach their term. The late months rest on the oldest cohorts only.</p>
+</section>
+<section id="early-repayment-as-a-competing-risk">
+<h3>Early repayment as a competing risk<a class="headerlink" href="#early-repayment-as-a-competing-risk" title="Link to this heading">#</a></h3>
+<p>Without <code class="docutils literal notranslate"><span class="pre">competing</span></code>, every loan that did not default is censored, and <code class="docutils literal notranslate"><span class="pre">cumulative_pd</span></code> is 1 − Kaplan–Meier:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">censored</span> <span class="o">=</span> <span class="n">survival_table</span><span class="p">(</span><span class="n">loans</span><span class="p">[</span><span class="s2">"duration"</span><span class="p">],</span> <span class="n">loans</span><span class="p">[</span><span class="s2">"event"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">{</span><span class="s2">"censored"</span><span class="p">:</span> <span class="n">censored</span><span class="p">[</span><span class="s2">"cumulative_pd"</span><span class="p">],</span> <span class="s2">"competing"</span><span class="p">:</span> <span class="n">table</span><span class="p">[</span><span class="s2">"cumulative_pd"</span><span class="p">]}</span>
+<span class="gp">... </span><span class="p">)</span><span class="o">.</span><span class="n">loc</span><span class="p">[[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="mi">24</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">        censored  competing</span>
+<span class="go">period</span>
+<span class="go">6         0.0101     0.0093</span>
+<span class="go">12        0.0434     0.0376</span>
+<span class="go">18        0.0838     0.0625</span>
+<span class="go">24        0.0867     0.0641</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id7">
+<img alt="Cumulative PD by month on book with early repayments as a competing risk and as censored; the censored curve ends at 8.67% and the competing one at 6.41%" class="plot-directive" src="../_images/lifetime-4.svg" />
+<figcaption>
+<p><span class="caption-text">Cumulative PD of the pooled loans by month on book. Counted as censored, the repaid loans raise the curve, which ends a third higher than the cumulative incidence.</span><a class="headerlink" href="#id7" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>The censored estimate is a third higher after two years. Censoring assumes that a loan would have gone on with the risk of the loans still on book, but a repaid loan can no longer default: 1 − Kaplan–Meier is the PD of a loan that is never repaid. The cumulative incidence keeps the repaid loans among all the loans without letting them default, so it estimates the share of the loans that default. For a cohort observed from origination until the end of the panel, it is exactly the cumulative bad rate of <a class="reference internal" href="../api/vintage.html#kivi.vintage.vintage_table" title="kivi.vintage.vintage_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">vintage_table()</span></code></a>, while 1 − Kaplan–Meier is higher:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">oldest</span> <span class="o">=</span> <span class="n">loans</span><span class="p">[</span><span class="n">loans</span><span class="p">[</span><span class="s2">"cohort"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"2024-01"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vintage</span> <span class="o">=</span> <span class="n">vintage_table</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">repaying</span><span class="p">[</span><span class="s2">"loan_id"</span><span class="p">],</span> <span class="n">repaying</span><span class="p">[</span><span class="s2">"cohort"</span><span class="p">],</span> <span class="n">repaying</span><span class="p">[</span><span class="s2">"month_on_book"</span><span class="p">],</span> <span class="n">bad</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">{</span>
+<span class="gp">... </span>        <span class="s2">"vintage"</span><span class="p">:</span> <span class="n">vintage</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">"2024-01"</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="s2">"competing"</span><span class="p">:</span> <span class="n">survival_table</span><span class="p">(</span>
+<span class="gp">... </span>            <span class="n">oldest</span><span class="p">[</span><span class="s2">"duration"</span><span class="p">],</span> <span class="n">oldest</span><span class="p">[</span><span class="s2">"event"</span><span class="p">],</span> <span class="n">competing</span><span class="o">=</span><span class="n">oldest</span><span class="p">[</span><span class="s2">"competing"</span><span class="p">]</span>
+<span class="gp">... </span>        <span class="p">)[</span><span class="s2">"cumulative_pd"</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="s2">"censored"</span><span class="p">:</span> <span class="n">survival_table</span><span class="p">(</span><span class="n">oldest</span><span class="p">[</span><span class="s2">"duration"</span><span class="p">],</span> <span class="n">oldest</span><span class="p">[</span><span class="s2">"event"</span><span class="p">])[</span><span class="s2">"cumulative_pd"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">}</span>
+<span class="gp">... </span><span class="p">)</span><span class="o">.</span><span class="n">loc</span><span class="p">[[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="mi">24</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">    vintage  competing  censored</span>
+<span class="go">6    0.0000     0.0000    0.0000</span>
+<span class="go">12   0.0641     0.0641    0.0728</span>
+<span class="go">18   0.0897     0.0897    0.1116</span>
+<span class="go">24   0.0897     0.0897    0.1116</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="../api/lifetime.html#kivi.lifetime.expected_credit_loss" title="kivi.lifetime.expected_credit_loss"><code class="xref py py-func docutils literal notranslate"><span class="pre">expected_credit_loss()</span></code></a> takes the probability of a default in each period seen from the reporting date, which must allow for the loans that repay before. For a loan still on book at month on book <span class="math notranslate nohighlight">\(a\)</span>, the marginal PD of a later month <span class="math notranslate nohighlight">\(t\)</span> is <span class="math notranslate nohighlight">\((C_t - C_{t-1}) / S(a)\)</span>, the defaults of month <span class="math notranslate nohighlight">\(t\)</span> among the loans on book at <span class="math notranslate nohighlight">\(a\)</span>. For a loan at month on book 6, the next 12 months give:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ahead</span> <span class="o">=</span> <span class="n">table</span><span class="p">[</span><span class="s2">"cumulative_pd"</span><span class="p">]</span><span class="o">.</span><span class="n">diff</span><span class="p">()</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">7</span><span class="p">:</span><span class="mi">18</span><span class="p">]</span> <span class="o">/</span> <span class="n">table</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="s2">"survival"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">ahead</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">0.0604</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">convert_pd</span><span class="p">(</span><span class="n">censored</span><span class="p">[</span><span class="s1">'hazard'</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">7</span><span class="p">:</span><span class="mi">18</span><span class="p">],</span><span class="w"> </span><span class="n">kind</span><span class="o">=</span><span class="s1">'conditional'</span><span class="p">,</span><span class="w"> </span><span class="n">to</span><span class="o">=</span><span class="s1">'marginal'</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">0.0745</span>
+</pre></div>
+</div>
+<p>These PDs go with the contractual balance of the loan, which it owes as long as it is on book. The hazards of 1 − Kaplan–Meier give 7.45% instead of 6.04%: they leave out that the loan may repay first, and they overstate the lifetime PD and with it the lifetime ECL.</p>
+</section>
+<section id="left-truncation">
+<h3>Left truncation<a class="headerlink" href="#left-truncation" title="Link to this heading">#</a></h3>
+<p>Data often start after the loans were originated, for example when a new system went live. The loans that defaulted or were repaid before are missing, and the others are observed only from their month on book at the start. <code class="docutils literal notranslate"><span class="pre">entry</span></code> gives the number of months on book before a loan comes under observation, and the loan is at risk from month on book <code class="docutils literal notranslate"><span class="pre">entry</span> <span class="pre">+</span> <span class="pre">1</span></code>. If the panel starts in January 2025, a loan first seen at month on book 12 has an entry of 11.</p>
+<p>A loan that reached 90+ before 2025 had defaulted before it came under observation, and is left out. A loan that reaches 90+ in January 2025 defaulted in the window, in its first month at risk, and stays: leaving it out would drop defaults because of their outcome and bias the curve down. Both have a first row at 90+, because 90+ is the last bucket, so the example compares the month on book of the default with that of the first row; with real data, the days past due of the first row, or the status at the end of the month before, tell them apart:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">window</span> <span class="o">=</span> <span class="n">repaying</span><span class="p">[</span><span class="n">repaying</span><span class="p">[</span><span class="s2">"month"</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="s2">"2025-01"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">first</span> <span class="o">=</span> <span class="n">window</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">"loan_id"</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">"loan_id"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">seen</span> <span class="o">=</span> <span class="n">loans</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">first</span><span class="o">.</span><span class="n">index</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">before</span> <span class="o">=</span> <span class="n">seen</span><span class="p">[</span><span class="s2">"event"</span><span class="p">]</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">seen</span><span class="p">[</span><span class="s2">"duration"</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">first</span><span class="p">[</span><span class="s2">"month_on_book"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">observed</span> <span class="o">=</span> <span class="n">seen</span><span class="p">[</span><span class="o">~</span><span class="n">before</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">int</span><span class="p">(</span><span class="n">before</span><span class="o">.</span><span class="n">sum</span><span class="p">()),</span> <span class="nb">int</span><span class="p">((</span><span class="n">first</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">observed</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="s2">"status"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"90+"</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+<span class="go">(37, 9)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">entry</span> <span class="o">=</span> <span class="n">first</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">observed</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="s2">"month_on_book"</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">truncated</span> <span class="o">=</span> <span class="n">survival_table</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">observed</span><span class="p">[</span><span class="s2">"duration"</span><span class="p">],</span> <span class="n">observed</span><span class="p">[</span><span class="s2">"event"</span><span class="p">],</span> <span class="n">competing</span><span class="o">=</span><span class="n">observed</span><span class="p">[</span><span class="s2">"competing"</span><span class="p">],</span> <span class="n">entry</span><span class="o">=</span><span class="n">entry</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">naive</span> <span class="o">=</span> <span class="n">survival_table</span><span class="p">(</span><span class="n">observed</span><span class="p">[</span><span class="s2">"duration"</span><span class="p">],</span> <span class="n">observed</span><span class="p">[</span><span class="s2">"event"</span><span class="p">],</span> <span class="n">competing</span><span class="o">=</span><span class="n">observed</span><span class="p">[</span><span class="s2">"competing"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">{</span>
+<span class="gp">... </span>        <span class="s2">"all_rows"</span><span class="p">:</span> <span class="n">table</span><span class="p">[</span><span class="s2">"cumulative_pd"</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="s2">"entry"</span><span class="p">:</span> <span class="n">truncated</span><span class="p">[</span><span class="s2">"cumulative_pd"</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="s2">"without_entry"</span><span class="p">:</span> <span class="n">naive</span><span class="p">[</span><span class="s2">"cumulative_pd"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">}</span>
+<span class="gp">... </span><span class="p">)</span><span class="o">.</span><span class="n">loc</span><span class="p">[[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="mi">24</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">        all_rows   entry  without_entry</span>
+<span class="go">period</span>
+<span class="go">6         0.0093  0.0093         0.0066</span>
+<span class="go">12        0.0376  0.0350         0.0296</span>
+<span class="go">18        0.0625  0.0601         0.0564</span>
+<span class="go">24        0.0641  0.0618         0.0581</span>
+</pre></div>
+</div>
+<p>Without <code class="docutils literal notranslate"><span class="pre">entry</span></code>, the loans of 2024 count as at risk from their first month on book, although they were not observed then and are in the data only because they had neither defaulted nor been repaid by 2025: the early risk sets are too large and the PD too low. With <code class="docutils literal notranslate"><span class="pre">entry</span></code>, each month on book uses only the loans observed at that age, and the curve stays within 0.3 percentage points of that of the whole panel; it differs from it because its first months rest on the cohorts originated during the window. Left truncation loses information, but with <code class="docutils literal notranslate"><span class="pre">entry</span></code> it no longer biases the estimate.</p>
+</section>
+<section id="discrete-time-hazard-models">
+<h3>Discrete-time hazard models<a class="headerlink" href="#discrete-time-hazard-models" title="Link to this heading">#</a></h3>
+<p>The hazards of <a class="reference internal" href="../api/lifetime.html#kivi.lifetime.survival_table" title="kivi.lifetime.survival_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">survival_table()</span></code></a> are one estimate per month on book for all the loans. A discrete-time hazard model smooths them and can add the characteristics of each loan: a logistic regression on a person-period table, with one row for every month that a loan is at risk and a target of 1 in the month of its default. Each loan of the panel gives <code class="docutils literal notranslate"><span class="pre">duration</span></code> rows:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">logistic_regression</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">expanded</span> <span class="o">=</span> <span class="n">loans</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">loans</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">loans</span><span class="p">[</span><span class="s2">"duration"</span><span class="p">])]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">month_on_book</span> <span class="o">=</span> <span class="n">expanded</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="s2">"loan_id"</span><span class="p">)</span><span class="o">.</span><span class="n">cumcount</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">defaulted</span> <span class="o">=</span> <span class="p">(</span><span class="n">expanded</span><span class="p">[</span><span class="s2">"event"</span><span class="p">]</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">month_on_book</span> <span class="o">==</span> <span class="n">expanded</span><span class="p">[</span><span class="s2">"duration"</span><span class="p">]))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">expanded</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">defaulted</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+<span class="go">(50563, 182)</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="../api/selection.html#kivi.selection.logistic_regression" title="kivi.selection.logistic_regression"><code class="xref py py-func docutils literal notranslate"><span class="pre">logistic_regression()</span></code></a> fits the log odds of the hazard. Separate coefficients for each month would reproduce the <code class="docutils literal notranslate"><span class="pre">hazard</span></code> column, but the months without a default would separate the classes. The logarithm of the month on book and the month on book itself give a curve that rises with seasoning and then falls:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"log_month_on_book"</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">month_on_book</span><span class="p">),</span> <span class="s2">"month_on_book"</span><span class="p">:</span> <span class="n">month_on_book</span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fit</span> <span class="o">=</span> <span class="n">logistic_regression</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">defaulted</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fit</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">                      coef      se        z  p_value</span>
+<span class="go">variable</span>
+<span class="go">intercept         -10.8619  0.7879 -13.7852      0.0</span>
+<span class="go">log_month_on_book   4.3320  0.6416   6.7513      0.0</span>
+<span class="go">month_on_book      -0.4033  0.0691  -5.8380      0.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">months</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">log_odds</span> <span class="o">=</span> <span class="n">fit</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">"intercept"</span><span class="p">,</span> <span class="s2">"coef"</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span>
+<span class="gp">... </span>    <span class="n">fit</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">"log_month_on_book"</span><span class="p">,</span> <span class="s2">"coef"</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">months</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="o">+</span> <span class="n">fit</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">"month_on_book"</span><span class="p">,</span> <span class="s2">"coef"</span><span class="p">]</span> <span class="o">*</span> <span class="n">months</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">smoothed</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">log_odds</span><span class="p">)),</span> <span class="n">index</span><span class="o">=</span><span class="n">table</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"hazard"</span><span class="p">:</span> <span class="n">table</span><span class="p">[</span><span class="s2">"hazard"</span><span class="p">],</span> <span class="s2">"model"</span><span class="p">:</span> <span class="n">smoothed</span><span class="p">})</span><span class="o">.</span><span class="n">loc</span><span class="p">[[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="mi">24</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">        hazard   model</span>
+<span class="go">period</span>
+<span class="go">4       0.0024  0.0015</span>
+<span class="go">6       0.0042  0.0040</span>
+<span class="go">12      0.0053  0.0071</span>
+<span class="go">18      0.0064  0.0037</span>
+<span class="go">24      0.0000  0.0011</span>
+</pre></div>
+</div>
+<p>The model’s hazard peaks at about 11 months on book and runs smoothly through the late months, where the table rests on a few loans. A loan’s characteristics, such as a behavioural score, enter the same model as further columns and give each loan its own hazards. The hazards are conditional on the loan being still on book, so the cumulative PD weights them with the probability of getting there, as the cumulative incidence does. With <code class="docutils literal notranslate"><span class="pre">survival</span></code> from the table, which a second model for the repayments could replace:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">on_book</span> <span class="o">=</span> <span class="n">table</span><span class="p">[</span><span class="s2">"survival"</span><span class="p">]</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="n">fill_value</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">{</span><span class="s2">"table"</span><span class="p">:</span> <span class="n">table</span><span class="p">[</span><span class="s2">"cumulative_pd"</span><span class="p">],</span> <span class="s2">"model"</span><span class="p">:</span> <span class="p">(</span><span class="n">on_book</span> <span class="o">*</span> <span class="n">smoothed</span><span class="p">)</span><span class="o">.</span><span class="n">cumsum</span><span class="p">()}</span>
+<span class="gp">... </span><span class="p">)</span><span class="o">.</span><span class="n">loc</span><span class="p">[[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="mi">24</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">         table   model</span>
+<span class="go">period</span>
+<span class="go">6       0.0093  0.0084</span>
+<span class="go">12      0.0376  0.0412</span>
+<span class="go">18      0.0625  0.0595</span>
+<span class="go">24      0.0641  0.0656</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="expected-credit-loss">
+<h2>Expected credit loss<a class="headerlink" href="#expected-credit-loss" title="Link to this heading">#</a></h2>
+<p>The reporting date here is the end of January 2026, the last month of the panel, and the book holds the loans that still have a balance:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">book</span> <span class="o">=</span> <span class="n">panel</span><span class="p">[(</span><span class="n">panel</span><span class="p">[</span><span class="s2">"month"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"2026-01"</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">panel</span><span class="p">[</span><span class="s2">"balance"</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)]</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">"loan_id"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">book</span><span class="p">[</span><span class="s2">"status"</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">(</span><span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="go">status</span>
+<span class="go">current    4076</span>
+<span class="go">1-29         82</span>
+<span class="go">30-59        21</span>
+<span class="go">60-89        32</span>
+<span class="go">90+         205</span>
+<span class="go">Name: count, dtype: int64</span>
+</pre></div>
+</div>
+<p>Each loan gets the marginal PDs of its delinquency bucket, with one row per loan and one column per month after the reporting date:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">account_pd</span> <span class="o">=</span> <span class="n">marginal</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">book</span><span class="p">[</span><span class="s2">"status"</span><span class="p">]]</span><span class="o">.</span><span class="n">set_axis</span><span class="p">(</span><span class="n">book</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">account_pd</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="p">:</span><span class="mi">6</span><span class="p">]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">horizon    1    2    3       4       5       6</span>
+<span class="go">loan_id</span>
+<span class="go">2        0.0  0.0  0.0  0.0026  0.0041  0.0046</span>
+<span class="go">3        0.0  0.0  0.0  0.0026  0.0041  0.0046</span>
+<span class="go">4        1.0  0.0  0.0  0.0000  0.0000  0.0000</span>
+</pre></div>
+</div>
+<p>The exposure at default of each month is the balance that the loan is expected to have outstanding in that month: the balance at the reporting date, repaid by the remaining instalments of an annuity at the loans’ interest rate of 1% a month. <code class="docutils literal notranslate"><span class="pre">paid</span></code> counts the instalments paid before each month. Loans past their term, which keep rolling in this data, owe their balance at once. After the last instalment the exposure is 0, so the months after a loan’s term add nothing:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">remaining</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">book</span><span class="p">[</span><span class="s2">"term"</span><span class="p">]</span> <span class="o">-</span> <span class="n">book</span><span class="p">[</span><span class="s2">"month_on_book"</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()[:,</span> <span class="kc">None</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">paid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">36</span><span class="p">),</span> <span class="n">remaining</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">growth</span> <span class="o">=</span> <span class="mf">1.01</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ead</span> <span class="o">=</span> <span class="n">book</span><span class="p">[[</span><span class="s2">"balance"</span><span class="p">]]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span> <span class="o">*</span> <span class="p">(</span><span class="n">growth</span><span class="o">**</span><span class="n">remaining</span> <span class="o">-</span> <span class="n">growth</span><span class="o">**</span><span class="n">paid</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">growth</span><span class="o">**</span><span class="n">remaining</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The losses are discounted at the loans’ effective interest rate of 1% a month. A loan already at 90+ has defaulted at the reporting date, so its loss is measured at that date without discounting, and its rate is 0. With an LGD of 45%, <a class="reference internal" href="../api/lifetime.html#kivi.lifetime.expected_credit_loss" title="kivi.lifetime.expected_credit_loss"><code class="xref py py-func docutils literal notranslate"><span class="pre">expected_credit_loss()</span></code></a> gives the 12-month and the lifetime ECL of each loan:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">defaulted</span> <span class="o">=</span> <span class="n">book</span><span class="p">[</span><span class="s2">"status"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"90+"</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rate</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">defaulted</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">twelve_month</span> <span class="o">=</span> <span class="n">expected_credit_loss</span><span class="p">(</span><span class="n">account_pd</span><span class="p">,</span> <span class="mf">0.45</span><span class="p">,</span> <span class="n">ead</span><span class="p">,</span> <span class="n">rate</span><span class="o">=</span><span class="n">rate</span><span class="p">,</span> <span class="n">horizon</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lifetime</span> <span class="o">=</span> <span class="n">expected_credit_loss</span><span class="p">(</span><span class="n">account_pd</span><span class="p">,</span> <span class="mf">0.45</span><span class="p">,</span> <span class="n">ead</span><span class="p">,</span> <span class="n">rate</span><span class="o">=</span><span class="n">rate</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">losses</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">{</span>
+<span class="gp">... </span>        <span class="s2">"status"</span><span class="p">:</span> <span class="n">book</span><span class="p">[</span><span class="s2">"status"</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="s2">"remaining"</span><span class="p">:</span> <span class="n">remaining</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="s2">"balance"</span><span class="p">:</span> <span class="n">book</span><span class="p">[</span><span class="s2">"balance"</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="s2">"twelve_month"</span><span class="p">:</span> <span class="n">twelve_month</span><span class="p">,</span>
+<span class="gp">... </span>        <span class="s2">"lifetime"</span><span class="p">:</span> <span class="n">lifetime</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="p">}</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">losses</span><span class="p">[</span><span class="n">losses</span><span class="p">[</span><span class="s2">"remaining"</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">24</span><span class="p">]</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">"status"</span><span class="p">,</span> <span class="n">observed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">          status  remaining   balance  twelve_month  lifetime</span>
+<span class="go">loan_id</span>
+<span class="go">2697     current         25   2999.08         36.00     56.27</span>
+<span class="go">2723       30-59         25   4069.08       1017.32   1028.66</span>
+<span class="go">2790         90+         25  10371.94       4667.37   4667.37</span>
+<span class="go">2809        1-29         25   3331.36        307.70    325.47</span>
+<span class="go">3383       60-89         28   6964.51       2680.77   2688.99</span>
+</pre></div>
+</div>
+<p>These are the first loans of each bucket with more than two years to run. The lifetime ECL of the current loan is half as large again as its 12-month ECL: its PD is 0 for three months and its risk builds up over the following ones. The delinquent loans default mostly within the year, so their two ECLs are close. For a loan already at 90+, the PD is 1 in the first month and the rate is 0, so the ECL is the LGD times the balance: 0.45 × 10,371.94 = 4,667.37.</p>
+<section id="economic-scenarios">
+<h3>Economic scenarios<a class="headerlink" href="#economic-scenarios" title="Link to this heading">#</a></h3>
+<p>IFRS 9 measures the ECL as an unbiased, probability-weighted amount over a range of possible outcomes that reflects forecasts of economic conditions (paragraphs 5.5.17 and B5.5.42). The PDs above come from <code class="docutils literal notranslate"><span class="pre">monthly</span></code>, the average of the months of the panel. <a class="reference internal" href="../api/lifetime.html#kivi.lifetime.conditional_matrix" title="kivi.lifetime.conditional_matrix"><code class="xref py py-func docutils literal notranslate"><span class="pre">conditional_matrix()</span></code></a> shifts it to the economy of a scenario, with the correlation estimated from the movements of the cyclical panel above. The three scenarios below, with their factors and probabilities, are assumptions of the example, where a forecast would set them. Each scenario keeps its factor for the first 12 months and then returns to <code class="docutils literal notranslate"><span class="pre">monthly</span></code>, the long-run matrix, rather than to a factor of 0, the median economy. The 90+ row of <code class="docutils literal notranslate"><span class="pre">monthly</span></code> already stays in default, so the products keep the loans that reach 90+ there:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">scenarios</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">{</span><span class="s2">"factor"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.5</span><span class="p">],</span> <span class="s2">"weight"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">]},</span>
+<span class="gp">... </span>    <span class="n">index</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">([</span><span class="s2">"upside"</span><span class="p">,</span> <span class="s2">"base"</span><span class="p">,</span> <span class="s2">"downturn"</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s2">"scenario"</span><span class="p">),</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">scenario</span><span class="p">,</span> <span class="n">factor</span> <span class="ow">in</span> <span class="n">scenarios</span><span class="p">[</span><span class="s2">"factor"</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+<span class="gp">... </span>    <span class="n">shifted</span> <span class="o">=</span> <span class="n">conditional_matrix</span><span class="p">(</span><span class="n">monthly</span><span class="p">,</span> <span class="n">correlation</span><span class="o">=</span><span class="n">correlation</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="n">factor</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">path</span><span class="p">,</span> <span class="n">paths</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">monthly</span><span class="p">)),</span> <span class="p">{}</span>
+<span class="gp">... </span>    <span class="k">for</span> <span class="n">horizon</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">37</span><span class="p">):</span>
+<span class="gp">... </span>        <span class="n">path</span> <span class="o">=</span> <span class="n">path</span> <span class="o">@</span> <span class="p">(</span><span class="n">shifted</span> <span class="k">if</span> <span class="n">horizon</span> <span class="o">&lt;=</span> <span class="mi">12</span> <span class="k">else</span> <span class="n">monthly</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+<span class="gp">... </span>        <span class="n">paths</span><span class="p">[</span><span class="n">horizon</span><span class="p">]</span> <span class="o">=</span> <span class="n">path</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="gp">... </span>    <span class="n">path_pd</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">paths</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">monthly</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">marginal_pd</span> <span class="o">=</span> <span class="n">convert_pd</span><span class="p">(</span><span class="n">path_pd</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">"cumulative"</span><span class="p">,</span> <span class="n">to</span><span class="o">=</span><span class="s2">"marginal"</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">scenario_pd</span> <span class="o">=</span> <span class="n">marginal_pd</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">book</span><span class="p">[</span><span class="s2">"status"</span><span class="p">]]</span><span class="o">.</span><span class="n">set_axis</span><span class="p">(</span><span class="n">book</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">results</span><span class="p">[</span><span class="n">scenario</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+<span class="gp">... </span>        <span class="s2">"current_pd"</span><span class="p">:</span> <span class="n">path_pd</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">"current"</span><span class="p">,</span> <span class="mi">12</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="s2">"twelve_month"</span><span class="p">:</span> <span class="n">expected_credit_loss</span><span class="p">(</span><span class="n">scenario_pd</span><span class="p">,</span> <span class="mf">0.45</span><span class="p">,</span> <span class="n">ead</span><span class="p">,</span> <span class="n">rate</span><span class="o">=</span><span class="n">rate</span><span class="p">,</span> <span class="n">horizon</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span>
+<span class="gp">... </span>        <span class="s2">"lifetime"</span><span class="p">:</span> <span class="n">expected_credit_loss</span><span class="p">(</span><span class="n">scenario_pd</span><span class="p">,</span> <span class="mf">0.45</span><span class="p">,</span> <span class="n">ead</span><span class="p">,</span> <span class="n">rate</span><span class="o">=</span><span class="n">rate</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span>
+<span class="gp">... </span>    <span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">by_scenario</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">results</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">rename_axis</span><span class="p">(</span><span class="s2">"scenario"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">by_scenario</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">"weighted"</span><span class="p">]</span> <span class="o">=</span> <span class="n">by_scenario</span><span class="o">.</span><span class="n">mul</span><span class="p">(</span><span class="n">scenarios</span><span class="p">[</span><span class="s2">"weight"</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">by_scenario</span><span class="o">.</span><span class="n">round</span><span class="p">({</span><span class="s2">"current_pd"</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">"twelve_month"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">"lifetime"</span><span class="p">:</span> <span class="mi">0</span><span class="p">})</span>
+<span class="go">          current_pd  twelve_month   lifetime</span>
+<span class="go">scenario</span>
+<span class="go">upside        0.0110      804584.0   889048.0</span>
+<span class="go">base          0.0348      966051.0  1072313.0</span>
+<span class="go">downturn      0.1374     1597923.0  1766638.0</span>
+<span class="go">weighted      0.0545     1083652.0  1200078.0</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">current_pd</span></code> is the 12-month PD of a current loan: 3.48% in the base scenario, the median economy kept for a year, below the 3.93% of <code class="docutils literal notranslate"><span class="pre">monthly</span></code>, and 13.74% in the downturn. The shifted matrix moves every bucket, so the scenarios change the cures and the rolls of the delinquent loans as well as the misses of the current ones. The weighted ECL is 12% above that of the base scenario, over 12 months and over the lifetime: the PDs rise faster as the economy worsens than they fall as it improves, the downturn lies further from the base than the upside, and a factor kept for a year compounds the misses of current loans, as the average over the factor above shows. The ECL of the most likely scenario alone would understate the weighted amount.</p>
+</section>
+</section>
+<section id="stage-allocation">
+<h2>Stage allocation<a class="headerlink" href="#stage-allocation" title="Link to this heading">#</a></h2>
+<p>A significant increase in credit risk is judged against the risk expected at initial recognition. <a class="reference internal" href="../api/lifetime.html#kivi.lifetime.significant_increase" title="kivi.lifetime.significant_increase"><code class="xref py py-func docutils literal notranslate"><span class="pre">significant_increase()</span></code></a> compares the PD at the reporting date with the PD expected at origination, as a ratio, a difference or both. With <code class="docutils literal notranslate"><span class="pre">relative=2.0</span></code> and <code class="docutils literal notranslate"><span class="pre">absolute=0.01</span></code>, a PD must have more than doubled and risen by more than one percentage point:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.lifetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">assign_stages</span><span class="p">,</span> <span class="n">significant_increase</span><span class="p">,</span> <span class="n">stage_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">significant_increase</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="mf">0.004</span><span class="p">,</span> <span class="mf">0.012</span><span class="p">,</span> <span class="mf">0.03</span><span class="p">,</span> <span class="mf">0.09</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.001</span><span class="p">,</span> <span class="mf">0.010</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">],</span> <span class="n">relative</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">absolute</span><span class="o">=</span><span class="mf">0.01</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="go">array([False, False,  True, False])</span>
+</pre></div>
+</div>
+<p>The first PD quadrupled but rose by only 0.3 percentage points, the second barely rose, and the last rose by 4 points without doubling. IFRS 9 does not set these thresholds. They are the lender’s policy, like the definition of default, so both arguments are required, and either can be None to leave its test out. For a rule under which either test suffices, combine two calls, each with one threshold, with <code class="docutils literal notranslate"><span class="pre">|</span></code>; qualitative criteria, such as a watch list, combine with the flags in the same way.</p>
+<p>Compare PDs of the same horizon. In the panel, a loan’s delinquency bucket is the only risk driver, and every loan was current at origination, so the 12-month PD of each bucket against that of a current loan gives the test:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">probability</span> <span class="o">=</span> <span class="n">cumulative</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">book</span><span class="p">[</span><span class="s2">"status"</span><span class="p">],</span> <span class="mi">12</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">origination_probability</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">book</span><span class="p">),</span> <span class="n">cumulative</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">"current"</span><span class="p">,</span> <span class="mi">12</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">increase</span> <span class="o">=</span> <span class="n">significant_increase</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">probability</span><span class="p">,</span> <span class="n">origination_probability</span><span class="p">,</span> <span class="n">relative</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">absolute</span><span class="o">=</span><span class="mf">0.01</span>
+<span class="gp">... </span><span class="p">)</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="../api/lifetime.html#kivi.lifetime.assign_stages" title="kivi.lifetime.assign_stages"><code class="xref py py-func docutils literal notranslate"><span class="pre">assign_stages()</span></code></a> adds the backstops: an exposure more than 30 days past due is at least in stage 2, and one 90 days past due or more, or flagged as defaulted, is in stage 3. The defaults follow the rebuttable presumptions of IFRS 9: credit risk has increased significantly when contractual payments are more than 30 days past due (paragraph 5.5.11), and default occurs no later than when a financial asset is 90 days past due (paragraph B5.5.37). Pass <code class="docutils literal notranslate"><span class="pre">stage_2_days</span></code> and <code class="docutils literal notranslate"><span class="pre">stage_3_days</span></code> for other thresholds. The panel records buckets rather than days, so the example takes the middle of each bucket, and it flags the 90+ loans as defaulted:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">days_past_due</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">75</span><span class="p">,</span> <span class="mi">105</span><span class="p">])[</span><span class="n">book</span><span class="p">[</span><span class="s2">"status"</span><span class="p">]</span><span class="o">.</span><span class="n">cat</span><span class="o">.</span><span class="n">codes</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stage</span> <span class="o">=</span> <span class="n">assign_stages</span><span class="p">(</span><span class="n">increase</span><span class="p">,</span> <span class="n">days_past_due</span><span class="p">,</span> <span class="n">defaulted</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pd</span><span class="o">.</span><span class="n">crosstab</span><span class="p">(</span><span class="n">book</span><span class="p">[</span><span class="s2">"status"</span><span class="p">],</span> <span class="n">stage</span><span class="p">)</span>
+<span class="go">stage       1   2    3</span>
+<span class="go">status</span>
+<span class="go">current  4076   0    0</span>
+<span class="go">1-29        0  82    0</span>
+<span class="go">30-59       0  21    0</span>
+<span class="go">60-89       0  32    0</span>
+<span class="go">90+         0   0  205</span>
+</pre></div>
+</div>
+<p>The PD test flags every delinquent bucket, so here the stages follow the buckets. A behavioural score or a rating would also separate the current loans from each other.</p>
+<p>The wording of the two presumptions sets the boundaries. Like the PD thresholds, the 30 days must be exceeded, so an exposure exactly 30 days past due stays in stage 1, while an exposure exactly 90 days past due is already in stage 3:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">assign_stages</span><span class="p">([</span><span class="kc">False</span><span class="p">]</span> <span class="o">*</span> <span class="mi">5</span><span class="p">,</span> <span class="n">days_past_due</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">31</span><span class="p">,</span> <span class="mi">89</span><span class="p">,</span> <span class="mi">90</span><span class="p">])</span>
+<span class="go">array([1, 1, 2, 2, 3])</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id9">
+<img alt="A days-past-due axis with the thresholds 30 and 90, and the stages of 0, 30, 31, 89 and 90 days" class="plot-directive" src="../_images/lifetime-5.svg" />
+<figcaption>
+<p><span class="caption-text">The days-past-due backstops of <code class="docutils literal notranslate"><span class="pre">assign_stages</span></code>. More than 30 days past due is at least stage 2, and 90 days or more is stage 3.</span><a class="headerlink" href="#id9" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="loss-allowance-by-stage">
+<h2>Loss allowance by stage<a class="headerlink" href="#loss-allowance-by-stage" title="Link to this heading">#</a></h2>
+<p>The loss allowance of a loan in stage 1 is its 12-month ECL, and that of a loan in stage 2 or 3 its lifetime ECL. <a class="reference internal" href="../api/lifetime.html#kivi.lifetime.stage_table" title="kivi.lifetime.stage_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">stage_table()</span></code></a> sums the exposures and the allowances of each stage:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">allowance</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">stage</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="n">twelve_month</span><span class="p">,</span> <span class="n">lifetime</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span> <span class="o">=</span> <span class="n">stage_table</span><span class="p">(</span><span class="n">stage</span><span class="p">,</span> <span class="n">book</span><span class="p">[</span><span class="s2">"balance"</span><span class="p">],</span> <span class="n">allowance</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">       total     exposure  exposure_share  expected_credit_loss  coverage</span>
+<span class="go">stage</span>
+<span class="go">1       4076  22660955.57          0.9126           219165.5680    0.0097</span>
+<span class="go">2        135    739820.77          0.0298           129643.3610    0.1752</span>
+<span class="go">3        205   1431123.43          0.0576           644005.5435    0.4500</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">table</span><span class="p">[</span><span class="s1">'expected_credit_loss'</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">table</span><span class="p">[</span><span class="s1">'exposure'</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">0.0400</span>
+</pre></div>
+</div>
+</section>
+<section id="reading-the-result">
+<h2>Reading the result<a class="headerlink" href="#reading-the-result" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 75.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Column</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">total</span></code></p></td>
+<td><p>Number of exposures in the stage, or their total weight with <code class="docutils literal notranslate"><span class="pre">weights</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">exposure</span></code></p></td>
+<td><p>Sum of the exposures, such as the gross carrying amounts.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">exposure_share</span></code></p></td>
+<td><p>The stage’s share of the exposure of all stages.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">expected_credit_loss</span></code></p></td>
+<td><p>Sum of the loss allowances.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">coverage</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">expected_credit_loss</span></code> divided by <code class="docutils literal notranslate"><span class="pre">exposure</span></code>, the coverage ratio. NaN for a stage without exposure.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The coverage ratio rises from stage to stage, here from 1% in stage 1 to 18% in stage 2 and 45% in stage 3. In stage 3 the default has happened and the loss is not discounted, so the coverage is the LGD. In stage 1 it is below the LGD times the 12-month PD of a current loan, 0.45 × 0.0393 = 1.8%, because the balances amortize and many loans have less than a year to run. The coverage of the portfolio, 4.0% here, is the sum of the loss allowances divided by the sum of the exposures. The share of the exposure in stage 2 shows how much of the book carries lifetime losses; recompute the table with other thresholds to see how much the allowance depends on them.</p>
+</section>
+<section id="missing-values">
+<h2>Missing values<a class="headerlink" href="#missing-values" title="Link to this heading">#</a></h2>
+<p><a class="reference internal" href="../api/lifetime.html#kivi.lifetime.convert_pd" title="kivi.lifetime.convert_pd"><code class="xref py py-func docutils literal notranslate"><span class="pre">convert_pd()</span></code></a> treats a missing value as a period that is not observed, and never fills it. The marginal and conditional PDs of a period need the cumulative PDs at its end and at the end of the period before, and a cumulative PD needs every period before it. A curve that starts with missing values, as in a panel that starts after origination, gives marginal and conditional PDs from its second observed period on, but no cumulative PDs. Fill the periods that are not observed first, for example by pooling the cohorts as above or by extending the curve beyond its last month, before passing the PDs on.</p>
+<p><a class="reference internal" href="../api/lifetime.html#kivi.lifetime.expected_credit_loss" title="kivi.lifetime.expected_credit_loss"><code class="xref py py-func docutils literal notranslate"><span class="pre">expected_credit_loss()</span></code></a> converts each account on its own, so as <a class="reference internal" href="../api/conventions.html"><span class="doc">Conventions</span></a> describes, an account with a missing PD, LGD or EAD in a period that is added up, or with a missing rate, gets a missing ECL; the periods after <code class="docutils literal notranslate"><span class="pre">horizon</span></code> are not used. <a class="reference internal" href="../api/lifetime.html#kivi.lifetime.transition_pd" title="kivi.lifetime.transition_pd"><code class="xref py py-func docutils literal notranslate"><span class="pre">transition_pd()</span></code></a> needs a complete row for every state other than the default state. The staging functions reject missing values, because a flag or a stage cannot be missing: decide how to stage an exposure without a PD or without its days past due before passing it in.</p>
+<p><a class="reference internal" href="../api/lifetime.html#kivi.lifetime.survival_table" title="kivi.lifetime.survival_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">survival_table()</span></code></a> rejects missing values too, because a loan without a duration or an outcome cannot be counted. Its own result is NaN where no loan is at risk: the hazard of such a period, and <code class="docutils literal notranslate"><span class="pre">survival</span></code> and <code class="docutils literal notranslate"><span class="pre">cumulative_pd</span></code> from that period on, because the share of the loans that get through it is not known. This happens with <code class="docutils literal notranslate"><span class="pre">entry</span></code> when no loan is observed at some age, for example in the first months on book of a panel that holds only old loans. The hazards of the later periods are still known, and <a class="reference internal" href="../api/lifetime.html#kivi.lifetime.convert_pd" title="kivi.lifetime.convert_pd"><code class="xref py py-func docutils literal notranslate"><span class="pre">convert_pd()</span></code></a> turns them into PDs conditional on reaching those periods.</p>
+</section>
+<section id="sample-weights">
+<h2>Sample weights<a class="headerlink" href="#sample-weights" title="Link to this heading">#</a></h2>
+<p><a class="reference internal" href="../api/lifetime.html#kivi.lifetime.stage_table" title="kivi.lifetime.stage_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">stage_table()</span></code></a> and <a class="reference internal" href="../api/lifetime.html#kivi.lifetime.survival_table" title="kivi.lifetime.survival_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">survival_table()</span></code></a> take <code class="docutils literal notranslate"><span class="pre">weights</span></code>, such as the inverse of a sampling rate. The counts, exposures and losses become sums of weights, so integer weights give the same table as repeated rows, and loans with weight 0 are left out. The other functions work on single accounts or states and take no weights; to weight the loans of a vintage table by amount, pass <code class="docutils literal notranslate"><span class="pre">weights</span></code> to <a class="reference internal" href="../api/vintage.html#kivi.vintage.vintage_table" title="kivi.vintage.vintage_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">vintage_table()</span></code></a>.</p>
+</section>
+<section id="limits">
+<h2>Limits<a class="headerlink" href="#limits" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>A transition matrix gives a term structure only as far as the movements are a time-homogeneous Markov chain: the same probabilities in every period, whatever the age of a loan or the time it has spent in its state.</p></li>
+<li><p>IFRS 9 asks for an unbiased, probability-weighted amount that reflects forecasts of economic conditions. These functions compute the ECL of one set of PDs, LGDs and EADs: compute it for each economic scenario and weight the results with the probabilities of the scenarios, as in the example above. The shift of the one-factor model moves all PDs with one factor; a model of the PDs on macroeconomic variables, or LGDs and EADs that also depend on the scenario, need their own estimates.</p></li>
+<li><p><a class="reference internal" href="../api/lifetime.html#kivi.lifetime.conditional_matrix" title="kivi.lifetime.conditional_matrix"><code class="xref py py-func docutils literal notranslate"><span class="pre">conditional_matrix()</span></code></a> moves every state with one factor and one correlation, while correlations estimated for each rating grade can differ widely. Its factor and correlation belong to the period of the matrix, and a factor kept over several periods gives average PDs that differ from those of the power of the long-run matrix, higher for some states and lower for others. The factors of <a class="reference internal" href="../api/lifetime.html#kivi.lifetime.matrix_factor" title="kivi.lifetime.matrix_factor"><code class="xref py py-func docutils literal notranslate"><span class="pre">matrix_factor()</span></code></a> absorb every change that moves the rows together, also a change in the mix of the portfolio, and <a class="reference internal" href="../api/lifetime.html#kivi.lifetime.matrix_correlation" title="kivi.lifetime.matrix_correlation"><code class="xref py py-func docutils literal notranslate"><span class="pre">matrix_correlation()</span></code></a> rests on few periods in most histories.</p></li>
+<li><p>The states of <a class="reference internal" href="../api/lifetime.html#kivi.lifetime.conditional_matrix" title="kivi.lifetime.conditional_matrix"><code class="xref py py-func docutils literal notranslate"><span class="pre">conditional_matrix()</span></code></a> are ordered by credit quality. Exits that have no place in that order, such as early repayment or write-off, must be left out of the matrix and its rows divided by their sums, which gives the movements of the loans that do not exit and higher PDs; treat early repayment as a competing risk with <a class="reference internal" href="../api/lifetime.html#kivi.lifetime.survival_table" title="kivi.lifetime.survival_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">survival_table()</span></code></a> instead.</p></li>
+<li><p>Early repayment enters through the EAD schedule, through the vintage curves, which count repaid loans as not bad, and through the cumulative incidence of <a class="reference internal" href="../api/lifetime.html#kivi.lifetime.survival_table" title="kivi.lifetime.survival_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">survival_table()</span></code></a>.</p></li>
+<li><p><a class="reference internal" href="../api/lifetime.html#kivi.lifetime.survival_table" title="kivi.lifetime.survival_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">survival_table()</span></code></a> assumes that censoring and late entry tell nothing about the risk of a loan, as when the data simply end. It estimates one curve for the loans it is given, without confidence intervals; split the loans into segments, or fit a discrete-time hazard model, to let the curve depend on their characteristics.</p></li>
+<li><p>For revolving facilities, such as credit cards, IFRS 9 measures the expected credit losses over the period in which the lender is exposed to credit risk, which can be longer than the contractual period (paragraphs B5.5.39 and B5.5.40). Choose the periods and the EAD schedule, including drawings of undrawn limits, for that period.</p></li>
+<li><p><a class="reference internal" href="../api/lifetime.html#kivi.lifetime.significant_increase" title="kivi.lifetime.significant_increase"><code class="xref py py-func docutils literal notranslate"><span class="pre">significant_increase()</span></code></a> does not apply the exemption for exposures with low credit risk at the reporting date (paragraph 5.5.10); combine its flags with a low-risk criterion of your own.</p></li>
+<li><p><a class="reference internal" href="../api/lifetime.html#kivi.lifetime.assign_stages" title="kivi.lifetime.assign_stages"><code class="xref py py-func docutils literal notranslate"><span class="pre">assign_stages()</span></code></a> looks at one reporting date. Probation periods, during which an exposure that no longer meets a criterion stays in its stage, need the history of each exposure and are not applied, and neither are the rules for assets that are credit-impaired when they are purchased or originated.</p></li>
+</ul>
+</section>
+<section id="errors-and-warnings">
+<span id="lifetime-errors"></span><h2>Errors and warnings<a class="headerlink" href="#errors-and-warnings" title="Link to this heading">#</a></h2>
+<p>Published transition matrices are rounded, so their rows rarely add up to 1. <a class="reference internal" href="../api/lifetime.html#kivi.lifetime.transition_pd" title="kivi.lifetime.transition_pd"><code class="xref py py-func docutils literal notranslate"><span class="pre">transition_pd()</span></code></a> allows a rounding error of 1e-9 only, and asks to divide each row by its sum:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">states</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"A"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"D"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rounded</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">[[</span><span class="mf">0.9</span><span class="p">,</span> <span class="mf">0.08</span><span class="p">,</span> <span class="mf">0.019</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]],</span> <span class="n">index</span><span class="o">=</span><span class="n">states</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">states</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">transition_pd</span><span class="p">(</span><span class="n">rounded</span><span class="p">,</span> <span class="n">horizons</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+<span class="gt">Traceback (most recent call last):</span>
+<span class="c">...</span>
+<span class="gr">ValueError</span>: <span class="n">the rows of matrix must add up to 1, got 0.999 for state 'A'; divide each row by its sum</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">transition_pd</span><span class="p">(</span><span class="n">rounded</span><span class="o">.</span><span class="n">div</span><span class="p">(</span><span class="n">rounded</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">horizons</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">12</span><span class="p">])</span>
+<span class="go">horizon        1         12</span>
+<span class="go">state</span>
+<span class="go">A        0.019019  0.478693</span>
+<span class="go">B        0.200000  0.773781</span>
+<span class="go">D        1.000000  1.000000</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="../api/lifetime.html#kivi.lifetime.matrix_factor" title="kivi.lifetime.matrix_factor"><code class="xref py py-func docutils literal notranslate"><span class="pre">matrix_factor()</span></code></a> has no finite estimate when every movement of a period is to the best state, or every one to the worst state, that its state can reach. In March 2024 all 102 loans of the cyclical panel stayed current, which a higher factor always explains better:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">march</span> <span class="o">=</span> <span class="n">all_moves</span><span class="p">[</span><span class="n">all_moves</span><span class="p">[</span><span class="s2">"month"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"2024-03"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">march_counts</span> <span class="o">=</span> <span class="n">transition_matrix</span><span class="p">(</span><span class="n">march</span><span class="p">[</span><span class="s2">"status_before"</span><span class="p">],</span> <span class="n">march</span><span class="p">[</span><span class="s2">"status"</span><span class="p">],</span> <span class="n">states</span><span class="o">=</span><span class="n">long_run</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">matrix_factor</span><span class="p">(</span><span class="n">march_counts</span><span class="p">,</span> <span class="n">long_run</span><span class="p">,</span> <span class="n">correlation</span><span class="o">=</span><span class="n">correlation</span><span class="p">)</span>
+<span class="gt">Traceback (most recent call last):</span>
+<span class="c">...</span>
+<span class="gr">ValueError</span>: <span class="n">the factor is not finite: every movement in counts is to the best state that its state can reach</span>
+</pre></div>
+</div>
+<p>Leave such periods out, or pool them with the next one. <a class="reference internal" href="../api/lifetime.html#kivi.lifetime.matrix_correlation" title="kivi.lifetime.matrix_correlation"><code class="xref py py-func docutils literal notranslate"><span class="pre">matrix_correlation()</span></code></a> names the period of the error, by its label in a mapping or its position in a list.</p>
+<p><code class="docutils literal notranslate"><span class="pre">relative</span></code> is a ratio, not an increase: for a PD that rose by more than 50%, pass 1.5 rather than 0.5.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">significant_increase</span><span class="p">([</span><span class="mf">0.03</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.01</span><span class="p">],</span> <span class="n">relative</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">absolute</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="gt">Traceback (most recent call last):</span>
+<span class="c">...</span>
+<span class="gr">ValueError</span>: <span class="n">relative must be None or a ratio greater than 1, such as 2 for a PD that doubled, got 0.5</span>
+</pre></div>
+</div>
+<p>A horizon longer than the term structure raises an error, because leaving out the missing periods would understate the loss:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">expected_credit_loss</span><span class="p">(</span><span class="n">account_pd</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">6</span><span class="p">],</span> <span class="mf">0.45</span><span class="p">,</span> <span class="n">ead</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">6</span><span class="p">],</span> <span class="n">rate</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">horizon</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+<span class="gt">Traceback (most recent call last):</span>
+<span class="c">...</span>
+<span class="gr">ValueError</span>: <span class="n">horizon must be at most the number of periods of probability, 6, got 12</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">entry</span></code> counts the months on book before a loan is observed, not the month on book of its first row. Passing the first month on book itself makes a loan that is observed for a single month enter at its exit:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">survival_table</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">observed</span><span class="p">[</span><span class="s2">"duration"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">observed</span><span class="p">[</span><span class="s2">"event"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">competing</span><span class="o">=</span><span class="n">observed</span><span class="p">[</span><span class="s2">"competing"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">entry</span><span class="o">=</span><span class="n">first</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">observed</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="s2">"month_on_book"</span><span class="p">],</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gt">Traceback (most recent call last):</span>
+<span class="c">...</span>
+<span class="gr">ValueError</span>: <span class="n">entry must be smaller than duration, because an account is at risk from period entry + 1 on; got an entry of 12 with a duration of 12</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="vintage.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Vintage and roll-rate analysis</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="plotting.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Charts</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#definitions">Definitions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-worked-example">A worked example</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#term-structures-from-vintage-curves">Term structures from vintage curves</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#from-the-reporting-date">From the reporting date</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#term-structures-from-transition-matrices">Term structures from transition matrices</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-economy-in-a-transition-matrix">The economy in a transition matrix</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#factors-from-observed-matrices">Factors from observed matrices</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#term-structures-from-survival-tables">Term structures from survival tables</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#durations-from-a-loan-panel">Durations from a loan panel</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#early-repayment-as-a-competing-risk">Early repayment as a competing risk</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#left-truncation">Left truncation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#discrete-time-hazard-models">Discrete-time hazard models</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#expected-credit-loss">Expected credit loss</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#economic-scenarios">Economic scenarios</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#stage-allocation">Stage allocation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#loss-allowance-by-stage">Loss allowance by stage</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#reading-the-result">Reading the result</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#missing-values">Missing values</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sample-weights">Sample weights</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#limits">Limits</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#errors-and-warnings">Errors and warnings</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1.
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

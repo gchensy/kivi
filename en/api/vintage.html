@@ -1,0 +1,1471 @@
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Vintage and roll-rate analysis &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=d005c095" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=25d9e9fd"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/vintage';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Lifetime PD and expected credit loss" href="lifetime.html" />
+    <link rel="prev" title="Regulatory capital" href="capital.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="1.9.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 1.9.0">1.9.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    Tutorial
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/api/vintage.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    Tutorial
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/api/vintage.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="conventions.html">Conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compatibility.html">Compatibility</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">Time-window features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="univariate.html">Univariate profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="binning.html">Binning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="woe.html">Weight of evidence and information value</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selection.html">Variable selection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reject_inference.html">Reject inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scorecard.html">Scorecard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="expert.html">Expert scorecards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">Model performance</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lgd.html">LGD and EAD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">Credit strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rules.html">Policy rules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spec.html">Binning specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stability.html">Population stability index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">Model monitoring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="capital.html">Regulatory capital</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">Vintage and roll-rate analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lifetime.html">Lifetime PD and expected credit loss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html">Charts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">Example data</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../api.html" class="nav-link">API reference</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Vintage and roll-rate analysis</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="module-kivi.vintage">
+<span id="vintage-and-roll-rate-analysis"></span><h1>Vintage and roll-rate analysis<a class="headerlink" href="#module-kivi.vintage" title="Link to this heading">#</a></h1>
+<p>Analyse a loan panel as the loans age. <a class="reference internal" href="#kivi.vintage.delinquency_panel" title="kivi.vintage.delinquency_panel"><code class="xref py py-func docutils literal notranslate"><span class="pre">delinquency_panel()</span></code></a> builds the panel from instalment schedules and payments, <a class="reference internal" href="#kivi.vintage.vintage_table" title="kivi.vintage.vintage_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">vintage_table()</span></code></a> gives the cumulative bad rate of each cohort by month on book, <a class="reference internal" href="#kivi.vintage.default_rate_table" title="kivi.vintage.default_rate_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">default_rate_table()</span></code></a> the one-year default rate of each grade from a series of start months, and <a class="reference internal" href="#kivi.vintage.transition_matrix" title="kivi.vintage.transition_matrix"><code class="xref py py-func docutils literal notranslate"><span class="pre">transition_matrix()</span></code></a> and <a class="reference internal" href="#kivi.vintage.roll_rates" title="kivi.vintage.roll_rates"><code class="xref py py-func docutils literal notranslate"><span class="pre">roll_rates()</span></code></a> show how loans move between delinquency buckets or grades. <a class="reference internal" href="#kivi.vintage.migration_bandwidth" title="kivi.vintage.migration_bandwidth"><code class="xref py py-func docutils literal notranslate"><span class="pre">migration_bandwidth()</span></code></a> and <a class="reference internal" href="#kivi.vintage.migration_test" title="kivi.vintage.migration_test"><code class="xref py py-func docutils literal notranslate"><span class="pre">migration_test()</span></code></a> summarize and test the migrations between rating grades.</p>
+<p>See <a class="reference internal" href="../user_guide/vintage.html"><span class="doc">Vintage and roll-rate analysis</span></a> for examples on a synthetic loan panel, on a few repayment schedules and on simulated rating migrations.</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.vintage.delinquency_panel" title="kivi.vintage.delinquency_panel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">delinquency_panel</span></code></a>(loan, due_date, ...[, ...])</p></td>
+<td><p>Build a monthly delinquency panel from instalment schedules and payments.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.vintage.vintage_table" title="kivi.vintage.vintage_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vintage_table</span></code></a>(loan, cohort, month_on_book, ...)</p></td>
+<td><p>Tabulate the cumulative bad rate of each cohort by month on book.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.vintage.default_rate_table" title="kivi.vintage.default_rate_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">default_rate_table</span></code></a>(loan, month, grade, ...)</p></td>
+<td><p>Tabulate the one-year default rate of each grade by the cohort approach.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.vintage.transition_matrix" title="kivi.vintage.transition_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transition_matrix</span></code></a>(before, after, *[, ...])</p></td>
+<td><p>Count the movements of entities between two states.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.vintage.roll_rates" title="kivi.vintage.roll_rates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">roll_rates</span></code></a>(before, after, *[, states, weights])</p></td>
+<td><p>Compute the share of each state's entities that rolled to the next state.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.vintage.migration_bandwidth" title="kivi.vintage.migration_bandwidth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">migration_bandwidth</span></code></a>(before, after, *, grades)</p></td>
+<td><p>Measure how far customers migrate between rating grades, upwards and downwards.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.vintage.migration_test" title="kivi.vintage.migration_test"><code class="xref py py-obj docutils literal notranslate"><span class="pre">migration_test</span></code></a>(before, after, *, grades[, ...])</p></td>
+<td><p>Test whether the migration frequencies fall away from the diagonal of the matrix.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.vintage.delinquency_panel">
+<span class="sig-prename descclassname"><span class="pre">kivi.vintage.</span></span><span class="sig-name descname"><span class="pre">delinquency_panel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">loan</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">due_date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">amount_due</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">payment_loan</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">payment_date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">payment_amount</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">origination</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">principal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.vintage.delinquency_panel" title="Link to this definition">#</a></dt>
+<dd><p>Build a monthly delinquency panel from instalment schedules and payments.</p>
+<p>At every month end, a loan is behind by the instalments that have fallen
+due and are not paid yet. This function applies the payments of each
+loan to its instalments, the oldest first, and gives one row per loan
+and month end with the days past due, the delinquency status and the
+amounts past due and outstanding: the loan panel that <cite>vintage_table</cite>,
+<cite>transition_matrix</cite> and <cite>roll_rates</cite> take.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>loan</strong><span class="classifier">array_like</span></dt><dd><p>Loan of each instalment of the schedule. The instalments need not be
+sorted.</p>
+</dd>
+<dt><strong>due_date</strong><span class="classifier">array_like</span></dt><dd><p>Due date of each instalment, as dates or as strings that
+<cite>pandas.to_datetime</cite> reads. A time of day is ignored.</p>
+</dd>
+<dt><strong>amount_due</strong><span class="classifier">array_like</span></dt><dd><p>Amount of each instalment, finite and non-negative, such as the
+principal and the interest due on that date.</p>
+</dd>
+<dt><strong>payment_loan</strong><span class="classifier">array_like</span></dt><dd><p>Loan of each payment. Every one must be a loan of the schedule, and a
+loan without payments has paid nothing. The payments need not be
+sorted, and their Series may have any index.</p>
+</dd>
+<dt><strong>payment_date</strong><span class="classifier">array_like</span></dt><dd><p>Date of each payment, read like <cite>due_date</cite>.</p>
+</dd>
+<dt><strong>payment_amount</strong><span class="classifier">array_like</span></dt><dd><p>Amount of each payment, finite and non-negative. Net a reversal
+against the payment that it reverses.</p>
+</dd>
+<dt><strong>end</strong><span class="classifier">date or month</span></dt><dd><p>Last month of the panel, such as <code class="docutils literal notranslate"><span class="pre">&quot;2026-01&quot;</span></code>, a date in that month
+or a <cite>pandas.Period</cite>. A string is read as <cite>pandas.Period</cite> reads it,
+and a period longer than a month, such as <code class="docutils literal notranslate"><span class="pre">&quot;2025Q4&quot;</span></code>, ends in its
+last month. The payments must be complete up to its last day.</p>
+</dd>
+<dt><strong>origination</strong><span class="classifier">pandas.Series or mapping, optional</span></dt><dd><p>Origination date of each loan, as a Series indexed by loan or a
+mapping from loan to date, read like <cite>due_date</cite>. It must give a date
+for every loan of the schedule and may hold other loans too. The
+cohorts are then the origination months, and the months on book
+count from them. By default, both come from the first due dates.</p>
+</dd>
+<dt><strong>principal</strong><span class="classifier">array_like, optional</span></dt><dd><p>Principal part of each instalment, between 0 and its amount due,
+matched to the schedule like <cite>amount_due</cite>. The panel then gets a
+<code class="docutils literal notranslate"><span class="pre">balance</span></code> column.</p>
+</dd>
+<dt><strong>tolerance</strong><span class="classifier">float, default 0.0</span></dt><dd><p>Largest unpaid amount of an instalment that still counts as paid,
+such as a few cents of rounding. It decides only which instalments
+count as paid; the amounts in the panel stay exact.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.DataFrame</dt><dd><p>One row per loan and month end, sorted by loan and then by month,
+with the columns described in the Notes: those of
+<cite>kivi.datasets.make_loan_panel</cite> that a schedule gives, in the same
+order, and the days past due and the amounts owed.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If the inputs of the schedule, or those of the payments, are not
+one-dimensional, have different lengths or are Series with different
+indices, or if the schedule is empty. Also if a loan or a date is
+missing, a date cannot be read, an amount is missing, negative,
+infinite or not a number, <cite>principal</cite> exceeds <cite>amount_due</cite>, a payment
+belongs to a loan that is not in the schedule, <cite>end</cite> is not a date or
+a month or comes before the month of every due date, <cite>origination</cite>
+is not a Series or a mapping, repeats a loan, lacks a loan of the
+schedule or its date, or comes after the first due date of its loan,
+or <cite>tolerance</cite> is not a finite, non-negative number.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.vintage.vintage_table" title="kivi.vintage.vintage_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vintage_table</span></code></a></dt><dd><p>Cumulative bad rates by cohort and month on book.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.vintage.transition_matrix" title="kivi.vintage.transition_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transition_matrix</span></code></a></dt><dd><p>Movements between delinquency buckets.</p>
+</dd>
+<dt><a class="reference internal" href="datasets.html#kivi.datasets.make_loan_panel" title="kivi.datasets.make_loan_panel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.datasets.make_loan_panel</span></code></a></dt><dd><p>Synthetic loan panel with the same statuses.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>A loan has a row at the end of every month from the month of its first
+due date to <cite>end</cite>. It leaves the panel after the month end at which all
+its instalments count as paid, also when it is repaid early, while a
+loan that is still behind after its last due date keeps rolling until
+<cite>end</cite>. Payments after <cite>end</cite> are not used, and neither are amounts paid
+beyond the total due, such as an overpayment or a payment after the loan
+was repaid: there is no credit balance.</p>
+<p>At each month end <span class="math notranslate nohighlight">\(t\)</span>, only the payments made on or before
+<span class="math notranslate nohighlight">\(t\)</span> count. They go to the instalments in the order of their due
+dates, the oldest unpaid one first and instalments due on the same day
+in the order of the schedule, so an amount paid before an instalment
+falls due counts towards it. With <span class="math notranslate nohighlight">\(C_k\)</span> the total amount due by
+instalment <span class="math notranslate nohighlight">\(k\)</span> of a loan in that order, and <span class="math notranslate nohighlight">\(P_t\)</span> the total
+paid by <span class="math notranslate nohighlight">\(t\)</span>, instalment <span class="math notranslate nohighlight">\(k\)</span> counts as paid at <span class="math notranslate nohighlight">\(t\)</span> if</p>
+<div class="math notranslate nohighlight">
+\[C_k - P_t \le \mathrm{tolerance},\]</div>
+<p>that is, once at most <cite>tolerance</cite> remains unpaid of it and the
+instalments before it together. A partial payment leaves an instalment
+unpaid until then, and an unpaid remainder within <cite>tolerance</cite> is still
+owed: the next payments go to it first. A loan therefore leaves the
+panel once at most <cite>tolerance</cite> of it is unpaid, so a <cite>tolerance</cite> of at
+least its total due makes a loan that pays nothing leave in its first
+month. Amounts within a relative <span class="math notranslate nohighlight">\(10^{-10}\)</span> of <span class="math notranslate nohighlight">\(C_k\)</span> count
+as paid, so that the rounding of sums does not leave unpaid an
+instalment paid in parts. Instalments due on the same day add up, so a
+schedule row that a faulty join repeats doubles the amount due.</p>
+<p>If <span class="math notranslate nohighlight">\(d\)</span> is the due date of the oldest instalment that is not paid
+at <span class="math notranslate nohighlight">\(t\)</span>, the loan is <span class="math notranslate nohighlight">\(t - d\)</span> days past due when <span class="math notranslate nohighlight">\(d\)</span> is
+before <span class="math notranslate nohighlight">\(t\)</span>, and 0 days otherwise; an instalment is not past due on
+its due date.</p>
+<p>The columns are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">loan_id</span></code>: the loan, with the labels of <cite>loan</cite>;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cohort</span></code>: the origination month of the loan with <cite>origination</cite>, and
+otherwise the month before its first due date, a monthly
+<cite>pandas.Period</cite>;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">month</span></code>: the month, a monthly <cite>pandas.Period</cite>, observed on its last
+day;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">month_on_book</span></code>: <code class="docutils literal notranslate"><span class="pre">month</span> <span class="pre">-</span> <span class="pre">cohort</span></code> in months. Without
+<cite>origination</cite>, it is 1 in the month of the first due date, as in
+<cite>kivi.datasets.make_loan_panel</cite>, whose first instalment falls due one
+month after origination. With <cite>origination</cite>, a loan whose first
+instalment falls due later, after a grace period, has its first row
+at a later month on book;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">days_past_due</span></code>: the days past due, as defined above;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">overdue_amount</span></code>: the unpaid amount of the instalments due before
+the month end;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">outstanding</span></code>: the unpaid amount of all instalments, past due or not;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">balance</span></code>, only with <cite>principal</cite>: the unpaid principal of all
+instalments. A payment pays the interest of an instalment, its amount
+due less its principal, before its principal;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">status</span></code>: the days past due as an ordered categorical with the
+categories <code class="docutils literal notranslate"><span class="pre">current</span></code> (0 days), <code class="docutils literal notranslate"><span class="pre">1-29</span></code>, <code class="docutils literal notranslate"><span class="pre">30-59</span></code>, <code class="docutils literal notranslate"><span class="pre">60-89</span></code> and
+<code class="docutils literal notranslate"><span class="pre">90+</span></code> (90 days or more), the statuses of
+<cite>kivi.datasets.make_loan_panel</cite>.</p></li>
+</ul>
+<p>Without <cite>origination</cite>, loans originated in the same month but with
+grace periods of different lengths fall into different cohorts. With
+it, a cohort whose loans all have a grace period starts at a later month
+on book in <cite>vintage_table</cite>, which leaves the earlier ones NaN.</p>
+<p>Days past due at month ends do not always move one bucket a month. An
+instalment due on 31 January and still unpaid is 29 days past due at the
+end of February and 60 days at the end of March, so it skips <code class="docutils literal notranslate"><span class="pre">30-59</span></code>.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.vintage</span><span class="w"> </span><span class="kn">import</span> <span class="n">delinquency_panel</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">loan</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"A"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">3</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"B"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">3</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">due_date</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"2024-01-15"</span><span class="p">,</span> <span class="s2">"2024-02-15"</span><span class="p">,</span> <span class="s2">"2024-03-15"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">amount_due</span> <span class="o">=</span> <span class="p">[</span><span class="mf">100.0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">6</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">payment_loan</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"A"</span><span class="p">,</span> <span class="s2">"A"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">payment_date</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"2024-01-15"</span><span class="p">,</span> <span class="s2">"2024-03-20"</span><span class="p">,</span> <span class="s2">"2024-01-12"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">payment_amount</span> <span class="o">=</span> <span class="p">[</span><span class="mf">100.0</span><span class="p">,</span> <span class="mf">200.0</span><span class="p">,</span> <span class="mf">200.0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">panel</span> <span class="o">=</span> <span class="n">delinquency_panel</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">loan</span><span class="p">,</span> <span class="n">due_date</span><span class="p">,</span> <span class="n">amount_due</span><span class="p">,</span> <span class="n">payment_loan</span><span class="p">,</span> <span class="n">payment_date</span><span class="p">,</span> <span class="n">payment_amount</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">"2024-05"</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">panel</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">"cohort"</span><span class="p">,</span> <span class="s2">"month_on_book"</span><span class="p">])</span>
+<span class="go">  loan_id    month  days_past_due  overdue_amount  outstanding   status</span>
+<span class="go">0       A  2024-01              0             0.0        200.0  current</span>
+<span class="go">1       A  2024-02             14           100.0        200.0     1-29</span>
+<span class="go">2       A  2024-03              0             0.0          0.0  current</span>
+<span class="go">3       B  2024-01              0             0.0        100.0  current</span>
+<span class="go">4       B  2024-02              0             0.0        100.0  current</span>
+<span class="go">5       B  2024-03             16           100.0        100.0     1-29</span>
+<span class="go">6       B  2024-04             46           100.0        100.0    30-59</span>
+<span class="go">7       B  2024-05             77           100.0        100.0    60-89</span>
+</pre></div>
+</div>
+<p>Loan A missed its February instalment and paid it with the March one on
+20 March, after the end of February, so it was 14 days past due at the
+end of February and is repaid at the end of March. Loan B paid two
+instalments in January, which keeps it current in February, and has not
+paid the last one, so it keeps rolling after its last due date.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.vintage.vintage_table">
+<span class="sig-prename descclassname"><span class="pre">kivi.vintage.</span></span><span class="sig-name descname"><span class="pre">vintage_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">loan</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cohort</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">month_on_book</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bad</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.vintage.vintage_table" title="Link to this definition">#</a></dt>
+<dd><p>Tabulate the cumulative bad rate of each cohort by month on book.</p>
+<p>A vintage table follows each cohort of loans, usually the loans
+originated in the same month, as it ages. Its entry for a cohort and a
+month on book is the share of the cohort’s loans that were bad at or
+before that month on book, so every row is non-decreasing.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>loan</strong><span class="classifier">array_like</span></dt><dd><p>Identifier of the loan of each row of the panel. A loan has at most
+one row per month on book, and its rows need not be sorted.</p>
+</dd>
+<dt><strong>cohort</strong><span class="classifier">array_like</span></dt><dd><p>Cohort of each row, such as the month of origination. It must be the
+same on every row of a loan. Cohorts are sorted, and categorical
+cohorts follow the order of their categories.</p>
+</dd>
+<dt><strong>month_on_book</strong><span class="classifier">array_like</span></dt><dd><p>Whole, non-negative number of months since origination of each row.</p>
+</dd>
+<dt><strong>bad</strong><span class="classifier">array_like</span></dt><dd><p>Whether the loan is bad at that month on book, as booleans or 0 and
+1. Pass the bad definition as a condition on the status, such as
+<code class="docutils literal notranslate"><span class="pre">status</span> <span class="pre">==</span> <span class="pre">&quot;90+&quot;</span></code>, or <code class="docutils literal notranslate"><span class="pre">status</span> <span class="pre">&gt;=</span> <span class="pre">&quot;60-89&quot;</span></code> for an ordered
+categorical.</p>
+</dd>
+<dt><strong>weights</strong><span class="classifier">array_like, optional</span></dt><dd><p>Non-negative weight of each loan, such as the amount lent, repeated
+on every row of the loan. The table then reports the share of the
+cohort’s weight in loans that were bad, and cohorts whose weights
+sum to zero are left out.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.DataFrame</dt><dd><p>Cumulative bad rates with one row per cohort and one column per
+distinct month on book of the panel. An entry is NaN outside the
+months on book at which the cohort is observed, from the smallest to
+the largest month on book of its rows.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If the inputs are empty, not one-dimensional or of different lengths,
+or Series with different indices. Also if <cite>loan</cite> or <cite>cohort</cite> has a
+missing value, a loan has more than one cohort or more than one row
+for a month on book, <cite>month_on_book</cite> has a value that is not a whole,
+non-negative number, <cite>bad</cite> has a value other than 0 and 1, or
+<cite>weights</cite> is not valid or differs between the rows of a loan.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.vintage.transition_matrix" title="kivi.vintage.transition_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transition_matrix</span></code></a></dt><dd><p>Movements between states from one month to another.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.vintage.roll_rates" title="kivi.vintage.roll_rates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">roll_rates</span></code></a></dt><dd><p>Share of each delinquency bucket that rolls to the next.</p>
+</dd>
+<dt><a class="reference internal" href="datasets.html#kivi.datasets.make_loan_panel" title="kivi.datasets.make_loan_panel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.datasets.make_loan_panel</span></code></a></dt><dd><p>Synthetic loan panel to try this on.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>Let <span class="math notranslate nohighlight">\(L_c\)</span> be the loans of cohort <span class="math notranslate nohighlight">\(c\)</span>, <span class="math notranslate nohighlight">\(\tau_i\)</span> the first
+month on book at which loan <span class="math notranslate nohighlight">\(i\)</span> is bad (infinite if it never is) and
+<span class="math notranslate nohighlight">\(w_i\)</span> its weight, 1 without <cite>weights</cite>. The entry for month on book
+<span class="math notranslate nohighlight">\(k\)</span> is</p>
+<div class="math notranslate nohighlight">
+\[V_{c,k} = \frac{\sum_{i \in L_c} w_i \, [\tau_i \le k]}
+               {\sum_{i \in L_c} w_i}.\]</div>
+<p>The denominator includes every loan of the cohort, also loans that left
+the panel early, for example because they were repaid; such a loan
+counts as bad only if it was bad before it left. A loan that is bad once
+stays counted as bad, even if it later cures.</p>
+<p>A cohort is observed from the smallest to the largest month on book of
+its rows, and its entries outside that range are NaN, not 0. Later
+months on book are missing because the cohort is too young to show
+whether its loans will go bad, and earlier ones because the panel starts
+after the cohort was originated. Loans that were bad only before the
+panel starts are not counted, so start the panel at origination where
+possible. Comparing the cohorts at the same month on book compares them
+at the same age, which separates a change in the quality of new lending
+from the seasoning of the portfolio.</p>
+<p>Two cases need care. If every loan of a cohort leaves the panel before
+it ends, for example because all of them were repaid, the cohort’s last
+entry is final, yet its later months on book are NaN; to fill them, keep
+a row for each month end after a loan left, with a status that is not
+bad, such as <code class="docutils literal notranslate"><span class="pre">&quot;closed&quot;</span></code>. And a cohort that spans several origination
+months, such as a quarter, mixes loans of different ages: at its largest
+months on book, its youngest loans count in the denominator although
+they have not been observed that long, which biases those entries down.
+Monthly cohorts avoid this.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.vintage</span><span class="w"> </span><span class="kn">import</span> <span class="n">vintage_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">loan</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cohort</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"2024-01"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">6</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"2024-02"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">4</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">month_on_book</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">status</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"current"</span><span class="p">,</span> <span class="s2">"90+"</span><span class="p">,</span> <span class="s2">"current"</span><span class="p">,</span> <span class="s2">"current"</span><span class="p">,</span> <span class="s2">"current"</span><span class="p">,</span> <span class="s2">"current"</span><span class="p">,</span>
+<span class="gp">... </span>          <span class="s2">"90+"</span><span class="p">,</span> <span class="s2">"90+"</span><span class="p">,</span> <span class="s2">"current"</span><span class="p">,</span> <span class="s2">"current"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bad</span> <span class="o">=</span> <span class="p">[</span><span class="n">value</span> <span class="o">==</span> <span class="s2">"90+"</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">status</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vintage_table</span><span class="p">(</span><span class="n">loan</span><span class="p">,</span> <span class="n">cohort</span><span class="p">,</span> <span class="n">month_on_book</span><span class="p">,</span> <span class="n">bad</span><span class="p">)</span>
+<span class="go">month_on_book    1    2    3</span>
+<span class="go">cohort</span>
+<span class="go">2024-01        0.0  0.5  0.5</span>
+<span class="go">2024-02        0.5  0.5  NaN</span>
+</pre></div>
+</div>
+<p>Loan 1 cured after month on book 2 but stays counted as bad, and the
+2024-02 cohort has not reached month on book 3.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.vintage.default_rate_table">
+<span class="sig-prename descclassname"><span class="pre">kivi.vintage.</span></span><span class="sig-name descname"><span class="pre">default_rate_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">loan</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">month</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grade</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">defaulted</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">horizon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">12</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">starts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">probability</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.vintage.default_rate_table" title="Link to this definition">#</a></dt>
+<dd><p>Tabulate the one-year default rate of each grade by the cohort approach.</p>
+<p>Each start month forms a cohort of the loans that are not in default at
+its end, grouped by their grade at that month. The default rate of a
+grade is the share of its cohort that is in default in at least one
+month of the <cite>horizon</cite> months that follow, as the one-year default rate
+of IRB PD calibration and validation counts it. Loans that leave the
+panel during those months stay in the cohort.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>loan</strong><span class="classifier">array_like</span></dt><dd><p>Identifier of the loan of each row of a monthly panel, or of the
+obligor where the definition of default applies to obligors. A loan
+has at most one row per month, and its rows need not be sorted.</p>
+</dd>
+<dt><strong>month</strong><span class="classifier">array_like</span></dt><dd><p>Month of each row, for the status at its end: monthly periods, or
+datetimes, which stand for their month on their own calendar, such
+as the <code class="docutils literal notranslate"><span class="pre">month</span></code> of <cite>delinquency_panel</cite>.</p>
+</dd>
+<dt><strong>grade</strong><span class="classifier">array_like</span></dt><dd><p>Grade or pool of each row. Only the row of a start month counts, so
+later migrations do not move a loan to another grade. Categorical
+grades follow the order of their categories and other grades are
+sorted. A missing grade forms a row of its own, listed last.</p>
+</dd>
+<dt><strong>defaulted</strong><span class="classifier">array_like</span></dt><dd><p>Whether the loan is in default in that month, as booleans or 0 and
+1, such as <code class="docutils literal notranslate"><span class="pre">status</span> <span class="pre">==</span> <span class="pre">&quot;90+&quot;</span></code>.</p>
+</dd>
+<dt><strong>horizon</strong><span class="classifier">int, default 12</span></dt><dd><p>Number of months that follow each start month, 12 for the one-year
+default rate.</p>
+</dd>
+<dt><strong>starts</strong><span class="classifier">array_like, optional</span></dt><dd><p>Start months of the cohorts, as periods, dates or strings, which are
+read as a <cite>pandas.Period</cite> and stand for its last month, so
+<code class="docutils literal notranslate"><span class="pre">&quot;2024Q2&quot;</span></code> is June 2024. The <cite>horizon</cite> months after each one must
+lie in the panel. By default, every quarter end from the first month
+of the panel whose <cite>horizon</cite> months end at the last month of the
+panel or before.</p>
+</dd>
+<dt><strong>probability</strong><span class="classifier">array_like, optional</span></dt><dd><p>PD of each row, between 0 and 1. The table then gives the mean PD
+of each cohort at its start month. Only the rows of the cohorts are
+checked for missing values, so defaulted rows may leave it empty.</p>
+</dd>
+<dt><strong>weights</strong><span class="classifier">array_like, optional</span></dt><dd><p>Non-negative frequency weight of each row, such as the inverse of a
+sampling rate; the weight of the start row of a loan counts. Groups
+whose weights sum to zero are left out. Do not weight by exposure for
+PD calibration, which counts obligors (Basel CRE36.78).</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt>pandas.DataFrame</dt><dd><p>One row per start month and grade with obligors in the cohort, with
+a MultiIndex of <code class="docutils literal notranslate"><span class="pre">start</span></code>, monthly periods, and <code class="docutils literal notranslate"><span class="pre">grade</span></code>, sorted by
+start month and then by grade. The columns are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">total</span></code>: the loans of the cohort, or their weight;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">event</span></code>: those in default in at least one of the <cite>horizon</cite>
+months after the start month;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">exited</span></code>: those not in default in those months whose last row
+is before the last of them, such as loans repaid, sold or written
+off; they count in <code class="docutils literal notranslate"><span class="pre">total</span></code>;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">event_rate</span></code>: <code class="docutils literal notranslate"><span class="pre">event</span> <span class="pre">/</span> <span class="pre">total</span></code>, the default rate;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mean_probability</span></code>: the mean PD of the cohort at the start
+month, only with <cite>probability</cite>.</p></li>
+</ul>
+<p>The counts are integers without <cite>weights</cite> and sums of weights with
+them.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If the inputs are empty, not one-dimensional or of different lengths,
+or Series with different indices. Also if <cite>loan</cite> or <cite>month</cite> has a
+missing value, a loan has two rows in one month, <cite>month</cite> does not
+hold monthly periods or datetimes, <cite>defaulted</cite> has a value other
+than 0 and 1, <cite>horizon</cite> is not a positive integer, <cite>starts</cite> is not a
+list of distinct months whose <cite>horizon</cite> months lie in the panel, the
+panel covers no quarter end and the <cite>horizon</cite> months after it, or
+<cite>probability</cite> or <cite>weights</cite> is not valid.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.vintage.vintage_table" title="kivi.vintage.vintage_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vintage_table</span></code></a></dt><dd><p>Cumulative bad rates by origination cohort and month on book.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.vintage.transition_matrix" title="kivi.vintage.transition_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transition_matrix</span></code></a></dt><dd><p>Movements between grades from one month to another.</p>
+</dd>
+<dt><a class="reference internal" href="calibration.html#kivi.calibration.jeffreys_test" title="kivi.calibration.jeffreys_test"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.calibration.jeffreys_test</span></code></a></dt><dd><p>Test the PD of each grade against its default rate.</p>
+</dd>
+<dt><a class="reference internal" href="calibration.html#kivi.calibration.central_tendency_shift" title="kivi.calibration.central_tendency_shift"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.calibration.central_tendency_shift</span></code></a></dt><dd><p>Shift PDs to a long-run average default rate.</p>
+</dd>
+<dt><a class="reference internal" href="capital.html#kivi.capital.vasicek_fit" title="kivi.capital.vasicek_fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.capital.vasicek_fit</span></code></a></dt><dd><p>Long-run PD and asset correlation from yearly default rates.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>Let <span class="math notranslate nohighlight">\(C_{r,g}\)</span> be the loans that have a row at start month
+<span class="math notranslate nohighlight">\(r\)</span>, are not in default in it and have grade <span class="math notranslate nohighlight">\(g\)</span> there, and
+<span class="math notranslate nohighlight">\(w_i\)</span> the weight of the row of loan <span class="math notranslate nohighlight">\(i\)</span> at <span class="math notranslate nohighlight">\(r\)</span>, 1
+without <cite>weights</cite>. With <span class="math notranslate nohighlight">\(h\)</span> the <cite>horizon</cite>, the default rate is</p>
+<div class="math notranslate nohighlight">
+\[\mathrm{DR}_{r,g} = \frac{\sum_{i \in C_{r,g}} w_i \,
+    [\text{loan } i \text{ is in default in a month } m,\ r &lt; m \le r + h]}
+    {\sum_{i \in C_{r,g}} w_i}.\]</div>
+<p>This is the one-year default rate of the EBA guidelines on PD estimation
+<a class="reference internal" href="#r32bc58eab3c2-1" id="id1">[1]</a> (paragraphs 73 to 77) and of the ECB’s validation reporting <a class="reference internal" href="#r32bc58eab3c2-2" id="id2">[2]</a>
+(section 2.3): the denominator holds every obligor not in default at the
+start, the numerator those with at least one default in the year, and an
+obligor that defaults twice counts once. Loans that migrate to another
+grade or model, are repaid, sold or written off during the year stay in
+the denominator, and their defaults count as long as the panel keeps
+their rows (paragraph 76). A loan without a row in some months of the
+window counts as not in default in them, so it is not censored as in a
+survival curve, which gives a higher rate when many loans leave: the
+<code class="docutils literal notranslate"><span class="pre">exited</span></code> column shows how many did, for the analysis of the bias that
+paragraphs 76 and 80 ask for. A missing grade is reported on its own row,
+as paragraph 75 asks for obligors without a rating at the start; the
+ECB’s reporting leaves them out (section 2.5.1).</p>
+<p>The guidelines evaluate the one-year default rates at least quarterly
+(paragraph 78), which the default <cite>starts</cite> do, and leave the choice
+between overlapping windows, such as these, and non-overlapping ones,
+one start month a year, to an analysis of their bias (paragraph 80).
+The observed average default rate is the arithmetic mean of the
+one-year default rates (paragraph 81), and the long-run average is that
+mean over a period that is representative of the likely range of
+default rates, at least five years (paragraphs 82 to 86).</p>
+<p>Month-end statuses miss a default that starts and ends within one month,
+so <cite>defaulted</cite> should flag a month in which the loan was in default at
+any time, including the probation period after it. Leave out technical
+defaults and other defaults recorded in error.</p>
+<p class="rubric">References</p>
+<div role="list" class="citation-list">
+<div class="citation" id="r32bc58eab3c2-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>European Banking Authority, “Guidelines on PD estimation, LGD
+estimation and the treatment of defaulted exposures”,
+EBA/GL/2017/16, section 5.3, 2017.</p>
+</div>
+<div class="citation" id="r32bc58eab3c2-2" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">2</a><span class="fn-bracket">]</span></span>
+<p>European Central Bank, “Instructions for reporting the validation
+results of internal models: IRB Pillar I models for credit risk”,
+February 2019.</p>
+</div>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.vintage</span><span class="w"> </span><span class="kn">import</span> <span class="n">default_rate_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">months</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"2024-</span><span class="si">{</span><span class="n">number</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">number</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rows</span> <span class="o">=</span> <span class="p">(</span>
+<span class="gp">... </span>    <span class="p">[(</span><span class="mi">1</span><span class="p">,</span> <span class="n">month</span><span class="p">,</span> <span class="s2">"A"</span><span class="p">,</span> <span class="n">month</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"2024-05"</span><span class="p">,</span> <span class="s2">"2024-06"</span><span class="p">))</span> <span class="k">for</span> <span class="n">month</span> <span class="ow">in</span> <span class="n">months</span><span class="p">]</span>
+<span class="gp">... </span>    <span class="o">+</span> <span class="p">[(</span><span class="mi">2</span><span class="p">,</span> <span class="n">month</span><span class="p">,</span> <span class="s2">"A"</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="k">for</span> <span class="n">month</span> <span class="ow">in</span> <span class="n">months</span><span class="p">[:</span><span class="mi">4</span><span class="p">]]</span>
+<span class="gp">... </span>    <span class="o">+</span> <span class="p">[(</span><span class="mi">3</span><span class="p">,</span> <span class="n">month</span><span class="p">,</span> <span class="s2">"B"</span> <span class="k">if</span> <span class="n">month</span> <span class="o">&lt;</span> <span class="s2">"2024-08"</span> <span class="k">else</span> <span class="s2">"A"</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="k">for</span> <span class="n">month</span> <span class="ow">in</span> <span class="n">months</span><span class="p">]</span>
+<span class="gp">... </span>    <span class="o">+</span> <span class="p">[(</span><span class="mi">4</span><span class="p">,</span> <span class="n">month</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="n">month</span> <span class="o">&gt;=</span> <span class="s2">"2024-08"</span><span class="p">)</span> <span class="k">for</span> <span class="n">month</span> <span class="ow">in</span> <span class="n">months</span><span class="p">]</span>
+<span class="gp">... </span>    <span class="o">+</span> <span class="p">[(</span><span class="mi">5</span><span class="p">,</span> <span class="n">month</span><span class="p">,</span> <span class="s2">"A"</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="k">for</span> <span class="n">month</span> <span class="ow">in</span> <span class="n">months</span><span class="p">[</span><span class="mi">4</span><span class="p">:]]</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">panel</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">"loan"</span><span class="p">,</span> <span class="s2">"month"</span><span class="p">,</span> <span class="s2">"grade"</span><span class="p">,</span> <span class="s2">"defaulted"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">panel</span><span class="p">[</span><span class="s2">"month"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">PeriodIndex</span><span class="p">(</span><span class="n">panel</span><span class="p">[</span><span class="s2">"month"</span><span class="p">],</span> <span class="n">freq</span><span class="o">=</span><span class="s2">"M"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">default_rate_table</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">panel</span><span class="p">[</span><span class="s2">"loan"</span><span class="p">],</span> <span class="n">panel</span><span class="p">[</span><span class="s2">"month"</span><span class="p">],</span> <span class="n">panel</span><span class="p">[</span><span class="s2">"grade"</span><span class="p">],</span> <span class="n">panel</span><span class="p">[</span><span class="s2">"defaulted"</span><span class="p">],</span> <span class="n">horizon</span><span class="o">=</span><span class="mi">3</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="go">               total  event  exited  event_rate</span>
+<span class="go">start   grade</span>
+<span class="go">2024-03 A          2      1       1         0.5</span>
+<span class="go">        B          2      0       0         0.0</span>
+<span class="go">2024-06 A          1      0       0         0.0</span>
+<span class="go">        B          2      1       0         0.5</span>
+</pre></div>
+</div>
+<p>Loan 1 defaults in May and is not in the June cohort; loan 2 is repaid
+after April and counts as not in default; loan 3 stays in grade B
+although it moves to A in August; loan 5 enters the panel in May.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.vintage.transition_matrix">
+<span class="sig-prename descclassname"><span class="pre">kivi.vintage.</span></span><span class="sig-name descname"><span class="pre">transition_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">before</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">after</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">states</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.vintage.transition_matrix" title="Link to this definition">#</a></dt>
+<dd><p>Count the movements of entities between two states.</p>
+<p>Each entity, such as a loan or an obligor, is observed in one state
+before and one state after, for example its delinquency bucket at two
+consecutive month ends or its rating grade at two annual reviews. Row
+<span class="math notranslate nohighlight">\(i\)</span>, column <span class="math notranslate nohighlight">\(j\)</span> counts the entities that moved from state
+<span class="math notranslate nohighlight">\(i\)</span> to state <span class="math notranslate nohighlight">\(j\)</span>. With <cite>normalize</cite>, each row holds the
+shares of the states after, the migration matrix of a rating system.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>before, after</strong><span class="classifier">array_like</span></dt><dd><p>State of each entity at the first and at the second observation. If
+both are Series, they must have identical indices; otherwise they are
+matched by position. Neither may contain missing values: drop the
+entities that were not observed twice, or give the entities that left
+a state such as <code class="docutils literal notranslate"><span class="pre">&quot;closed&quot;</span></code>.</p>
+</dd>
+<dt><strong>states</strong><span class="classifier">array_like, optional</span></dt><dd><p>All states in order, for delinquency buckets and rating grades from
+the best to the worst. States without entities still get a row and a
+column. By default, the categories of categorical inputs, which must
+then be the same for both, or else the sorted distinct values.
+Sorting puts labels such as <code class="docutils literal notranslate"><span class="pre">&quot;current&quot;</span></code> after <code class="docutils literal notranslate"><span class="pre">&quot;90+&quot;</span></code>, so pass
+<cite>states</cite> or ordered categoricals for delinquency buckets. A state
+must not be missing.</p>
+</dd>
+<dt><strong>normalize</strong><span class="classifier">bool, default False</span></dt><dd><p>If True, divide each row by its total, so that it holds the shares of
+the state’s entities that moved to each state. A row without entities
+is then NaN.</p>
+</dd>
+<dt><strong>weights</strong><span class="classifier">array_like, optional</span></dt><dd><p>Non-negative weight of each entity, such as its balance at the first
+observation, matched like <cite>after</cite>. The counts are then sums of
+weights.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.DataFrame</dt><dd><p>One row per state before and one column per state after, in the
+order of <cite>states</cite>. Without <cite>weights</cite> and <cite>normalize</cite>, the entries are
+integer counts.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If the inputs are empty, not one-dimensional, of different lengths or
+Series with different indices, have a missing value or a value that
+is not one of <cite>states</cite>, or <cite>weights</cite> is not valid. Also if <cite>states</cite>
+is not one-dimensional or has duplicates or missing values, or is
+not given while <cite>before</cite> and <cite>after</cite> are categoricals with different
+categories, or if <cite>normalize</cite> is not a boolean.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.vintage.roll_rates" title="kivi.vintage.roll_rates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">roll_rates</span></code></a></dt><dd><p>Share of each state that moved to the next worse state.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.vintage.vintage_table" title="kivi.vintage.vintage_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vintage_table</span></code></a></dt><dd><p>Cumulative bad rates by cohort and month on book.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>With <span class="math notranslate nohighlight">\(n_{ij}\)</span> entities moving from state <span class="math notranslate nohighlight">\(i\)</span> to state
+<span class="math notranslate nohighlight">\(j\)</span>, the normalized entry</p>
+<div class="math notranslate nohighlight">
+\[p_{ij} = \frac{n_{ij}}{\sum_k n_{ik}}\]</div>
+<p>estimates the probability of moving to <span class="math notranslate nohighlight">\(j\)</span> from <span class="math notranslate nohighlight">\(i\)</span>. If the
+movements follow a time-homogeneous Markov chain, the <span class="math notranslate nohighlight">\(h\)</span>-th power
+of the normalized matrix gives the probabilities over <span class="math notranslate nohighlight">\(h\)</span> periods.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.vintage</span><span class="w"> </span><span class="kn">import</span> <span class="n">transition_matrix</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">before</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"A"</span><span class="p">,</span> <span class="s2">"A"</span><span class="p">,</span> <span class="s2">"A"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"C"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">after</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"A"</span><span class="p">,</span> <span class="s2">"A"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"C"</span><span class="p">,</span> <span class="s2">"C"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">transition_matrix</span><span class="p">(</span><span class="n">before</span><span class="p">,</span> <span class="n">after</span><span class="p">,</span> <span class="n">states</span><span class="o">=</span><span class="p">[</span><span class="s2">"A"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"C"</span><span class="p">,</span> <span class="s2">"D"</span><span class="p">])</span>
+<span class="go">after   A  B  C  D</span>
+<span class="go">before</span>
+<span class="go">A       2  1  0  0</span>
+<span class="go">B       0  1  1  0</span>
+<span class="go">C       0  0  1  0</span>
+<span class="go">D       0  0  0  0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">transition_matrix</span><span class="p">(</span><span class="n">before</span><span class="p">,</span> <span class="n">after</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">after       A      B    C</span>
+<span class="go">before</span>
+<span class="go">A       0.667  0.333  0.0</span>
+<span class="go">B       0.000  0.500  0.5</span>
+<span class="go">C       0.000  0.000  1.0</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.vintage.roll_rates">
+<span class="sig-prename descclassname"><span class="pre">kivi.vintage.</span></span><span class="sig-name descname"><span class="pre">roll_rates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">before</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">after</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">states</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.vintage.roll_rates" title="Link to this definition">#</a></dt>
+<dd><p>Compute the share of each state’s entities that rolled to the next state.</p>
+<p>Roll rates summarize the movements of delinquency between two month
+ends: the roll rate of <code class="docutils literal notranslate"><span class="pre">30-59</span></code> days past due is the share of the loans
+at 30 to 59 days that are at 60 to 89 days a month later. The states must
+be ordered from the best to the worst, so that the next state is the next
+worse one.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>before, after</strong><span class="classifier">array_like</span></dt><dd><p>State of each entity at the first and at the second observation, as
+in <cite>transition_matrix</cite>. Neither may contain missing values.</p>
+</dd>
+<dt><strong>states</strong><span class="classifier">array_like, optional</span></dt><dd><p>All states from the best to the worst. Required unless <cite>before</cite> and
+<cite>after</cite> are ordered categoricals with the same categories, whose
+order is then used. A sorted order would be wrong for most labels,
+for example <code class="docutils literal notranslate"><span class="pre">&quot;current&quot;</span></code> would come after <code class="docutils literal notranslate"><span class="pre">&quot;90+&quot;</span></code>.</p>
+</dd>
+<dt><strong>weights</strong><span class="classifier">array_like, optional</span></dt><dd><p>Non-negative weight of each entity, such as its balance at the first
+observation, matched like <cite>after</cite>. The rates are then shares of
+weight, the balance roll rates.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.Series</dt><dd><p>Roll rate of every state except the worst, which has no next state,
+indexed by the state. A state without entities has a NaN rate.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>In the same cases as <cite>transition_matrix</cite>, and if <cite>states</cite> is not
+given while <cite>before</cite> and <cite>after</cite> are not ordered categoricals.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.vintage.transition_matrix" title="kivi.vintage.transition_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transition_matrix</span></code></a></dt><dd><p>The movements between all pairs of states.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.vintage.vintage_table" title="kivi.vintage.vintage_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vintage_table</span></code></a></dt><dd><p>Cumulative bad rates by cohort and month on book.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>With <span class="math notranslate nohighlight">\(n_{ij}\)</span> entities moving from state <span class="math notranslate nohighlight">\(i\)</span> to state
+<span class="math notranslate nohighlight">\(j\)</span>, the roll rate of state <span class="math notranslate nohighlight">\(i\)</span> is</p>
+<div class="math notranslate nohighlight">
+\[r_i = \frac{n_{i,i+1}}{\sum_k n_{ik}}.\]</div>
+<p>Entities that improved, stayed or moved more than one state worse count
+in the denominator only. A loan can fall at most one delinquency bucket
+further behind from one month end to the next, so the product of the
+roll rates estimates the share of current loans that reach the worst
+bucket after one month per roll, if the movements follow a Markov chain.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.vintage</span><span class="w"> </span><span class="kn">import</span> <span class="n">roll_rates</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">states</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"current"</span><span class="p">,</span> <span class="s2">"30"</span><span class="p">,</span> <span class="s2">"60"</span><span class="p">,</span> <span class="s2">"90+"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">before</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"current"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">4</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"30"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">3</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"60"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"90+"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">after</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"current"</span><span class="p">,</span> <span class="s2">"current"</span><span class="p">,</span> <span class="s2">"current"</span><span class="p">,</span> <span class="s2">"30"</span><span class="p">,</span>
+<span class="gp">... </span>         <span class="s2">"current"</span><span class="p">,</span> <span class="s2">"30"</span><span class="p">,</span> <span class="s2">"60"</span><span class="p">,</span> <span class="s2">"60"</span><span class="p">,</span> <span class="s2">"90+"</span><span class="p">,</span> <span class="s2">"90+"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">roll_rates</span><span class="p">(</span><span class="n">before</span><span class="p">,</span> <span class="n">after</span><span class="p">,</span> <span class="n">states</span><span class="o">=</span><span class="n">states</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">before</span>
+<span class="go">current    0.250</span>
+<span class="go">30         0.333</span>
+<span class="go">60         0.500</span>
+<span class="go">Name: roll_rate, dtype: float64</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.vintage.migration_bandwidth">
+<span class="sig-prename descclassname"><span class="pre">kivi.vintage.</span></span><span class="sig-name descname"><span class="pre">migration_bandwidth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">before</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">after</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">grades</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.vintage.migration_bandwidth" title="Link to this definition">#</a></dt>
+<dd><p>Measure how far customers migrate between rating grades, upwards and downwards.</p>
+<p>The matrix weighted bandwidth (MWB) of the European Central Bank <a class="reference internal" href="#r1b9b2b3017a6-1" id="id5">[1]</a>
+summarizes a migration matrix in two numbers: how far the customers who
+moved to worse grades moved, and how far those who moved to better
+grades moved, each relative to the furthest move from their grade in
+either direction. A stable rating system has small values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>before</strong><span class="classifier">array_like</span></dt><dd><p>Grade of each customer at the beginning of the observation period.
+Every value must be one of <cite>grades</cite>.</p>
+</dd>
+<dt><strong>after</strong><span class="classifier">array_like</span></dt><dd><p>Status of each customer at the end of the period: a grade, or any
+other label, such as <code class="docutils literal notranslate"><span class="pre">&quot;default&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;closed&quot;</span></code>, for a customer
+who left the grades. If <cite>before</cite> and <cite>after</cite> are both Series, they
+must have identical indices; otherwise they are matched by
+position. Neither may contain missing values.</p>
+</dd>
+<dt><strong>grades</strong><span class="classifier">array_like</span></dt><dd><p>The <span class="math notranslate nohighlight">\(K\)</span> grades of the rating scale for non-defaulted
+customers, from the best to the worst, at least two.</p>
+</dd>
+<dt><strong>weights</strong><span class="classifier">array_like, optional</span></dt><dd><p>Non-negative frequency weight of each customer, matched like
+<cite>after</cite>: integer weights give the same result as repeating rows.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.Series</dt><dd><p><code class="docutils literal notranslate"><span class="pre">upper</span></code>, the MWB of the migrations to worse grades, above the
+diagonal of the migration matrix, and <code class="docutils literal notranslate"><span class="pre">lower</span></code>, that of the
+migrations to better grades, below it, in an index named
+<code class="docutils literal notranslate"><span class="pre">statistic</span></code>. Each is between 0 and 1, and NaN when no customer
+moved in its direction.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If the inputs are empty, not one-dimensional, of different lengths
+or Series with different indices, or have a missing value, if
+<cite>before</cite> has a value that is not one of <cite>grades</cite>, or if <cite>weights</cite>
+is not valid. Also if <cite>grades</cite> is not one-dimensional, has fewer
+than two grades, duplicates or missing values.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.vintage.migration_test" title="kivi.vintage.migration_test"><code class="xref py py-obj docutils literal notranslate"><span class="pre">migration_test</span></code></a></dt><dd><p>Test the monotonicity of the migration matrix.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.vintage.transition_matrix" title="kivi.vintage.transition_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transition_matrix</span></code></a></dt><dd><p>The migration matrix itself.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>Number the grades from 1, the best, to <span class="math notranslate nohighlight">\(K\)</span>. With <span class="math notranslate nohighlight">\(N_i\)</span>
+customers in grade <span class="math notranslate nohighlight">\(i\)</span> at the beginning and <span class="math notranslate nohighlight">\(N_{ij}\)</span> of
+them in grade <span class="math notranslate nohighlight">\(j\)</span> at the end, <span class="math notranslate nohighlight">\(p_{ij} = N_{ij} / N_i\)</span>, and</p>
+<div class="math notranslate nohighlight">
+\[\mathrm{MWB}_\mathrm{upper} = \frac{1}{M_u} \sum_{i=1}^{K-1}
+\sum_{j=i+1}^{K} |i - j| \, N_i \, p_{ij}, \qquad
+M_u = \sum_{i=1}^{K-1} \max(|i - K|, |i - 1|) \, N_i
+\sum_{j=i+1}^{K} p_{ij},\]</div>
+<p>with <span class="math notranslate nohighlight">\(\mathrm{MWB}_\mathrm{lower}\)</span> and <span class="math notranslate nohighlight">\(M_l\)</span> defined in
+the same way over <span class="math notranslate nohighlight">\(j &lt; i\)</span>, for <span class="math notranslate nohighlight">\(i\)</span> from 2 to <span class="math notranslate nohighlight">\(K\)</span>.
+<span class="math notranslate nohighlight">\(N_i\)</span> counts the customers who defaulted or left as well, but
+<span class="math notranslate nohighlight">\(N_i \, p_{ij} = N_{ij}\)</span> counts only those who reached a grade, so
+the customers who left change neither bandwidth. With weights, the
+counts are sums of weights.</p>
+<p class="rubric">References</p>
+<div role="list" class="citation-list">
+<div class="citation" id="r1b9b2b3017a6-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id5">1</a><span class="fn-bracket">]</span></span>
+<p>European Central Bank, “Instructions for reporting the
+validation results of internal models: IRB Pillar I models for
+credit risk”, February 2019, section 2.5.5.1.</p>
+</div>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.vintage</span><span class="w"> </span><span class="kn">import</span> <span class="n">migration_bandwidth</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">before</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"A"</span><span class="p">,</span> <span class="s2">"A"</span><span class="p">,</span> <span class="s2">"A"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"C"</span><span class="p">,</span> <span class="s2">"C"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">after</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"A"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"C"</span><span class="p">,</span> <span class="s2">"A"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"C"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">migration_bandwidth</span><span class="p">(</span><span class="n">before</span><span class="p">,</span> <span class="n">after</span><span class="p">,</span> <span class="n">grades</span><span class="o">=</span><span class="p">[</span><span class="s2">"A"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"C"</span><span class="p">])</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">statistic</span>
+<span class="go">upper    0.7500</span>
+<span class="go">lower    0.6667</span>
+<span class="go">dtype: float64</span>
+</pre></div>
+</div>
+<p>Of grade A, one customer moved one grade down and one two grades,
+where each could have moved two, so the upper MWB is (1 + 2) / (2 + 2).
+The customer of grade B who defaulted counts in neither bandwidth.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.vintage.migration_test">
+<span class="sig-prename descclassname"><span class="pre">kivi.vintage.</span></span><span class="sig-name descname"><span class="pre">migration_test</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">before</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">after</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">grades</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.vintage.migration_test" title="Link to this definition">#</a></dt>
+<dd><p>Test whether the migration frequencies fall away from the diagonal of the matrix.</p>
+<p>In a stable rating system, few customers move far: the share of a grade
+that moves to another grade should fall the further that grade lies
+from it. The z tests of the European Central Bank <a class="reference internal" href="#r52d7c570a17e-1" id="id7">[1]</a> compare each
+off-diagonal cell of the migration matrix with its neighbour towards the
+diagonal. A small p-value means that more customers reached the cell
+than its neighbour, a sign that the portfolio or the rating system
+shifted.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>before</strong><span class="classifier">array_like</span></dt><dd><p>Grade of each customer at the beginning of the observation period.
+Every value must be one of <cite>grades</cite>.</p>
+</dd>
+<dt><strong>after</strong><span class="classifier">array_like</span></dt><dd><p>Status of each customer at the end of the period: a grade, or any
+other label, such as <code class="docutils literal notranslate"><span class="pre">&quot;default&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;closed&quot;</span></code>, for a customer
+who left the grades. If <cite>before</cite> and <cite>after</cite> are both Series, they
+must have identical indices; otherwise they are matched by
+position. Neither may contain missing values.</p>
+</dd>
+<dt><strong>grades</strong><span class="classifier">array_like</span></dt><dd><p>The <span class="math notranslate nohighlight">\(K\)</span> grades of the rating scale for non-defaulted
+customers, from the best to the worst, at least two.</p>
+</dd>
+<dt><strong>weights</strong><span class="classifier">array_like, optional</span></dt><dd><p>Non-negative frequency weight of each customer, matched like
+<cite>after</cite>: integer weights give the same result as repeating rows.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.DataFrame</dt><dd><p>One row for each of the <span class="math notranslate nohighlight">\(K (K - 1)\)</span> off-diagonal cells, in
+the order of <cite>grades</cite>, indexed by the grades <code class="docutils literal notranslate"><span class="pre">before</span></code> and
+<code class="docutils literal notranslate"><span class="pre">after</span></code>. <code class="docutils literal notranslate"><span class="pre">total</span></code> is the number of customers in the grade before,
+those who left included; <code class="docutils literal notranslate"><span class="pre">share</span></code> the share of them in the grade
+after; <code class="docutils literal notranslate"><span class="pre">statistic</span></code> the z statistic; and <code class="docutils literal notranslate"><span class="pre">p_value</span></code> its one-sided
+p-value.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>In the same cases as <cite>migration_bandwidth</cite>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.vintage.migration_bandwidth" title="kivi.vintage.migration_bandwidth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">migration_bandwidth</span></code></a></dt><dd><p>How far the customers migrate.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.vintage.transition_matrix" title="kivi.vintage.transition_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transition_matrix</span></code></a></dt><dd><p>The migration matrix itself.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>With <span class="math notranslate nohighlight">\(N_i\)</span> customers in grade <span class="math notranslate nohighlight">\(i\)</span> at the beginning, those
+who defaulted or left included, and the shares <span class="math notranslate nohighlight">\(p_{ij}\)</span> of them in
+grade <span class="math notranslate nohighlight">\(j\)</span> at the end, each cell is compared with its neighbour
+<span class="math notranslate nohighlight">\(n\)</span> towards the diagonal, <span class="math notranslate nohighlight">\(n = j + 1\)</span> below the diagonal
+(<span class="math notranslate nohighlight">\(j &lt; i\)</span>) and <span class="math notranslate nohighlight">\(n = j - 1\)</span> above it (<span class="math notranslate nohighlight">\(j &gt; i\)</span>):</p>
+<div class="math notranslate nohighlight">
+\[z_{ij} = \frac{p_{in} - p_{ij}}
+{\sqrt{\left[p_{ij} (1 - p_{ij}) + p_{in} (1 - p_{in})
++ 2 p_{ij} p_{in}\right] / N_i}},\]</div>
+<p>whose denominator is the standard deviation of <span class="math notranslate nohighlight">\(p_{in} - p_{ij}\)</span>
+when the customers of grade <span class="math notranslate nohighlight">\(i\)</span> migrate independently. Under the
+null hypothesis <span class="math notranslate nohighlight">\(p_{ij} \le p_{in}\)</span>, the p-value is
+<span class="math notranslate nohighlight">\(\Phi(z_{ij})\)</span>, so the cells that are fuller than their
+neighbour get small p-values. As the European Central Bank asks, the
+statistic and the p-value are NaN where they are not defined: for a
+grade without customers, and where both shares are 0 or one of them is
+1. With weights, the counts are sums of weights, so weights that are
+not frequencies, such as exposures, do not give standard normal
+statistics.</p>
+<p class="rubric">References</p>
+<div role="list" class="citation-list">
+<div class="citation" id="r52d7c570a17e-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id7">1</a><span class="fn-bracket">]</span></span>
+<p>European Central Bank, “Instructions for reporting the
+validation results of internal models: IRB Pillar I models for
+credit risk”, February 2019, section 2.5.5.2.</p>
+</div>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.vintage</span><span class="w"> </span><span class="kn">import</span> <span class="n">migration_test</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">before</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"A"</span><span class="p">,</span> <span class="s2">"A"</span><span class="p">,</span> <span class="s2">"A"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"C"</span><span class="p">,</span> <span class="s2">"C"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">after</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"A"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"C"</span><span class="p">,</span> <span class="s2">"A"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"C"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">migration_test</span><span class="p">(</span><span class="n">before</span><span class="p">,</span> <span class="n">after</span><span class="p">,</span> <span class="n">grades</span><span class="o">=</span><span class="p">[</span><span class="s2">"A"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"C"</span><span class="p">])</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">              total   share  statistic  p_value</span>
+<span class="go">before after</span>
+<span class="go">A      B          3  0.3333     0.0000   0.5000</span>
+<span class="go">       C          3  0.3333     0.0000   0.5000</span>
+<span class="go">B      A          3  0.3333     0.0000   0.5000</span>
+<span class="go">       C          3  0.0000     1.2247   0.8897</span>
+<span class="go">C      A          2  0.0000     1.4142   0.9214</span>
+<span class="go">       B          2  0.5000     0.0000   0.5000</span>
+</pre></div>
+</div>
+<p>The customer of grade B who defaulted counts in its <code class="docutils literal notranslate"><span class="pre">total</span></code>. No cell
+holds more customers than its neighbour towards the diagonal, so no
+p-value is small.</p>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="capital.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Regulatory capital</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="lifetime.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Lifetime PD and expected credit loss</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.vintage.delinquency_panel"><code class="docutils literal notranslate"><span class="pre">delinquency_panel()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.vintage.vintage_table"><code class="docutils literal notranslate"><span class="pre">vintage_table()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.vintage.default_rate_table"><code class="docutils literal notranslate"><span class="pre">default_rate_table()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.vintage.transition_matrix"><code class="docutils literal notranslate"><span class="pre">transition_matrix()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.vintage.roll_rates"><code class="docutils literal notranslate"><span class="pre">roll_rates()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.vintage.migration_bandwidth"><code class="docutils literal notranslate"><span class="pre">migration_bandwidth()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.vintage.migration_test"><code class="docutils literal notranslate"><span class="pre">migration_test()</span></code></a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1.
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Expert scorecards &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=d005c095" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=25d9e9fd"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/expert';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Model performance" href="metrics.html" />
+    <link rel="prev" title="Scorecard" href="scorecard.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="1.9.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 1.9.0">1.9.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    Tutorial
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/api/expert.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    Tutorial
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/api/expert.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="conventions.html">Conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compatibility.html">Compatibility</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">Time-window features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="univariate.html">Univariate profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="binning.html">Binning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="woe.html">Weight of evidence and information value</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selection.html">Variable selection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reject_inference.html">Reject inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scorecard.html">Scorecard</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">Expert scorecards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">Model performance</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lgd.html">LGD and EAD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">Credit strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rules.html">Policy rules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spec.html">Binning specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stability.html">Population stability index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">Model monitoring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="capital.html">Regulatory capital</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vintage.html">Vintage and roll-rate analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lifetime.html">Lifetime PD and expected credit loss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html">Charts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">Example data</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../api.html" class="nav-link">API reference</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Expert scorecards</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="module-kivi.expert">
+<span id="expert-scorecards"></span><h1>Expert scorecards<a class="headerlink" href="#module-kivi.expert" title="Link to this heading">#</a></h1>
+<p>Weigh the factors of an expert scorecard from pairwise comparisons, as the analytic hierarchy process does. <a class="reference internal" href="#kivi.expert.ahp_weights" title="kivi.expert.ahp_weights"><code class="xref py py-func docutils literal notranslate"><span class="pre">ahp_weights()</span></code></a> turns a matrix of comparisons into weights, <a class="reference internal" href="#kivi.expert.ahp_consistency" title="kivi.expert.ahp_consistency"><code class="xref py py-func docutils literal notranslate"><span class="pre">ahp_consistency()</span></code></a> measures how consistent the comparisons are, and <a class="reference internal" href="#kivi.expert.combine_weights" title="kivi.expert.combine_weights"><code class="xref py py-func docutils literal notranslate"><span class="pre">combine_weights()</span></code></a> joins the weights of factors and sub-factors into global weights.</p>
+<p>See <a class="reference internal" href="../user_guide/expert.html"><span class="doc">Expert scorecards</span></a> for a worked example and how to read the consistency ratio.</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.expert.ahp_weights" title="kivi.expert.ahp_weights"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ahp_weights</span></code></a>(matrix, *[, method, rtol])</p></td>
+<td><p>Weigh factors from a pairwise comparison matrix, as the analytic hierarchy process does.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.expert.ahp_consistency" title="kivi.expert.ahp_consistency"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ahp_consistency</span></code></a>(matrix, *[, rtol])</p></td>
+<td><p>Measure how consistent the judgments of a pairwise comparison matrix are.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.expert.combine_weights" title="kivi.expert.combine_weights"><code class="xref py py-obj docutils literal notranslate"><span class="pre">combine_weights</span></code></a>(parent, children)</p></td>
+<td><p>Combine the weights of factors and of their sub-factors into global weights.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.expert.ahp_weights">
+<span class="sig-prename descclassname"><span class="pre">kivi.expert.</span></span><span class="sig-name descname"><span class="pre">ahp_weights</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'eigenvector'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rtol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.expert.ahp_weights" title="Link to this definition">#</a></dt>
+<dd><p>Weigh factors from a pairwise comparison matrix, as the analytic hierarchy process does.</p>
+<p>Entry <span class="math notranslate nohighlight">\(a_{ij}\)</span> of the matrix says how much more important factor
+<span class="math notranslate nohighlight">\(i\)</span> is than factor <span class="math notranslate nohighlight">\(j\)</span>, on Saaty’s scale from 1 (equally
+important) to 9 (extremely more important), and its reciprocal
+<span class="math notranslate nohighlight">\(a_{ji} = 1 / a_{ij}\)</span> the other way round. The weights are
+proportional to the principal eigenvector of the matrix, or to the
+geometric means of its rows, and sum to 1.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>matrix</strong><span class="classifier">DataFrame or array_like</span></dt><dd><p>A square matrix of pairwise comparisons with a diagonal of 1 and
+reciprocal entries, <span class="math notranslate nohighlight">\(a_{ij} a_{ji} = 1\)</span>, to the relative
+tolerance <cite>rtol</cite>. A DataFrame names the factors by its index, which
+must equal its columns; an array numbers them from 0.</p>
+</dd>
+<dt><strong>method</strong><span class="classifier">{“eigenvector”, “geometric”}, default “eigenvector”</span></dt><dd><p><code class="docutils literal notranslate"><span class="pre">&quot;eigenvector&quot;</span></code> is Saaty’s principal eigenvector. <code class="docutils literal notranslate"><span class="pre">&quot;geometric&quot;</span></code>
+takes the geometric mean of each row, which gives the same weights
+for a consistent matrix and needs no eigenvalue computation.</p>
+</dd>
+<dt><strong>rtol</strong><span class="classifier">float, default 1e-3</span></dt><dd><p>The relative tolerance of the checks that the diagonal is 1 and that
+<span class="math notranslate nohighlight">\(a_{ij} a_{ji}\)</span> is 1. The default accepts reciprocals rounded
+to four decimals, such as 0.3333 for 1 / 3 or 0.1429 for 1 / 7;
+entries rounded to two decimals, such as 0.14, need a larger value,
+or write the fractions. Must be finite and non-negative. The matrix is
+used as it is given, so entries that are not exact reciprocals move the
+weights by about as much as they differ from them.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.Series</dt><dd><p>The weights, named <code class="docutils literal notranslate"><span class="pre">weight</span></code> and indexed by the factors in an index
+named <code class="docutils literal notranslate"><span class="pre">factor</span></code>. They are positive and sum to 1.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If <cite>matrix</cite> is not a square matrix of finite, positive numbers with a
+diagonal of 1 and reciprocal entries, a DataFrame’s index and columns
+differ, repeat a label or form a MultiIndex, <cite>method</cite> is not one of
+the two names, or <cite>rtol</cite> is not a finite, non-negative number.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.expert.ahp_consistency" title="kivi.expert.ahp_consistency"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ahp_consistency</span></code></a></dt><dd><p>Check how consistent the judgments in the matrix are.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.expert.combine_weights" title="kivi.expert.combine_weights"><code class="xref py py-obj docutils literal notranslate"><span class="pre">combine_weights</span></code></a></dt><dd><p>Weigh the sub-factors of a hierarchy.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>For a consistent matrix, <span class="math notranslate nohighlight">\(a_{ij} = w_i / w_j\)</span>, both methods give
+<span class="math notranslate nohighlight">\(w\)</span>. Otherwise the eigenvector method solves <span class="math notranslate nohighlight">\(A w = \lambda_{\max} w\)</span>
+and the geometric method takes</p>
+<div class="math notranslate nohighlight">
+\[w_i = \frac{\left(\prod_j a_{ij}\right)^{1/n}}
+           {\sum_k \left(\prod_j a_{kj}\right)^{1/n}}.\]</div>
+<p>For two or three factors the two methods give the same weights for every
+reciprocal matrix; they differ slightly from four factors on if the
+judgments are inconsistent. The legacy 0.2.x <code class="docutils literal notranslate"><span class="pre">AHP</span></code> class used the
+geometric method.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.expert</span><span class="w"> </span><span class="kn">import</span> <span class="n">ahp_weights</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">factors</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"sales"</span><span class="p">,</span> <span class="s2">"margin"</span><span class="p">,</span> <span class="s2">"leverage"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">matrix</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]],</span> <span class="n">index</span><span class="o">=</span><span class="n">factors</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">factors</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ahp_weights</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">factor</span>
+<span class="go">sales       0.5714</span>
+<span class="go">margin      0.2857</span>
+<span class="go">leverage    0.1429</span>
+<span class="go">Name: weight, dtype: float64</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.expert.ahp_consistency">
+<span class="sig-prename descclassname"><span class="pre">kivi.expert.</span></span><span class="sig-name descname"><span class="pre">ahp_consistency</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rtol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.expert.ahp_consistency" title="Link to this definition">#</a></dt>
+<dd><p>Measure how consistent the judgments of a pairwise comparison matrix are.</p>
+<p>Judgments are consistent when they agree with each other: if factor A is
+twice as important as B and B twice as important as C, then A should be
+four times as important as C. The consistency ratio compares the
+inconsistency of the matrix with that of random judgments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>matrix</strong><span class="classifier">DataFrame or array_like</span></dt><dd><p>A square matrix that compares at most 15 factors, as for
+<cite>ahp_weights</cite>.</p>
+</dd>
+<dt><strong>rtol</strong><span class="classifier">float, default 1e-3</span></dt><dd><p>The relative tolerance of the checks that the diagonal is 1 and that
+reciprocal entries multiply to 1, as for <cite>ahp_weights</cite>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.Series</dt><dd><p>The statistics, indexed by <code class="docutils literal notranslate"><span class="pre">lambda_max</span></code>, <code class="docutils literal notranslate"><span class="pre">ci</span></code>, <code class="docutils literal notranslate"><span class="pre">ri</span></code> and <code class="docutils literal notranslate"><span class="pre">cr</span></code> in an
+index named <code class="docutils literal notranslate"><span class="pre">statistic</span></code>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">lambda_max</span></code>, the principal eigenvalue of the matrix, at least
+the number of factors <span class="math notranslate nohighlight">\(n\)</span>;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ci</span></code>, the consistency index, zero for consistent judgments;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ri</span></code>, Saaty’s random index for <span class="math notranslate nohighlight">\(n\)</span>;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cr</span></code>, the consistency ratio <code class="docutils literal notranslate"><span class="pre">ci</span> <span class="pre">/</span> <span class="pre">ri</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If <cite>matrix</cite> is not a valid comparison matrix or <cite>rtol</cite> is not a finite,
+non-negative number, as for <cite>ahp_weights</cite>, or <cite>matrix</cite> compares more
+than 15 factors, the largest order with a tabulated random index.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.expert.ahp_weights" title="kivi.expert.ahp_weights"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ahp_weights</span></code></a></dt><dd><p>The weights that the matrix gives.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>With <span class="math notranslate nohighlight">\(n\)</span> factors,</p>
+<div class="math notranslate nohighlight">
+\[\mathrm{CI} = \frac{\lambda_{\max} - n}{n - 1}, \qquad
+\mathrm{CR} = \frac{\mathrm{CI}}{\mathrm{RI}}.\]</div>
+<p>Saaty suggested that judgments with a CR above 0.1 should be reviewed,
+and later (1994) tightened the limit to 0.05 for three factors and 0.08
+for four. These are rules of thumb, not tests, and the function does not
+raise for a larger CR. Every matrix of one or two factors is consistent,
+so its <code class="docutils literal notranslate"><span class="pre">ci</span></code>, <code class="docutils literal notranslate"><span class="pre">ri</span></code> and <code class="docutils literal notranslate"><span class="pre">cr</span></code> are 0. For a reciprocal matrix
+<span class="math notranslate nohighlight">\(\lambda_{\max} \ge n\)</span>; a computed value below <span class="math notranslate nohighlight">\(n\)</span>, from
+rounding, is set to <span class="math notranslate nohighlight">\(n\)</span>.</p>
+<p>The random index is the average CI of random reciprocal matrices on
+Saaty’s scale. The table, for 3 to 15 factors, is K. Tone’s,
+<em>The Analytic Hierarchy Process: Decision Making</em> (in Japanese, 1986), as
+T. Obata and S. Shiraishi list it in Table 2 of arXiv:2607.07950. Saaty’s
+books print 1.48 for 12 factors instead of 1.53, which is generally taken
+for a typographical error. The legacy 0.2.x class estimated
+<span class="math notranslate nohighlight">\(\lambda_{\max}\)</span> as the mean of <span class="math notranslate nohighlight">\((A w)_i / w_i\)</span> for the
+geometric-mean weights, which equals the exact value for up to three
+factors, and used almost the same random indices.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.expert</span><span class="w"> </span><span class="kn">import</span> <span class="n">ahp_consistency</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ahp_consistency</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">statistic</span>
+<span class="go">lambda_max    3.0385</span>
+<span class="go">ci            0.0193</span>
+<span class="go">ri            0.5800</span>
+<span class="go">cr            0.0332</span>
+<span class="go">dtype: float64</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.expert.combine_weights">
+<span class="sig-prename descclassname"><span class="pre">kivi.expert.</span></span><span class="sig-name descname"><span class="pre">combine_weights</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">children</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.expert.combine_weights" title="Link to this definition">#</a></dt>
+<dd><p>Combine the weights of factors and of their sub-factors into global weights.</p>
+<p>In a hierarchy, each factor is split into sub-factors that are weighed
+against each other. The global weight of a sub-factor is the weight of
+its factor times its weight within the factor, so the global weights of
+all sub-factors still sum to 1.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>parent</strong><span class="classifier">Series</span></dt><dd><p>The weights of the factors, such as the result of <cite>ahp_weights</cite>. They
+must be finite and non-negative and sum to 1 to a relative tolerance
+of 1e-6.</p>
+</dd>
+<dt><strong>children</strong><span class="classifier">mapping</span></dt><dd><p>For each factor of <cite>parent</cite>, a Series of the weights of its
+sub-factors, indexed by their labels, such as the result of
+<cite>ahp_weights</cite>. Each must be finite and non-negative, sum to 1 and
+name each sub-factor once. Every factor of <cite>parent</cite> needs an entry,
+and no other key is allowed: a factor without sub-factors takes a
+Series of one label with the weight 1.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.Series</dt><dd><p>The global weights, named <code class="docutils literal notranslate"><span class="pre">weight</span></code> and indexed by <code class="docutils literal notranslate"><span class="pre">factor</span></code> and
+<code class="docutils literal notranslate"><span class="pre">sub_factor</span></code>, in the order of <cite>parent</cite> and then of each factor’s
+sub-factors.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If <cite>parent</cite> is not a Series, <cite>children</cite> is not a mapping of Series,
+its keys are not the factors of <cite>parent</cite>, or a set of weights is not
+finite, non-negative and summing to 1.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.expert.ahp_weights" title="kivi.expert.ahp_weights"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ahp_weights</span></code></a></dt><dd><p>Weigh the factors and the sub-factors of each factor.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>The function joins two levels, the factors and their sub-factors. For a
+hierarchy of more levels, combine them level by level: pass the global
+weights with the <code class="docutils literal notranslate"><span class="pre">factor</span></code> level dropped, <code class="docutils literal notranslate"><span class="pre">weights.droplevel(&quot;factor&quot;)</span></code>,
+as <cite>parent</cite> of the next call, whose result then names the last two levels.
+This needs sub-factors of different factors to have different names,
+because the labels of <cite>parent</cite> must be distinct.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.expert</span><span class="w"> </span><span class="kn">import</span> <span class="n">combine_weights</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">parent</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">({</span><span class="s2">"finance"</span><span class="p">:</span> <span class="mf">0.75</span><span class="p">,</span> <span class="s2">"market"</span><span class="p">:</span> <span class="mf">0.25</span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">children</span> <span class="o">=</span> <span class="p">{</span>
+<span class="gp">... </span>    <span class="s2">"finance"</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">({</span><span class="s2">"leverage"</span><span class="p">:</span> <span class="mf">0.6</span><span class="p">,</span> <span class="s2">"margin"</span><span class="p">:</span> <span class="mf">0.4</span><span class="p">}),</span>
+<span class="gp">... </span>    <span class="s2">"market"</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">({</span><span class="s2">"position"</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">}),</span>
+<span class="gp">... </span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">combine_weights</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">children</span><span class="p">)</span>
+<span class="go">factor   sub_factor</span>
+<span class="go">finance  leverage     0.45</span>
+<span class="go">         margin       0.30</span>
+<span class="go">market   position     0.25</span>
+<span class="go">Name: weight, dtype: float64</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="scorecard.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Scorecard</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="metrics.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Model performance</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.expert.ahp_weights"><code class="docutils literal notranslate"><span class="pre">ahp_weights()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.expert.ahp_consistency"><code class="docutils literal notranslate"><span class="pre">ahp_consistency()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.expert.combine_weights"><code class="docutils literal notranslate"><span class="pre">combine_weights()</span></code></a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1.
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

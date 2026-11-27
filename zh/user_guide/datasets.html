@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>示例数据 &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=d005c095" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=14f9d491"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script src="../_static/translations.js?v=540d3cec"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/datasets';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="next" title="API 参考" href="../api.html" />
+    <link rel="prev" title="图表" href="plotting.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+  <meta name="docsearch:version" content="1.9.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">跳转至主要内容</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>回到顶部</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="版本警告"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="网页导航" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 1.9.0">1.9.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    教程
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../../en/user_guide/datasets.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="当前页面" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    教程
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../../en/user_guide/datasets.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="章节导航">
+  <p class="bd-links__title" role="heading" aria-level="1">章节导航</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="risk_workflow.html">风控建模流程</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">时间窗特征</a></li>
+<li class="toctree-l1"><a class="reference internal" href="univariate.html">单变量概况</a></li>
+<li class="toctree-l1"><a class="reference internal" href="binning.html">分箱</a></li>
+<li class="toctree-l1"><a class="reference internal" href="woe_iv.html">证据权重与信息值</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selection.html">变量筛选</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reject_inference.html">拒绝推断</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scorecard.html">评分卡</a></li>
+<li class="toctree-l1"><a class="reference internal" href="expert.html">专家评分卡</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">模型表现</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">校准</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lgd.html">LGD 与 EAD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">信贷策略</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rules.html">政策规则</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spec.html">分箱方案</a></li>
+<li class="toctree-l1"><a class="reference internal" href="psi.html">群体稳定性指标</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">模型监控</a></li>
+<li class="toctree-l1"><a class="reference internal" href="validation.html">模型验证</a></li>
+<li class="toctree-l1"><a class="reference internal" href="capital.html">监管资本</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vintage.html">Vintage 与滚动率分析</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lifetime.html">存续期 PD 与预期信用损失</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html">图表</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">示例数据</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="初始页面">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">用户指南</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">示例数据</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="example-data">
+<h1>示例数据<a class="headerlink" href="#example-data" title="链接到此标题。">#</a></h1>
+<p><a class="reference internal" href="../api/datasets.html#module-kivi.datasets" title="kivi.datasets"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.datasets</span></code></a> 提供五类示例数据：真实的银行营销数据，每位客户一行，带二分类目标；合成的贷款面板数据，每笔贷款每个月一行；合成的贷款申请数据，每个申请人一行，带审批决策；合成的申请人账户交易流水，每笔交易一行；以及合成的违约贷款，每笔贷款一行，连同其清收现金流，每笔现金流一行。 <a class="reference internal" href="../api/datasets.html#kivi.datasets.load_bank" title="kivi.datasets.load_bank"><code class="xref py py-func docutils literal notranslate"><span class="pre">load_bank()</span></code></a> 、 <a class="reference internal" href="../api/datasets.html#kivi.datasets.make_loan_panel" title="kivi.datasets.make_loan_panel"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_loan_panel()</span></code></a> 、 <a class="reference internal" href="../api/datasets.html#kivi.datasets.make_applications" title="kivi.datasets.make_applications"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_applications()</span></code></a> 、 <a class="reference internal" href="../api/datasets.html#kivi.datasets.make_transactions" title="kivi.datasets.make_transactions"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_transactions()</span></code></a> 、 <a class="reference internal" href="../api/datasets.html#kivi.datasets.make_defaults" title="kivi.datasets.make_defaults"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_defaults()</span></code></a> 和 <a class="reference internal" href="../api/datasets.html#kivi.datasets.make_recoveries" title="kivi.datasets.make_recoveries"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_recoveries()</span></code></a> 分别返回这些数据。</p>
+<section id="bank-marketing-data">
+<h2>银行营销数据<a class="headerlink" href="#bank-marketing-data" title="链接到此标题。">#</a></h2>
+<p><a class="reference internal" href="../api/datasets.html#kivi.datasets.load_bank" title="kivi.datasets.load_bank"><code class="xref py py-func docutils literal notranslate"><span class="pre">load_bank()</span></code></a> 读取 Bank Marketing 数据集中的 4,521 位客户。数据包含 16 个特征和整数标签 <code class="docutils literal notranslate"><span class="pre">target</span></code> ：1 表示客户认购了定期存款。</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_bank</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">load_bank</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+<span class="go">['age', 'job', 'marital', 'education', 'default', 'balance', 'housing', 'loan',</span>
+<span class="go"> 'contact', 'day', 'month', 'duration', 'campaign', 'pdays', 'previous',</span>
+<span class="go"> 'poutcome', 'target']</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span><span class="p">[</span><span class="s2">"target"</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+<span class="go">{0: 4000, 1: 521}</span>
+</pre></div>
+</div>
+<p>本文档中的示例按行的位置切分出两个样本，仅用于演示；这一切分不代表时间顺序。</p>
+</section>
+<section id="synthetic-loan-panel">
+<h2>合成贷款面板<a class="headerlink" href="#synthetic-loan-panel" title="链接到此标题。">#</a></h2>
+<p><a class="reference internal" href="../api/datasets.html#kivi.datasets.make_loan_panel" title="kivi.datasets.make_loan_panel"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_loan_panel()</span></code></a> 模拟一个分期贷款资产组合的月度历史，供 <a class="reference internal" href="vintage.html"><span class="doc">Vintage 与滚动率分析</span></a> 中的 Vintage 分析和滚动率分析使用。数据是生成的，并非取自真实的资产组合；同一个 <code class="docutils literal notranslate"><span class="pre">rng</span></code> 种子总是给出同样的面板：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_loan_panel</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">panel</span> <span class="o">=</span> <span class="n">make_loan_panel</span><span class="p">(</span><span class="n">n_loans</span><span class="o">=</span><span class="mi">5000</span><span class="p">,</span> <span class="n">n_months</span><span class="o">=</span><span class="mi">24</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">panel</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">(59295, 8)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">panel</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">"cohort"</span><span class="p">)[</span><span class="s2">"loan_id"</span><span class="p">]</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span><span class="o">.</span><span class="n">agg</span><span class="p">([</span><span class="s2">"min"</span><span class="p">,</span> <span class="s2">"max"</span><span class="p">])</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+<span class="go">{'min': 188, 'max': 234}</span>
+</pre></div>
+</div>
+<p>贷款随机分布在从 2024 年 1 月开始的 <code class="docutils literal notranslate"><span class="pre">n_months</span></code> 个放款月中；每笔贷款在账上的每个月末都有一行，直到最后一个放款月的下一个月。各列如下：</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 75.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>列</p></th>
+<th class="head"><p>含义</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">loan_id</span></code></p></td>
+<td><p>贷款标识，随放款月份递增。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cohort</span></code></p></td>
+<td><p>放款月份，为月度 <code class="docutils literal notranslate"><span class="pre">pandas.Period</span></code> 。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">month</span></code></p></td>
+<td><p>观测所在月份，即 <code class="docutils literal notranslate"><span class="pre">cohort</span> <span class="pre">+</span> <span class="pre">month_on_book</span></code> 。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">month_on_book</span></code></p></td>
+<td><p>放款后经过的月数（账龄），从 1 开始。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">term</span></code></p></td>
+<td><p>月供期数：12、24 或 36。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">amount</span></code></p></td>
+<td><p>放款金额。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">balance</span></code></p></td>
+<td><p>月末的剩余本金。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">status</span></code></p></td>
+<td><p>月末的逾期天数，为有序分类变量： <code class="docutils literal notranslate"><span class="pre">current</span></code> 、 <code class="docutils literal notranslate"><span class="pre">1-29</span></code> 、 <code class="docutils literal notranslate"><span class="pre">30-59</span></code> 、 <code class="docutils literal notranslate"><span class="pre">60-89</span></code> 和 <code class="docutils literal notranslate"><span class="pre">90+</span></code> 。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<section id="how-the-panel-is-simulated">
+<h3>面板的模拟方式<a class="headerlink" href="#how-the-panel-is-simulated" title="链接到此标题。">#</a></h3>
+<p>每笔贷款按月等额本息还款，月利率为 1%。其状态记录自最早一期未还期款到期以来的月数：一个月为 <code class="docutils literal notranslate"><span class="pre">1-29</span></code> ，两个月为 <code class="docutils literal notranslate"><span class="pre">30-59</span></code> ，三个月为 <code class="docutils literal notranslate"><span class="pre">60-89</span></code> ，四个月及以上为 <code class="docutils literal notranslate"><span class="pre">90+</span></code> 。在期限内，这就是逾期未还的期数。每个月：</p>
+<ul class="simple">
+<li><p>正常贷款漏缴当期期款的概率在账龄第六个月达到峰值，之后下降，并乘以该贷款和所在批次各自的风险系数；</p></li>
+<li><p>逾期贷款要么还清全部欠款、回到正常，要么只还一期、保持原状态，要么完全不还、滚动到下一个档位（期限结束后也是如此）；档位越靠后，回到正常的可能越小，滚动的可能越大；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">90+</span></code> 的贷款不再还款，因此其状态和余额保持不变。</p></li>
+</ul>
+<p>贷款在还清最后一期的当月离开面板；如果曾经逾期，这可能发生在期限之后。贷款不会被核销，只有给出 <code class="docutils literal notranslate"><span class="pre">prepayment</span></code> 时才会提前还款。</p>
+</section>
+<section id="early-repayments">
+<h3>提前还款<a class="headerlink" href="#early-repayments" title="链接到此标题。">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">prepayment</span></code> 是正常贷款在最后一期到期之前一次还清全部余额的月度概率，供 <a class="reference internal" href="lifetime.html"><span class="doc">存续期 PD 与预期信用损失</span></a> 中的生存表使用。默认值 0 给出上面的面板，与以前的版本相同。每个月，上月末为正常状态（每笔贷款在放款时都是如此）、且除本月到期的一期外还有剩余期数的贷款，以该概率提前还款，与其风险无关。该贷款当月余额为 0，此后不再有记录，因此各列保持不变：期限之前余额为 0 表示提前还款，期限当月或之后余额为 0 表示按期还清。</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">repaying</span> <span class="o">=</span> <span class="n">make_loan_panel</span><span class="p">(</span><span class="n">n_loans</span><span class="o">=</span><span class="mi">5000</span><span class="p">,</span> <span class="n">n_months</span><span class="o">=</span><span class="mi">24</span><span class="p">,</span> <span class="n">prepayment</span><span class="o">=</span><span class="mf">0.02</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">last</span> <span class="o">=</span> <span class="n">repaying</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">"loan_id"</span><span class="p">)</span><span class="o">.</span><span class="n">tail</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">repaid</span> <span class="o">=</span> <span class="n">last</span><span class="p">[</span><span class="s2">"balance"</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">early</span> <span class="o">=</span> <span class="n">repaid</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">last</span><span class="p">[</span><span class="s2">"month_on_book"</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">last</span><span class="p">[</span><span class="s2">"term"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">int</span><span class="p">(</span><span class="n">early</span><span class="o">.</span><span class="n">sum</span><span class="p">()),</span> <span class="nb">int</span><span class="p">((</span><span class="n">repaid</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">early</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()),</span> <span class="nb">int</span><span class="p">((</span><span class="n">last</span><span class="p">[</span><span class="s2">"status"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"90+"</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+<span class="go">(962, 454, 182)</span>
+</pre></div>
+</div>
+<p>每月 2% 的概率使 5,000 笔贷款中的 962 笔提前还款。提前还款使用单独的随机数，在其他随机数全部抽取之后才抽取，因此在同一个 <code class="docutils literal notranslate"><span class="pre">rng</span></code> 下，每笔贷款在提前还款之前的路径都与不给 <code class="docutils literal notranslate"><span class="pre">prepayment</span></code> 时相同。于是能在账上留到期限或达到 90+ 的贷款变少：454 笔按期还清，182 笔达到 90+，而没有提前还款时分别为 584 笔和 205 笔。</p>
+</section>
+<section id="an-economic-cycle">
+<h3>经济周期<a class="headerlink" href="#an-economic-cycle" title="链接到此标题。">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">correlation</span></code> 和 <code class="docutils literal notranslate"><span class="pre">factors</span></code> 加入一个经济周期，供 <a class="reference internal" href="lifetime.html"><span class="doc">存续期 PD 与预期信用损失</span></a> 中的转移矩阵使用。每个月，一个系统因子按 <a class="reference internal" href="../api/lifetime.html#kivi.lifetime.conditional_matrix" title="kivi.lifetime.conditional_matrix"><code class="xref py py-func docutils literal notranslate"><span class="pre">conditional_matrix()</span></code></a> 的单因子模型使所有贷款的还款一起变化：尚未逾期 90 天的贷款，在当月因子为负时更常漏缴当期期款或没有还清欠款，为正时更少；对因子取平均时，它保持原来的概率。 <code class="docutils literal notranslate"><span class="pre">correlation</span></code> 是因子的资产相关系数；默认值 0 得到上面的面板，与以前版本相同。 <code class="docutils literal notranslate"><span class="pre">factors</span></code> 给出从 2024 年 2 月起每个月的因子，以便与估计值比较。不给 <code class="docutils literal notranslate"><span class="pre">factors</span></code> 时，因子从 <code class="docutils literal notranslate"><span class="pre">rng</span></code> 抽取，排在所有其他随机数之后。一直处于坏经济或好经济的周期会改变达到 90+ 的贷款数：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">reached_90</span><span class="p">(</span><span class="n">panel</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="nb">int</span><span class="p">((</span><span class="n">panel</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">"loan_id"</span><span class="p">)</span><span class="o">.</span><span class="n">tail</span><span class="p">(</span><span class="mi">1</span><span class="p">)[</span><span class="s2">"status"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"90+"</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bad</span> <span class="o">=</span> <span class="n">make_loan_panel</span><span class="p">(</span><span class="n">n_loans</span><span class="o">=</span><span class="mi">5000</span><span class="p">,</span> <span class="n">n_months</span><span class="o">=</span><span class="mi">24</span><span class="p">,</span> <span class="n">correlation</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">factors</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mf">1.0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">24</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">good</span> <span class="o">=</span> <span class="n">make_loan_panel</span><span class="p">(</span><span class="n">n_loans</span><span class="o">=</span><span class="mi">5000</span><span class="p">,</span> <span class="n">n_months</span><span class="o">=</span><span class="mi">24</span><span class="p">,</span> <span class="n">correlation</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">factors</span><span class="o">=</span><span class="p">[</span><span class="mf">1.0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">24</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">reached_90</span><span class="p">(</span><span class="n">bad</span><span class="p">),</span> <span class="n">reached_90</span><span class="p">(</span><span class="n">good</span><span class="p">)</span>
+<span class="go">(450, 68)</span>
+</pre></div>
+</div>
+<p>每个月的因子都为 −1 时，有 450 笔贷款达到 90+；都为 1 时为 68 笔，没有周期时为 205 笔。因子使正常贷款的漏缴与逾期贷款的回到正常和滚动一起变化，但不影响 <code class="docutils literal notranslate"><span class="pre">prepayment</span></code> 的提前还款。</p>
+</section>
+</section>
+<section id="synthetic-loan-applications">
+<h2>合成贷款申请<a class="headerlink" href="#synthetic-loan-applications" title="链接到此标题。">#</a></h2>
+<p><a class="reference internal" href="../api/datasets.html#kivi.datasets.make_applications" title="kivi.datasets.make_applications"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_applications()</span></code></a> 模拟由现行评分卡和两条政策规则决定审批的贷款申请，供 <a class="reference internal" href="reject_inference.html"><span class="doc">拒绝推断</span></a> 中的拒绝推断和 <a class="reference internal" href="rules.html"><span class="doc">政策规则</span></a> 中的政策规则使用。每个申请人（包括被拒绝的申请人）都有真实的违约标记，以便把推断的结果与真实结果比较。同一个 <code class="docutils literal notranslate"><span class="pre">rng</span></code> 种子总是给出同样的申请数据：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_applications</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">applications</span> <span class="o">=</span> <span class="n">make_applications</span><span class="p">(</span><span class="n">n_applicants</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">applications</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">(10000, 10)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">applications</span><span class="p">[</span><span class="s2">"approved"</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
+<span class="go">0.677</span>
+</pre></div>
+</div>
+<p>各列为：</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 75.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>列</p></th>
+<th class="head"><p>含义</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">age</span></code></p></td>
+<td><p>年龄（岁），从 18 到 75。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">income</span></code></p></td>
+<td><p>月收入，取整到十位。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">debt_to_income</span></code></p></td>
+<td><p>每月还债额与收入之比，保留两位小数。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">inquiries</span></code></p></td>
+<td><p>近六个月的征信查询次数。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">housing</span></code></p></td>
+<td><p>分类变量： <code class="docutils literal notranslate"><span class="pre">own</span></code> 、 <code class="docutils literal notranslate"><span class="pre">mortgage</span></code> 或 <code class="docutils literal notranslate"><span class="pre">rent</span></code> 。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">employment</span></code></p></td>
+<td><p>分类变量： <code class="docutils literal notranslate"><span class="pre">permanent</span></code> 、 <code class="docutils literal notranslate"><span class="pre">temporary</span></code> 或 <code class="docutils literal notranslate"><span class="pre">self_employed</span></code> 。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">incumbent_pd</span></code></p></td>
+<td><p>决定该申请的评分卡给出的 PD，保留四位小数。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">policy_decline</span></code></p></td>
+<td><p>若某条政策规则拒绝了该申请（无论其 PD 如何）则为 True，规则为负债收入比高于 0.6 或年龄低于 21 岁。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">approved</span></code></p></td>
+<td><p>若 <code class="docutils literal notranslate"><span class="pre">incumbent_pd</span></code> 低于 0.15 且没有政策规则拒绝该申请，则为 True。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">target</span></code></p></td>
+<td><p>申请人违约为 1，否则为 0。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">risk</span></code></p></td>
+<td><p>仅在 <code class="docutils literal notranslate"><span class="pre">include_risk=True</span></code> 时给出：隐藏风险因子，是不取整的标准正态抽样值。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<section id="how-the-applications-are-simulated">
+<h3>申请数据的模拟方式<a class="headerlink" href="#how-the-applications-are-simulated" title="链接到此标题。">#</a></h3>
+<p>违约概率随负债收入比和征信查询次数上升，随年龄和收入下降，租房者以及临时雇佣和自雇的申请人违约概率更高。不在任何列中的隐藏风险因子（除非用 <code class="docutils literal notranslate"><span class="pre">include_risk=True</span></code> 要求给出）也会提高违约概率，征信查询次数也随该因子增加。</p>
+<p>现行评分卡对各特征的权重不同，并且不使用 <code class="docutils literal notranslate"><span class="pre">housing</span></code> 。它还像手握征信报告的审批人员一样，能看到隐藏风险因子的一部分。因此，在特征相同时，拒绝申请人比获批申请人风险更高，只用获批申请人拟合的模型会低估拒绝申请人的违约频率，见 <a class="reference internal" href="reject_inference.html"><span class="doc">拒绝推断</span></a> 。总体而言，拒绝申请人的违约频率是获批申请人的三倍：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">eligible</span> <span class="o">=</span> <span class="n">applications</span><span class="p">[</span><span class="o">~</span><span class="n">applications</span><span class="p">[</span><span class="s2">"policy_decline"</span><span class="p">]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">eligible</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">"approved"</span><span class="p">)[</span><span class="s2">"target"</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">approved</span>
+<span class="go">False    0.301</span>
+<span class="go">True     0.097</span>
+<span class="go">Name: target, dtype: float64</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>实际中只有获批申请人的结果是已知的。给出拒绝申请人的 <code class="docutils literal notranslate"><span class="pre">target</span></code> 只是为了评估拒绝推断；用它拟合模型会使拒绝推断失去意义。 <code class="docutils literal notranslate"><span class="pre">risk</span></code> 也是如此，它是任何数据集中都没有的信息：给出它是为了模拟依赖于它的数据，例如下面的交易流水，不能用它拟合模型。</p>
+</div>
+</section>
+</section>
+<section id="synthetic-transactions">
+<h2>合成交易流水<a class="headerlink" href="#synthetic-transactions" title="链接到此标题。">#</a></h2>
+<p><a class="reference internal" href="../api/datasets.html#kivi.datasets.make_transactions" title="kivi.datasets.make_transactions"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_transactions()</span></code></a> 模拟 <a class="reference internal" href="../api/datasets.html#kivi.datasets.make_applications" title="kivi.datasets.make_applications"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_applications()</span></code></a> 中每个申请之前的账户交易流水：此前十二个月内的银行卡消费、取现和分期还款。它们是计算时间窗特征的事件数据，例如最近三个月的取现次数。数据是生成的，并非取自真实账户，同一个 <code class="docutils literal notranslate"><span class="pre">rng</span></code> 种子总是给出同样的交易流水。</p>
+<p>交易流水取决于申请人的隐藏风险因子和收入，而不取决于结果。 <code class="docutils literal notranslate"><span class="pre">make_applications</span></code> 在 <code class="docutils literal notranslate"><span class="pre">include_risk=True</span></code> 时把该因子作为 <code class="docutils literal notranslate"><span class="pre">risk</span></code> 列返回，其他列及其背后的随机抽样保持不变。申请数据也没有日期，因此示例为每个申请指定一个日期，按行的顺序均匀分布在 2024 年，并把该列的列名作为 <code class="docutils literal notranslate"><span class="pre">application_date</span></code> 传入：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_transactions</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">applications</span> <span class="o">=</span> <span class="n">make_applications</span><span class="p">(</span><span class="n">n_applicants</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span> <span class="n">include_risk</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">days</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_timedelta</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">10000</span><span class="p">)</span> <span class="o">*</span> <span class="mi">366</span> <span class="o">//</span> <span class="mi">10000</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">"D"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">applications</span><span class="p">[</span><span class="s2">"application_date"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="s2">"2024-01-01"</span><span class="p">)</span> <span class="o">+</span> <span class="n">days</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">transactions</span> <span class="o">=</span> <span class="n">make_transactions</span><span class="p">(</span><span class="n">applications</span><span class="p">,</span> <span class="n">application_date</span><span class="o">=</span><span class="s2">"application_date"</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">transactions</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">(443130, 5)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">transactions</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">   applicant_id           timestamp   amount       kind merchant_category</span>
+<span class="go">0             0 2023-01-02 14:45:14   201.00   purchase            dining</span>
+<span class="go">1             0 2023-01-06 12:12:03  1032.63  repayment               NaN</span>
+<span class="go">2             0 2023-02-08 04:22:55   421.14   purchase            online</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">application_date</span></code> 是必需的。它可以是申请数据某一列的列名（如这里），可以是所有申请共用的一个日期，也可以是与申请数据索引相同的 Series；日期的读取方式与 <a class="reference internal" href="../api/vintage.html#kivi.vintage.delinquency_panel" title="kivi.vintage.delinquency_panel"><code class="xref py py-func docutils literal notranslate"><span class="pre">delinquency_panel()</span></code></a> 相同：时间部分会被忽略，时区会被去掉，数字和 Period 会报错，所以 Period 列要先用 <code class="docutils literal notranslate"><span class="pre">.dt.to_timestamp()</span></code> 转换。交易的申请人 ID 取申请的索引标签。时间窗所截止的观察表，每个申请一行，含申请人 ID 和日期，可由申请数据及其日期得到。它们沿用申请数据的索引，这样为它们算出的特征可以拼回申请数据：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">observations</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">{</span><span class="s2">"applicant_id"</span><span class="p">:</span> <span class="n">applications</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="s2">"application_date"</span><span class="p">:</span> <span class="n">applications</span><span class="p">[</span><span class="s2">"application_date"</span><span class="p">]},</span>
+<span class="gp">... </span>    <span class="n">index</span><span class="o">=</span><span class="n">applications</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">observations</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">   applicant_id application_date</span>
+<span class="go">0             0       2024-01-01</span>
+<span class="go">1             1       2024-01-01</span>
+</pre></div>
+</div>
+<p>交易流水的列为：</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 75.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>列</p></th>
+<th class="head"><p>含义</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">applicant_id</span></code></p></td>
+<td><p>申请人在申请数据中的索引标签。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">timestamp</span></code></p></td>
+<td><p>交易发生的时间，精确到秒。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">amount</span></code></p></td>
+<td><p>金额，为正，保留两位小数。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">kind</span></code></p></td>
+<td><p>分类变量： <code class="docutils literal notranslate"><span class="pre">purchase</span></code> 、 <code class="docutils literal notranslate"><span class="pre">cash_withdrawal</span></code> 或 <code class="docutils literal notranslate"><span class="pre">repayment</span></code> 。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">merchant_category</span></code></p></td>
+<td><p>分类变量，有八个类别，例如 <code class="docutils literal notranslate"><span class="pre">grocery</span></code> 和 <code class="docutils literal notranslate"><span class="pre">travel</span></code> ，用于消费交易，其他类型的交易为缺失。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>申请人的交易落在申请日期之前的 <code class="docutils literal notranslate"><span class="pre">n_months</span></code> 个日历月内，默认十二个月：从 <code class="docutils literal notranslate"><span class="pre">n_months</span></code> 个月之前的那一天（按 <code class="docutils literal notranslate"><span class="pre">pandas.DateOffset</span></code> 的方式计算）开始，到申请日期为止，不含申请日期本身。因此，“申请日期之前最近三个月”这样的时间窗正好切在交易的分界上，申请日期当天及之后也没有会泄漏进时间窗的交易。</p>
+<section id="how-the-transactions-are-simulated">
+<h3>交易流水的模拟方式<a class="headerlink" href="#how-the-transactions-are-simulated" title="链接到此标题。">#</a></h3>
+<p>各月的交易相互独立地生成。一年中，申请人平均约有 25 笔消费、8 笔取现和 11 笔还款，共 44 笔交易。一笔消费约为月收入的 4.5%，一笔取现约为 3%，还款则是 <code class="docutils literal notranslate"><span class="pre">income</span> <span class="pre">*</span> <span class="pre">debt_to_income</span></code> 对应的分期款，各申请人之间相差约 20%。 <code class="docutils literal notranslate"><span class="pre">income</span></code> 较高的申请人消费和取现略多一些，起始于 11 月和 12 月的月份消费更频繁。现行评分卡按 <code class="docutils literal notranslate"><span class="pre">incumbent_pd</span></code> 评为风险较高的申请人取现更多、漏还也更多， <code class="docutils literal notranslate"><span class="pre">risk</span></code> 较高的申请人也是如此。</p>
+<p><code class="docutils literal notranslate"><span class="pre">risk</span></code> 还会带动一种在申请前逐步累积的压力。它在申请前三到九个月开始，在最后一个月最强。压力水平随风险加噪声而上升，从几乎没有到一个有界的最大值。受压时，取现更频繁、金额更大，消费略有减少，还款更可能漏还，或少还至多一成。申请人的基线各不相同，压力对风险的反映也带有噪声，所以没有哪个特征能很好地预测结果。交易流水不取决于 <code class="docutils literal notranslate"><span class="pre">target</span></code> ：它们是在结果产生之前根据风险生成的，就像贷款人观察到的那样。</p>
+<p>最近三个月的取现次数体现了这一信号。这里用 pandas 对上面的交易流水和观察表计数；违约率从没有取现的申请人的 8%，升到取现五次及以上的申请人的 27%：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">merged</span> <span class="o">=</span> <span class="n">transactions</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">observations</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s2">"applicant_id"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">last_3_months</span> <span class="o">=</span> <span class="n">merged</span><span class="p">[</span><span class="s2">"timestamp"</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">merged</span><span class="p">[</span><span class="s2">"application_date"</span><span class="p">]</span> <span class="o">-</span> <span class="n">pd</span><span class="o">.</span><span class="n">DateOffset</span><span class="p">(</span><span class="n">months</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cash</span> <span class="o">=</span> <span class="n">merged</span><span class="p">[</span><span class="n">last_3_months</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">merged</span><span class="p">[</span><span class="s2">"kind"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"cash_withdrawal"</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cash_3m</span> <span class="o">=</span> <span class="n">cash</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">"applicant_id"</span><span class="p">)</span><span class="o">.</span><span class="n">size</span><span class="p">()</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">applications</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cash_3m</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">"cash_withdrawals_3m"</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rate</span> <span class="o">=</span> <span class="n">applications</span><span class="p">[</span><span class="s2">"target"</span><span class="p">]</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">cash_3m</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">upper</span><span class="o">=</span><span class="mi">5</span><span class="p">))</span><span class="o">.</span><span class="n">agg</span><span class="p">([</span><span class="s2">"size"</span><span class="p">,</span> <span class="s2">"mean"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rate</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">                     size   mean</span>
+<span class="go">cash_withdrawals_3m</span>
+<span class="go">0                    1704  0.081</span>
+<span class="go">1                    2010  0.105</span>
+<span class="go">2                    1539  0.129</span>
+<span class="go">3                    1154  0.137</span>
+<span class="go">4                     767  0.192</span>
+<span class="go">5                    2826  0.268</span>
+</pre></div>
+</div>
+<p>这个特征的 IV 由 <a class="reference internal" href="../api/univariate.html#kivi.univariate.profile_table" title="kivi.univariate.profile_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">profile_table()</span></code></a> 按 <a class="reference internal" href="univariate.html"><span class="doc">单变量概况</span></a> 中的方式计算，为 0.31，信号清晰但不算强：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.univariate</span><span class="w"> </span><span class="kn">import</span> <span class="n">profile_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">profile_table</span><span class="p">(</span><span class="n">cash_3m</span><span class="o">.</span><span class="n">to_frame</span><span class="p">(),</span> <span class="n">applications</span><span class="p">[</span><span class="s2">"target"</span><span class="p">])[[</span><span class="s2">"iv"</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">                       iv</span>
+<span class="go">variable</span>
+<span class="go">cash_withdrawals_3m  0.31</span>
+</pre></div>
+</div>
+<p>现行评分卡只看到风险的一部分，所以对于它评分相近的申请人，交易流水仍能说明他们的违约情况。在按 <code class="docutils literal notranslate"><span class="pre">incumbent_pd</span></code> 分成的两半中，违约率仍随取现次数上升：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">above</span> <span class="o">=</span> <span class="n">applications</span><span class="p">[</span><span class="s2">"incumbent_pd"</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">applications</span><span class="p">[</span><span class="s2">"incumbent_pd"</span><span class="p">]</span><span class="o">.</span><span class="n">median</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">half</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">above</span><span class="p">,</span> <span class="s2">"above"</span><span class="p">,</span> <span class="s2">"below"</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="n">applications</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"incumbent_pd"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">applications</span><span class="p">[</span><span class="s2">"target"</span><span class="p">]</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="n">half</span><span class="p">,</span> <span class="n">cash_3m</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">upper</span><span class="o">=</span><span class="mi">4</span><span class="p">)])</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">unstack</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">incumbent_pd         above  below</span>
+<span class="go">cash_withdrawals_3m</span>
+<span class="go">0                    0.163  0.052</span>
+<span class="go">1                    0.167  0.070</span>
+<span class="go">2                    0.194  0.081</span>
+<span class="go">3                    0.201  0.073</span>
+<span class="go">4                    0.310  0.098</span>
+</pre></div>
+</div>
+<p>其他时间窗特征有的更弱，有的更强。按默认的五个分箱计算，最近三个月的消费笔数的 IV 为 0.05，最近三个月的还款相对此前三个月的还款的 IV 为 0.18，最近三个月取现金额相对收入的 IV 为 0.31。 <a class="reference internal" href="../api/features.html#kivi.features.window_features" title="kivi.features.window_features"><code class="xref py py-func docutils literal notranslate"><span class="pre">window_features()</span></code></a> 无需合并就能计算这类特征，一次可以计算多个窗口和多列，见 <a class="reference internal" href="features.html"><span class="doc">时间窗特征</span></a> 。</p>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>交易流水取决于 <code class="docutils literal notranslate"><span class="pre">risk</span></code> ，而任何贷款人都没有它：它只存在于模拟的申请数据中。请用交易流水来学习时间窗特征的用法，而不要用它来估计行为对违约的预测能力。</p>
+</div>
+</section>
+</section>
+<section id="synthetic-defaults-and-recoveries">
+<h2>合成违约贷款与回收现金流<a class="headerlink" href="#synthetic-defaults-and-recoveries" title="链接到此标题。">#</a></h2>
+<p><a class="reference internal" href="../api/datasets.html#kivi.datasets.make_defaults" title="kivi.datasets.make_defaults"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_defaults()</span></code></a> 模拟 2018 年至 2024 年间违约的贷款， <a class="reference internal" href="../api/datasets.html#kivi.datasets.make_recoveries" title="kivi.datasets.make_recoveries"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_recoveries()</span></code></a> 模拟其清收过程的现金流：回收、费用和治愈，由此得到每笔贷款的实际 LGD。循环额度还带有违约前 12 个月的额度和已提用金额，由此得到其实际 CCF。数据是生成的，并非取自真实的资产组合；同一个 <code class="docutils literal notranslate"><span class="pre">rng</span></code> 种子总是给出同样的贷款和现金流：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_defaults</span><span class="p">,</span> <span class="n">make_recoveries</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">defaults</span> <span class="o">=</span> <span class="n">make_defaults</span><span class="p">(</span><span class="n">n_defaults</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">defaults</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">(2000, 9)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"loan_id"</span><span class="p">,</span> <span class="s2">"segment"</span><span class="p">,</span> <span class="s2">"default_date"</span><span class="p">,</span> <span class="s2">"ead"</span><span class="p">,</span> <span class="s2">"collateral_value"</span><span class="p">,</span> <span class="s2">"closing_date"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">defaults</span><span class="p">[</span><span class="n">columns</span><span class="p">]</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">   loan_id    segment default_date        ead  collateral_value closing_date</span>
+<span class="go">0        1    secured   2018-01-01  307147.39          312800.0   2019-08-17</span>
+<span class="go">1        2  revolving   2018-01-01    2471.68               0.0   2020-11-21</span>
+<span class="go">2        3  unsecured   2018-01-01   23456.26               0.0   2018-12-29</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">revolving</span> <span class="o">=</span> <span class="n">defaults</span><span class="p">[</span><span class="n">defaults</span><span class="p">[</span><span class="s2">"segment"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"revolving"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">revolving</span><span class="p">[[</span><span class="s2">"loan_id"</span><span class="p">,</span> <span class="s2">"ead"</span><span class="p">,</span> <span class="s2">"limit"</span><span class="p">,</span> <span class="s2">"drawn"</span><span class="p">,</span> <span class="s2">"discount_rate"</span><span class="p">]]</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">    loan_id       ead    limit     drawn  discount_rate</span>
+<span class="go">1         2   2471.68   5100.0   2043.04           0.05</span>
+<span class="go">5         6   3545.43   4700.0   2119.49           0.05</span>
+<span class="go">15       16  21057.35  21500.0  20902.37           0.05</span>
+</pre></div>
+</div>
+<p>违约贷款表的列为：</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 75.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>列</p></th>
+<th class="head"><p>含义</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">loan_id</span></code></p></td>
+<td><p>贷款标识，从 1 开始，随违约日期递增。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">segment</span></code></p></td>
+<td><p>分类变量： <code class="docutils literal notranslate"><span class="pre">secured</span></code> 、 <code class="docutils literal notranslate"><span class="pre">unsecured</span></code> 或 <code class="docutils literal notranslate"><span class="pre">revolving</span></code> ，分别约占贷款的 40%、35% 和 25%。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">default_date</span></code></p></td>
+<td><p>违约日期，从 2018 年到 2024 年。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ead</span></code></p></td>
+<td><p>违约风险敞口，即违约当日的未偿金额，保留到分。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">limit</span></code></p></td>
+<td><p>循环额度在参考日（违约前 12 个月）的额度，取整到百位；其他分段为缺失值。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">drawn</span></code></p></td>
+<td><p>循环额度在参考日的已提用金额，保留到分；其他分段为缺失值。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">collateral_value</span></code></p></td>
+<td><p>有抵押贷款在违约时的抵押品价值，取整到百位；其他分段为 0。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">discount_rate</span></code></p></td>
+<td><p>把清收现金流折现到违约日的年折现率：违约当月的模拟三个月货币市场利率加 5 个百分点，符合 EBA/GL/2017/16 第 143 段的规定。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">closing_date</span></code></p></td>
+<td><p>清收结束的日期，即治愈、处置抵押品或核销未回收部分的日期；在数据截止日 2025 年 6 月 30 日仍未结案的清收为缺失值。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><a class="reference internal" href="../api/datasets.html#kivi.datasets.make_recoveries" title="kivi.datasets.make_recoveries"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_recoveries()</span></code></a> 接收违约贷款表，返回每笔现金流一行，按贷款和日期排序。第一笔贷款是有抵押贷款：经过三笔法律费用和借款人的两笔还款后，抵押品在结案日处置，处置费用为所得的 3%：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">flows</span> <span class="o">=</span> <span class="n">make_recoveries</span><span class="p">(</span><span class="n">defaults</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">flows</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">(11497, 4)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">flows</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span>
+<span class="go">   loan_id       date     amount      kind</span>
+<span class="go">0        1 2018-04-10    -808.71      cost</span>
+<span class="go">1        1 2018-11-01   -1543.90      cost</span>
+<span class="go">2        1 2019-05-14    -552.91      cost</span>
+<span class="go">3        1 2019-07-11    3595.22  recovery</span>
+<span class="go">4        1 2019-08-02    2012.10  recovery</span>
+<span class="go">5        1 2019-08-17  233970.35  recovery</span>
+<span class="go">6        1 2019-08-17   -7019.11      cost</span>
+</pre></div>
+</div>
+<p>现金流表的列为：</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 75.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>列</p></th>
+<th class="head"><p>含义</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">loan_id</span></code></p></td>
+<td><p>贷款在违约贷款表中的 <code class="docutils literal notranslate"><span class="pre">loan_id</span></code> 。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">date</span></code></p></td>
+<td><p>现金流的日期。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">amount</span></code></p></td>
+<td><p>金额，保留到分：回收和治愈为正，费用为负。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">kind</span></code></p></td>
+<td><p>分类变量： <code class="docutils literal notranslate"><span class="pre">recovery</span></code> 、 <code class="docutils literal notranslate"><span class="pre">cost</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cure</span></code> 。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">cure</span></code> 是恢复正常履约的贷款在结案日的未偿金额。EBA/GL/2017/16 第 135 段将其视为借款人在结案日偿还了这笔金额，因此它和回收一样是一笔现金流。 <a class="reference internal" href="../api/datasets.html#kivi.datasets.make_recoveries" title="kivi.datasets.make_recoveries"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_recoveries()</span></code></a> 只读取 <code class="docutils literal notranslate"><span class="pre">loan_id</span></code> 、 <code class="docutils literal notranslate"><span class="pre">segment</span></code> 、 <code class="docutils literal notranslate"><span class="pre">default_date</span></code> 、 <code class="docutils literal notranslate"><span class="pre">ead</span></code> 、 <code class="docutils literal notranslate"><span class="pre">collateral_value</span></code> 和 <code class="docutils literal notranslate"><span class="pre">closing_date</span></code> 列，因此也可以模拟部分违约贷款或其他标识的贷款的清收。日期列必须为 datetime64 类型。</p>
+<section id="how-the-workouts-are-simulated">
+<h3>清收的模拟方式<a class="headerlink" href="#how-the-workouts-are-simulated" title="链接到此标题。">#</a></h3>
+<p>一次清收至少持续三个月，即治愈的观察期。约 30% 的有抵押贷款、10% 的无抵押贷款和 15% 的循环额度会治愈，平均用时七个月，其余贷款进入处置：</p>
+<ul class="simple">
+<li><p>已治愈的贷款在清收期间偿还部分欠款，有时产生少量费用，并在结案日治愈；</p></li>
+<li><p>有抵押贷款在清收期间偿还少量款项，并在结案日处置抵押品。银行在其债权（违约风险敞口加上年利率 4% 到 10% 的罚息）范围内收回处置所得，并支付处置所得 3% 的处置费用和若干法律费用。清收平均持续约两年半；</p></li>
+<li><p>无抵押贷款或循环额度平均分别收回其违约风险敞口的约 17% 或 22%，分多笔收回，并产生若干催收费用。清收平均分别持续一年半或 15 个月。</p></li>
+</ul>
+<p>约 5% 的贷款还在违约前 90 天内有一笔法律费用，EBA/GL/2017/16 第 144 段把它计入经济损失；3% 的处置有占违约风险敞口 10% 到 40% 的诉讼费用。有抵押贷款在违约时的贷款价值比中位数为 75%，有些贷款的欠款高于其抵押品的价值。现金流到数据截止日 2025 年 6 月 30 日为止：届时仍未结案的清收只有截止日之前的现金流，之后没有。</p>
+</section>
+<section id="realized-lgds">
+<h3>实际 LGD<a class="headerlink" href="#realized-lgds" title="链接到此标题。">#</a></h3>
+<p>贷款的实际 LGD 是其经济损失与违约风险敞口之比 <code class="docutils literal notranslate"><span class="pre">(ead</span> <span class="pre">+</span> <span class="pre">PV(costs)</span> <span class="pre">-</span> <span class="pre">PV(recoveries))</span> <span class="pre">/</span> <span class="pre">ead</span></code> ，其中治愈计为回收，现值按年折现率 <code class="docutils literal notranslate"><span class="pre">discount_rate</span></code> 把每笔现金流折现到违约日，期间的天数除以 365。由于费用是负的金额，LGD 等于 1 减去全部现金流的现值与违约风险敞口之比。这里用 pandas 计算：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dated</span> <span class="o">=</span> <span class="n">flows</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">defaults</span><span class="p">[[</span><span class="s2">"loan_id"</span><span class="p">,</span> <span class="s2">"default_date"</span><span class="p">,</span> <span class="s2">"discount_rate"</span><span class="p">]],</span> <span class="n">on</span><span class="o">=</span><span class="s2">"loan_id"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">years</span> <span class="o">=</span> <span class="p">(</span><span class="n">dated</span><span class="p">[</span><span class="s2">"date"</span><span class="p">]</span> <span class="o">-</span> <span class="n">dated</span><span class="p">[</span><span class="s2">"default_date"</span><span class="p">])</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">days</span> <span class="o">/</span> <span class="mi">365</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">present_value</span> <span class="o">=</span> <span class="n">dated</span><span class="p">[</span><span class="s2">"amount"</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">dated</span><span class="p">[</span><span class="s2">"discount_rate"</span><span class="p">])</span> <span class="o">**</span> <span class="o">-</span><span class="n">years</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">loans</span> <span class="o">=</span> <span class="n">defaults</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">"loan_id"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">net</span> <span class="o">=</span> <span class="n">present_value</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">dated</span><span class="p">[</span><span class="s2">"loan_id"</span><span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">loans</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lgd</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">net</span> <span class="o">/</span> <span class="n">loans</span><span class="p">[</span><span class="s2">"ead"</span><span class="p">])</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">"lgd"</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>只有已结案的清收才有实际 LGD。它们的 LGD 呈双峰分布：多数有抵押贷款的损失不到其违约风险敞口的 10%，多数无抵押贷款和循环额度的损失超过 70%：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">closed</span> <span class="o">=</span> <span class="n">loans</span><span class="p">[</span><span class="s2">"closing_date"</span><span class="p">]</span><span class="o">.</span><span class="n">notna</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"below 0"</span><span class="p">,</span> <span class="s2">"0-0.1"</span><span class="p">,</span> <span class="s2">"0.1-0.3"</span><span class="p">,</span> <span class="s2">"0.3-0.7"</span><span class="p">,</span> <span class="s2">"0.7-0.9"</span><span class="p">,</span> <span class="s2">"0.9-1"</span><span class="p">,</span> <span class="s2">"1 and above"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">edges</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">band</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">lgd</span><span class="p">[</span><span class="n">closed</span><span class="p">],</span> <span class="n">edges</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pd</span><span class="o">.</span><span class="n">crosstab</span><span class="p">(</span><span class="n">band</span><span class="p">,</span> <span class="n">loans</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">closed</span><span class="p">,</span> <span class="s2">"segment"</span><span class="p">])</span>
+<span class="go">segment      secured  unsecured  revolving</span>
+<span class="go">lgd</span>
+<span class="go">below 0           38          0          0</span>
+<span class="go">0-0.1            478         68         82</span>
+<span class="go">0.1-0.3          121          1          3</span>
+<span class="go">0.3-0.7           67         49         62</span>
+<span class="go">0.7-0.9            0        210        155</span>
+<span class="go">0.9-1              0        183         86</span>
+<span class="go">1 and above        0         69         50</span>
+</pre></div>
+</div>
+<p>治愈使每个分段都在 0 附近出现一个峰。已治愈的贷款只损失到治愈为止的折现和少量费用，而进入处置的贷款保持其分段的分布形状：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cured</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">loans</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">flows</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">flows</span><span class="p">[</span><span class="s2">"kind"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"cure"</span><span class="p">,</span> <span class="s2">"loan_id"</span><span class="p">]),</span> <span class="n">loans</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">by_outcome</span> <span class="o">=</span> <span class="n">lgd</span><span class="p">[</span><span class="n">closed</span><span class="p">]</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="n">loans</span><span class="p">[</span><span class="s2">"segment"</span><span class="p">],</span> <span class="n">cured</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">"cured"</span><span class="p">)],</span> <span class="n">observed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">by_outcome</span><span class="o">.</span><span class="n">agg</span><span class="p">([</span><span class="s2">"size"</span><span class="p">,</span> <span class="s2">"mean"</span><span class="p">,</span> <span class="s2">"median"</span><span class="p">])</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">                 size   mean  median</span>
+<span class="go">segment   cured</span>
+<span class="go">secured   False   442  0.130   0.069</span>
+<span class="go">          True    262  0.034   0.029</span>
+<span class="go">unsecured False   511  0.877   0.899</span>
+<span class="go">          True     69  0.039   0.033</span>
+<span class="go">revolving False   356  0.835   0.869</span>
+<span class="go">          True     82  0.035   0.031</span>
+</pre></div>
+</div>
+<p>38 个负的 LGD 都来自有抵押贷款，其抵押品覆盖了含罚息的债权，按折现率计算，收回的金额超过了违约风险敞口。119 个高于 1 的 LGD 来自费用超过回收的贷款。EBA/GL/2017/16 第 160 和 162 段要求两者都保留在数据中：计算平均值时负的 LGD 计为 0，远高于 1 的 LGD 需要找出原因。这里两者都不截断。</p>
+<p>未结案的清收尚未结束，因此其迄今为止现金流得到的 LGD 不是实际 LGD。最主要的是，未结案清收的抵押品都还没有处置：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">workout</span> <span class="o">=</span> <span class="n">closed</span><span class="o">.</span><span class="n">map</span><span class="p">({</span><span class="kc">True</span><span class="p">:</span> <span class="s2">"closed"</span><span class="p">,</span> <span class="kc">False</span><span class="p">:</span> <span class="s2">"open"</span><span class="p">})</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">"workout"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lgd</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="n">loans</span><span class="p">[</span><span class="s2">"segment"</span><span class="p">],</span> <span class="n">workout</span><span class="p">],</span> <span class="n">observed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">unstack</span><span class="p">()</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">workout    closed   open</span>
+<span class="go">segment</span>
+<span class="go">secured     0.094  1.000</span>
+<span class="go">unsecured   0.777  0.924</span>
+<span class="go">revolving   0.685  0.903</span>
+</pre></div>
+</div>
+<p>仍未结案的正是时间长的清收，因此已结案的清收中治愈的比例也高于全部清收。计算平均值或回测实际 LGD 之前，请先剔除未结案的清收，这是 EBA/GL/2017/16 第 154 段和 <a class="reference internal" href="validation.html"><span class="doc">模型验证</span></a> 中欧洲央行的回测所要求的。</p>
+</section>
+<section id="realized-ccfs">
+<h3>实际 CCF<a class="headerlink" href="#realized-ccfs" title="链接到此标题。">#</a></h3>
+<p>循环额度的实际 CCF 是其参考日的未提用额度中到违约时被提用的比例 <code class="docutils literal notranslate"><span class="pre">(ead</span> <span class="pre">-</span> <span class="pre">drawn)</span> <span class="pre">/</span> <span class="pre">(limit</span> <span class="pre">-</span> <span class="pre">drawn)</span></code> ，其中额度和已提用金额都取参考日的值。用满或超出额度的循环额度没有定义 CCF：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">undrawn</span> <span class="o">=</span> <span class="n">revolving</span><span class="p">[</span><span class="s2">"limit"</span><span class="p">]</span> <span class="o">-</span> <span class="n">revolving</span><span class="p">[</span><span class="s2">"drawn"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ccf</span> <span class="o">=</span> <span class="p">((</span><span class="n">revolving</span><span class="p">[</span><span class="s2">"ead"</span><span class="p">]</span> <span class="o">-</span> <span class="n">revolving</span><span class="p">[</span><span class="s2">"drawn"</span><span class="p">])</span> <span class="o">/</span> <span class="n">undrawn</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">undrawn</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">int</span><span class="p">(</span><span class="n">ccf</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()),</span> <span class="nb">int</span><span class="p">((</span><span class="n">ccf</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()),</span> <span class="nb">int</span><span class="p">(</span><span class="n">ccf</span><span class="o">.</span><span class="n">between</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()),</span> <span class="nb">int</span><span class="p">((</span><span class="n">ccf</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+<span class="go">(25, 43, 376, 45)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">ccf</span><span class="o">.</span><span class="n">median</span><span class="p">(),</span> <span class="mi">3</span><span class="p">))</span>
+<span class="go">0.554</span>
+</pre></div>
+</div>
+<p>在参考日有未提用额度的 464 个循环额度中，376 个的 CCF 在 0 到 1 之间，中位数为 0.55。CCF 为负的循环额度在违约前偿还了部分余额，CCF 高于 1 的循环额度在违约时超出了额度。CRR3 第 182(1) 条规定，估计 CCF 时负的 CCF 计为 0，而高于 1 的 CCF 保留，因为参考数据不得封顶在 100%。</p>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>这些违约贷款及其现金流是为演示实际 LGD 和 CCF 的计算而模拟的，各种效应的大小由模拟设定。请用它们学习这些计算的做法，而不是估计真实资产组合的 LGD 或 CCF。</p>
+</div>
+</section>
+</section>
+<section id="dataset-and-attribution">
+<h2>示例数据和署名<a class="headerlink" href="#dataset-and-attribution" title="链接到此标题。">#</a></h2>
+<p>Bank Marketing 由 S. Moro、P. Rita 和 P. Cortez 于 2014 年发布，按 CC BY 4.0 授权。随包 CSV 由旧版工作簿转换而来。加载时将认购存款编码为 1，未认购编码为 0。详见 <a class="reference external" href="https://doi.org/10.24432/C5K306">数据集说明</a> 和 <a class="reference external" href="https://creativecommons.org/licenses/by/4.0/">许可证</a>。贷款面板、申请数据、交易流水、违约贷款及其现金流都是合成数据，没有需要注明的来源。</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="plotting.html"
+       title="上一页">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">上一页</p>
+        <p class="prev-next-title">图表</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../api.html"
+       title="下一页">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">下一页</p>
+        <p class="prev-next-title">API 参考</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 当前页面
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bank-marketing-data">银行营销数据</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#synthetic-loan-panel">合成贷款面板</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#how-the-panel-is-simulated">面板的模拟方式</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#early-repayments">提前还款</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#an-economic-cycle">经济周期</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#synthetic-loan-applications">合成贷款申请</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#how-the-applications-are-simulated">申请数据的模拟方式</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#synthetic-transactions">合成交易流水</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#how-the-transactions-are-simulated">交易流水的模拟方式</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#synthetic-defaults-and-recoveries">合成违约贷款与回收现金流</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#how-the-workouts-are-simulated">清收的模拟方式</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#realized-lgds">实际 LGD</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#realized-ccfs">实际 CCF</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dataset-and-attribution">示例数据和署名</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    由 <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1创建。
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

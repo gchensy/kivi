@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Release notes &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=d005c095" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=25d9e9fd"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'release/index';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Migration guide" href="migration.html" />
+    <link rel="prev" title="Example data" href="../api/datasets.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="1.9.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 1.9.0">1.9.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    Tutorial
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#" aria-current="page">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/release/index.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    Tutorial
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#" aria-current="page">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/release/index.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="migration.html">Migration guide</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Release notes</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="release-notes">
+<h1>Release notes<a class="headerlink" href="#release-notes" title="Link to this heading">#</a></h1>
+<section id="unreleased">
+<h2>Unreleased<a class="headerlink" href="#unreleased" title="Link to this heading">#</a></h2>
+<p>Changes merged since the last release.</p>
+<section id="new">
+<h3>New<a class="headerlink" href="#new" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.lifetime.conditional_matrix</span></code> shifts a transition matrix to the state of the economy in the one-factor model of Belkin, Suchower and Forest (1998): defaults, downgrades and upgrades all move with one systematic factor, and the default column is the conditional PD of <code class="docutils literal notranslate"><span class="pre">kivi.capital.conditional_pd</span></code>. The default state stays absorbing, so the shifted matrices of a scenario multiply into its cumulative PDs.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.lifetime.matrix_factor</span></code> estimates the factor of a period from its count matrix by maximum likelihood, and <code class="docutils literal notranslate"><span class="pre">kivi.lifetime.matrix_correlation</span></code> the correlation under which the factors of several periods have a sample variance of 1.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.datasets.make_loan_panel</span></code> takes <code class="docutils literal notranslate"><span class="pre">correlation</span></code> and <code class="docutils literal notranslate"><span class="pre">factors</span></code>, which move the payments of all loans with a monthly systematic factor. The default, a correlation of 0, gives the same panel as earlier releases.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.scorecard.ScorecardSpec</span></code> keeps a whole scorecard for production: the <code class="docutils literal notranslate"><span class="pre">BinningSpec</span></code> of its characteristics, the points of every group, possibly rounded or adjusted by hand, the scaling, the points of groups that development did not have, and optionally a calibration of the PD and a master scale. The calibration is a shift or a Platt scaling of the log odds, or an isotonic calibration of the score. <code class="docutils literal notranslate"><span class="pre">points</span></code>, <code class="docutils literal notranslate"><span class="pre">score</span></code>, <code class="docutils literal notranslate"><span class="pre">probability</span></code>, <code class="docutils literal notranslate"><span class="pre">grade</span></code> and <code class="docutils literal notranslate"><span class="pre">reason_codes</span></code> apply the scorecard to any sample, and <code class="docutils literal notranslate"><span class="pre">score</span></code> adds the points column by column, so applicants in the same groups get exactly the same score on every computer.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ScorecardSpec.from_model</span></code> builds the specification from the coefficients of a logistic regression on the WOE values, and <code class="docutils literal notranslate"><span class="pre">to_json</span></code> and <code class="docutils literal notranslate"><span class="pre">from_json</span></code> save and load it as versioned JSON, format version 1. Reading rejects repeated keys and <code class="docutils literal notranslate"><span class="pre">NaN</span></code> or <code class="docutils literal notranslate"><span class="pre">Infinity</span></code> in the text.</p></li>
+</ul>
+</section>
+<section id="changed">
+<h3>Changed<a class="headerlink" href="#changed" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.selection.vif_filter</span></code> is much faster when there are many more rows than columns: it decomposes the standardized columns once and computes the VIFs of each round from a small square matrix, about 20 times faster for 50,000 rows and 40 columns. It keeps the same variables, because the VIFs it compares are those of <code class="docutils literal notranslate"><span class="pre">kivi.selection.vif</span></code> up to rounding.</p></li>
+</ul>
+</section>
+<section id="fixed">
+<h3>Fixed<a class="headerlink" href="#fixed" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.scorecard.score_scaling</span></code>, <code class="docutils literal notranslate"><span class="pre">pd_to_score</span></code>, <code class="docutils literal notranslate"><span class="pre">score_to_pd</span></code>, <code class="docutils literal notranslate"><span class="pre">points_table</span></code>, <code class="docutils literal notranslate"><span class="pre">woe_to_points</span></code> and <code class="docutils literal notranslate"><span class="pre">reason_codes</span></code> raise a <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> rather than an <code class="docutils literal notranslate"><span class="pre">OverflowError</span></code> for an integer argument too large for a float, such as <code class="docutils literal notranslate"><span class="pre">pdo=10**400</span></code>.</p></li>
+</ul>
+</section>
+</section>
+<section id="id1">
+<h2>1.9.0 (2026-11-26)<a class="headerlink" href="#id1" title="Link to this heading">#</a></h2>
+<section id="id2">
+<h3>Changed<a class="headerlink" href="#id2" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>kivi requires Python 3.11 or newer, as the notes of 1.8 announced, because Python 3.10 reached the end of its life in October 2026. NumPy 1.24 and pandas 2.0 stay the oldest supported versions.</p></li>
+</ul>
+</section>
+</section>
+<section id="id3">
+<h2>1.8.0 (2026-11-25)<a class="headerlink" href="#id3" title="Link to this heading">#</a></h2>
+<section id="id4">
+<h3>New<a class="headerlink" href="#id4" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.vintage.default_rate_table</span></code> gives the one-year default rate of each grade by the cohort approach of the EBA guidelines on PD estimation, from quarter-end start months by default. A loan in default at a start month belongs to no cohort, the grade is the one at the start month, a loan that defaults twice in a year counts once, and loans that leave the panel during the year without defaulting stay in the cohort and are counted in <code class="docutils literal notranslate"><span class="pre">exited</span></code>. <code class="docutils literal notranslate"><span class="pre">probability</span></code> adds the mean PD of each cohort.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.calibration.central_tendency_shift</span></code> returns the shift of the log odds that brings the mean PD of a calibration sample to a central tendency, such as the long-run average default rate, without changing the order of the PDs: the scaled likelihood ratio of Tasche (2013).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.calibration.quasi_moment_fit</span></code> fits a logistic PD curve to a central tendency and an accuracy ratio, the quasi moment matching of Tasche (2009), and returns the slope and the intercept that <code class="docutils literal notranslate"><span class="pre">kivi.calibration.platt_predict</span></code> applies.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.binning.optimal_edges</span></code> fits the edges with the largest information value over the merges of fine quantile bins, found exactly by dynamic programming, under a maximum number of bins, a minimum share (<code class="docutils literal notranslate"><span class="pre">min_bin_share</span></code>) and a minimum number of events and of non-events (<code class="docutils literal notranslate"><span class="pre">min_bin_events</span></code>) in every bin, and a <code class="docutils literal notranslate"><span class="pre">trend</span></code> of the WOE: <code class="docutils literal notranslate"><span class="pre">&quot;increasing&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;decreasing&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;u_shaped&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;inverted_u&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;any&quot;</span></code>, or by default <code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code>, the better of the two monotonic trends. <code class="docutils literal notranslate"><span class="pre">kivi.spec.fit_spec</span></code> fits it with <code class="docutils literal notranslate"><span class="pre">method=&quot;optimal&quot;</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.binning.chimerge_edges</span></code> and <code class="docutils literal notranslate"><span class="pre">kivi.binning.monotonic_edges</span></code> take <code class="docutils literal notranslate"><span class="pre">min_bin_share</span></code>: before the other merges, a bin smaller than that share of the fitted values is merged with the neighbour whose chi-square statistic with it is smaller. The default, 0, keeps the results of earlier versions.</p></li>
+<li><p>The guide to WOE and IV explains why the information value of supervised bins on their development sample is optimistic, and how to measure it on a validation sample or with a permutation test.</p></li>
+<li><p><a class="reference internal" href="../api/plotting.html#module-kivi.plotting" title="kivi.plotting"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.plotting</span></code></a> draws five more result tables: <a class="reference internal" href="../api/plotting.html#kivi.plotting.survival_chart" title="kivi.plotting.survival_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">survival_chart()</span></code></a> (the steps of <code class="docutils literal notranslate"><span class="pre">cumulative_pd</span></code> or <code class="docutils literal notranslate"><span class="pre">survival</span></code>, with both causes under competing risks for <code class="docutils literal notranslate"><span class="pre">cumulative_pd</span></code>), <a class="reference internal" href="../api/plotting.html#kivi.plotting.transition_chart" title="kivi.plotting.transition_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">transition_chart()</span></code></a> (a transition matrix as a heatmap with the diagonal outlined), <a class="reference internal" href="../api/plotting.html#kivi.plotting.rule_set_chart" title="kivi.plotting.rule_set_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">rule_set_chart()</span></code></a> (the <code class="docutils literal notranslate"><span class="pre">new_hits</span></code> of each rule with the <code class="docutils literal notranslate"><span class="pre">approval_rate</span></code>), <a class="reference internal" href="../api/plotting.html#kivi.plotting.profit_chart" title="kivi.plotting.profit_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">profit_chart()</span></code></a> (<code class="docutils literal notranslate"><span class="pre">profit</span></code> against <code class="docutils literal notranslate"><span class="pre">approval_rate</span></code> with the best cut-off marked) and <a class="reference internal" href="../api/plotting.html#kivi.plotting.lgd_chart" title="kivi.plotting.lgd_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">lgd_chart()</span></code></a> (<code class="docutils literal notranslate"><span class="pre">mean</span></code>, <code class="docutils literal notranslate"><span class="pre">zero_share</span></code> and <code class="docutils literal notranslate"><span class="pre">full_share</span></code> of each group).</p></li>
+<li><p><a class="reference internal" href="../api/rules.html#kivi.rules.rule_candidates" title="kivi.rules.rule_candidates"><code class="xref py py-func docutils literal notranslate"><span class="pre">kivi.rules.rule_candidates()</span></code></a> searches the numeric columns of a frame for single-threshold policy rules: it fits cut points with <a class="reference internal" href="../api/binning.html#kivi.binning.tree_edges" title="kivi.binning.tree_edges"><code class="xref py py-func docutils literal notranslate"><span class="pre">kivi.binning.tree_edges()</span></code></a> or <a class="reference internal" href="../api/binning.html#kivi.binning.ks_edges" title="kivi.binning.ks_edges"><code class="xref py py-func docutils literal notranslate"><span class="pre">kivi.binning.ks_edges()</span></code></a>, keeps for each threshold the side with the higher event rate and lists the rules that meet <code class="docutils literal notranslate"><span class="pre">min_hit_rate</span></code> and <code class="docutils literal notranslate"><span class="pre">min_lift</span></code> from the highest lift down. Its counts equal those of <a class="reference internal" href="../api/rules.html#kivi.rules.rule_table" title="kivi.rules.rule_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">kivi.rules.rule_table()</span></code></a> for the same rule, and missing values and special codes hit no rule.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.binning.variance_edges</span></code> fits the edges of a driver to a continuous response, such as a realized LGD or CCF: over the merges of fine quantile bins it finds exactly, by the dynamic programming of <code class="docutils literal notranslate"><span class="pre">optimal_edges</span></code>, the binning with the smallest sum of squares of the response within the bins, under a maximum number of bins, a minimum share of the values in every bin and a <code class="docutils literal notranslate"><span class="pre">trend</span></code> of the bin means. The response may leave [0, 1] but must not be missing, and <code class="docutils literal notranslate"><span class="pre">weights</span></code> are frequency weights. Group the values with <code class="docutils literal notranslate"><span class="pre">kivi.binning.cut</span></code> and summarize them with <code class="docutils literal notranslate"><span class="pre">kivi.lgd.lgd_table</span></code>; the guide to LGD and EAD fits the bands of the loan-to-value ratio of the secured loans in this way.</p></li>
+</ul>
+</section>
+<section id="id5">
+<h3>Changed<a class="headerlink" href="#id5" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>The home page, the index of the user guide and both READMEs describe <code class="docutils literal notranslate"><span class="pre">optimal_edges</span></code>, <code class="docutils literal notranslate"><span class="pre">variance_edges</span></code> and the <code class="docutils literal notranslate"><span class="pre">min_bin_share</span></code> of ChiMerge and monotonic binning, <code class="docutils literal notranslate"><span class="pre">rule_candidates</span></code>, <code class="docutils literal notranslate"><span class="pre">default_rate_table</span></code>, <code class="docutils literal notranslate"><span class="pre">central_tendency_shift</span></code>, <code class="docutils literal notranslate"><span class="pre">quasi_moment_fit</span></code> and the five new charts. The guide to binning shows in a diagram how <code class="docutils literal notranslate"><span class="pre">optimal_edges</span></code> finds the best path through the candidate bins, the guide to vintage analysis draws the one-year default rates of the start months with their mean, the observed average default rate, and their pooled rate; the validation guide counts the N, D and PD of the Jeffreys test of each grade with <code class="docutils literal notranslate"><span class="pre">default_rate_table</span></code>; and the risk modeling workflow points to the constraints of <code class="docutils literal notranslate"><span class="pre">optimal_edges</span></code> and to the optimistic information value of the development sample.</p></li>
+<li><p>The conventions page adds the <code class="docutils literal notranslate"><span class="pre">response</span></code> of <code class="docutils literal notranslate"><span class="pre">variance_edges</span></code> and <code class="docutils literal notranslate"><span class="pre">fractional_regression</span></code> next to the binary <code class="docutils literal notranslate"><span class="pre">target</span></code>, the options and the missing values of the new functions, the start months of <code class="docutils literal notranslate"><span class="pre">default_rate_table</span></code> and the slope and intercept of <code class="docutils literal notranslate"><span class="pre">quasi_moment_fit</span></code> among the parameters that another function applies. The compatibility page lists the tables of <code class="docutils literal notranslate"><span class="pre">rule_candidates</span></code> and <code class="docutils literal notranslate"><span class="pre">default_rate_table</span></code>, the pair of <code class="docutils literal notranslate"><span class="pre">quasi_moment_fit</span></code>, the float of <code class="docutils literal notranslate"><span class="pre">central_tendency_shift</span></code> and what the five new charts draw, and states that the <code class="docutils literal notranslate"><span class="pre">response</span></code> argument and values such as the <code class="docutils literal notranslate"><span class="pre">method=&quot;optimal&quot;</span></code> of <code class="docutils literal notranslate"><span class="pre">fit_spec</span></code> are public. The glossary defines the accuracy ratio, the calibration sample and the calibration segment, the central tendency, the cohort approach, the start month, the one-year, observed average and long-run average default rates, optimal binning, the permutation test, quasi moment matching and the scaled likelihood ratio, and the candidate rule now covers the thresholds that <code class="docutils literal notranslate"><span class="pre">rule_candidates</span></code> finds.</p></li>
+<li><p>kivi 1.9 will require Python 3.11 or newer, because Python 3.10 reached the end of its life in October 2026. NumPy 1.24 and pandas 2.0 stay the oldest supported versions.</p></li>
+</ul>
+</section>
+</section>
+<section id="id6">
+<h2>1.7.0 (2026-11-25)<a class="headerlink" href="#id6" title="Link to this heading">#</a></h2>
+<section id="id7">
+<h3>New<a class="headerlink" href="#id7" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.strategy.cutoff_table</span></code> takes <code class="docutils literal notranslate"><span class="pre">revenue</span></code>, a non-negative revenue per observation such as the interest margin of a loan, and then adds the column <code class="docutils literal notranslate"><span class="pre">approved_revenue</span></code>, the revenue of the approved book, and with <code class="docutils literal notranslate"><span class="pre">loss</span></code> also <code class="docutils literal notranslate"><span class="pre">profit</span></code>, the revenue minus the losses. <code class="docutils literal notranslate"><span class="pre">table[&quot;profit&quot;].idxmax()</span></code> gives the most profitable of the cut-offs. Without <code class="docutils literal notranslate"><span class="pre">revenue</span></code> the table is unchanged.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.metrics.expected_maximum_profit</span></code> gives the expected maximum profit (EMP) of a credit score of Verbraken, Bravo, Weber and Baesens (2014): the profit per applicant of the best cut-off, as a share of the loan amount, averaged over a loss of default that is 0 with the probability <code class="docutils literal notranslate"><span class="pre">no_loss_share</span></code>, total with the probability <code class="docutils literal notranslate"><span class="pre">full_loss_share</span></code> and evenly spread in between, together with the share of applicants that the best cut-off rejects. The defaults and the results are those of the R package EMP and the Python package empulse, and <code class="docutils literal notranslate"><span class="pre">weights</span></code> are frequency weights.</p></li>
+<li><p>The new module <code class="docutils literal notranslate"><span class="pre">kivi.rules</span></code> measures the policy rules of a credit strategy, passed as a DataFrame with one column of booleans, or of 0 and 1, per rule. <code class="docutils literal notranslate"><span class="pre">rule_table</span></code> gives the hits, the hit rate and the unique hits of each rule, those that no other rule of the set hits, and with a target the hits with a known outcome, the events, the event rate, the lift, the recall and the events among the unique hits. <code class="docutils literal notranslate"><span class="pre">rule_set_table</span></code> applies the rules in order, as a decision waterfall: each row gives the new hits of a rule and the events among them, and the book that the rules up to it leave approved, with the columns of <code class="docutils literal notranslate"><span class="pre">kivi.strategy.cutoff_table</span></code>. Missing labels in the target are unknown outcomes, as in <code class="docutils literal notranslate"><span class="pre">kivi.strategy.swap_set</span></code>, a missing value in a rule raises, and <code class="docutils literal notranslate"><span class="pre">weights</span></code> are frequency weights.</p></li>
+<li><p>The new guide to policy rules measures the two policy rules and two candidate rules of the simulated applications: their hits and event rates, the overlap matrix of the rules, a waterfall that reproduces the approval decisions with the score cut-off as its last rule, what the order of the rules changes, and what the outcomes of the approved applicants alone can and cannot show.</p></li>
+</ul>
+</section>
+<section id="id8">
+<h3>Changed<a class="headerlink" href="#id8" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>The guide to policy rules comes after the credit strategy, which sets the cut-off that the rules complement, and before the binning specifications. The home page, the index of the user guide and both READMEs describe <code class="docutils literal notranslate"><span class="pre">kivi.rules</span></code>, the revenue and profit of <code class="docutils literal notranslate"><span class="pre">cutoff_table</span></code> and <code class="docutils literal notranslate"><span class="pre">expected_maximum_profit</span></code>, with a chart of the decision waterfall of the simulated applications and one of the revenue, expected loss and profit by cut-off. A diagram of the worked example shows how <code class="docutils literal notranslate"><span class="pre">rule_set_table</span></code> credits each decline to the first rule that hits it.</p></li>
+<li><p>The conventions page describes the <code class="docutils literal notranslate"><span class="pre">rules</span></code> argument, the <code class="docutils literal notranslate"><span class="pre">loss</span></code> and <code class="docutils literal notranslate"><span class="pre">revenue</span></code> of <code class="docutils literal notranslate"><span class="pre">cutoff_table</span></code> and the parameters of <code class="docutils literal notranslate"><span class="pre">expected_maximum_profit</span></code>, and adds the rule tables to the functions that read a missing label as an unknown outcome. The compatibility page lists the tables of <code class="docutils literal notranslate"><span class="pre">rule_table</span></code> and <code class="docutils literal notranslate"><span class="pre">rule_set_table</span></code>, the new columns of <code class="docutils literal notranslate"><span class="pre">cutoff_table</span></code> and the statistics of <code class="docutils literal notranslate"><span class="pre">expected_maximum_profit</span></code>, and the glossary defines the policy rule, the candidate rule, the hit rate, the unique hits, the new hits, the decision waterfall, the overlap matrix, the test group, the revenue and profit, the expected maximum profit, the return on investment and the ROC convex hull.</p></li>
+</ul>
+</section>
+</section>
+<section id="id9">
+<h2>1.6.0 (2026-11-25)<a class="headerlink" href="#id9" title="Link to this heading">#</a></h2>
+<section id="id10">
+<h3>New<a class="headerlink" href="#id10" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>The new module <code class="docutils literal notranslate"><span class="pre">kivi.lgd</span></code> measures and models the loss given default and the credit conversion factor of defaulted loans. <code class="docutils literal notranslate"><span class="pre">workout_lgd</span></code> discounts the recoveries and costs of each workout to the date of default at an annual rate, one for all loans or one per loan, with the days counted ACT/365, and gives the exposure, the present values of the recoveries and of the costs and the realized LGD of each loan, without clipping it to [0, 1]. Costs before the date of default are compounded to it, as paragraph 144 of the EBA’s guidelines on LGD estimation asks.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.lgd.conversion_factor</span></code> gives the realized CCF of each credit line from the amount drawn at default and the limit and the amount drawn at a reference date, NaN for lines that were fully drawn or overdrawn at that date, and <code class="docutils literal notranslate"><span class="pre">kivi.lgd.lgd_table</span></code> summarizes realized LGDs by group: the number of defaults, the average, the standard deviation, the range and the shares of defaults without loss and with a total loss, after flooring negative LGDs at 0 as the regulations ask for long-run averages.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.lgd.fractional_regression</span></code> fits the fractional logit of Papke and Wooldridge to a response between 0 and 1, such as a realized LGD, and returns the coefficient table of <code class="docutils literal notranslate"><span class="pre">logistic_regression</span></code> with robust (HC0) standard errors. A response of only 0 and 1 gives the coefficients of <code class="docutils literal notranslate"><span class="pre">logistic_regression</span></code>.</p></li>
+<li><p>The new guide to LGD and EAD lists the rules of the Basel framework, the EBA and China’s 2023 capital rules for realized LGDs and CCFs side by side, with their paragraphs and articles: the discount rate, costs before default, drawings, write-offs, cures, open workouts, long-run averages, negative values, the LGD and EAD floors, the reference date, fully drawn lines and the CCFs of the foundation approach.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.datasets.make_defaults</span></code> simulates defaulted loans for LGD and EAD models: secured loans, unsecured loans and revolving lines that defaulted from 2018 to 2024, with the exposure at default, the value of the collateral, the limit and drawn amount of the revolving lines 12 months before default, a discount rate fixed at the default date and the date the workout ended, missing for the workouts still open at the data cut-off of 30 June 2025. <code class="docutils literal notranslate"><span class="pre">kivi.datasets.make_recoveries</span></code> simulates the cash flows of their workouts, one row per recovery, cost or cure, so that the realized LGDs are bimodal: close to 0 for most secured and cured loans and close to 1 for the other unsecured loans and revolving lines, with a few negative LGDs, a few LGDs above 1 and a few legal costs before default. The realized CCFs of the revolving lines mostly lie from 0 to 1. The same <code class="docutils literal notranslate"><span class="pre">rng</span></code> seed always gives the same loans and cash flows.</p></li>
+</ul>
+</section>
+<section id="id11">
+<h3>Changed<a class="headerlink" href="#id11" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>The guide to LGD and EAD comes after the guide to calibration and before the credit strategy, whose expected loss takes the LGDs and EADs. The home page, the index of the user guide and both READMEs describe <code class="docutils literal notranslate"><span class="pre">kivi.lgd</span></code> and the simulated defaults and recoveries, with charts of the realized LGDs by segment and of the mean LGD of secured loans by loan-to-value band.</p></li>
+<li><p>The conventions page describes the cash flows and the <code class="docutils literal notranslate"><span class="pre">rate</span></code> of <code class="docutils literal notranslate"><span class="pre">workout_lgd</span></code>, the <code class="docutils literal notranslate"><span class="pre">response</span></code> of <code class="docutils literal notranslate"><span class="pre">fractional_regression</span></code> and how the functions of <code class="docutils literal notranslate"><span class="pre">kivi.lgd</span></code> treat dates, missing values, booleans and weights. The compatibility page lists the tables of <code class="docutils literal notranslate"><span class="pre">workout_lgd</span></code>, <code class="docutils literal notranslate"><span class="pre">lgd_table</span></code> and <code class="docutils literal notranslate"><span class="pre">fractional_regression</span></code> and the columns of <code class="docutils literal notranslate"><span class="pre">make_defaults</span></code> and <code class="docutils literal notranslate"><span class="pre">make_recoveries</span></code>, and the glossary defines the workout, the closed workout, the cure, the economic loss, the realized LGD, the long-run average LGD, the reference date of a CCF, the fractional logit and robust standard errors.</p></li>
+</ul>
+</section>
+</section>
+<section id="id12">
+<h2>1.5.0 (2026-11-24)<a class="headerlink" href="#id12" title="Link to this heading">#</a></h2>
+<section id="id13">
+<h3>New<a class="headerlink" href="#id13" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>The new module <code class="docutils literal notranslate"><span class="pre">kivi.capital</span></code> computes the regulatory capital of the internal ratings-based approach. <code class="docutils literal notranslate"><span class="pre">asset_correlation</span></code> and <code class="docutils literal notranslate"><span class="pre">capital_requirement</span></code> evaluate the risk-weight functions of the Basel framework (CRE31) and of China’s capital rules of 2023 for corporate exposures, high-volatility commercial real estate, residential mortgages, qualifying revolving and other retail exposures, with the SME adjustment of <code class="docutils literal notranslate"><span class="pre">turnover</span></code> over a <code class="docutils literal notranslate"><span class="pre">turnover_range</span></code> that takes either jurisdiction’s bounds, the 1.25 multiplier of <code class="docutils literal notranslate"><span class="pre">financial</span></code> institutions and the maturity adjustment. They reproduce the 152 risk weights of Annex 5 of Basel II.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.capital.conditional_pd</span></code> gives the PD of the one-factor model of Vasicek in a scenario of the economy, <code class="docutils literal notranslate"><span class="pre">systematic_factor</span></code> the factor that an observed default rate implies, and <code class="docutils literal notranslate"><span class="pre">vasicek_fit</span></code> estimates the long-run PD and the asset correlation from a series of default rates by the method of moments, which allows years without defaults.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.capital.most_prudent_pd</span></code> gives the most prudent upper bounds of Pluto and Tasche for the PDs of a portfolio with few or no defaults, with independent or correlated defaults, and reproduces the tables of their paper.</p></li>
+<li><p>The new guide to regulatory capital lists the parameters of the Basel framework and of China’s rules side by side, with their paragraphs and articles: the SME range and unit, the financial-institution multiplier, the PD and LGD floors, the foundation LGDs, the maturity, the scope of the advanced approach and the output floor.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.lifetime.survival_table</span></code> estimates a cumulative PD term structure from the duration of each loan until it defaults, leaves for another reason or is last observed. It gives the loans at risk, the defaults, the other exits and the censored loans of each period, the hazard rate, the probability of being still on book and the cumulative PD: the Kaplan–Meier estimate, or with <code class="docutils literal notranslate"><span class="pre">competing</span></code>, such as early repayments, the Aalen–Johansen estimate of the cumulative incidence of default, which does not overstate the PD as 1 − Kaplan–Meier does when repaid loans count as censored. <code class="docutils literal notranslate"><span class="pre">entry</span></code> handles left truncation, such as a panel that starts after the loans were originated, and <code class="docutils literal notranslate"><span class="pre">weights</span></code> are frequency weights. Its <code class="docutils literal notranslate"><span class="pre">cumulative_pd</span></code> converts with <code class="docutils literal notranslate"><span class="pre">convert_pd</span></code> like a vintage curve.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.datasets.make_loan_panel</span></code> takes <code class="docutils literal notranslate"><span class="pre">prepayment</span></code>, the monthly probability that a current loan repays its whole balance early. A loan that repays early has a balance of 0 in that month and no rows after it, so the columns stay the same. The default, 0, gives the same panel as before for every <code class="docutils literal notranslate"><span class="pre">rng</span></code>.</p></li>
+<li><p>The lifetime guide shows how to derive durations, defaults and repayments from a monthly loan panel, why the cumulative incidence and not 1 − Kaplan–Meier is the lifetime PD when loans repay early, how <code class="docutils literal notranslate"><span class="pre">entry</span></code> corrects for a panel that starts late, and a discrete-time hazard model fitted with <code class="docutils literal notranslate"><span class="pre">logistic_regression</span></code> on a person-period table.</p></li>
+</ul>
+</section>
+<section id="id14">
+<h3>Changed<a class="headerlink" href="#id14" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>The guide to regulatory capital comes after the guide to model validation. The home page, the index of the user guide and both READMEs describe <code class="docutils literal notranslate"><span class="pre">kivi.capital</span></code> and <code class="docutils literal notranslate"><span class="pre">survival_table</span></code>, with charts of the risk weight of each asset class against the PD and of the cumulative PD with early repayments as a competing risk or as censored.</p></li>
+<li><p>The lifetime guide weights the expected credit loss over economic scenarios: <code class="docutils literal notranslate"><span class="pre">conditional_pd</span></code> shifts the PDs of each delinquency state to an upside, a base case and a downturn, and the probability-weighted ECL comes out above that of the base case.</p></li>
+<li><p>The conventions page describes <code class="docutils literal notranslate"><span class="pre">asset_class</span></code>, the <code class="docutils literal notranslate"><span class="pre">level</span></code> of the capital functions, and <code class="docutils literal notranslate"><span class="pre">event</span></code>, <code class="docutils literal notranslate"><span class="pre">duration</span></code> and <code class="docutils literal notranslate"><span class="pre">entry</span></code> of <code class="docutils literal notranslate"><span class="pre">survival_table</span></code>. The compatibility page lists the table of <code class="docutils literal notranslate"><span class="pre">survival_table</span></code>, the result of <code class="docutils literal notranslate"><span class="pre">most_prudent_pd</span></code> and the tuple of <code class="docutils literal notranslate"><span class="pre">vasicek_fit</span></code>, and the glossary defines the IRB approach, the asset class and asset correlation, the capital requirement, the risk weight, the maturity and SME adjustments, HVCRE and QRRE, the one-factor model, the systematic factor, stressed and through-the-cycle PDs, most prudent estimates of low-default portfolios, the output floor, censoring, left truncation, the risk set, competing risks, early repayment, the cumulative incidence, the Kaplan–Meier and Aalen–Johansen estimators, discrete-time hazard models and economic scenarios.</p></li>
+</ul>
+</section>
+</section>
+<section id="id15">
+<h2>1.4.0 (2026-11-24)<a class="headerlink" href="#id15" title="Link to this heading">#</a></h2>
+<section id="id16">
+<h3>New<a class="headerlink" href="#id16" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.plotting.distribution_chart</span></code> draws the share of all non-events and the share of all events in each row of a gains table or a WOE table as bars side by side, from the raw <code class="docutils literal notranslate"><span class="pre">non_event</span></code> and <code class="docutils literal notranslate"><span class="pre">event</span></code> counts, in the order of the table and with its empty rows.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.plotting.precision_recall_chart</span></code> draws the precision against the true positive rate, the recall, of every threshold of a ROC table as steps whose area is the average precision, with a dashed line at the event rate of the sample, the precision of a score that ranks at random.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.selection.vif_filter</span></code> drops the variable with the largest VIF, recomputes the VIFs of the others and repeats until no VIF exceeds <code class="docutils literal notranslate"><span class="pre">threshold</span></code> (5 by default). Variables with infinite VIFs go first, and <code class="docutils literal notranslate"><span class="pre">priority</span></code>, such as the information values, decides between tied VIFs. It returns the kept columns, like <code class="docutils literal notranslate"><span class="pre">correlation_filter</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.selection.selection_path</span></code> fits the logistic regression on the first 1, 2, 3 and more variables of an order, such as the variables sorted by information value, and returns one row per step with the variable added, the AUC, Gini and KS of the model, its largest Wald p-value and its smallest coefficient. An optional validation sample adds the same metrics on that sample, scored with the models of the development sample. Each row equals what <code class="docutils literal notranslate"><span class="pre">logistic_regression</span></code> and <code class="docutils literal notranslate"><span class="pre">kivi.metrics</span></code> give on the same columns.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.vintage.migration_bandwidth</span></code> and <code class="docutils literal notranslate"><span class="pre">kivi.vintage.migration_test</span></code> summarize and test the migrations of customers between rating grades, as sections 2.5.5.1 and 2.5.5.2 of the European Central Bank’s instructions for reporting the validation results of internal models ask. The first gives the upper and lower matrix weighted bandwidth (MWB) of the migrations to worse and to better grades. The second gives, for every off-diagonal cell of the migration matrix, the z test of whether it holds more customers than its neighbour towards the diagonal. Both take the grades of each customer at the beginning and at the end of the period like <code class="docutils literal notranslate"><span class="pre">transition_matrix</span></code>, with <code class="docutils literal notranslate"><span class="pre">grades</span></code> from the best to the worst, and count a customer whose status at the end is not a grade, such as <code class="docutils literal notranslate"><span class="pre">&quot;default&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;closed&quot;</span></code>, among the customers of its grade at the beginning.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.calibration.concentration_test</span></code> gives the HI and the coefficient of variation of the shares of the grades of a rating scale and tests whether they are more concentrated than at the initial validation, as section 2.5.5.3 of the ECB’s instructions asks. The HI is <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">+</span> <span class="pre">ln(HHI)</span> <span class="pre">/</span> <span class="pre">ln(K)</span></code> for the Herfindahl-Hirschman index of <code class="docutils literal notranslate"><span class="pre">herfindahl_index</span></code> and <code class="docutils literal notranslate"><span class="pre">K</span></code> grades.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.calibration.backtest_table</span></code> back-tests continuous estimates, such as LGDs, ELBEs and CCFs, against their realized values: for every group it gives the mean estimate and realized value, the variance of their difference and the t test of the ECB’s instructions. Its p-value is one-sided, as sections 2.6.2.1, 2.8.2.1 and 2.9.3.1 ask for the LGD, the LGD in-default and the CCF, so small p-values mean that the estimates are too low; the ELBE test of section 2.7.2.1 is two-sided, with the p-value <code class="docutils literal notranslate"><span class="pre">2</span> <span class="pre">*</span> <span class="pre">min(p_value,</span> <span class="pre">1</span> <span class="pre">-</span> <span class="pre">p_value)</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.calibration.spiegelhalter_test</span></code> tests the probabilities of single observations with Spiegelhalter’s z statistic, which compares their Brier score with the score they would have if they were the true probabilities. <code class="docutils literal notranslate"><span class="pre">kivi.calibration.brier_decomposition</span></code> splits the Brier score by groups into reliability, resolution and uncertainty, plus two terms for probabilities that vary within a group, which are 0 on a master scale whose grades each have one PD.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.metrics.generalized_auc</span></code> gives the generalized AUC of the ECB’s instructions (section 2.6.3.1 and annex 3.2) and Somers’ D, with their standard errors and a confidence interval like <code class="docutils literal notranslate"><span class="pre">roc_auc_interval</span></code>. It measures how well estimated segments, such as the facility grades of an LGD model, rank realized ones, such as the realized LGDs cut into segments.</p></li>
+<li><p>The new guide to model validation maps the quantitative tools of the ECB’s validation report to kivi’s functions, and shows the back-tests, the comparison of the current AUC and gAUC with those of the initial validation, and the twelve LGD segments of the ECB on simulated data.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.woe.woe_trend</span></code> names the shape of the WOE over the bins of a numeric variable, from a <code class="docutils literal notranslate"><span class="pre">woe_table</span></code> result or a table of a <code class="docutils literal notranslate"><span class="pre">BinningSpec</span></code>: <code class="docutils literal notranslate"><span class="pre">&quot;increasing&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;decreasing&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;u_shaped&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;inverted_u&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;irregular&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;flat&quot;</span></code>. It reads the rows labeled with intervals in the order of the table, leaves out the rows of special codes and missing values, and counts neighbouring bins with equal WOE as neither rising nor falling.</p></li>
+</ul>
+</section>
+<section id="id17">
+<h3>Changed<a class="headerlink" href="#id17" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>The vintage guide gains a diagram of how <code class="docutils literal notranslate"><span class="pre">delinquency_panel</span></code> turns the instalments and payments of one loan into its rows at each month end. The binning guide gains a diagram of the second step of <code class="docutils literal notranslate"><span class="pre">ks_edges</span></code>, which compares the best cuts of the two bins of the first cut, and says why <code class="docutils literal notranslate"><span class="pre">ks_edges</span></code> is not in its comparison of the methods.</p></li>
+<li><p>The diagram of <code class="docutils literal notranslate"><span class="pre">ahp_weights</span></code> in the guide to expert scorecards shows the statistics of <code class="docutils literal notranslate"><span class="pre">ahp_consistency</span></code> as the unnamed Series that the function returns, without the column name <code class="docutils literal notranslate"><span class="pre">value</span></code>.</p></li>
+<li><p>The glossary defines ChiMerge, Best-KS and monotonic binning, delinquency buckets, bad definitions, the overdue and outstanding amounts of <code class="docutils literal notranslate"><span class="pre">delinquency_panel</span></code>, the tolerances of <code class="docutils literal notranslate"><span class="pre">delinquency_panel</span></code> and of the AHP functions and the global weights of sub-factors, and tells the events of <code class="docutils literal notranslate"><span class="pre">kivi.features</span></code> apart from the events of a target.</p></li>
+<li><p>The migration guide corrects its mappings of 0.2.x: <code class="docutils literal notranslate"><span class="pre">StepWise</span></code> compared the models of a fixed order and becomes <code class="docutils literal notranslate"><span class="pre">selection_path</span></code>, while <code class="docutils literal notranslate"><span class="pre">stepwise</span></code> selects by p-values; <code class="docutils literal notranslate"><span class="pre">VIF.LowVIFFeatures</span></code> becomes <code class="docutils literal notranslate"><span class="pre">vif_filter</span></code>, <code class="docutils literal notranslate"><span class="pre">woe/utils.monotony</span></code> becomes <code class="docutils literal notranslate"><span class="pre">woe_trend</span></code>, and <code class="docutils literal notranslate"><span class="pre">BinaryMetrics.plot_ks</span></code>, <code class="docutils literal notranslate"><span class="pre">plot_score</span></code> and <code class="docutils literal notranslate"><span class="pre">plot_pr</span></code> become <code class="docutils literal notranslate"><span class="pre">gains_chart</span></code>, <code class="docutils literal notranslate"><span class="pre">distribution_chart</span></code> and <code class="docutils literal notranslate"><span class="pre">precision_recall_chart</span></code>. It states how each differs from the legacy code, and gives pandas code for <code class="docutils literal notranslate"><span class="pre">int_score</span></code> and <code class="docutils literal notranslate"><span class="pre">StepWise.top_n_features</span></code>, which are not ported.</p></li>
+<li><p>The conventions page describes the arguments <code class="docutils literal notranslate"><span class="pre">realized</span></code>, <code class="docutils literal notranslate"><span class="pre">estimated</span></code> and <code class="docutils literal notranslate"><span class="pre">grades</span></code>, the compatibility page lists the tables of <code class="docutils literal notranslate"><span class="pre">selection_path</span></code> and of the validation tests and the labels of <code class="docutils literal notranslate"><span class="pre">woe_trend</span></code>, and the glossary defines back-tests, the Brier decomposition, the generalized AUC and Somers’ D, the HHI and the HI, the migration matrix and its bandwidth, the initial validation, the ELBE and the CCF, the precision-recall curve, average precision and recall, the selection path, VIFs and their elimination, and the trend of the WOE.</p></li>
+<li><p>The guide to model validation comes after the guide to model monitoring, and the home page and the index of the user guide describe it. The guides gain diagrams of how <code class="docutils literal notranslate"><span class="pre">generalized_auc</span></code>, <code class="docutils literal notranslate"><span class="pre">migration_bandwidth</span></code> and <code class="docutils literal notranslate"><span class="pre">migration_test</span></code> compute their results, and charts of a selection path, of the Brier decomposition, of the concentration of grades and of the back-test of LGD grades.</p></li>
+<li><p>The README gallery opens with a chart of time-window features: the share of applicants and the event rate per band of the cash withdrawals in the last three months and in the three months before, computed with a <code class="docutils literal notranslate"><span class="pre">FeatureSpec</span></code> from synthetic transactions. The features guide shows the same chart after its screening of these features.</p></li>
+<li><p>The workflow diagram of the README starts with defining the features once with a <code class="docutils literal notranslate"><span class="pre">FeatureSpec</span></code> and computing them for every sample, before the bin edges are fitted once and every sample is cut with them.</p></li>
+<li><p>The tutorial gains a chapter on transaction features, after the data and samples, so it has eleven chapters. The lender dates the applications, simulates the transactions on the applicants’ accounts with <code class="docutils literal notranslate"><span class="pre">make_transactions</span></code>, derives cash, repayment and purchase features as of each application date with a <code class="docutils literal notranslate"><span class="pre">FeatureSpec</span></code>, checks that the transactions after the application count in none of them, profiles them with <code class="docutils literal notranslate"><span class="pre">profile_table</span></code> next to the application data, and saves the specification as JSON. The scorecard of the later chapters still uses the application data alone, and their results are unchanged.</p></li>
+<li><p>The chapter on the loan book under IFRS 9 reads the repayment history of each loan with <code class="docutils literal notranslate"><span class="pre">panel_features</span></code> and shows how a probation of six months for cured loans changes the stages and the loss allowance.</p></li>
+</ul>
+</section>
+</section>
+<section id="id18">
+<h2>1.3.0 (2026-11-23)<a class="headerlink" href="#id18" title="Link to this heading">#</a></h2>
+<section id="id19">
+<h3>New<a class="headerlink" href="#id19" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>The new module <code class="docutils literal notranslate"><span class="pre">kivi.features</span></code> computes time-window features of event data, such as transactions, point in time. <code class="docutils literal notranslate"><span class="pre">window_features</span></code> aggregates the events of each entity over windows that end at the observation time of each row of an observation table, such as the application date, and never uses an event at or after that time. Windows count calendar months, as <code class="docutils literal notranslate"><span class="pre">&quot;3M&quot;</span></code>, or days, as <code class="docutils literal notranslate"><span class="pre">&quot;90D&quot;</span></code>, and a pair such as <code class="docutils literal notranslate"><span class="pre">(&quot;6M&quot;,</span> <span class="pre">&quot;3M&quot;)</span></code> is the period before the most recent one; <code class="docutils literal notranslate"><span class="pre">closed=&quot;right&quot;</span></code> includes the events at the observation time instead. The aggregations are <code class="docutils literal notranslate"><span class="pre">count</span></code>, <code class="docutils literal notranslate"><span class="pre">sum</span></code>, <code class="docutils literal notranslate"><span class="pre">mean</span></code>, <code class="docutils literal notranslate"><span class="pre">min</span></code>, <code class="docutils literal notranslate"><span class="pre">max</span></code>, <code class="docutils literal notranslate"><span class="pre">std</span></code>, <code class="docutils literal notranslate"><span class="pre">nunique</span></code>, <code class="docutils literal notranslate"><span class="pre">first</span></code>, <code class="docutils literal notranslate"><span class="pre">last</span></code> and <code class="docutils literal notranslate"><span class="pre">days_since_last</span></code>, <code class="docutils literal notranslate"><span class="pre">ratios</span></code> divides two features, and <code class="docutils literal notranslate"><span class="pre">prefix</span></code> names the features of filtered events. The columns are named <code class="docutils literal notranslate"><span class="pre">{prefix}{column}_{aggregation}_{window}</span></code> next to <code class="docutils literal notranslate"><span class="pre">{prefix}events_{window}</span></code>, the number of events of each window. The events are sorted once and the bounds of every window found by binary search, so counts, sums, means and first and last values take a time that grows with the number of rows, while <code class="docutils literal notranslate"><span class="pre">min</span></code>, <code class="docutils literal notranslate"><span class="pre">max</span></code>, <code class="docutils literal notranslate"><span class="pre">std</span></code> and <code class="docutils literal notranslate"><span class="pre">nunique</span></code> look at every event of every window.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.features.FeatureSpec</span></code> keeps the definitions of one or more groups of window features and their ratios, computes them on any sample with <code class="docutils literal notranslate"><span class="pre">compute</span></code> and saves them as versioned JSON with <code class="docutils literal notranslate"><span class="pre">to_json</span></code> and <code class="docutils literal notranslate"><span class="pre">from_json</span></code>, so that development and production compute the same features. Nothing in it is fitted to data.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.datasets.make_transactions</span></code> simulates the account transactions that precede the applications of <code class="docutils literal notranslate"><span class="pre">make_applications</span></code>: card purchases, cash withdrawals and instalment repayments over the twelve months (or <code class="docutils literal notranslate"><span class="pre">n_months</span></code>) before each application date, as a long table with the applicant id, the timestamp, the amount, the kind and the merchant category. The transactions depend on the hidden risk factor and on the income, not on the outcome: applicants at risk build up stress, withdraw more cash as the application nears and repay less, so that features of time windows carry a clear but imperfect signal about <code class="docutils literal notranslate"><span class="pre">target</span></code>, also within bands of <code class="docutils literal notranslate"><span class="pre">incumbent_pd</span></code>. The dates of the applications, required, come from a column, as one date or as a Series. The same <code class="docutils literal notranslate"><span class="pre">rng</span></code> seed always gives the same transactions.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.datasets.make_applications</span></code> takes <code class="docutils literal notranslate"><span class="pre">include_risk=True</span></code> to append the hidden risk factor as the last column <code class="docutils literal notranslate"><span class="pre">risk</span></code>. The default output is unchanged.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.features.panel_features</span></code> summarizes a monthly panel of repayment statuses, such as the result of <code class="docutils literal notranslate"><span class="pre">kivi.vintage.delinquency_panel</span></code> or <code class="docutils literal notranslate"><span class="pre">kivi.datasets.make_loan_panel</span></code>, before each observation time. For every window of months it gives the number of months with a status, the bad months, the longest runs of consecutive bad and good months and the worst status, and it adds the months since the latest bad month. A status is bad from <code class="docutils literal notranslate"><span class="pre">bad</span></code> on, <code class="docutils literal notranslate"><span class="pre">&quot;30-59&quot;</span></code> by default, in the order of the ordered categorical status column. Only the month ends before the month of the observation time count, an entity with several loans takes the worst status of each month, and a month without a status counts in no window and ends a run.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.features.FeatureSpec</span></code> holds groups of panel features in <code class="docutils literal notranslate"><span class="pre">panel</span></code>, next to the groups of window features in <code class="docutils literal notranslate"><span class="pre">events</span></code>, and <code class="docutils literal notranslate"><span class="pre">compute</span></code> takes the panels as <code class="docutils literal notranslate"><span class="pre">panel</span></code>. Ratios may divide features of both kinds. Version 1 of its JSON format is final.</p></li>
+</ul>
+</section>
+<section id="id20">
+<h3>Changed<a class="headerlink" href="#id20" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>The migration guide maps <code class="docutils literal notranslate"><span class="pre">FeatureTools</span></code>, <code class="docutils literal notranslate"><span class="pre">FeatureToolsV2</span></code> and <code class="docutils literal notranslate"><span class="pre">index/collect.py</span></code> of 0.2.x to <code class="docutils literal notranslate"><span class="pre">window_features</span></code>, <code class="docutils literal notranslate"><span class="pre">panel_features</span></code> and <code class="docutils literal notranslate"><span class="pre">FeatureSpec</span></code> of <code class="docutils literal notranslate"><span class="pre">kivi.features</span></code>, and states how their windows, aggregations, ratios and runs of months differ from the legacy code. It no longer lists the ratios of <code class="docutils literal notranslate"><span class="pre">FeatureTools</span></code> among the tools without a replacement, and it names <code class="docutils literal notranslate"><span class="pre">make_transactions</span></code> next to the synthetic data of 0.2.x.</p></li>
+<li><p>The conventions page describes the tables, time columns, column names and windows of <code class="docutils literal notranslate"><span class="pre">kivi.features</span></code>, the compatibility page lists the columns of its functions and of <code class="docutils literal notranslate"><span class="pre">make_transactions</span></code> and the JSON format of <code class="docutils literal notranslate"><span class="pre">FeatureSpec</span></code>, and the glossary defines point in time, observations, windows and window pairs, and the bad months, runs and monthly status panels of repayment behaviour.</p></li>
+<li><p>The guide to time-window features comes first among the topic guides, before the univariate profile. It gains two diagrams, of the windows of <code class="docutils literal notranslate"><span class="pre">window_features</span></code> and of the months of <code class="docutils literal notranslate"><span class="pre">panel_features</span></code>, and a section that computes features of the transactions of <code class="docutils literal notranslate"><span class="pre">make_transactions</span></code> with a <code class="docutils literal notranslate"><span class="pre">FeatureSpec</span></code> and screens them with <code class="docutils literal notranslate"><span class="pre">profile_table</span></code>.</p></li>
+</ul>
+</section>
+</section>
+<section id="id21">
+<h2>1.2.0 (2026-11-22)<a class="headerlink" href="#id21" title="Link to this heading">#</a></h2>
+<section id="id22">
+<h3>New<a class="headerlink" href="#id22" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.vintage.delinquency_panel</span></code> builds the monthly loan panel that <code class="docutils literal notranslate"><span class="pre">vintage_table</span></code>, <code class="docutils literal notranslate"><span class="pre">transition_matrix</span></code> and <code class="docutils literal notranslate"><span class="pre">roll_rates</span></code> take from the instalment schedules and the payments of the loans. It applies the payments of each loan to its oldest unpaid instalment first, so that an amount paid early counts towards the next instalment, and at every month end up to <code class="docutils literal notranslate"><span class="pre">end</span></code> counts only the payments made by then. Each row has the columns of <code class="docutils literal notranslate"><span class="pre">make_loan_panel</span></code> that a schedule gives, with the same names and in the same order: <code class="docutils literal notranslate"><span class="pre">loan_id</span></code>, <code class="docutils literal notranslate"><span class="pre">cohort</span></code>, <code class="docutils literal notranslate"><span class="pre">month</span></code>, <code class="docutils literal notranslate"><span class="pre">month_on_book</span></code>, with <code class="docutils literal notranslate"><span class="pre">principal</span></code> the unpaid principal as <code class="docutils literal notranslate"><span class="pre">balance</span></code>, and <code class="docutils literal notranslate"><span class="pre">status</span></code> in the buckets of <code class="docutils literal notranslate"><span class="pre">make_loan_panel</span></code>. It adds the days past due since the oldest unpaid instalment fell due and the amounts overdue and outstanding. The cohort is the month before the first due date, or with <code class="docutils literal notranslate"><span class="pre">origination</span></code> the origination month of each loan. <code class="docutils literal notranslate"><span class="pre">tolerance</span></code> lets an instalment count as paid when a small amount of it remains unpaid. A loan leaves the panel once it is repaid, and keeps rolling after its last due date while it is not.</p></li>
+<li><p>The new module <code class="docutils literal notranslate"><span class="pre">kivi.expert</span></code> weighs the factors of an expert scorecard, the kind of scorecard that credit analysts set by judgment where there are too few defaults to fit a model, with the analytic hierarchy process. <code class="docutils literal notranslate"><span class="pre">ahp_weights</span></code> turns a pairwise comparison matrix into weights that sum to 1, by Saaty’s principal eigenvector or by the geometric mean of the rows, and <code class="docutils literal notranslate"><span class="pre">ahp_consistency</span></code> returns the principal eigenvalue, the consistency index, Saaty’s random index and the consistency ratio, so that judgments with a ratio above the 0.1 rule of thumb can be reviewed. <code class="docutils literal notranslate"><span class="pre">combine_weights</span></code> multiplies the weights of factors and of their sub-factors into global weights. The matrix is a DataFrame whose index and columns name the factors, or an array, and it must have a diagonal of 1 and reciprocal entries, which the functions check. They replace the geometric-mean weights and the consistency check of the <code class="docutils literal notranslate"><span class="pre">AHP</span></code> class of the 0.2.x series, which is not part of kivi 1.</p></li>
+<li><p><a class="reference internal" href="../api/binning.html#kivi.binning.ks_edges" title="kivi.binning.ks_edges"><code class="xref py py-func docutils literal notranslate"><span class="pre">ks_edges()</span></code></a> fits edges by Best-KS binning. It cuts each bin where the cumulative shares of its events and of its non-events differ most, the KS of the bin, among the cuts that leave <code class="docutils literal notranslate"><span class="pre">min_bin_share</span></code> of the observations on each side, and splits the bins best first, by the pairs of an event and a non-event that a cut ranks apart: its KS times the numbers of events and non-events in the bin. It takes <code class="docutils literal notranslate"><span class="pre">max_bins</span></code>, <code class="docutils literal notranslate"><span class="pre">special</span></code> and <code class="docutils literal notranslate"><span class="pre">weights</span></code> as <code class="docutils literal notranslate"><span class="pre">tree_edges</span></code> does and returns edges of the same form, with observed values as interior edges.</p></li>
+<li><p><a class="reference internal" href="../api/spec.html#kivi.spec.fit_spec" title="kivi.spec.fit_spec"><code class="xref py py-func docutils literal notranslate"><span class="pre">fit_spec()</span></code></a> fits a column with <code class="docutils literal notranslate"><span class="pre">ks_edges</span></code> when <code class="docutils literal notranslate"><span class="pre">method</span></code> is <code class="docutils literal notranslate"><span class="pre">&quot;ks&quot;</span></code>. The saved specification stores the edges, so its format version does not change.</p></li>
+</ul>
+</section>
+<section id="id23">
+<h3>Changed<a class="headerlink" href="#id23" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>The migration guide maps <code class="docutils literal notranslate"><span class="pre">KSBins</span></code>, <code class="docutils literal notranslate"><span class="pre">PortfolioAnalysis.Vintage</span></code> and the <code class="docutils literal notranslate"><span class="pre">AHP</span></code> class of 0.2.x to <code class="docutils literal notranslate"><span class="pre">ks_edges</span></code>, <code class="docutils literal notranslate"><span class="pre">delinquency_panel</span></code> and the functions of <code class="docutils literal notranslate"><span class="pre">kivi.expert</span></code>, and states how each one differs from the legacy code. It no longer lists the analytic hierarchy process and the repayment-schedule calculations among the tools without a replacement.</p></li>
+<li><p>The conventions page describes the comparison matrices of <code class="docutils literal notranslate"><span class="pre">kivi.expert</span></code> and the dates of <code class="docutils literal notranslate"><span class="pre">delinquency_panel</span></code>, the compatibility page lists the results of the new functions and keeps the random indices of <code class="docutils literal notranslate"><span class="pre">ahp_consistency</span></code> constant, and the glossary defines the terms of the analytic hierarchy process, the grace period and the repayment schedule.</p></li>
+<li><p>The binning guide gains a chart of the Best-KS cuts, and the guide to expert scorecards two diagrams: how the weights and the consistency ratio follow from a comparison matrix, and which judgments of an inconsistent matrix to discuss first.</p></li>
+</ul>
+</section>
+</section>
+<section id="id24">
+<h2>1.1.0 (2026-11-22)<a class="headerlink" href="#id24" title="Link to this heading">#</a></h2>
+<section id="id25">
+<h3>New<a class="headerlink" href="#id25" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.strategy.confusion_table</span></code> counts, at each cut-off of a score, the declined events and non-events and the approved ones, with the precision, recall, F1 score and accuracy of the decision. A score above the cut-off is declined, as in <code class="docutils literal notranslate"><span class="pre">cutoff_table</span></code>, and counts as the prediction of an event. The function takes <code class="docutils literal notranslate"><span class="pre">cutoffs</span></code> and <code class="docutils literal notranslate"><span class="pre">weights</span></code> as <code class="docutils literal notranslate"><span class="pre">cutoff_table</span></code> does, so the rows line up, and its <code class="docutils literal notranslate"><span class="pre">recall</span></code> is the <code class="docutils literal notranslate"><span class="pre">rejected_event_share</span></code> of that table. <code class="docutils literal notranslate"><span class="pre">precision</span></code> is NaN for a cut-off that declines nobody.</p></li>
+<li><p>The new module <code class="docutils literal notranslate"><span class="pre">kivi.plotting</span></code> draws the result tables of the other modules with matplotlib, an optional dependency installed with <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">&quot;kivi[plot]&quot;</span></code>. <code class="docutils literal notranslate"><span class="pre">woe_chart</span></code> draws the share and the event rate or WOE of each group of a WOE table, <code class="docutils literal notranslate"><span class="pre">correlation_chart</span></code> a correlation matrix, <code class="docutils literal notranslate"><span class="pre">roc_chart</span></code> the ROC curve with its KS, <code class="docutils literal notranslate"><span class="pre">gains_chart</span></code> the cumulative shares of a gains table, <code class="docutils literal notranslate"><span class="pre">calibration_chart</span></code> the observed against the predicted event rate of each group, <code class="docutils literal notranslate"><span class="pre">cutoff_chart</span></code> the event rate of the approved book against the approval rate, <code class="docutils literal notranslate"><span class="pre">psi_chart</span></code> the reference and current shares of a PSI table, <code class="docutils literal notranslate"><span class="pre">monitoring_chart</span></code> one column of a monitoring or stability table by period, as a line or as bars, and <code class="docutils literal notranslate"><span class="pre">vintage_chart</span></code> the curve of each cohort of a vintage table.</p></li>
+<li><p>Each chart draws on the matplotlib Axes passed as <code class="docutils literal notranslate"><span class="pre">ax</span></code>, or on a new figure, and returns the Axes it drew on. It never shows the figure, never changes <code class="docutils literal notranslate"><span class="pre">matplotlib.rcParams</span></code> and never modifies the table, and the text inside it is limited to column names and data values.</p></li>
+<li><p><a class="reference internal" href="../api/univariate.html#kivi.univariate.profile_table" title="kivi.univariate.profile_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">profile_table()</span></code></a> appends five columns. Numeric columns get <code class="docutils literal notranslate"><span class="pre">skewness</span></code> and <code class="docutils literal notranslate"><span class="pre">kurtosis</span></code>, the bias-corrected sample skewness and excess kurtosis that <code class="docutils literal notranslate"><span class="pre">pandas.Series.skew</span></code> and <code class="docutils literal notranslate"><span class="pre">pandas.Series.kurt</span></code> compute, and <code class="docutils literal notranslate"><span class="pre">cv</span></code>, the coefficient of variation, all from the values without missing values and special codes and weighted with <code class="docutils literal notranslate"><span class="pre">weights</span></code>. With a target, numeric columns get <code class="docutils literal notranslate"><span class="pre">ks</span></code>, the KS statistic of their values, and every column gets <code class="docutils literal notranslate"><span class="pre">chi2_p_value</span></code>, the p-value of the chi-squared test of independence between the target and the groups of the quick binning that gives <code class="docutils literal notranslate"><span class="pre">iv</span></code>.</p></li>
+<li><p><a class="reference internal" href="../api/selection.html#kivi.selection.correlation_filter" title="kivi.selection.correlation_filter"><code class="xref py py-func docutils literal notranslate"><span class="pre">correlation_filter()</span></code></a> takes <code class="docutils literal notranslate"><span class="pre">method=&quot;spearman&quot;</span></code> for Spearman’s rank correlation, as <code class="docutils literal notranslate"><span class="pre">pandas.DataFrame.corr</span></code> computes it, which suits raw variables with monotone but not linear relations and long tails. The default <code class="docutils literal notranslate"><span class="pre">&quot;pearson&quot;</span></code> keeps the previous results and remains the choice for WOE-encoded variables.</p></li>
+</ul>
+</section>
+<section id="id26">
+<h3>Changed<a class="headerlink" href="#id26" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Fourteen topic guides gain diagrams that show how a function computes its result, with the numbers of the guide’s example: the rows of <code class="docutils literal notranslate"><span class="pre">profile_table</span></code>, edges and <code class="docutils literal notranslate"><span class="pre">pandas.cut</span></code>, <code class="docutils literal notranslate"><span class="pre">woe_table</span></code> and <code class="docutils literal notranslate"><span class="pre">woe_transform</span></code>, <code class="docutils literal notranslate"><span class="pre">correlation_filter</span></code> and the steps of <code class="docutils literal notranslate"><span class="pre">stepwise</span></code>, fuzzy augmentation and the bands of parceling and reweighting, the points of a scorecard, the ROC table, isotonic regression, the confusion matrix and the swap set of a cut-off, a binning specification from the fit to JSON, <code class="docutils literal notranslate"><span class="pre">psi_table</span></code>, the monitoring table, the transition matrix, and the expected credit loss and the days-past-due backstops of the stages. The calibration guide gains a small example of isotonic regression to go with its diagram.</p></li>
+<li><p>The migration guide maps the charts, the confusion matrix and F1 score, the skewness, kurtosis and coefficient of variation, and the Spearman correlation of 0.2.x to their replacements in 1.1, and it lists the 0.2.x tools that have no replacement, such as <code class="docutils literal notranslate"><span class="pre">KSBins</span></code>, <code class="docutils literal notranslate"><span class="pre">KmeansBins</span></code>, <code class="docutils literal notranslate"><span class="pre">PearsonBins</span></code> and <code class="docutils literal notranslate"><span class="pre">Dataset.crime_data()</span></code>.</p></li>
+<li><p>The installation page explains the <code class="docutils literal notranslate"><span class="pre">plot</span></code> extra, and the conventions and compatibility pages state the rules and the promises of the charts.</p></li>
+<li><p>The risk modeling workflow merges the twelve jobs into three groups with <code class="docutils literal notranslate"><span class="pre">chimerge_groups</span></code> before it measures their WOE, sends new jobs to the group of <code class="docutils literal notranslate"><span class="pre">unknown</span></code> with <code class="docutils literal notranslate"><span class="pre">unseen</span></code>, and saves that grouping in its <code class="docutils literal notranslate"><span class="pre">BinningSpec</span></code> with <code class="docutils literal notranslate"><span class="pre">method={&quot;job&quot;:</span> <span class="pre">&quot;chimerge&quot;}</span></code>. Its model, scorecard, evaluation, calibration, cut-off and stability report are computed again on the grouped variable.</p></li>
+<li><p>The documentation gains a tutorial section: a credit scorecard project in ten chapters, from the applications of a year to the IFRS 9 loss allowance of the loans. It profiles and bins the candidates, selects the variables, infers the outcomes of the rejects, scales and evaluates the scorecard against the incumbent’s PD, calibrates it on a master scale, chooses the cut-off, monitors a year of production with a shift in the applicants, and allocates the loan book to stages. Boxes marked “Simulation check” compare each estimate with the outcomes that only the simulated data reveal.</p></li>
+<li><p>Type checkers infer the precise result of the functions whose result follows the type of their input, which now declare it with overloads: a Series input gives a <code class="docutils literal notranslate"><span class="pre">pandas.Series</span></code>, a number a <code class="docutils literal notranslate"><span class="pre">float</span></code>, and a list or a one-dimensional NumPy array an array, or a <code class="docutils literal notranslate"><span class="pre">pandas.Categorical</span></code> for <code class="docutils literal notranslate"><span class="pre">cut</span></code>, <code class="docutils literal notranslate"><span class="pre">group_categories</span></code> and <code class="docutils literal notranslate"><span class="pre">assign_grades</span></code>. Code such as <code class="docutils literal notranslate"><span class="pre">pd_to_score(series,</span> <span class="pre">...).round(2).index</span></code> no longer reports a false error in mypy or Pylance. The functions are <code class="docutils literal notranslate"><span class="pre">pd_to_score</span></code> and <code class="docutils literal notranslate"><span class="pre">score_to_pd</span></code> of <code class="docutils literal notranslate"><span class="pre">kivi.scorecard</span></code>; <code class="docutils literal notranslate"><span class="pre">prior_correction</span></code>, <code class="docutils literal notranslate"><span class="pre">platt_predict</span></code>, <code class="docutils literal notranslate"><span class="pre">isotonic_predict</span></code>, <code class="docutils literal notranslate"><span class="pre">binomial_test</span></code>, <code class="docutils literal notranslate"><span class="pre">jeffreys_test</span></code>, <code class="docutils literal notranslate"><span class="pre">fit_grade_pd</span></code> and <code class="docutils literal notranslate"><span class="pre">assign_grades</span></code> of <code class="docutils literal notranslate"><span class="pre">kivi.calibration</span></code>; <code class="docutils literal notranslate"><span class="pre">kivi.strategy.expected_loss</span></code>; <code class="docutils literal notranslate"><span class="pre">convert_pd</span></code>, <code class="docutils literal notranslate"><span class="pre">expected_credit_loss</span></code>, <code class="docutils literal notranslate"><span class="pre">significant_increase</span></code> and <code class="docutils literal notranslate"><span class="pre">assign_stages</span></code> of <code class="docutils literal notranslate"><span class="pre">kivi.lifetime</span></code>; <code class="docutils literal notranslate"><span class="pre">kivi.reject_inference.reweighting</span></code>; <code class="docutils literal notranslate"><span class="pre">woe</span></code> and <code class="docutils literal notranslate"><span class="pre">woe_transform</span></code> of <code class="docutils literal notranslate"><span class="pre">kivi.woe</span></code>; and <code class="docutils literal notranslate"><span class="pre">cut</span></code> and <code class="docutils literal notranslate"><span class="pre">group_categories</span></code> of <code class="docutils literal notranslate"><span class="pre">kivi.binning</span></code>. An argument typed <code class="docutils literal notranslate"><span class="pre">numpy.typing.ArrayLike</span></code> still gets the union of the possible results, mypy infers <code class="docutils literal notranslate"><span class="pre">Any</span></code> for a <code class="docutils literal notranslate"><span class="pre">Series[Any]</span></code> such as a DataFrame column, and nothing changes at run time.</p></li>
+</ul>
+</section>
+</section>
+<section id="id27">
+<h2>1.0.0 (2026-11-22)<a class="headerlink" href="#id27" title="Link to this heading">#</a></h2>
+<section id="id28">
+<h3>Changed<a class="headerlink" href="#id28" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.woe.woe</span></code> returns a Series named <code class="docutils literal notranslate"><span class="pre">woe</span></code>, with the index of the counts, when a count argument is a Series, as other functions shape their results like their input. Lists and arrays still give an array. Use <code class="docutils literal notranslate"><span class="pre">.to_numpy()</span></code> for the array and <code class="docutils literal notranslate"><span class="pre">.iloc</span></code> to select by position.</p></li>
+<li><p>kivi 1.0 is the first stable release. From now on it follows semantic versioning, as <a class="reference internal" href="../api/compatibility.html"><span class="doc">Compatibility</span></a> describes, and its package metadata says <code class="docutils literal notranslate"><span class="pre">Development</span> <span class="pre">Status</span> <span class="pre">::</span> <span class="pre">5</span> <span class="pre">-</span> <span class="pre">Production/Stable</span></code>.</p></li>
+</ul>
+</section>
+<section id="removed">
+<h3>Removed<a class="headerlink" href="#removed" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">smoothing=True</span></code> raises a <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> in <code class="docutils literal notranslate"><span class="pre">kivi.woe.woe_table</span></code>, <code class="docutils literal notranslate"><span class="pre">kivi.woe.woe</span></code>, <code class="docutils literal notranslate"><span class="pre">kivi.woe.iv</span></code>, <code class="docutils literal notranslate"><span class="pre">kivi.stability.psi_table</span></code>, <code class="docutils literal notranslate"><span class="pre">kivi.stability.psi</span></code>, <code class="docutils literal notranslate"><span class="pre">kivi.binning.monotonic_edges</span></code>, <code class="docutils literal notranslate"><span class="pre">kivi.calibration.fit_grade_pd</span></code>, <code class="docutils literal notranslate"><span class="pre">kivi.monitoring.monitoring_table</span></code> and <code class="docutils literal notranslate"><span class="pre">kivi.monitoring.stability_table</span></code>, as it already did in <code class="docutils literal notranslate"><span class="pre">kivi.spec.fit_spec</span></code> and <code class="docutils literal notranslate"><span class="pre">kivi.binning.chimerge_groups</span></code>. kivi 0.9 read it as 1 with a <code class="docutils literal notranslate"><span class="pre">FutureWarning</span></code>; pass <code class="docutils literal notranslate"><span class="pre">smoothing=1</span></code> for that result.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.woe.woe</span></code>, <code class="docutils literal notranslate"><span class="pre">kivi.woe.iv</span></code> and <code class="docutils literal notranslate"><span class="pre">kivi.stability.psi</span></code> raise a <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> when both counts are Series with different indices, which kivi 0.9 matched by position with a <code class="docutils literal notranslate"><span class="pre">FutureWarning</span></code>. Align the counts first, for example with <code class="docutils literal notranslate"><span class="pre">Series.align(other,</span> <span class="pre">fill_value=0)</span></code>, or pass arrays when both list the groups in the same order.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.datasets.Dataset</span></code> and its method <code class="docutils literal notranslate"><span class="pre">bank_data()</span></code> are removed. <code class="docutils literal notranslate"><span class="pre">kivi.datasets.load_bank()</span></code> returns the same frame.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">probabilities</span></code> argument of <code class="docutils literal notranslate"><span class="pre">kivi.calibration.isotonic_predict</span></code> is removed; pass <code class="docutils literal notranslate"><span class="pre">probability</span></code>.</p></li>
+</ul>
+</section>
+</section>
+<section id="id29">
+<h2>0.9.0 (2026-11-22)<a class="headerlink" href="#id29" title="Link to this heading">#</a></h2>
+<section id="id30">
+<h3>New<a class="headerlink" href="#id30" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>A new page, <a class="reference internal" href="../api/compatibility.html"><span class="doc">Compatibility</span></a>, states what kivi promises from 1.0: semantic versioning, with deprecations that warn with a <code class="docutils literal notranslate"><span class="pre">FutureWarning</span></code> for the rest of a major version, fixes of wrong results in any release, and Python 3.10, NumPy 1.24 and pandas 2.0 as the oldest supported versions, which rise only in a minor release announced by the release before. It also lists the public names, the index and the columns of every table, the exception and warning types, and what later releases read from a saved <code class="docutils literal notranslate"><span class="pre">BinningSpec</span></code>.</p></li>
+<li><p><a class="reference internal" href="../api/conventions.html"><span class="doc">Conventions</span></a> states more of the rules that every function follows: the order of the data of other observations, the names of frames and similar options, the default <code class="docutils literal notranslate"><span class="pre">bins</span></code>, how Series results are named, the index names of tables, the fixed rows of some tables, missing values in the binning fits, and the functions without <code class="docutils literal notranslate"><span class="pre">weights</span></code>.</p></li>
+<li><p>The tests keep specifications saved by kivi 0.6.0 and 0.8.0 and check that they still load and encode a sample as those releases did, and that they match a fresh fit up to rounding.</p></li>
+<li><p>kivi ships inline type hints and a <code class="docutils literal notranslate"><span class="pre">py.typed</span></code> marker, so type checkers such as mypy check code that calls it. Every function in the package is annotated and checked with mypy.</p></li>
+</ul>
+</section>
+<section id="id31">
+<h3>Changed<a class="headerlink" href="#id31" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.woe.woe</span></code>, <code class="docutils literal notranslate"><span class="pre">kivi.woe.iv</span></code> and <code class="docutils literal notranslate"><span class="pre">kivi.stability.psi</span></code> warn with a <code class="docutils literal notranslate"><span class="pre">FutureWarning</span></code> when both counts are Series with different indices. They still match the counts by position; kivi 1.0 raises a <code class="docutils literal notranslate"><span class="pre">ValueError</span></code>, as the other functions do for Series that describe the same groups. Pass Series with identical indices, or arrays to keep matching by position.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">smoothing=True</span></code> warns with a <code class="docutils literal notranslate"><span class="pre">FutureWarning</span></code> in <code class="docutils literal notranslate"><span class="pre">kivi.woe.woe_table</span></code>, <code class="docutils literal notranslate"><span class="pre">kivi.woe.woe</span></code>, <code class="docutils literal notranslate"><span class="pre">kivi.woe.iv</span></code>, <code class="docutils literal notranslate"><span class="pre">kivi.stability.psi_table</span></code>, <code class="docutils literal notranslate"><span class="pre">kivi.stability.psi</span></code>, <code class="docutils literal notranslate"><span class="pre">kivi.binning.monotonic_edges</span></code>, <code class="docutils literal notranslate"><span class="pre">kivi.calibration.fit_grade_pd</span></code>, <code class="docutils literal notranslate"><span class="pre">kivi.monitoring.monitoring_table</span></code> and <code class="docutils literal notranslate"><span class="pre">kivi.monitoring.stability_table</span></code>. It still counts as 1, not as the default 0.5; kivi 1.0 raises a <code class="docutils literal notranslate"><span class="pre">ValueError</span></code>, as <code class="docutils literal notranslate"><span class="pre">kivi.spec.fit_spec</span></code> and <code class="docutils literal notranslate"><span class="pre">kivi.binning.chimerge_groups</span></code> already do. Pass <code class="docutils literal notranslate"><span class="pre">smoothing=1</span></code> for the same result.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.datasets.Dataset.bank_data()</span></code> warns with a <code class="docutils literal notranslate"><span class="pre">FutureWarning</span></code> and is removed in kivi 1.0. <code class="docutils literal notranslate"><span class="pre">kivi.datasets.load_bank()</span></code> returns the same frame.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.calibration.isotonic_predict</span></code> takes the probability of each band as <code class="docutils literal notranslate"><span class="pre">probability</span></code>, the name the other functions use, and <code class="docutils literal notranslate"><span class="pre">kivi.calibration.isotonic_fit</span></code> documents its second result under that name. <code class="docutils literal notranslate"><span class="pre">probabilities=</span></code> still works with a <code class="docutils literal notranslate"><span class="pre">FutureWarning</span></code> until kivi 1.0.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.strategy.expected_loss</span></code> names a Series result <code class="docutils literal notranslate"><span class="pre">expected_loss</span></code>. It took the name of the first Series among its inputs, such as <code class="docutils literal notranslate"><span class="pre">pd</span></code> or <code class="docutils literal notranslate"><span class="pre">balance</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.calibration.master_scale</span></code> labels the grades by the index of a Series <code class="docutils literal notranslate"><span class="pre">probability</span></code> when <code class="docutils literal notranslate"><span class="pre">labels</span></code> is not given, so <code class="docutils literal notranslate"><span class="pre">master_scale(fit_grade_pd(event,</span> <span class="pre">total))</span></code> keeps the grades of a table. A list or an array still gives grades numbered from 1.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.lifetime.assign_stages</span></code> also takes <code class="docutils literal notranslate"><span class="pre">days_past_due</span></code> and <code class="docutils literal notranslate"><span class="pre">defaulted</span></code> by position, as in <code class="docutils literal notranslate"><span class="pre">assign_stages(significant_increase,</span> <span class="pre">days_past_due,</span> <span class="pre">defaulted)</span></code>. Calls with keywords work as before.</p></li>
+<li><p>The index of <code class="docutils literal notranslate"><span class="pre">kivi.selection.logistic_regression</span></code> and of <code class="docutils literal notranslate"><span class="pre">kivi.selection.vif</span></code> is named <code class="docutils literal notranslate"><span class="pre">variable</span></code>, like that of <code class="docutils literal notranslate"><span class="pre">kivi.scorecard.points_table</span></code>, whatever the name of the columns of <code class="docutils literal notranslate"><span class="pre">X</span></code>. The index of <code class="docutils literal notranslate"><span class="pre">kivi.metrics.roc_auc_interval</span></code> is named <code class="docutils literal notranslate"><span class="pre">statistic</span></code>. <code class="docutils literal notranslate"><span class="pre">reset_index()</span></code> therefore gives a column of that name, and <code class="docutils literal notranslate"><span class="pre">kivi.scorecard.woe_to_points</span></code> with coefficients taken from <code class="docutils literal notranslate"><span class="pre">logistic_regression</span></code> gives columns named <code class="docutils literal notranslate"><span class="pre">variable</span></code>.</p></li>
+<li><p>Error messages show the value at fault in the same form everywhere. NumPy scalars appear as plain numbers, so <code class="docutils literal notranslate"><span class="pre">bins=numpy.int64(0)</span></code> gives <code class="docutils literal notranslate"><span class="pre">got</span> <span class="pre">0</span></code> instead of <code class="docutils literal notranslate"><span class="pre">got</span> <span class="pre">np.int64(0)</span></code>. Every function that takes a target says <code class="docutils literal notranslate"><span class="pre">target</span> <span class="pre">must</span> <span class="pre">contain</span> <span class="pre">only</span> <span class="pre">0</span> <span class="pre">and</span> <span class="pre">1,</span> <span class="pre">got</span> <span class="pre">2</span></code> or <code class="docutils literal notranslate"><span class="pre">target</span> <span class="pre">must</span> <span class="pre">contain</span> <span class="pre">both</span> <span class="pre">0</span> <span class="pre">and</span> <span class="pre">1,</span> <span class="pre">got</span> <span class="pre">only</span> <span class="pre">0</span></code>; the weights messages show the first invalid weight or the total of each class; and a weights index that differs from the data says <code class="docutils literal notranslate"><span class="pre">score</span> <span class="pre">and</span> <span class="pre">weights</span> <span class="pre">must</span> <span class="pre">have</span> <span class="pre">identical</span> <span class="pre">indices</span></code>, like the other arguments.</p></li>
+<li><p>The messages that NumPy and pandas gave for kivi’s arguments now name those arguments: <code class="docutils literal notranslate"><span class="pre">kivi.binning.cut</span></code> says <code class="docutils literal notranslate"><span class="pre">edges</span> <span class="pre">must</span> <span class="pre">be</span> <span class="pre">increasing</span> <span class="pre">numbers,</span> <span class="pre">got</span> <span class="pre">[3,</span> <span class="pre">1]</span></code> where pandas spoke of <code class="docutils literal notranslate"><span class="pre">bins</span></code> and of a <code class="docutils literal notranslate"><span class="pre">duplicates</span></code> keyword that <code class="docutils literal notranslate"><span class="pre">cut</span></code> does not have, and the binning functions say <code class="docutils literal notranslate"><span class="pre">values</span> <span class="pre">must</span> <span class="pre">be</span> <span class="pre">numbers</span> <span class="pre">or</span> <span class="pre">special</span> <span class="pre">values,</span> <span class="pre">got</span> <span class="pre">'a'</span></code>. <code class="docutils literal notranslate"><span class="pre">kivi.binning.bin_edges</span></code> and the supervised binning functions say <code class="docutils literal notranslate"><span class="pre">values</span></code> instead of <code class="docutils literal notranslate"><span class="pre">reference</span> <span class="pre">values</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.version</span></code> and <code class="docutils literal notranslate"><span class="pre">kivi.PackageNotFoundError</span></code>, which the package imported from <code class="docutils literal notranslate"><span class="pre">importlib.metadata</span></code> by accident, no longer exist; use <code class="docutils literal notranslate"><span class="pre">kivi.__version__</span></code>. The public modules no longer bind the helpers they import, such as <code class="docutils literal notranslate"><span class="pre">kivi.binning.as_series</span></code> or <code class="docutils literal notranslate"><span class="pre">kivi.metrics.normal_quantile</span></code>. None of these names was documented.</p></li>
+</ul>
+</section>
+<section id="id32">
+<h3>Fixed<a class="headerlink" href="#id32" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.woe.woe_transform</span></code> looked a number up in the interval of a <code class="docutils literal notranslate"><span class="pre">pandas.cut</span></code> table that contained it, so raw values and special codes that the table did not have, such as <code class="docutils literal notranslate"><span class="pre">-1</span></code> grouped by <code class="docutils literal notranslate"><span class="pre">kivi.binning.cut</span></code> with <code class="docutils literal notranslate"><span class="pre">special=[-1]</span></code>, silently got the WOE of an interval. Labels are now matched by equality, as documented, and such groups are unseen: they raise an error unless <code class="docutils literal notranslate"><span class="pre">unseen</span></code> gives them a WOE.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.binning.cut</span></code> now raises an error for an infinite value that is not a special value. <code class="docutils literal notranslate"><span class="pre">pandas.cut</span></code> left <code class="docutils literal notranslate"><span class="pre">-inf</span></code> in no interval, so that it was counted as a missing value, and put <code class="docutils literal notranslate"><span class="pre">inf</span></code> in the last interval. Pass infinite codes in <code class="docutils literal notranslate"><span class="pre">special</span></code> to give them their own group.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.spec.BinningSpec.woe_transform</span></code> gave <code class="docutils literal notranslate"><span class="pre">inf</span></code> the WOE of the last interval, while <code class="docutils literal notranslate"><span class="pre">-inf</span></code> was unseen. Both are now unseen, like every infinite value that is not a special code of its column, so they raise an error unless the column has an unseen WOE. <code class="docutils literal notranslate"><span class="pre">BinningSpec.cut</span></code> leaves both missing.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.stability.csi_table</span></code> raised an error for points of several variables only when the variables were in an index named <code class="docutils literal notranslate"><span class="pre">variable</span></code>. A <code class="docutils literal notranslate"><span class="pre">points_table</span></code> result after <code class="docutils literal notranslate"><span class="pre">reset_index()</span></code>, with the variables in a <code class="docutils literal notranslate"><span class="pre">variable</span></code> column, was read as one variable and mixed their groups. It now raises the same error.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.spec.fit_spec</span></code> binned a column with a complex dtype by its real part, with NumPy’s <code class="docutils literal notranslate"><span class="pre">ComplexWarning</span></code>. It now raises an error, and so do <code class="docutils literal notranslate"><span class="pre">BinningSpec.cut</span></code> and <code class="docutils literal notranslate"><span class="pre">BinningSpec.woe_transform</span></code> for a complex column fitted as numeric.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.spec.BinningSpec</span></code> and <code class="docutils literal notranslate"><span class="pre">dataclasses.replace</span></code> rejected a numeric table whose intervals ran between the exact edges whenever <code class="docutils literal notranslate"><span class="pre">pandas.cut</span></code> rounds them in its labels, such as an edge of 0.6428571428571428 shown as 0.643. Such intervals are now accepted and stored under the labels of <code class="docutils literal notranslate"><span class="pre">kivi.binning.cut</span></code>, as <code class="docutils literal notranslate"><span class="pre">BinningSpec.from_dict</span></code> already did.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.woe.woe_transform</span></code> accepted <code class="docutils literal notranslate"><span class="pre">unseen=numpy.nan</span></code>, which gave unseen groups a missing WOE, and infinite values. <code class="docutils literal notranslate"><span class="pre">unseen</span></code> must now be <code class="docutils literal notranslate"><span class="pre">&quot;raise&quot;</span></code> or a finite number, as for <code class="docutils literal notranslate"><span class="pre">kivi.spec.fit_spec</span></code> and <code class="docutils literal notranslate"><span class="pre">kivi.stability.csi_table</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.calibration.prior_correction</span></code>, the <code class="docutils literal notranslate"><span class="pre">probability</span></code> of <code class="docutils literal notranslate"><span class="pre">calibration_table</span></code>, <code class="docutils literal notranslate"><span class="pre">binomial_test</span></code>, <code class="docutils literal notranslate"><span class="pre">jeffreys_test</span></code>, <code class="docutils literal notranslate"><span class="pre">hosmer_lemeshow</span></code> and <code class="docutils literal notranslate"><span class="pre">herfindahl_index</span></code> read numbers given as strings, so that <code class="docutils literal notranslate"><span class="pre">herfindahl_index([&quot;50&quot;,</span> <span class="pre">&quot;30&quot;])</span></code> gave 0.53125. They now raise an error that names the argument, such as “counts must be real and numeric, got dtype object with the value ‘50’”, as the other functions of the module do.</p></li>
+<li><p>The counts of <code class="docutils literal notranslate"><span class="pre">kivi.calibration</span></code> read True and False as 1 and 0, so that <code class="docutils literal notranslate"><span class="pre">binomial_test([True],</span> <span class="pre">[True],</span> <span class="pre">0.5)</span></code> gave 0.5. The <code class="docutils literal notranslate"><span class="pre">event</span></code> and <code class="docutils literal notranslate"><span class="pre">total</span></code> of <code class="docutils literal notranslate"><span class="pre">binomial_test</span></code>, <code class="docutils literal notranslate"><span class="pre">jeffreys_test</span></code>, <code class="docutils literal notranslate"><span class="pre">hosmer_lemeshow</span></code> and <code class="docutils literal notranslate"><span class="pre">fit_grade_pd</span></code> and the <code class="docutils literal notranslate"><span class="pre">counts</span></code> of <code class="docutils literal notranslate"><span class="pre">herfindahl_index</span></code> now reject booleans, as weights do. Probabilities and scores still count them as 1 and 0.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.calibration.fit_grade_pd</span></code> raised “the fitted PDs must rise with the grade” for grades that were in order when <code class="docutils literal notranslate"><span class="pre">smoothing</span></code> was not smaller than the total of a grade without defaults, as with the counts of a <code class="docutils literal notranslate"><span class="pre">calibration_table</span></code> whose weights sum to 1. It now says what is wrong, such as “smoothing must be smaller than the total of each grade without defaults, got 0.5 for grade 1 with a total of 0.4”, and the documentation says that weighted counts must be on the scale of observation counts.</p></li>
+<li><p>Invalid arguments that NumPy or pandas used to reject with a <code class="docutils literal notranslate"><span class="pre">TypeError</span></code> now raise a <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> that names the argument, as the conventions promise: a <code class="docutils literal notranslate"><span class="pre">smoothing</span></code> that is a string, <code class="docutils literal notranslate"><span class="pre">None</span></code> or an array, an <code class="docutils literal notranslate"><span class="pre">rng</span></code> that <code class="docutils literal notranslate"><span class="pre">numpy.random.default_rng</span></code> does not accept in <code class="docutils literal notranslate"><span class="pre">kivi.reject_inference.parceling</span></code>, <code class="docutils literal notranslate"><span class="pre">kivi.datasets.make_applications</span></code> and <code class="docutils literal notranslate"><span class="pre">kivi.datasets.make_loan_panel</span></code>, <code class="docutils literal notranslate"><span class="pre">edges</span></code> of <code class="docutils literal notranslate"><span class="pre">kivi.binning.cut</span></code> that are not numbers, and a WOE table of <code class="docutils literal notranslate"><span class="pre">kivi.woe.woe_transform</span></code> or <code class="docutils literal notranslate"><span class="pre">kivi.scorecard.points_table</span></code> that holds a value that is not a number.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.lifetime.significant_increase</span></code> let floating-point rounding decide ties: a PD of 0.04 against 0.03 counted as more than one percentage point higher, and 0.45 as more than 1.5 times 0.30. A PD within a few units in the last place of a threshold now meets it exactly and is not flagged, as the strict thresholds say. Of the 89 pairs of two-decimal PDs that are 0.01 apart, 71 were flagged before and none are now.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.lifetime.transition_pd</span></code> accepted a float such as <code class="docutils literal notranslate"><span class="pre">horizons=3.0</span></code>. A single number of periods must now be an integer, as the <code class="docutils literal notranslate"><span class="pre">horizon</span></code> of <code class="docutils literal notranslate"><span class="pre">expected_credit_loss</span></code> is; a sequence of horizons may still hold whole numbers as floats.</p></li>
+<li><p>A list or an object array of numbers with <code class="docutils literal notranslate"><span class="pre">pd.NA</span></code>, such as <code class="docutils literal notranslate"><span class="pre">[0.5,</span> <span class="pre">pd.NA]</span></code>, raised a <code class="docutils literal notranslate"><span class="pre">TypeError</span></code> or “must be real and numeric, got dtype object” in <code class="docutils literal notranslate"><span class="pre">kivi.calibration</span></code>, <code class="docutils literal notranslate"><span class="pre">kivi.scorecard</span></code>, <code class="docutils literal notranslate"><span class="pre">kivi.strategy</span></code> and <code class="docutils literal notranslate"><span class="pre">kivi.lifetime</span></code>, and <code class="docutils literal notranslate"><span class="pre">kivi.calibration.platt_predict([0.5,</span> <span class="pre">pd.NA],</span> <span class="pre">1,</span> <span class="pre">0)</span></code> named the valid value 0.5 in its message. These functions now read <code class="docutils literal notranslate"><span class="pre">pd.NA</span></code> as a missing value, like None and NaN, and their messages show the first value that is not a number.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.scorecard.pd_to_score</span></code> and <code class="docutils literal notranslate"><span class="pre">score_to_pd</span></code> read any input as floats: <code class="docutils literal notranslate"><span class="pre">score_to_pd</span></code> of a date gave a PD of 0, and <code class="docutils literal notranslate"><span class="pre">pd_to_score([&quot;0.1&quot;,</span> <span class="pre">&quot;0.2&quot;],</span> <span class="pre">...)</span></code> gave scores. Strings, dates and complex numbers now raise “must be real and numeric”, as in <code class="docutils literal notranslate"><span class="pre">kivi.metrics</span></code>, while booleans still count as 1 and 0.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.scorecard.reason_codes</span></code> listed a variable twice, such as <code class="docutils literal notranslate"><span class="pre">housing,</span> <span class="pre">housing,</span> <span class="pre">contact</span></code>, when a column of <code class="docutils literal notranslate"><span class="pre">points</span></code> was repeated. It now raises an error, as <code class="docutils literal notranslate"><span class="pre">woe_to_points</span></code> does.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.scorecard.reason_codes</span></code> gave None between two reasons when the points of a group in <code class="docutils literal notranslate"><span class="pre">table</span></code> were missing, for example after editing the table by hand. Missing or infinite points of a variable of <code class="docutils literal notranslate"><span class="pre">points</span></code> now raise an error.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.scorecard.woe_to_points</span></code> aligned a mapping of Series by their index labels, so that one row could combine the WOE values of different applicants. The Series of a mapping must now have identical indices, as the Series that describe the same observations must everywhere in kivi; other values are still matched by position.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.scorecard.score_scaling</span></code> returned NumPy scalars for NumPy arguments, so that a <code class="docutils literal notranslate"><span class="pre">float32</span></code> <code class="docutils literal notranslate"><span class="pre">pdo</span></code> rounded the scores of <code class="docutils literal notranslate"><span class="pre">pd_to_score</span></code> and the points of <code class="docutils literal notranslate"><span class="pre">points_table</span></code> to single precision. It now returns Python floats.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.scorecard.points_table</span></code> and <code class="docutils literal notranslate"><span class="pre">woe_to_points</span></code> said “tables has no entry for 1 variable(s): ‘intercept’” for the <code class="docutils literal notranslate"><span class="pre">coef</span></code> column of <code class="docutils literal notranslate"><span class="pre">kivi.selection.logistic_regression</span></code>, which includes the intercept. They now say “coefficients has an ‘intercept’ entry; drop it and pass it as intercept”.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.selection.vif</span></code> gave a finite VIF for some exact linear combinations: 1.003 for <code class="docutils literal notranslate"><span class="pre">a</span></code> when <code class="docutils literal notranslate"><span class="pre">c</span></code> is <code class="docutils literal notranslate"><span class="pre">b</span> <span class="pre">+</span> <span class="pre">1e-5</span> <span class="pre">*</span> <span class="pre">a</span></code>, and 5.6e29 for the two columns of a frame with two rows. A column now has an infinite VIF when it is a linear combination of the others up to rounding, as documented; the VIFs of the other columns are unchanged.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.vintage.transition_matrix</span></code> read any <code class="docutils literal notranslate"><span class="pre">normalize</span></code> that is true in Python as True, so that <code class="docutils literal notranslate"><span class="pre">normalize=&quot;columns&quot;</span></code>, as <code class="docutils literal notranslate"><span class="pre">pandas.crosstab</span></code> takes it, gave the shares of each row. It now raises unless <code class="docutils literal notranslate"><span class="pre">normalize</span></code> is True or False, as <code class="docutils literal notranslate"><span class="pre">kivi.calibration.herfindahl_index</span></code> does.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.vintage.transition_matrix</span></code> and <code class="docutils literal notranslate"><span class="pre">roll_rates</span></code> gave a missing value in <code class="docutils literal notranslate"><span class="pre">states</span></code> a row and a column of its own, although missing values of <code class="docutils literal notranslate"><span class="pre">before</span></code> and <code class="docutils literal notranslate"><span class="pre">after</span></code> raise. A missing state now raises an error.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.vintage.vintage_table</span></code> made a column of a negative <code class="docutils literal notranslate"><span class="pre">month_on_book</span></code>. It now raises an error, because the months on book count from origination.</p></li>
+</ul>
+</section>
+</section>
+<section id="id33">
+<h2>0.8.0 (2026-11-21)<a class="headerlink" href="#id33" title="Link to this heading">#</a></h2>
+<section id="id34">
+<h3>New<a class="headerlink" href="#id34" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.binning</span></code> groups the categories of categorical variables in the same two steps as numeric binning. <code class="docutils literal notranslate"><span class="pre">category_groups</span></code> pools the categories below <code class="docutils literal notranslate"><span class="pre">min_share</span></code> or <code class="docutils literal notranslate"><span class="pre">min_count</span></code> into one group, and <code class="docutils literal notranslate"><span class="pre">chimerge_groups</span></code> sorts the categories by their smoothed WOE and merges neighbours by ChiMerge under <code class="docutils literal notranslate"><span class="pre">max_groups</span></code>, <code class="docutils literal notranslate"><span class="pre">alpha</span></code> and <code class="docutils literal notranslate"><span class="pre">min_group_share</span></code>. Both return a dict from category to group, take <code class="docutils literal notranslate"><span class="pre">special</span></code> and <code class="docutils literal notranslate"><span class="pre">weights</span></code>, and leave missing values out. <code class="docutils literal notranslate"><span class="pre">group_categories</span></code> applies the dict to any sample; a category that it does not map raises an error unless <code class="docutils literal notranslate"><span class="pre">unseen</span></code> names the group it should join.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fit_spec</span></code> groups a categorical column that <code class="docutils literal notranslate"><span class="pre">method</span></code> names with <code class="docutils literal notranslate"><span class="pre">&quot;rare&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;chimerge&quot;</span></code>; <code class="docutils literal notranslate"><span class="pre">special</span></code> and <code class="docutils literal notranslate"><span class="pre">options</span></code> then apply to it, and so does <code class="docutils literal notranslate"><span class="pre">bins</span></code> with <code class="docutils literal notranslate"><span class="pre">&quot;chimerge&quot;</span></code>. <code class="docutils literal notranslate"><span class="pre">BinningSpec</span></code> keeps the groupings in a new <code class="docutils literal notranslate"><span class="pre">groups</span></code> field and applies them in <code class="docutils literal notranslate"><span class="pre">cut</span></code> and <code class="docutils literal notranslate"><span class="pre">woe_transform</span></code>. Columns without a grouping are fitted as before.</p></li>
+<li><p>The unseen policy of a grouped column can name one of its groups as <code class="docutils literal notranslate"><span class="pre">{&quot;group&quot;:</span> <span class="pre">label}</span></code>: <code class="docutils literal notranslate"><span class="pre">cut</span></code> then assigns new categories to that group, and <code class="docutils literal notranslate"><span class="pre">woe_transform</span></code> gives them its WOE.</p></li>
+<li><p>A <code class="docutils literal notranslate"><span class="pre">BinningSpec</span></code> with a grouped column is saved with <code class="docutils literal notranslate"><span class="pre">format_version</span></code> 2, which adds the groupings and the unseen groups; every other specification is still saved as version 1, so earlier versions of kivi read it. <code class="docutils literal notranslate"><span class="pre">from_json</span></code> reads both versions.</p></li>
+<li><p>The new module <code class="docutils literal notranslate"><span class="pre">kivi.lifetime</span></code> covers lifetime PDs and the expected credit loss of IFRS 9. <code class="docutils literal notranslate"><span class="pre">convert_pd</span></code> converts a PD term structure, such as the cumulative bad rates of a vintage table, between cumulative, marginal and conditional PDs, and keeps the months on book that a cohort has not reached missing. <code class="docutils literal notranslate"><span class="pre">transition_pd</span></code> projects the cumulative PD of each state of a transition matrix over any number of periods, with the default state made absorbing.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">expected_credit_loss</span></code> adds up the marginal PD, the LGD and the EAD of each period after the reporting date, discounted at the effective interest rate, into the 12-month or the lifetime expected credit loss of each account. The LGD and the EAD can be constants, one value per account or schedules per account and period.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">significant_increase</span></code> flags a significant increase in credit risk from a relative and an absolute PD threshold, which have no defaults because they are the entity’s policy. <code class="docutils literal notranslate"><span class="pre">assign_stages</span></code> gives stages 1 to 3 from these flags, the days past due backstops, by default more than 30 days for stage 2 and 90 days or more for stage 3 as presumed by IFRS 9, and defaulted flags, and <code class="docutils literal notranslate"><span class="pre">stage_table</span></code> sums the exposure and the loss allowance of each stage, with its coverage ratio.</p></li>
+<li><p>The new module <code class="docutils literal notranslate"><span class="pre">kivi.monitoring</span></code> tracks a score over time. <code class="docutils literal notranslate"><span class="pre">monitoring_table</span></code> gives one row per period, such as a month, with the number of observations, the known outcomes and events, the AUC, Gini and KS of the known outcomes, and the PSI of the score against a reference period or a reference sample, on bands fitted once on the reference. A missing target marks an outcome that is not known yet; it counts in <code class="docutils literal notranslate"><span class="pre">total</span></code> but not in the event columns, and a period without both classes has NaN discrimination instead of an error.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">stability_table</span></code> gives the PSI of every grouped variable in every period against the same reference, for the variable part of a stability report. Both functions take <code class="docutils literal notranslate"><span class="pre">weights</span></code>, and integer weights give the same table as repeating rows, for <code class="docutils literal notranslate"><span class="pre">monitoring_table</span></code> on the same band edges.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.metrics.roc_table</span></code> lists the points of the ROC curve, one row per distinct score from the highest to the lowest, with the cumulative event and non-event counts, the true and false positive rates and the precision. The trapezoids under it add up to <code class="docutils literal notranslate"><span class="pre">roc_auc</span></code>, and the largest gap between the rates is <code class="docutils literal notranslate"><span class="pre">ks</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.metrics.roc_auc_interval</span></code> gives the AUC and the Gini coefficient a standard error and a confidence interval at a <code class="docutils literal notranslate"><span class="pre">level</span></code>, using DeLong’s method with the fast midrank algorithm of Sun and Xu.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.metrics.delong_test</span></code> tests whether two scores of the same observations have the same AUC, and returns both AUCs, their difference with its standard error and interval, the z statistic and the two-sided p-value.</p></li>
+<li><p>The standard errors read <code class="docutils literal notranslate"><span class="pre">weights</span></code> as frequency weights, so integer weights give the same results as repeating rows. They reproduce the DeLong results that Stata’s and SAS’s manuals publish for the data of Hanley and McNeil (1982) and of DeLong et al. (1988).</p></li>
+</ul>
+</section>
+<section id="id35">
+<h3>Changed<a class="headerlink" href="#id35" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">BinningSpec.format_version</span></code> is now the version of the JSON format that each specification writes, 1 or 2, instead of a class attribute equal to 1. The new class constant <code class="docutils literal notranslate"><span class="pre">BinningSpec.FORMAT_VERSION</span></code> is the newest version that kivi reads, now 2.</p></li>
+<li><p>The topic guides follow one outline with the same section titles, such as <code class="docutils literal notranslate"><span class="pre">Special</span> <span class="pre">values</span></code>, <code class="docutils literal notranslate"><span class="pre">Sample</span> <span class="pre">weights</span></code> and <code class="docutils literal notranslate"><span class="pre">Errors</span> <span class="pre">and</span> <span class="pre">warnings</span></code>, and their openings link to the steps before and after them. The binning guide gathers its special values in one section, and the univariate profile shows special codes after the screening by IV. The first mention of a kivi function in each section links to its API entry.</p></li>
+<li><p>The API reference starts with two new pages: the conventions that every function follows, such as the order of the arguments, keyword-only options, inputs and results, sample weights and error messages, and a glossary of credit risk terms. Its module pages come in the order of the user guide, each with an introduction and a link to its guide, and <code class="docutils literal notranslate"><span class="pre">:mod:</span></code> links now reach them.</p></li>
+<li><p>The migration guide lists the ROC and precision-recall curves, precision, recall, F1 score and confusion matrix of <code class="docutils literal notranslate"><span class="pre">BinaryMetrics</span></code> and the correlation heatmaps of <code class="docutils literal notranslate"><span class="pre">evaluate/Heatmap.py</span></code> as not ported, with their replacements.</p></li>
+<li><p>The user guide gains the guides “Model monitoring” and “Lifetime PD and expected credit loss” in their places in a project. The glossary and the conventions page cover the terms and rules of the new functions. The risk modeling workflow reports the DeLong interval of the Gini and points on to monitoring and the expected credit loss. The guides have new charts for category grouping, the ROC curve, the monitoring report, variable stability by period and PD term structures, and the README shows the monitoring and lifetime PD charts.</p></li>
+</ul>
+</section>
+<section id="id36">
+<h3>Fixed<a class="headerlink" href="#id36" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.metrics.roc_auc</span></code> and <code class="docutils literal notranslate"><span class="pre">kivi.metrics.gini</span></code> could return a value just above 1 when fractional <code class="docutils literal notranslate"><span class="pre">weights</span></code> rounded the AUC past it. Both are now at most 1, as documented. Other values are unchanged.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.stability.psi_table</span></code>, <code class="docutils literal notranslate"><span class="pre">kivi.stability.csi_table</span></code> and <code class="docutils literal notranslate"><span class="pre">kivi.monitoring.stability_table</span></code> counted the groups of the current sample under the wrong labels when both samples were unordered categoricals with the same categories listed in another order, such as <code class="docutils literal notranslate"><span class="pre">[&quot;a&quot;,</span> <span class="pre">&quot;b&quot;]</span></code> and <code class="docutils literal notranslate"><span class="pre">[&quot;b&quot;,</span> <span class="pre">&quot;a&quot;]</span></code>. The groups are now matched by label.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.stability.psi_table</span></code> and <code class="docutils literal notranslate"><span class="pre">kivi.stability.csi_table</span></code> raised pandas’ <code class="docutils literal notranslate"><span class="pre">IntCastingNaNError</span></code> for two samples of <code class="docutils literal notranslate"><span class="pre">pandas.cut</span></code> bins on other integer edges when one of them had missing values. Such bins are now joined as intervals of floats, which compare equal to the integer intervals.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.stability.psi_table</span></code> and <code class="docutils literal notranslate"><span class="pre">kivi.stability.csi_table</span></code> no longer emit a <code class="docutils literal notranslate"><span class="pre">RuntimeWarning</span></code> (“invalid value encountered in cast”) on NumPy older than 2.2 when one sample holds <code class="docutils literal notranslate"><span class="pre">pandas.cut</span></code> bins with an infinite edge and the other sample has other groups: bins cut on other edges or with unused categories removed, intervals that are not categorical, or other labels. The tables are unchanged.</p></li>
+<li><p>A <code class="docutils literal notranslate"><span class="pre">weights</span></code> Series was compared only with the index of the data, so when the score, the values or the groups were an array, it was matched by position to a <code class="docutils literal notranslate"><span class="pre">target</span></code> Series with another index. The functions of <code class="docutils literal notranslate"><span class="pre">kivi.metrics</span></code>, <code class="docutils literal notranslate"><span class="pre">kivi.woe.woe_table</span></code>, <code class="docutils literal notranslate"><span class="pre">kivi.calibration.calibration_table</span></code>, <code class="docutils literal notranslate"><span class="pre">platt_fit</span></code> and <code class="docutils literal notranslate"><span class="pre">isotonic_fit</span></code>, the supervised functions of <code class="docutils literal notranslate"><span class="pre">kivi.binning</span></code>, and <code class="docutils literal notranslate"><span class="pre">kivi.selection.logistic_regression</span></code> and <code class="docutils literal notranslate"><span class="pre">stepwise</span></code> now raise in that case, for example “target and weights must have identical indices”, as they do for any other two Series that describe the same observations.</p></li>
+</ul>
+</section>
+</section>
+<section id="id37">
+<h2>0.7.0 (2026-11-20)<a class="headerlink" href="#id37" title="Link to this heading">#</a></h2>
+<section id="id38">
+<h3>New<a class="headerlink" href="#id38" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.datasets.make_applications</span></code> simulates seeded loan applications with numeric and categorical features, the PD of an incumbent scorecard, policy declines, the approval decision and a true default flag for every applicant, to try reject inference on.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.calibration.master_scale</span></code> builds a master scale from the PD of each grade, such as a geometric grid from <code class="docutils literal notranslate"><span class="pre">numpy.geomspace</span></code>: one row per grade with its lower bound, PD and upper bound, covering 0 to 1. The bounds are the geometric means of adjacent PDs by default, or their arithmetic means with <code class="docutils literal notranslate"><span class="pre">boundary=&quot;arithmetic&quot;</span></code>, as in the 0.2 versions.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fit_grade_pd</span></code> fits the PD of each grade to observed default rates, with the logarithm of the rate a straight line in the grade number, by least squares weighted with the number of observations. A grade without defaults enters the fit with <code class="docutils literal notranslate"><span class="pre">smoothing</span></code> defaults, and a grade without observations gets a PD from the line.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">assign_grades</span></code> gives each predicted PD the grade of a scale as an ordered categorical, which <code class="docutils literal notranslate"><span class="pre">calibration_table</span></code> counts directly, in the order of the scale. A PD on a bound goes to the lower grade, as with <code class="docutils literal notranslate"><span class="pre">pandas.cut</span></code>.</p></li>
+<li><p>The new module <code class="docutils literal notranslate"><span class="pre">kivi.reject_inference</span></code> infers outcomes for rejected applicants, so that a scorecard developed on approved applicants can be refitted on all of them. <code class="docutils literal notranslate"><span class="pre">fuzzy_augmentation</span></code> splits each reject into a bad and a good row weighted by its PD, <code class="docutils literal notranslate"><span class="pre">parceling</span></code> labels the rejects of each score band at the band’s bad rate with a seeded generator, or returns the expected weights, and <code class="docutils literal notranslate"><span class="pre">reweighting</span></code> weights the approved applicants of each band by the inverse of its approval rate. A <code class="docutils literal notranslate"><span class="pre">factor</span></code> above 1 raises the inferred bad rate, and bands without approved applicants raise an error.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">logistic_regression</span></code> and <code class="docutils literal notranslate"><span class="pre">stepwise</span></code> take <code class="docutils literal notranslate"><span class="pre">weights</span></code>, frequency weights like those of statsmodels’ <code class="docutils literal notranslate"><span class="pre">GLM(freq_weights=...)</span></code>. Integer weights give the same coefficients, standard errors and selection as repeating rows; weights that do not count observations, such as those of reject inference, make the standard errors and p-values too small.</p></li>
+<li><p>The new module <code class="docutils literal notranslate"><span class="pre">kivi.strategy</span></code> supports the credit decisions that follow a scorecard. <code class="docutils literal notranslate"><span class="pre">cutoff_table</span></code> shows, for each candidate cut-off of a PD or of negated points, the approval rate, the bad rate of the approved book, the shares of bads and goods it rejects and, with <code class="docutils literal notranslate"><span class="pre">loss</span></code>, the expected loss it approves. Scores at or below the cut-off are approved, so tied scores always get the same decision.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">swap_set</span></code> compares the decisions of a current and a new score at their cut-offs: the applicants both approve, the swap-ins and swap-outs, and those both decline, with event rates where outcomes are known. A missing target marks an unknown outcome, such as that of an applicant the current score declined.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">expected_loss</span></code> multiplies PD, LGD and EAD, and <code class="docutils literal notranslate"><span class="pre">expected_loss_table</span></code> adds up the exposure and the expected loss of each grade, with the expected loss rate and the exposure-weighted PD.</p></li>
+<li><p>The new module <code class="docutils literal notranslate"><span class="pre">kivi.univariate</span></code> profiles the candidates of a model. <code class="docutils literal notranslate"><span class="pre">profile_table</span></code> summarizes every column of a data frame in one row: its kind, missing values, distinct and most frequent values and, for numeric columns, the range, quantiles, mean and standard deviation. With a target it adds the event rates and lifts of missing and non-missing rows, the IV of a quick binning and the Gini coefficient of numeric values. Tied quantiles are recorded in the <code class="docutils literal notranslate"><span class="pre">tied_bins</span></code> column instead of raising a warning for each column, and <code class="docutils literal notranslate"><span class="pre">special</span></code> codes and <code class="docutils literal notranslate"><span class="pre">weights</span></code> work as in <code class="docutils literal notranslate"><span class="pre">fit_spec</span></code>.</p></li>
+</ul>
+</section>
+<section id="id39">
+<h3>Changed<a class="headerlink" href="#id39" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>The risk modeling workflow screens the candidates with <code class="docutils literal notranslate"><span class="pre">profile_table</span></code>, calibrates the PD on a master scale with <code class="docutils literal notranslate"><span class="pre">master_scale</span></code> and <code class="docutils literal notranslate"><span class="pre">assign_grades</span></code>, and sets a cut-off with <code class="docutils literal notranslate"><span class="pre">cutoff_table</span></code> and <code class="docutils literal notranslate"><span class="pre">expected_loss_table</span></code>. The user guide has new charts for cut-off curves, reject inference, grade PDs and missing values, and the README shows the cut-off and reject inference charts.</p></li>
+</ul>
+</section>
+<section id="id40">
+<h3>Fixed<a class="headerlink" href="#id40" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">gains_table</span></code> warned about tied scores by suggesting the <code class="docutils literal notranslate"><span class="pre">special</span></code> argument of <code class="docutils literal notranslate"><span class="pre">bin_edges</span></code>, which <code class="docutils literal notranslate"><span class="pre">gains_table</span></code> does not take. It now suggests fewer bins or explicit edges, as <code class="docutils literal notranslate"><span class="pre">cutoff_table</span></code> does, and the warning points at the line that called it.</p></li>
+</ul>
+</section>
+</section>
+<section id="id41">
+<h2>0.6.0 (2026-11-20)<a class="headerlink" href="#id41" title="Link to this heading">#</a></h2>
+<section id="id42">
+<h3>New<a class="headerlink" href="#id42" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.calibration.platt_fit</span></code> and <code class="docutils literal notranslate"><span class="pre">platt_predict</span></code> calibrate a score with a logistic curve, and <code class="docutils literal notranslate"><span class="pre">isotonic_fit</span></code> and <code class="docutils literal notranslate"><span class="pre">isotonic_predict</span></code> with a step function that rises with the score. The fits return plain numbers, a slope and an intercept or band edges and their probabilities, that apply to the scores of any later sample.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.stability.csi_table</span></code> computes the characteristic stability index of a scorecard variable: the change of each group’s share from the reference to the current sample, multiplied by the group’s points. Its sum is the change of the variable’s average points, and over all variables the change of the average score. The shares are not smoothed, and a group without points raises an error unless <code class="docutils literal notranslate"><span class="pre">unseen_points</span></code> gives its points.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.datasets.load_bank</span></code> loads the bank marketing data. <code class="docutils literal notranslate"><span class="pre">Dataset.bank_data</span></code> returns the same data and keeps working without a warning.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.datasets.make_loan_panel</span></code> simulates a seeded monthly panel of instalment loans whose delinquency rolls forward and cures, to try the vintage and roll-rate functions on.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">reason_codes</span></code> takes <code class="docutils literal notranslate"><span class="pre">unseen_points</span></code>, the points of applicants in groups that <code class="docutils literal notranslate"><span class="pre">woe_transform</span></code> encoded with <code class="docutils literal notranslate"><span class="pre">unseen</span></code>, one value or values by variable. Points that match no group but lie within <code class="docutils literal notranslate"><span class="pre">atol</span></code> of <code class="docutils literal notranslate"><span class="pre">unseen_points</span></code> cost nothing, so the variable is not one of those applicants’ reasons. Every other mismatch still raises an error, which now suggests checking <code class="docutils literal notranslate"><span class="pre">atol</span></code> and the model and scaling first.</p></li>
+<li><p>The new module <code class="docutils literal notranslate"><span class="pre">kivi.spec</span></code> bins all the columns of a data frame at once. <code class="docutils literal notranslate"><span class="pre">fit_spec</span></code> fits each numeric column with <code class="docutils literal notranslate"><span class="pre">bin_edges</span></code> or a supervised method chosen by column, or with given edges, and measures the WOE of every group; other columns keep their labels. The binning is never changed automatically.</p></li>
+<li><p>The resulting <code class="docutils literal notranslate"><span class="pre">BinningSpec</span></code> groups a sample with <code class="docutils literal notranslate"><span class="pre">cut</span></code>, encodes it with <code class="docutils literal notranslate"><span class="pre">woe_transform</span></code> using an unseen-group policy by column, and keeps the <code class="docutils literal notranslate"><span class="pre">woe_table</span></code> of every column for review. <code class="docutils literal notranslate"><span class="pre">to_json</span></code> and <code class="docutils literal notranslate"><span class="pre">from_json</span></code> save and load it without changing the groups or the WOE encoding, so production reproduces development exactly.</p></li>
+<li><p>The new module <code class="docutils literal notranslate"><span class="pre">kivi.vintage</span></code> analyses loan portfolios. <code class="docutils literal notranslate"><span class="pre">vintage_table</span></code> gives the cumulative bad rate of each origination cohort by month on book, by count or by amount lent, and leaves the months that a cohort has not reached as NaN. <code class="docutils literal notranslate"><span class="pre">transition_matrix</span></code> counts the movements of loans between delinquency buckets or of obligors between rating grades, as counts, row shares or sums of balances, and <code class="docutils literal notranslate"><span class="pre">roll_rates</span></code> gives the share of each bucket that rolls to the next worse one.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">roc_auc</span></code>, <code class="docutils literal notranslate"><span class="pre">gini</span></code>, <code class="docutils literal notranslate"><span class="pre">ks</span></code>, <code class="docutils literal notranslate"><span class="pre">gains_table</span></code>, <code class="docutils literal notranslate"><span class="pre">brier_score</span></code> and <code class="docutils literal notranslate"><span class="pre">calibration_table</span></code> take <code class="docutils literal notranslate"><span class="pre">weights</span></code>, like <code class="docutils literal notranslate"><span class="pre">woe_table</span></code>. Counts become sums of weights, and integer weights give the same result as repeating rows, for <code class="docutils literal notranslate"><span class="pre">gains_table</span></code> on fixed edges.</p></li>
+</ul>
+</section>
+<section id="id43">
+<h3>Changed<a class="headerlink" href="#id43" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>The risk modeling workflow saves the shortlist’s binning with <code class="docutils literal notranslate"><span class="pre">fit_spec</span></code> and adds the characteristic stability index of every scorecard variable to its stability report. The user guide has new charts for gains, calibration and vintage curves, and the README shows the gains and vintage charts.</p></li>
+</ul>
+</section>
+<section id="id44">
+<h3>Fixed<a class="headerlink" href="#id44" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>On pandas 2.0, <code class="docutils literal notranslate"><span class="pre">calibration_table</span></code> no longer fails when the target has a nullable integer dtype.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cut</span></code>, <code class="docutils literal notranslate"><span class="pre">bin_edges</span></code> and the supervised binning functions match special codes after converting numeric strings, so a column read as text, where <code class="docutils literal notranslate"><span class="pre">pdays</span></code> holds <code class="docutils literal notranslate"><span class="pre">&quot;-1&quot;</span></code>, gives the code <code class="docutils literal notranslate"><span class="pre">-1</span></code> its own group instead of putting it into an interval. Boolean special codes, which <code class="docutils literal notranslate"><span class="pre">True</span> <span class="pre">==</span> <span class="pre">1</span></code> made match the value 1, raise an error.</p></li>
+</ul>
+</section>
+<section id="id45">
+<h3>Removed<a class="headerlink" href="#id45" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.evaluate</span></code> is removed; import <code class="docutils literal notranslate"><span class="pre">psi_table</span></code> and the other stability functions from <code class="docutils literal notranslate"><span class="pre">kivi.stability</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bin_edges</span></code> no longer accepts <code class="docutils literal notranslate"><span class="pre">method</span></code> by position; pass <code class="docutils literal notranslate"><span class="pre">method=&quot;uniform&quot;</span></code> by keyword.</p></li>
+</ul>
+</section>
+</section>
+<section id="id46">
+<h2>0.5.0 (2026-11-20)<a class="headerlink" href="#id46" title="Link to this heading">#</a></h2>
+<section id="id47">
+<h3>New<a class="headerlink" href="#id47" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>The new module <code class="docutils literal notranslate"><span class="pre">kivi.calibration</span></code> checks the calibration of PDs. <code class="docutils literal notranslate"><span class="pre">prior_correction</span></code> and <code class="docutils literal notranslate"><span class="pre">corrected_intercept</span></code> correct a model for a development sample with another event rate. <code class="docutils literal notranslate"><span class="pre">calibration_table</span></code> compares the observed and predicted default rates of master scale grades or other groups, which <code class="docutils literal notranslate"><span class="pre">binomial_test</span></code>, <code class="docutils literal notranslate"><span class="pre">jeffreys_test</span></code> and <code class="docutils literal notranslate"><span class="pre">hosmer_lemeshow</span></code> then test. <code class="docutils literal notranslate"><span class="pre">herfindahl_index</span></code> measures the concentration of the grades.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.woe.woe</span></code>, <code class="docutils literal notranslate"><span class="pre">kivi.woe.iv</span></code> and <code class="docutils literal notranslate"><span class="pre">kivi.stability.psi</span></code> compute WOE, IV and PSI from counts that are already aggregated, including weighted counts.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.stability</span></code> holds <code class="docutils literal notranslate"><span class="pre">psi_table</span></code> and <code class="docutils literal notranslate"><span class="pre">psi</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.metrics</span></code> evaluates a score against a binary target. <code class="docutils literal notranslate"><span class="pre">roc_auc</span></code>, <code class="docutils literal notranslate"><span class="pre">gini</span></code> and <code class="docutils literal notranslate"><span class="pre">ks</span></code> measure how well it ranks events above non-events, <code class="docutils literal notranslate"><span class="pre">gains_table</span></code> reports event rates, captured events, KS and lift by score band, and <code class="docutils literal notranslate"><span class="pre">brier_score</span></code> compares predicted probabilities with the outcomes. Like <code class="docutils literal notranslate"><span class="pre">woe_table</span></code>, each takes the score first and the target second, the reverse of scikit-learn. A higher score must mean a higher event probability, so negate scorecard points before passing them in.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bin_edges</span></code>, <code class="docutils literal notranslate"><span class="pre">chimerge_edges</span></code>, <code class="docutils literal notranslate"><span class="pre">tree_edges</span></code>, <code class="docutils literal notranslate"><span class="pre">monotonic_edges</span></code> and <code class="docutils literal notranslate"><span class="pre">woe_table</span></code> take <code class="docutils literal notranslate"><span class="pre">weights</span></code>, and <code class="docutils literal notranslate"><span class="pre">psi_table</span></code> takes <code class="docutils literal notranslate"><span class="pre">reference_weights</span></code> and <code class="docutils literal notranslate"><span class="pre">current_weights</span></code>. Counts become sums of weights, quantile edges become weighted quantiles by the inverted CDF, and observations or groups with zero weight are left out.</p></li>
+<li><p>The new module <code class="docutils literal notranslate"><span class="pre">kivi.scorecard</span></code> scales a logistic regression on WOE values into scorecard points. <code class="docutils literal notranslate"><span class="pre">score_scaling</span></code>, <code class="docutils literal notranslate"><span class="pre">pd_to_score</span></code> and <code class="docutils literal notranslate"><span class="pre">score_to_pd</span></code> convert between probabilities and scores from the points to double the odds, a base score and base odds. <code class="docutils literal notranslate"><span class="pre">points_table</span></code> gives the points of every group, <code class="docutils literal notranslate"><span class="pre">woe_to_points</span></code> those of each applicant, and <code class="docutils literal notranslate"><span class="pre">reason_codes</span></code> names the variables that cost an applicant the most points.</p></li>
+<li><p>The new <code class="docutils literal notranslate"><span class="pre">kivi.selection</span></code> module selects the variables of a scorecard from WOE-encoded candidates. <code class="docutils literal notranslate"><span class="pre">correlation_filter</span></code> drops one variable of each strongly correlated pair, keeping the one with the higher priority, such as its IV. <code class="docutils literal notranslate"><span class="pre">vif</span></code> computes variance inflation factors.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">logistic_regression</span></code> fits a logistic regression in NumPy and reports each coefficient with its standard error, Wald z statistic and p-value. It raises <code class="docutils literal notranslate"><span class="pre">SeparationError</span></code> when the variables separate the classes, so that the estimates do not exist.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">stepwise</span></code> selects variables by their p-values in forward, backward or both directions. By default, it keeps every coefficient positive, as expected for kivi’s WOE.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">woe_transform</span></code> replaces each group with its WOE from a <code class="docutils literal notranslate"><span class="pre">woe_table</span></code> result, the encoding used by a scorecard model. Groups that are not in the table raise an error unless <code class="docutils literal notranslate"><span class="pre">unseen</span></code> gives their WOE.</p></li>
+</ul>
+</section>
+<section id="id48">
+<h3>Changed<a class="headerlink" href="#id48" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>The API reference has a page for each module. Links to a function on the former single page now go to the page of its module.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">method</span></code> of <code class="docutils literal notranslate"><span class="pre">bin_edges</span></code> is keyword-only. Passing it by position raises a <code class="docutils literal notranslate"><span class="pre">FutureWarning</span></code> and stops working in 0.6.0.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.evaluate</span></code> is deprecated in favour of <code class="docutils literal notranslate"><span class="pre">kivi.stability</span></code>. Importing <code class="docutils literal notranslate"><span class="pre">psi_table</span></code> from it raises a <code class="docutils literal notranslate"><span class="pre">FutureWarning</span></code>, and the module is removed in 0.6.0.</p></li>
+<li><p>The risk modeling workflow runs end to end: variable selection, a fitted logistic model, scorecard points, evaluation, calibration and score stability.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">woe_table</span></code> also reports <code class="docutils literal notranslate"><span class="pre">total</span></code>, <code class="docutils literal notranslate"><span class="pre">total_share</span></code> and <code class="docutils literal notranslate"><span class="pre">event_rate</span></code> for each group, the columns of a classing report. They use the observed counts; only <code class="docutils literal notranslate"><span class="pre">non_event_share</span></code> and <code class="docutils literal notranslate"><span class="pre">event_share</span></code> are smoothed.</p></li>
+</ul>
+</section>
+<section id="id49">
+<h3>Fixed<a class="headerlink" href="#id49" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">woe_table</span></code> and <code class="docutils literal notranslate"><span class="pre">psi_table</span></code> no longer cause pandas to issue <code class="docutils literal notranslate"><span class="pre">RuntimeWarning:</span> <span class="pre">invalid</span> <span class="pre">value</span> <span class="pre">encountered</span> <span class="pre">in</span> <span class="pre">cast</span></code> on NumPy older than 2.2 when the groups come from <code class="docutils literal notranslate"><span class="pre">pandas.cut</span></code> with infinite edges.</p></li>
+<li><p>On pandas 2.0, <code class="docutils literal notranslate"><span class="pre">cut</span></code> and the supervised binning functions no longer fail when nullable integer or float values are combined with <code class="docutils literal notranslate"><span class="pre">special</span></code>.</p></li>
+</ul>
+</section>
+</section>
+<section id="id50">
+<h2>0.4.0 (2026-11-19)<a class="headerlink" href="#id50" title="Link to this heading">#</a></h2>
+<section id="id51">
+<h3>New<a class="headerlink" href="#id51" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">bin_edges</span></code> takes a <code class="docutils literal notranslate"><span class="pre">special</span></code> argument. Codes such as <code class="docutils literal notranslate"><span class="pre">-1</span></code> or <code class="docutils literal notranslate"><span class="pre">-999</span></code> are left out when the edges are fitted.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.binning.cut</span></code> assigns values to the fitted bins and gives each special value its own group. Without special values it returns the same result as <code class="docutils literal notranslate"><span class="pre">pandas.cut</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">chimerge_edges</span></code>, <code class="docutils literal notranslate"><span class="pre">tree_edges</span></code> and <code class="docutils literal notranslate"><span class="pre">monotonic_edges</span></code> fit edges from a binary target: ChiMerge merging of fine quantile bins, decision-tree splits by entropy or Gini with a minimum bin share, and merging until the WOE is monotonic. They accept the same array-like inputs as <code class="docutils literal notranslate"><span class="pre">woe_table</span></code>, return infinite-ended edges like <code class="docutils literal notranslate"><span class="pre">bin_edges</span></code> and need only NumPy and pandas.</p></li>
+<li><p>The binning guide compares the three methods on the bank data, with a chart for each.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">chimerge_edges</span></code>, <code class="docutils literal notranslate"><span class="pre">tree_edges</span></code> and <code class="docutils literal notranslate"><span class="pre">monotonic_edges</span></code> take <code class="docutils literal notranslate"><span class="pre">special</span></code> like <code class="docutils literal notranslate"><span class="pre">bin_edges</span></code>. The codes are left out of the fit together with their labels, and <code class="docutils literal notranslate"><span class="pre">kivi.binning.cut</span></code> with the same codes gives each one its own group.</p></li>
+</ul>
+</section>
+<section id="id52">
+<h3>Changed<a class="headerlink" href="#id52" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">bin_edges</span></code>, <code class="docutils literal notranslate"><span class="pre">woe_table</span></code> and <code class="docutils literal notranslate"><span class="pre">psi_table</span></code> accept any one-dimensional array-like input, such as a list or a NumPy array. Group and target series passed to <code class="docutils literal notranslate"><span class="pre">woe_table</span></code> must still share an index; arrays and lists are matched by position.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bin_edges</span></code> issues a <code class="docutils literal notranslate"><span class="pre">UserWarning</span></code> when tied edges leave fewer bins than requested. The message names the most frequent value so that it can be passed in <code class="docutils literal notranslate"><span class="pre">special</span></code>.</p></li>
+<li><p>Error messages name the argument and report the value received.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.__version__</span></code> is <code class="docutils literal notranslate"><span class="pre">&quot;0+unknown&quot;</span></code> when kivi is imported from a source tree that is not installed, instead of raising an error.</p></li>
+<li><p>Group counts use <code class="docutils literal notranslate"><span class="pre">numpy.bincount</span></code>, which is faster on large samples.</p></li>
+<li><p>The API reference documents errors, warnings, formulas and related functions.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">woe_table</span></code> and <code class="docutils literal notranslate"><span class="pre">psi_table</span></code> list categorical groups, including the result of <code class="docutils literal notranslate"><span class="pre">pandas.cut</span></code>, in category order with missing values last. Other labels keep the order in which they first appear. Previously all groups followed first appearance, and <code class="docutils literal notranslate"><span class="pre">sort_index</span></code> was needed to put intervals in order.</p></li>
+</ul>
+</section>
+</section>
+<section id="id53">
+<h2>0.3.0 (2026-11-19)<a class="headerlink" href="#id53" title="Link to this heading">#</a></h2>
+<p>A rewrite around a small pandas core. Read <a class="reference internal" href="migration.html"><span class="doc">Migration guide</span></a> before upgrading code written for 0.2.x.</p>
+<section id="id54">
+<h3>New<a class="headerlink" href="#id54" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">bin_edges</span></code> fits quantile or uniform edges on a reference sample. The outer edges are infinite, so the result can be passed to <code class="docutils literal notranslate"><span class="pre">pandas.cut</span></code> for any later sample.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">woe_table</span></code> and <code class="docutils literal notranslate"><span class="pre">psi_table</span></code> return raw counts, smoothed shares and a contribution for each group, including missing values.</p></li>
+<li><p>Documentation in English and Simplified Chinese.</p></li>
+</ul>
+</section>
+<section id="id55">
+<h3>Changed<a class="headerlink" href="#id55" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>NumPy and pandas are required dependencies. The 0.2.8 wheel placed them behind the <code class="docutils literal notranslate"><span class="pre">all</span></code> extra.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">psi</span></code> column holds the contribution of each bin. It previously repeated the overall total.</p></li>
+<li><p>Zero counts are replaced before each distribution is normalized, and reported counts are no longer modified.</p></li>
+</ul>
+</section>
+<section id="id56">
+<h3>Removed<a class="headerlink" href="#id56" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Spark, SQL, AHP, feature selection, model wrappers, weighted and supervised binning and scorecards. They remain in the repository history.</p></li>
+</ul>
+<div class="toctree-wrapper compound">
+</div>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../api/datasets.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Example data</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="migration.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Migration guide</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#unreleased">Unreleased</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#new">New</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#changed">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fixed">Fixed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">1.9.0 (2026-11-26)</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">Changed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">1.8.0 (2026-11-25)</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">New</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">Changed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">1.7.0 (2026-11-25)</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">New</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id8">Changed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id9">1.6.0 (2026-11-25)</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id10">New</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id11">Changed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id12">1.5.0 (2026-11-24)</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id13">New</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id14">Changed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id15">1.4.0 (2026-11-24)</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id16">New</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id17">Changed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id18">1.3.0 (2026-11-23)</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id19">New</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id20">Changed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id21">1.2.0 (2026-11-22)</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id22">New</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id23">Changed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id24">1.1.0 (2026-11-22)</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id25">New</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id26">Changed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id27">1.0.0 (2026-11-22)</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id28">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#removed">Removed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id29">0.9.0 (2026-11-22)</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id30">New</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id31">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id32">Fixed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id33">0.8.0 (2026-11-21)</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id34">New</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id35">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id36">Fixed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id37">0.7.0 (2026-11-20)</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id38">New</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id39">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id40">Fixed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id41">0.6.0 (2026-11-20)</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id42">New</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id43">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id44">Fixed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id45">Removed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id46">0.5.0 (2026-11-20)</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id47">New</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id48">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id49">Fixed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id50">0.4.0 (2026-11-19)</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id51">New</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id52">Changed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id53">0.3.0 (2026-11-19)</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id54">New</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id55">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id56">Removed</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1.
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

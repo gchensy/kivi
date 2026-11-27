@@ -1,0 +1,1815 @@
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Charts &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=d005c095" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=25d9e9fd"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/plotting';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Example data" href="datasets.html" />
+    <link rel="prev" title="Lifetime PD and expected credit loss" href="lifetime.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="1.9.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 1.9.0">1.9.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    Tutorial
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/api/plotting.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    Tutorial
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/api/plotting.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="conventions.html">Conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compatibility.html">Compatibility</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">Time-window features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="univariate.html">Univariate profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="binning.html">Binning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="woe.html">Weight of evidence and information value</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selection.html">Variable selection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reject_inference.html">Reject inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scorecard.html">Scorecard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="expert.html">Expert scorecards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">Model performance</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lgd.html">LGD and EAD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">Credit strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rules.html">Policy rules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spec.html">Binning specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stability.html">Population stability index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">Model monitoring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="capital.html">Regulatory capital</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vintage.html">Vintage and roll-rate analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lifetime.html">Lifetime PD and expected credit loss</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">Charts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">Example data</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../api.html" class="nav-link">API reference</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Charts</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="module-kivi.plotting">
+<span id="charts"></span><h1>Charts<a class="headerlink" href="#module-kivi.plotting" title="Link to this heading">#</a></h1>
+<p>Draw the result tables of the other modules with matplotlib, one function per table, such as <a class="reference internal" href="#kivi.plotting.woe_chart" title="kivi.plotting.woe_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">woe_chart()</span></code></a> for a WOE table, <a class="reference internal" href="#kivi.plotting.roc_chart" title="kivi.plotting.roc_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">roc_chart()</span></code></a> for a ROC table, <a class="reference internal" href="#kivi.plotting.monitoring_chart" title="kivi.plotting.monitoring_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">monitoring_chart()</span></code></a> for a monitoring report, <a class="reference internal" href="#kivi.plotting.survival_chart" title="kivi.plotting.survival_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">survival_chart()</span></code></a> for a survival table and <a class="reference internal" href="#kivi.plotting.profit_chart" title="kivi.plotting.profit_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">profit_chart()</span></code></a> for a cut-off table with profit. Each function draws on the Axes passed as <code class="docutils literal notranslate"><span class="pre">ax</span></code>, or on a new figure, and returns the Axes it drew on. matplotlib is an optional dependency: install it with <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">&quot;kivi[plot]&quot;</span></code>.</p>
+<p>See <a class="reference internal" href="../user_guide/plotting.html"><span class="doc">Charts</span></a> for examples on the bundled data.</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.plotting.woe_chart" title="kivi.plotting.woe_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">woe_chart</span></code></a>(table, *[, line, ax])</p></td>
+<td><p>Draw the population share of each group with its event rate or WOE.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.plotting.correlation_chart" title="kivi.plotting.correlation_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">correlation_chart</span></code></a>(matrix, *[, ax])</p></td>
+<td><p>Draw a correlation matrix as a heatmap with the value in each cell.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.plotting.roc_chart" title="kivi.plotting.roc_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">roc_chart</span></code></a>(table, *[, ks, label, ax])</p></td>
+<td><p>Draw the ROC curve, with the largest gap between the two rates marked.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.plotting.precision_recall_chart" title="kivi.plotting.precision_recall_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">precision_recall_chart</span></code></a>(table, *[, label, ax])</p></td>
+<td><p>Draw the precision against the recall of every threshold of a score.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.plotting.gains_chart" title="kivi.plotting.gains_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gains_chart</span></code></a>(table, *[, ks, label, ax])</p></td>
+<td><p>Draw the cumulative shares of events and non-events by score band.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.plotting.distribution_chart" title="kivi.plotting.distribution_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">distribution_chart</span></code></a>(table, *[, ax])</p></td>
+<td><p>Draw the share of all non-events and of all events in each group side by side.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.plotting.calibration_chart" title="kivi.plotting.calibration_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calibration_chart</span></code></a>(table, *[, label, ax])</p></td>
+<td><p>Draw the observed event rate of each group against its mean predicted PD.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.plotting.cutoff_chart" title="kivi.plotting.cutoff_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cutoff_chart</span></code></a>(table, *[, label, ax])</p></td>
+<td><p>Draw the event rate of the approved book against the approval rate.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.plotting.psi_chart" title="kivi.plotting.psi_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">psi_chart</span></code></a>(table, *[, ax])</p></td>
+<td><p>Draw the reference and the current share of each group side by side.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.plotting.monitoring_chart" title="kivi.plotting.monitoring_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">monitoring_chart</span></code></a>(table, *[, column, kind, ...])</p></td>
+<td><p>Draw one column of a monitoring report period by period.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.plotting.vintage_chart" title="kivi.plotting.vintage_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vintage_chart</span></code></a>(table, *[, ax])</p></td>
+<td><p>Draw one curve per cohort of its cumulative bad rate by month on book.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.plotting.survival_chart" title="kivi.plotting.survival_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">survival_chart</span></code></a>(table, *[, column, label, ax])</p></td>
+<td><p>Draw the cumulative PD or the survival curve of a survival table as steps.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.plotting.transition_chart" title="kivi.plotting.transition_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transition_chart</span></code></a>(table, *[, ax])</p></td>
+<td><p>Draw a transition matrix as a heatmap with the value in each cell.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.plotting.rule_set_chart" title="kivi.plotting.rule_set_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rule_set_chart</span></code></a>(table, *[, ax])</p></td>
+<td><p>Draw the share of the book that each rule declines and the approval rate left.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.plotting.profit_chart" title="kivi.plotting.profit_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">profit_chart</span></code></a>(table, *[, label, ax])</p></td>
+<td><p>Draw the profit against the approval rate and mark the best cut-off.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.plotting.lgd_chart" title="kivi.plotting.lgd_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lgd_chart</span></code></a>(table, *[, ax])</p></td>
+<td><p>Draw the mean LGD of each group with its shares of zero and full losses.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.plotting.woe_chart">
+<span class="sig-prename descclassname"><span class="pre">kivi.plotting.</span></span><span class="sig-name descname"><span class="pre">woe_chart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">line</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'event_rate'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.plotting.woe_chart" title="Link to this definition">#</a></dt>
+<dd><p>Draw the population share of each group with its event rate or WOE.</p>
+<p>The bars show <code class="docutils literal notranslate"><span class="pre">total_share</span></code>, the share of the sample in each group,
+on the left y-axis, and a line shows <code class="docutils literal notranslate"><span class="pre">event_rate</span></code> or <code class="docutils literal notranslate"><span class="pre">woe</span></code> on a
+second y-axis on the right. This is the one chart of the module with
+two y-axes, and so the one that returns two Axes. The groups keep the
+order of the table, and the legend gives the IV of the whole table.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>table</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>A table from <cite>kivi.woe.woe_table</cite>, or one of the tables of a
+<cite>kivi.spec.BinningSpec</cite>. It needs the columns <code class="docutils literal notranslate"><span class="pre">total_share</span></code>,
+<code class="docutils literal notranslate"><span class="pre">iv</span></code> and the column named by <cite>line</cite>.</p>
+</dd>
+<dt><strong>line</strong><span class="classifier">{‘event_rate’, ‘woe’}, default ‘event_rate’</span></dt><dd><p>Column drawn as the line.</p>
+</dd>
+<dt><strong>ax</strong><span class="classifier">matplotlib.axes.Axes, optional</span></dt><dd><p>Axes of the bars. A new figure is created when it is not given.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>bars</strong><span class="classifier">matplotlib.axes.Axes</span></dt><dd><p>Axes of the bars, <cite>ax</cite> when it is given.</p>
+</dd>
+<dt><strong>line</strong><span class="classifier">matplotlib.axes.Axes</span></dt><dd><p>Axes of the line, a twin of <cite>bars</cite> that shares its x-axis.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ImportError</dt><dd><p>If matplotlib is not installed.</p>
+</dd>
+<dt>ValueError</dt><dd><p>If <cite>table</cite> is not a DataFrame, lacks a column it needs or has no
+rows, a column it needs is not numeric, <cite>line</cite> is neither
+<code class="docutils literal notranslate"><span class="pre">'event_rate'</span></code> nor <code class="docutils literal notranslate"><span class="pre">'woe'</span></code>, or <cite>ax</cite> is not a matplotlib Axes.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="woe.html#kivi.woe.woe_table" title="kivi.woe.woe_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.woe.woe_table</span></code></a></dt><dd><p>The table that this chart draws.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.plotting.psi_chart" title="kivi.plotting.psi_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">psi_chart</span></code></a></dt><dd><p>Compare the shares of two samples in the same groups.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>The tick labels are the group labels of the index, with <code class="docutils literal notranslate"><span class="pre">NaN</span></code> for the
+group of missing values. Sort the table first, for example with
+<code class="docutils literal notranslate"><span class="pre">table.sort_index()</span></code> or <code class="docutils literal notranslate"><span class="pre">table.sort_values(&quot;woe&quot;)</span></code>, to draw the
+groups in another order.</p>
+<p>Each y-axis is labeled in the color of what it shows, and the dotted
+line of zero WOE belongs to the right axis. Both axes leave room at the
+top for the legend, so that it covers no bar and no point.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">woe_chart</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.woe</span><span class="w"> </span><span class="kn">import</span> <span class="n">woe_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">groups</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="s2">"a"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"c"</span><span class="p">,</span> <span class="s2">"c"</span><span class="p">,</span> <span class="s2">"c"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bars</span><span class="p">,</span> <span class="n">line</span> <span class="o">=</span> <span class="n">woe_chart</span><span class="p">(</span><span class="n">woe_table</span><span class="p">(</span><span class="n">groups</span><span class="p">,</span> <span class="n">target</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="n">label</span><span class="o">.</span><span class="n">get_text</span><span class="p">()</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">bars</span><span class="o">.</span><span class="n">get_xticklabels</span><span class="p">()]</span>
+<span class="go">['a', 'b', 'c']</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">line</span><span class="o">.</span><span class="n">get_ylabel</span><span class="p">()</span>
+<span class="go">'event_rate'</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.plotting.correlation_chart">
+<span class="sig-prename descclassname"><span class="pre">kivi.plotting.</span></span><span class="sig-name descname"><span class="pre">correlation_chart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.plotting.correlation_chart" title="Link to this definition">#</a></dt>
+<dd><p>Draw a correlation matrix as a heatmap with the value in each cell.</p>
+<p>Positive correlations are blue and negative ones amber, darker as they
+approach 1 or -1, so that pairs of variables that carry the same
+information stand out before a model is fitted.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>matrix</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>Square matrix of correlations with the same labels, in the same
+order, in its index and columns, such as <code class="docutils literal notranslate"><span class="pre">X.corr()</span></code> or
+<code class="docutils literal notranslate"><span class="pre">X.corr(method=&quot;spearman&quot;)</span></code> of the WOE-encoded candidates <code class="docutils literal notranslate"><span class="pre">X</span></code>.</p>
+</dd>
+<dt><strong>ax</strong><span class="classifier">matplotlib.axes.Axes, optional</span></dt><dd><p>Axes to draw on. A new figure, sized to the number of variables, is
+created when it is not given.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>matplotlib.axes.Axes</dt><dd><p>The Axes drawn on, <cite>ax</cite> when it is given.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ImportError</dt><dd><p>If matplotlib is not installed.</p>
+</dd>
+<dt>ValueError</dt><dd><p>If <cite>matrix</cite> is not a DataFrame, has no rows, does not have the same
+labels in its index and columns, has a column that is not numeric
+or a value outside [-1, 1], such as a covariance, or <cite>ax</cite> is not a
+matplotlib Axes.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="selection.html#kivi.selection.correlation_filter" title="kivi.selection.correlation_filter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.selection.correlation_filter</span></code></a></dt><dd><p>Drop one variable of each highly correlated pair.</p>
+</dd>
+<dt><a class="reference internal" href="selection.html#kivi.selection.vif" title="kivi.selection.vif"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.selection.vif</span></code></a></dt><dd><p>Variance inflation factor of each variable.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>The colors run from -1 to 1 whatever the values, and a missing value,
+such as the correlation of a constant column, leaves its cell empty.
+The heatmap is <code class="docutils literal notranslate"><span class="pre">ax.images[0]</span></code>, so <code class="docutils literal notranslate"><span class="pre">ax.figure.colorbar(ax.images[0],</span>
+<span class="pre">ax=ax)</span></code> adds a color bar.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">correlation_chart</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"a"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="s2">"b"</span><span class="p">:</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="s2">"c"</span><span class="p">:</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span> <span class="o">=</span> <span class="n">correlation_chart</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">corr</span><span class="p">())</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="n">label</span><span class="o">.</span><span class="n">get_text</span><span class="p">()</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_yticklabels</span><span class="p">()]</span>
+<span class="go">['a', 'b', 'c']</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span><span class="o">.</span><span class="n">texts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">get_text</span><span class="p">()</span>
+<span class="go">'0.60'</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.plotting.roc_chart">
+<span class="sig-prename descclassname"><span class="pre">kivi.plotting.</span></span><span class="sig-name descname"><span class="pre">roc_chart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">ks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.plotting.roc_chart" title="Link to this definition">#</a></dt>
+<dd><p>Draw the ROC curve, with the largest gap between the two rates marked.</p>
+<p>The curve plots <code class="docutils literal notranslate"><span class="pre">true_positive_rate</span></code> against <code class="docutils literal notranslate"><span class="pre">false_positive_rate</span></code>
+from the strictest threshold to the loosest, next to the diagonal of a
+score that ranks at random. With <cite>ks</cite>, a vertical segment marks the KS
+statistic: the largest distance between the curve and the diagonal.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>table</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>A table from <cite>kivi.metrics.roc_table</cite>. It needs the columns
+<code class="docutils literal notranslate"><span class="pre">false_positive_rate</span></code> and <code class="docutils literal notranslate"><span class="pre">true_positive_rate</span></code>.</p>
+</dd>
+<dt><strong>ks</strong><span class="classifier">bool, default True</span></dt><dd><p>Whether to mark the KS statistic.</p>
+</dd>
+<dt><strong>label</strong><span class="classifier">str, optional</span></dt><dd><p>Legend entry of the curve. A legend is drawn only when a curve has
+a label.</p>
+</dd>
+<dt><strong>ax</strong><span class="classifier">matplotlib.axes.Axes, optional</span></dt><dd><p>Axes to draw on. A new figure is created when it is not given.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>matplotlib.axes.Axes</dt><dd><p>The Axes drawn on, <cite>ax</cite> when it is given.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ImportError</dt><dd><p>If matplotlib is not installed.</p>
+</dd>
+<dt>ValueError</dt><dd><p>If <cite>table</cite> is not a DataFrame, lacks a column it needs or has no
+rows, a column it needs is not numeric, <cite>ks</cite> is not True or False,
+or <cite>ax</cite> is not a matplotlib Axes.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="metrics.html#kivi.metrics.roc_table" title="kivi.metrics.roc_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.metrics.roc_table</span></code></a></dt><dd><p>The table that this chart draws.</p>
+</dd>
+<dt><a class="reference internal" href="metrics.html#kivi.metrics.roc_auc" title="kivi.metrics.roc_auc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.metrics.roc_auc</span></code></a></dt><dd><p>Area under the curve.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.plotting.gains_chart" title="kivi.plotting.gains_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gains_chart</span></code></a></dt><dd><p>The same separation against the share of the sample.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>The curve takes the next color of the Axes’ color cycle, so that ROC
+curves of several scores drawn on the same <cite>ax</cite> are told apart by
+color and by <cite>label</cite>. The KS segment and its value share the color of
+their curve.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">roc_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">roc_chart</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span> <span class="o">=</span> <span class="n">roc_table</span><span class="p">([</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.35</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span> <span class="o">=</span> <span class="n">roc_chart</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span><span class="o">.</span><span class="n">get_xlabel</span><span class="p">(),</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_ylabel</span><span class="p">()</span>
+<span class="go">('false_positive_rate', 'true_positive_rate')</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span><span class="o">.</span><span class="n">texts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_text</span><span class="p">()</span>
+<span class="go">'ks = 0.500'</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.plotting.precision_recall_chart">
+<span class="sig-prename descclassname"><span class="pre">kivi.plotting.</span></span><span class="sig-name descname"><span class="pre">precision_recall_chart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.plotting.precision_recall_chart" title="Link to this definition">#</a></dt>
+<dd><p>Draw the precision against the recall of every threshold of a score.</p>
+<p>Flagging the observations from the highest score down, the curve plots
+<code class="docutils literal notranslate"><span class="pre">precision</span></code>, the event rate of the flagged observations, against
+<code class="docutils literal notranslate"><span class="pre">true_positive_rate</span></code>, the share of all events flagged, also called
+the recall, as steps whose area is the average precision. A dashed line
+marks the event rate of the sample, the precision of a score that ranks
+at random.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>table</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>A table from <cite>kivi.metrics.roc_table</cite>. It needs the columns
+<code class="docutils literal notranslate"><span class="pre">true_positive_rate</span></code> and <code class="docutils literal notranslate"><span class="pre">precision</span></code>.</p>
+</dd>
+<dt><strong>label</strong><span class="classifier">str, optional</span></dt><dd><p>Legend entry of the curve. A legend is drawn only when a curve has
+a label.</p>
+</dd>
+<dt><strong>ax</strong><span class="classifier">matplotlib.axes.Axes, optional</span></dt><dd><p>Axes to draw on. A new figure is created when it is not given.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>matplotlib.axes.Axes</dt><dd><p>The Axes drawn on, <cite>ax</cite> when it is given.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ImportError</dt><dd><p>If matplotlib is not installed.</p>
+</dd>
+<dt>ValueError</dt><dd><p>If <cite>table</cite> is not a DataFrame, lacks a column it needs or has no
+rows, a column it needs is not numeric, no row has a precision, or
+<cite>ax</cite> is not a matplotlib Axes.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="metrics.html#kivi.metrics.roc_table" title="kivi.metrics.roc_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.metrics.roc_table</span></code></a></dt><dd><p>The table that this chart draws.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.plotting.roc_chart" title="kivi.plotting.roc_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">roc_chart</span></code></a></dt><dd><p>The true positive rate against the false positive rate.</p>
+</dd>
+<dt><a class="reference internal" href="strategy.html#kivi.strategy.confusion_table" title="kivi.strategy.confusion_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.strategy.confusion_table</span></code></a></dt><dd><p>Precision and recall at chosen cut-offs.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>The first row of a roc table, at the threshold <code class="docutils literal notranslate"><span class="pre">inf</span></code>, flags nobody
+and has no precision. From a recall of 0, the curve steps through the
+other rows: from the recall of one row to that of the next, it stays at
+the precision of the next row. Straight lines between the rows would
+overstate the precision between them <a class="reference internal" href="#ref8fe7ebfb4a-1" id="id1">[1]</a>. With <span class="math notranslate nohighlight">\(R_n\)</span> and
+<span class="math notranslate nohighlight">\(P_n\)</span> the recall and the precision of the n-th row, and
+<span class="math notranslate nohighlight">\(R_0 = 0\)</span>, the area under the steps is the average precision</p>
+<div class="math notranslate nohighlight">
+\[\mathrm{AP} = \sum_n (R_n - R_{n-1})\, P_n.\]</div>
+<p>The last row flags every observation, so its precision is the event
+rate: the curve ends on the dashed line, which is labeled with that
+rate at its left end.</p>
+<p>The curve takes the next color of the Axes’ color cycle, so that the
+curves of several scores drawn on the same <cite>ax</cite> are told apart by
+color and by <cite>label</cite>. The dashed line is gray, as the diagonal of
+<cite>roc_chart</cite>, and is drawn once for each event rate shown, so that the
+scores of one sample share it and two samples get one line each.</p>
+<p class="rubric">References</p>
+<div role="list" class="citation-list">
+<div class="citation" id="ref8fe7ebfb4a-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>J. Davis and M. Goadrich, “The Relationship Between
+Precision-Recall and ROC Curves”, Proceedings of the 23rd
+International Conference on Machine Learning, 233-240, 2006.</p>
+</div>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">roc_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">precision_recall_chart</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span> <span class="o">=</span> <span class="n">roc_table</span><span class="p">([</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.35</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span> <span class="o">=</span> <span class="n">precision_recall_chart</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span><span class="o">.</span><span class="n">get_xlabel</span><span class="p">(),</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_ylabel</span><span class="p">()</span>
+<span class="go">('true_positive_rate', 'precision')</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span><span class="o">.</span><span class="n">texts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_text</span><span class="p">()</span>
+<span class="go">'event_rate = 0.5'</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.plotting.gains_chart">
+<span class="sig-prename descclassname"><span class="pre">kivi.plotting.</span></span><span class="sig-name descname"><span class="pre">gains_chart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">ks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.plotting.gains_chart" title="Link to this definition">#</a></dt>
+<dd><p>Draw the cumulative shares of events and non-events by score band.</p>
+<p>Reviewing the bands from the highest scores down, the curves show the
+share of all events and of all non-events captured against the share
+of the sample reviewed, <code class="docutils literal notranslate"><span class="pre">cum_total_share</span></code>. With <cite>ks</cite>, a vertical
+segment marks the band with the largest <code class="docutils literal notranslate"><span class="pre">ks</span></code>, the gap between the
+two curves.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>table</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>A table from <cite>kivi.metrics.gains_table</cite>, with the highest band
+first. It needs the columns <code class="docutils literal notranslate"><span class="pre">cum_total_share</span></code>,
+<code class="docutils literal notranslate"><span class="pre">cum_event_share</span></code>, <code class="docutils literal notranslate"><span class="pre">cum_non_event_share</span></code> and <code class="docutils literal notranslate"><span class="pre">ks</span></code>.</p>
+</dd>
+<dt><strong>ks</strong><span class="classifier">bool, default True</span></dt><dd><p>Whether to mark the largest <code class="docutils literal notranslate"><span class="pre">ks</span></code>.</p>
+</dd>
+<dt><strong>label</strong><span class="classifier">str, optional</span></dt><dd><p>Name of the score, added to the legend entries of both curves, as
+in <code class="docutils literal notranslate"><span class="pre">cum_event_share</span> <span class="pre">(label)</span></code>.</p>
+</dd>
+<dt><strong>ax</strong><span class="classifier">matplotlib.axes.Axes, optional</span></dt><dd><p>Axes to draw on. A new figure is created when it is not given.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>matplotlib.axes.Axes</dt><dd><p>The Axes drawn on, <cite>ax</cite> when it is given.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ImportError</dt><dd><p>If matplotlib is not installed.</p>
+</dd>
+<dt>ValueError</dt><dd><p>If <cite>table</cite> is not a DataFrame, lacks a column it needs or has no
+rows, a column it needs is not numeric, <cite>ks</cite> is not True or False,
+or <cite>ax</cite> is not a matplotlib Axes.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="metrics.html#kivi.metrics.gains_table" title="kivi.metrics.gains_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.metrics.gains_table</span></code></a></dt><dd><p>The table that this chart draws.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.plotting.roc_chart" title="kivi.plotting.roc_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">roc_chart</span></code></a></dt><dd><p>The same separation over all thresholds.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>Both curves start at the origin, before the first band is reviewed,
+and each band adds one point. The diagonal is the <code class="docutils literal notranslate"><span class="pre">cum_event_share</span></code>
+of a score that ranks at random.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">cum_event_share</span></code> curve is solid and the <code class="docutils literal notranslate"><span class="pre">cum_non_event_share</span></code>
+curve dashed, both in the next color of the Axes’ color cycle, so that
+the gains of several scores drawn on the same <cite>ax</cite> are told apart by
+color and by <cite>label</cite>. The KS segment and its value share that color.
+The legend goes where it covers the fewest points; with several scores
+it has two entries for each, and <code class="docutils literal notranslate"><span class="pre">ax.legend(loc=...)</span></code> moves it.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">gains_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">gains_chart</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">score</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span> <span class="o">=</span> <span class="n">gains_chart</span><span class="p">(</span><span class="n">gains_table</span><span class="p">(</span><span class="n">score</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">3</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span><span class="o">.</span><span class="n">get_xlabel</span><span class="p">()</span>
+<span class="go">'cum_total_share'</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span><span class="o">.</span><span class="n">texts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_text</span><span class="p">()</span>
+<span class="go">'ks = 0.800'</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.plotting.distribution_chart">
+<span class="sig-prename descclassname"><span class="pre">kivi.plotting.</span></span><span class="sig-name descname"><span class="pre">distribution_chart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.plotting.distribution_chart" title="Link to this definition">#</a></dt>
+<dd><p>Draw the share of all non-events and of all events in each group side by side.</p>
+<p>Each row of the table, such as a score band of a gains table or a bin
+of a WOE table, gets a pair of bars: its share of all the non-events of
+the table and its share of all the events, from the raw <code class="docutils literal notranslate"><span class="pre">non_event</span></code>
+and <code class="docutils literal notranslate"><span class="pre">event</span></code> counts. The further apart the two distributions lie, the
+better the score or the variable tells the classes apart.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>table</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>A table from <cite>kivi.metrics.gains_table</cite> or <cite>kivi.woe.woe_table</cite>,
+or one of the tables of a <cite>kivi.spec.BinningSpec</cite>. It needs the
+columns <code class="docutils literal notranslate"><span class="pre">non_event</span></code> and <code class="docutils literal notranslate"><span class="pre">event</span></code>.</p>
+</dd>
+<dt><strong>ax</strong><span class="classifier">matplotlib.axes.Axes, optional</span></dt><dd><p>Axes to draw on. A new figure is created when it is not given.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>matplotlib.axes.Axes</dt><dd><p>The Axes drawn on, <cite>ax</cite> when it is given.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ImportError</dt><dd><p>If matplotlib is not installed.</p>
+</dd>
+<dt>ValueError</dt><dd><p>If <cite>table</cite> is not a DataFrame, lacks a column it needs or has no
+rows, a column it needs is not numeric, a count is negative or not
+finite, the table counts no event or no non-event, or <cite>ax</cite> is not a
+matplotlib Axes.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="metrics.html#kivi.metrics.gains_table" title="kivi.metrics.gains_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.metrics.gains_table</span></code></a></dt><dd><p>Score bands, with the highest first.</p>
+</dd>
+<dt><a class="reference internal" href="woe.html#kivi.woe.woe_table" title="kivi.woe.woe_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.woe.woe_table</span></code></a></dt><dd><p>Bins or groups of a variable.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.plotting.gains_chart" title="kivi.plotting.gains_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gains_chart</span></code></a></dt><dd><p>The cumulative shares of the same bands.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.plotting.psi_chart" title="kivi.plotting.psi_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">psi_chart</span></code></a></dt><dd><p>The shares of two samples in the same groups.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>The bars keep the order of the table, the highest band first for a
+gains table, and its empty rows, so that the charts of two samples
+binned on the same edges line up. The shares are not smoothed, so for
+a group without events or without non-events they differ from the
+<code class="docutils literal notranslate"><span class="pre">event_share</span></code> and <code class="docutils literal notranslate"><span class="pre">non_event_share</span></code> columns of a WOE table, which
+give an empty cell the smoothing. The tick labels are the group labels
+of the index, with <code class="docutils literal notranslate"><span class="pre">NaN</span></code> for the group of missing values.</p>
+<p>The non-events are blue and the events red. The y-axis leaves room at
+the top for the legend, so that it covers no bar.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">gains_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">distribution_chart</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">score</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span> <span class="o">=</span> <span class="n">distribution_chart</span><span class="p">(</span><span class="n">gains_table</span><span class="p">(</span><span class="n">score</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">3</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="n">label</span><span class="o">.</span><span class="n">get_text</span><span class="p">()</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_xticklabels</span><span class="p">()]</span>
+<span class="go">['(3.0, inf]', '(2.0, 3.0]', '(-inf, 2.0]']</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">bar</span><span class="o">.</span><span class="n">get_height</span><span class="p">()</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">bar</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">patches</span><span class="p">]</span>
+<span class="go">['0.00', '0.20', '0.80', '0.67', '0.33', '0.00']</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.plotting.calibration_chart">
+<span class="sig-prename descclassname"><span class="pre">kivi.plotting.</span></span><span class="sig-name descname"><span class="pre">calibration_chart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.plotting.calibration_chart" title="Link to this definition">#</a></dt>
+<dd><p>Draw the observed event rate of each group against its mean predicted PD.</p>
+<p>Each group of the table, such as a grade or a PD band, is one point
+with <code class="docutils literal notranslate"><span class="pre">mean_probability</span></code> on the x-axis and <code class="docutils literal notranslate"><span class="pre">event_rate</span></code> on the
+y-axis. Points on the diagonal are calibrated, points above it have
+more events than predicted and points below it fewer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>table</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>A table from <cite>kivi.calibration.calibration_table</cite>. It needs the
+columns <code class="docutils literal notranslate"><span class="pre">mean_probability</span></code> and <code class="docutils literal notranslate"><span class="pre">event_rate</span></code>.</p>
+</dd>
+<dt><strong>label</strong><span class="classifier">str, optional</span></dt><dd><p>Legend entry of the points. A legend is drawn only when a line has
+a label.</p>
+</dd>
+<dt><strong>ax</strong><span class="classifier">matplotlib.axes.Axes, optional</span></dt><dd><p>Axes to draw on. A new figure is created when it is not given.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>matplotlib.axes.Axes</dt><dd><p>The Axes drawn on, <cite>ax</cite> when it is given.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ImportError</dt><dd><p>If matplotlib is not installed.</p>
+</dd>
+<dt>ValueError</dt><dd><p>If <cite>table</cite> is not a DataFrame, lacks a column it needs or has no
+rows, a column it needs is not numeric, or <cite>ax</cite> is not a matplotlib
+Axes.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="calibration.html#kivi.calibration.calibration_table" title="kivi.calibration.calibration_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.calibration.calibration_table</span></code></a></dt><dd><p>The table that this chart draws.</p>
+</dd>
+<dt><a class="reference internal" href="calibration.html#kivi.calibration.binomial_test" title="kivi.calibration.binomial_test"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.calibration.binomial_test</span></code></a></dt><dd><p>Test the default rate of each grade.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>Both axes run from 0 to just above the largest rate drawn on <cite>ax</cite>, so
+that the diagonal stays at 45 degrees. The points are joined in the
+order of the table and take the next color of the Axes’ color cycle,
+so that the PDs of several models, or the same PDs before and after a
+correction, can be compared on one <cite>ax</cite>.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">calibration_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">calibration_chart</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">grade</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"A"</span><span class="p">,</span> <span class="s2">"A"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"C"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">probability</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span> <span class="o">=</span> <span class="n">calibration_chart</span><span class="p">(</span><span class="n">calibration_table</span><span class="p">(</span><span class="n">grade</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">probability</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span><span class="o">.</span><span class="n">get_xlabel</span><span class="p">(),</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_ylabel</span><span class="p">()</span>
+<span class="go">('mean_probability', 'event_rate')</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.plotting.cutoff_chart">
+<span class="sig-prename descclassname"><span class="pre">kivi.plotting.</span></span><span class="sig-name descname"><span class="pre">cutoff_chart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.plotting.cutoff_chart" title="Link to this definition">#</a></dt>
+<dd><p>Draw the event rate of the approved book against the approval rate.</p>
+<p>Each cut-off of the table is one point, with <code class="docutils literal notranslate"><span class="pre">approval_rate</span></code> on the
+x-axis and <code class="docutils literal notranslate"><span class="pre">approved_event_rate</span></code>, the bad rate of the approved book,
+on the y-axis. A higher cut-off approves more applicants and lets more
+events through, so the curve shows the price in risk of each extra
+point of approval rate.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>table</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>A table from <cite>kivi.strategy.cutoff_table</cite>. It needs the columns
+<code class="docutils literal notranslate"><span class="pre">approval_rate</span></code> and <code class="docutils literal notranslate"><span class="pre">approved_event_rate</span></code>.</p>
+</dd>
+<dt><strong>label</strong><span class="classifier">str, optional</span></dt><dd><p>Legend entry of the curve. A legend is drawn only when a curve has
+a label.</p>
+</dd>
+<dt><strong>ax</strong><span class="classifier">matplotlib.axes.Axes, optional</span></dt><dd><p>Axes to draw on. A new figure is created when it is not given.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>matplotlib.axes.Axes</dt><dd><p>The Axes drawn on, <cite>ax</cite> when it is given.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ImportError</dt><dd><p>If matplotlib is not installed.</p>
+</dd>
+<dt>ValueError</dt><dd><p>If <cite>table</cite> is not a DataFrame, lacks a column it needs or has no
+rows, a column it needs is not numeric, or <cite>ax</cite> is not a matplotlib
+Axes.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="strategy.html#kivi.strategy.cutoff_table" title="kivi.strategy.cutoff_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.strategy.cutoff_table</span></code></a></dt><dd><p>The table that this chart draws.</p>
+</dd>
+<dt><a class="reference internal" href="strategy.html#kivi.strategy.swap_set" title="kivi.strategy.swap_set"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.strategy.swap_set</span></code></a></dt><dd><p>Compare the decisions of two scores.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>A cut-off below every score approves nothing and has a missing
+<code class="docutils literal notranslate"><span class="pre">approved_event_rate</span></code>, so it is left out of the curve. The curve
+takes the next color of the Axes’ color cycle, so that the curves of a
+current and a new score can be compared on one <cite>ax</cite>. The y-axis runs
+from 0 to just above the largest rate drawn on <cite>ax</cite>.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">cutoff_chart</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.strategy</span><span class="w"> </span><span class="kn">import</span> <span class="n">cutoff_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">score</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span> <span class="o">=</span> <span class="n">cutoff_chart</span><span class="p">(</span><span class="n">cutoff_table</span><span class="p">(</span><span class="n">score</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">cutoffs</span><span class="o">=</span><span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span><span class="o">.</span><span class="n">get_xlabel</span><span class="p">(),</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_ylabel</span><span class="p">()</span>
+<span class="go">('approval_rate', 'approved_event_rate')</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.plotting.psi_chart">
+<span class="sig-prename descclassname"><span class="pre">kivi.plotting.</span></span><span class="sig-name descname"><span class="pre">psi_chart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.plotting.psi_chart" title="Link to this definition">#</a></dt>
+<dd><p>Draw the reference and the current share of each group side by side.</p>
+<p>Each group of the table gets a pair of bars, <code class="docutils literal notranslate"><span class="pre">reference_share</span></code> and
+<code class="docutils literal notranslate"><span class="pre">current_share</span></code>, and the legend gives the PSI of the whole table, so
+that the groups whose shares moved most can be read off directly.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>table</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>A table from <cite>kivi.stability.psi_table</cite>. It needs the columns
+<code class="docutils literal notranslate"><span class="pre">reference_share</span></code>, <code class="docutils literal notranslate"><span class="pre">current_share</span></code> and <code class="docutils literal notranslate"><span class="pre">psi</span></code>.</p>
+</dd>
+<dt><strong>ax</strong><span class="classifier">matplotlib.axes.Axes, optional</span></dt><dd><p>Axes to draw on. A new figure is created when it is not given.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>matplotlib.axes.Axes</dt><dd><p>The Axes drawn on, <cite>ax</cite> when it is given.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ImportError</dt><dd><p>If matplotlib is not installed.</p>
+</dd>
+<dt>ValueError</dt><dd><p>If <cite>table</cite> is not a DataFrame, lacks a column it needs or has no
+rows, a column it needs is not numeric, or <cite>ax</cite> is not a matplotlib
+Axes.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="stability.html#kivi.stability.psi_table" title="kivi.stability.psi_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.stability.psi_table</span></code></a></dt><dd><p>The table that this chart draws.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.plotting.monitoring_chart" title="kivi.plotting.monitoring_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">monitoring_chart</span></code></a></dt><dd><p>The PSI of a score in each period.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>The shares are those of the table, so with smoothing a group that is
+empty in one sample shows the small share that smoothing gave it. The
+tick labels are the group labels of the index, with <code class="docutils literal notranslate"><span class="pre">NaN</span></code> for the
+group of missing values.</p>
+<p>The y-axis leaves room at the top for the legend, so that it covers no
+bar.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">psi_chart</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.stability</span><span class="w"> </span><span class="kn">import</span> <span class="n">psi_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">reference</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="s2">"a"</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"c"</span><span class="p">,</span> <span class="s2">"c"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">current</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="s2">"a"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"c"</span><span class="p">,</span> <span class="s2">"c"</span><span class="p">,</span> <span class="s2">"c"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span> <span class="o">=</span> <span class="n">psi_chart</span><span class="p">(</span><span class="n">psi_table</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">current</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span><span class="o">.</span><span class="n">get_legend</span><span class="p">()</span><span class="o">.</span><span class="n">get_title</span><span class="p">()</span><span class="o">.</span><span class="n">get_text</span><span class="p">()</span>
+<span class="go">'psi = 0.183'</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.plotting.monitoring_chart">
+<span class="sig-prename descclassname"><span class="pre">kivi.plotting.</span></span><span class="sig-name descname"><span class="pre">monitoring_chart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'psi'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kind</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'line'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">levels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.plotting.monitoring_chart" title="Link to this definition">#</a></dt>
+<dd><p>Draw one column of a monitoring report period by period.</p>
+<p>The periods of the table run along the x-axis in its order, and
+<cite>column</cite> is drawn as a line or as bars, as <cite>kind</cite> says. Dashed lines can
+mark the <cite>levels</cite> that the column is compared with, such as the PSI
+thresholds or the Gini of the development sample.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>table</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>A table from <cite>kivi.monitoring.monitoring_table</cite>, or another table
+with one row per period, such as one from
+<cite>kivi.monitoring.stability_table</cite>. It needs the column named by
+<cite>column</cite>.</p>
+</dd>
+<dt><strong>column</strong><span class="classifier">str, default ‘psi’</span></dt><dd><p>Column to draw.</p>
+</dd>
+<dt><strong>kind</strong><span class="classifier">{‘line’, ‘bar’}, default ‘line’</span></dt><dd><p>Draw the column as a line, which suits rates and measures such as
+<code class="docutils literal notranslate"><span class="pre">event_rate</span></code> and <code class="docutils literal notranslate"><span class="pre">gini</span></code> and several columns on one <cite>ax</cite>, or as
+bars, which suit counts such as <code class="docutils literal notranslate"><span class="pre">total</span></code> and a single <code class="docutils literal notranslate"><span class="pre">psi</span></code>.</p>
+</dd>
+<dt><strong>label</strong><span class="classifier">str, optional</span></dt><dd><p>Legend entry of the line or the bars. A legend is drawn only when
+something on the Axes has a label.</p>
+</dd>
+<dt><strong>levels</strong><span class="classifier">float or sequence of float, default ()</span></dt><dd><p>Values of <cite>column</cite> to mark with dashed horizontal lines, such as
+the PSI thresholds <code class="docutils literal notranslate"><span class="pre">[0.1,</span> <span class="pre">0.25]</span></code> or the Gini of the development
+sample. Each line is labeled with its value at its right end.</p>
+</dd>
+<dt><strong>ax</strong><span class="classifier">matplotlib.axes.Axes, optional</span></dt><dd><p>Axes to draw on. A new figure is created when it is not given.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>matplotlib.axes.Axes</dt><dd><p>The Axes drawn on, <cite>ax</cite> when it is given.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ImportError</dt><dd><p>If matplotlib is not installed.</p>
+</dd>
+<dt>ValueError</dt><dd><p>If <cite>table</cite> is not a DataFrame, has no rows or has no numeric column
+named <cite>column</cite>, <cite>kind</cite> is neither <code class="docutils literal notranslate"><span class="pre">'line'</span></code> nor <code class="docutils literal notranslate"><span class="pre">'bar'</span></code>, a level
+is not a finite number, or <cite>ax</cite> is not a matplotlib Axes.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="monitoring.html#kivi.monitoring.monitoring_table" title="kivi.monitoring.monitoring_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.monitoring.monitoring_table</span></code></a></dt><dd><p>The table that this chart draws.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.plotting.psi_chart" title="kivi.plotting.psi_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">psi_chart</span></code></a></dt><dd><p>The shares behind the PSI of one period.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>The y-axis is labeled with <cite>column</cite>, or with <code class="docutils literal notranslate"><span class="pre">psi</span></code> when the columns
+of <cite>table</cite> are named <code class="docutils literal notranslate"><span class="pre">variable</span></code>, as those of
+<cite>kivi.monitoring.stability_table</cite> are, whose columns are the PSIs of
+the variables. The x-axis is labeled with the name of the index.</p>
+<p>A missing value, such as the <code class="docutils literal notranslate"><span class="pre">gini</span></code> of a period whose outcomes are
+not known yet, leaves a gap in the line and no bar. To draw several
+columns, call the function once for each: on the panels of one figure
+for columns on different scales, or on one <cite>ax</cite> with a <cite>label</cite> each,
+as for the variables of a stability table. The line or the bars take
+the next color of the Axes’ color cycle, and the legend sits to the
+right of the Axes, so that it covers no line.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.monitoring</span><span class="w"> </span><span class="kn">import</span> <span class="n">monitoring_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">monitoring_chart</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">score</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">period</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"2025-01"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">4</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"2025-02"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">4</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">report</span> <span class="o">=</span> <span class="n">monitoring_table</span><span class="p">(</span><span class="n">score</span><span class="p">,</span> <span class="n">period</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">reference_period</span><span class="o">=</span><span class="s2">"2025-01"</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span> <span class="o">=</span> <span class="n">monitoring_chart</span><span class="p">(</span><span class="n">report</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="s2">"gini"</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="n">label</span><span class="o">.</span><span class="n">get_text</span><span class="p">()</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_xticklabels</span><span class="p">()]</span>
+<span class="go">['2025-01', '2025-02']</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span><span class="o">.</span><span class="n">get_ylabel</span><span class="p">()</span>
+<span class="go">'gini'</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.plotting.vintage_chart">
+<span class="sig-prename descclassname"><span class="pre">kivi.plotting.</span></span><span class="sig-name descname"><span class="pre">vintage_chart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.plotting.vintage_chart" title="Link to this definition">#</a></dt>
+<dd><p>Draw one curve per cohort of its cumulative bad rate by month on book.</p>
+<p>Each row of the table is a cohort and each column a month on book.
+Later cohorts are drawn in darker blue, so that a cohort whose curve
+rises faster than those before it stands out.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>table</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>A table from <cite>kivi.vintage.vintage_table</cite>, with one row per cohort
+and one numeric column per month on book, or another table of the
+same shape, such as cumulative PDs from <cite>kivi.lifetime.convert_pd</cite>.</p>
+</dd>
+<dt><strong>ax</strong><span class="classifier">matplotlib.axes.Axes, optional</span></dt><dd><p>Axes to draw on. A new figure is created when it is not given.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>matplotlib.axes.Axes</dt><dd><p>The Axes drawn on, <cite>ax</cite> when it is given.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ImportError</dt><dd><p>If matplotlib is not installed.</p>
+</dd>
+<dt>ValueError</dt><dd><p>If <cite>table</cite> is not a DataFrame or has no rows, its columns are not
+numbers, it holds a value that is not numeric, or <cite>ax</cite> is not a
+matplotlib Axes.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="vintage.html#kivi.vintage.vintage_table" title="kivi.vintage.vintage_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.vintage.vintage_table</span></code></a></dt><dd><p>The table that this chart draws.</p>
+</dd>
+<dt><a class="reference internal" href="lifetime.html#kivi.lifetime.convert_pd" title="kivi.lifetime.convert_pd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.lifetime.convert_pd</span></code></a></dt><dd><p>Turn the curves into marginal or conditional PDs.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>The missing months of a cohort, those it has not reached or that come
+before its first observed month on book, are left out of its curve.
+The x-axis is labeled with the name of the columns.</p>
+<p>The legend sits to the right of the Axes, so that it covers no curve,
+and is titled with the name of the index. It names every cohort when
+there are at most eight, and otherwise eight cohorts evenly spread from
+the first to the last, since the shades of the others lie between
+theirs. In a figure of several panels, use a layout engine, such as
+<code class="docutils literal notranslate"><span class="pre">layout=&quot;constrained&quot;</span></code>, to make room for it.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">vintage_chart</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.vintage</span><span class="w"> </span><span class="kn">import</span> <span class="n">vintage_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">loan</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cohort</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"2024-01"</span><span class="p">,</span> <span class="s2">"2024-01"</span><span class="p">,</span> <span class="s2">"2024-01"</span><span class="p">,</span> <span class="s2">"2024-01"</span><span class="p">,</span> <span class="s2">"2024-01"</span><span class="p">,</span>
+<span class="gp">... </span>          <span class="s2">"2024-02"</span><span class="p">,</span> <span class="s2">"2024-02"</span><span class="p">,</span> <span class="s2">"2024-02"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">month_on_book</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bad</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span> <span class="o">=</span> <span class="n">vintage_chart</span><span class="p">(</span><span class="n">vintage_table</span><span class="p">(</span><span class="n">loan</span><span class="p">,</span> <span class="n">cohort</span><span class="p">,</span> <span class="n">month_on_book</span><span class="p">,</span> <span class="n">bad</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span><span class="o">.</span><span class="n">get_xlabel</span><span class="p">()</span>
+<span class="go">'month_on_book'</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="n">text</span><span class="o">.</span><span class="n">get_text</span><span class="p">()</span> <span class="k">for</span> <span class="n">text</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_legend</span><span class="p">()</span><span class="o">.</span><span class="n">get_texts</span><span class="p">()]</span>
+<span class="go">['2024-01', '2024-02']</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.plotting.survival_chart">
+<span class="sig-prename descclassname"><span class="pre">kivi.plotting.</span></span><span class="sig-name descname"><span class="pre">survival_chart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cumulative_pd'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.plotting.survival_chart" title="Link to this definition">#</a></dt>
+<dd><p>Draw the cumulative PD or the survival curve of a survival table as steps.</p>
+<p>The curve starts at period 0 with 0 for <code class="docutils literal notranslate"><span class="pre">cumulative_pd</span></code> and 1 for
+<code class="docutils literal notranslate"><span class="pre">survival</span></code> and changes at each period, as steps, which is how the
+Kaplan-Meier estimate behaves between observations. When the table was
+computed with competing risks, the cumulative incidence of the competing
+cause is drawn next to that of the event.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>table</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>A table from <cite>kivi.lifetime.survival_table</cite>. It needs the column
+named by <cite>column</cite>, and with competing risks, which is when it has a
+<code class="docutils literal notranslate"><span class="pre">competing</span></code> column, also <code class="docutils literal notranslate"><span class="pre">at_risk</span></code> and <code class="docutils literal notranslate"><span class="pre">survival</span></code>.</p>
+</dd>
+<dt><strong>column</strong><span class="classifier">{‘cumulative_pd’, ‘survival’}, default ‘cumulative_pd’</span></dt><dd><p>Column to draw. <code class="docutils literal notranslate"><span class="pre">survival</span></code> is the all-cause survival, one curve
+whether or not there are competing risks.</p>
+</dd>
+<dt><strong>label</strong><span class="classifier">str, optional</span></dt><dd><p>Legend entry of the curve, in place of <cite>column</cite>. With competing
+risks it is put in front of the name of each cause, as in
+<code class="docutils literal notranslate"><span class="pre">'high</span> <span class="pre">cumulative_pd'</span></code> and <code class="docutils literal notranslate"><span class="pre">'high</span> <span class="pre">competing'</span></code>.</p>
+</dd>
+<dt><strong>ax</strong><span class="classifier">matplotlib.axes.Axes, optional</span></dt><dd><p>Axes to draw on. A new figure is created when it is not given.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>matplotlib.axes.Axes</dt><dd><p>The Axes drawn on, <cite>ax</cite> when it is given.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ImportError</dt><dd><p>If matplotlib is not installed.</p>
+</dd>
+<dt>ValueError</dt><dd><p>If <cite>table</cite> is not a DataFrame, lacks a column it needs or has no
+rows, a column it needs is not numeric, <cite>column</cite> is neither
+<code class="docutils literal notranslate"><span class="pre">'cumulative_pd'</span></code> nor <code class="docutils literal notranslate"><span class="pre">'survival'</span></code>, or <cite>ax</cite> is not a matplotlib
+Axes.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="lifetime.html#kivi.lifetime.survival_table" title="kivi.lifetime.survival_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.lifetime.survival_table</span></code></a></dt><dd><p>The table that this chart draws.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.plotting.vintage_chart" title="kivi.plotting.vintage_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vintage_chart</span></code></a></dt><dd><p>Cumulative bad rates by cohort.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>With competing risks and <code class="docutils literal notranslate"><span class="pre">column='cumulative_pd'</span></code> the legend names
+the curves <code class="docutils literal notranslate"><span class="pre">cumulative_pd</span></code> and <code class="docutils literal notranslate"><span class="pre">competing</span></code>. The cumulative
+incidence of the competing cause is the sum of the all-cause survival
+of the previous period times <code class="docutils literal notranslate"><span class="pre">competing</span></code> over <code class="docutils literal notranslate"><span class="pre">at_risk</span></code>, as that of
+the event is, so the two curves and the survival add up to 1. Periods
+after the last one with accounts at risk have no value and end the
+curves.</p>
+<p>The curve starts one period before the first row of the table, so a
+slice of a table starts at its own first period, and it is drawn one
+period beyond the last row so that the last change is visible. The
+limits of the axes cover every curve already drawn on <cite>ax</cite>, so the
+curves of several tables, each with a <cite>label</cite>, can share one. A table
+without a single value, which is what <cite>kivi.lifetime.survival_table</cite>
+gives when nobody is at risk in its first period, draws an empty
+chart: a flat line at the start value.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.lifetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">survival_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">survival_chart</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span> <span class="o">=</span> <span class="n">survival_table</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span> <span class="o">=</span> <span class="n">survival_chart</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span><span class="o">.</span><span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_ydata</span><span class="p">()</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<span class="go">[0.0, 0.2, 0.2, 0.733, 0.733, 0.733]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span><span class="o">.</span><span class="n">get_xlabel</span><span class="p">(),</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_ylabel</span><span class="p">()</span>
+<span class="go">('period', 'cumulative_pd')</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.plotting.transition_chart">
+<span class="sig-prename descclassname"><span class="pre">kivi.plotting.</span></span><span class="sig-name descname"><span class="pre">transition_chart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.plotting.transition_chart" title="Link to this definition">#</a></dt>
+<dd><p>Draw a transition matrix as a heatmap with the value in each cell.</p>
+<p>The rows are the states before and the columns the states after. The
+shade of a cell is the share of its row that moved there, so that a
+table of counts and one of shares look alike, and the diagonal, the
+entities that stayed, is outlined in amber.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>table</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>A table from <cite>kivi.vintage.transition_matrix</cite>, counts or shares
+(<code class="docutils literal notranslate"><span class="pre">normalize=True</span></code>), with the states before in its index and the
+states after in its columns. Missing values leave their cells
+empty.</p>
+</dd>
+<dt><strong>ax</strong><span class="classifier">matplotlib.axes.Axes, optional</span></dt><dd><p>Axes to draw on. A new figure, sized to the number of states, is
+created when it is not given.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>matplotlib.axes.Axes</dt><dd><p>The Axes drawn on, <cite>ax</cite> when it is given.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ImportError</dt><dd><p>If matplotlib is not installed.</p>
+</dd>
+<dt>ValueError</dt><dd><p>If <cite>table</cite> is not a DataFrame, has no rows or fewer than two
+columns, has a column that is not numeric or a negative value, or
+<cite>ax</cite> is not a matplotlib Axes.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="vintage.html#kivi.vintage.transition_matrix" title="kivi.vintage.transition_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.vintage.transition_matrix</span></code></a></dt><dd><p>The table that this chart draws.</p>
+</dd>
+<dt><a class="reference internal" href="vintage.html#kivi.vintage.roll_rates" title="kivi.vintage.roll_rates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.vintage.roll_rates</span></code></a></dt><dd><p>The share of each state that moved to the next worse one.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.plotting.correlation_chart" title="kivi.plotting.correlation_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">correlation_chart</span></code></a></dt><dd><p>A heatmap of a correlation matrix.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>A cell is outlined when its row label equals its column label, so a
+matrix whose states before and after are not the same set has an
+outline only where they meet. Whole numbers below 10,000 are written
+in full, shares, when no value exceeds 1, with two decimals, and any
+other value with three significant digits and a suffix <code class="docutils literal notranslate"><span class="pre">K</span></code>, <code class="docutils literal notranslate"><span class="pre">M</span></code> or
+<code class="docutils literal notranslate"><span class="pre">B</span></code>, so that weighted counts fit their cells. The
+heatmap is <code class="docutils literal notranslate"><span class="pre">ax.images[0]</span></code>. The axes are labeled with the names of
+the index and the columns, <code class="docutils literal notranslate"><span class="pre">before</span></code> and <code class="docutils literal notranslate"><span class="pre">after</span></code> for the output of
+<cite>kivi.vintage.transition_matrix</cite>.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">transition_chart</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.vintage</span><span class="w"> </span><span class="kn">import</span> <span class="n">transition_matrix</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">before</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"a"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">,</span> <span class="s2">"c"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"c"</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">,</span> <span class="s2">"c"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">after</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"a"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"c"</span><span class="p">,</span> <span class="s2">"c"</span><span class="p">,</span> <span class="s2">"c"</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span> <span class="o">=</span> <span class="n">transition_chart</span><span class="p">(</span><span class="n">transition_matrix</span><span class="p">(</span><span class="n">before</span><span class="p">,</span> <span class="n">after</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="n">text</span><span class="o">.</span><span class="n">get_text</span><span class="p">()</span> <span class="k">for</span> <span class="n">text</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">texts</span><span class="p">]</span>
+<span class="go">['2', '1', '0', '0', '1', '1', '0', '1', '2']</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span><span class="o">.</span><span class="n">get_xlabel</span><span class="p">(),</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_ylabel</span><span class="p">()</span>
+<span class="go">('after', 'before')</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.plotting.rule_set_chart">
+<span class="sig-prename descclassname"><span class="pre">kivi.plotting.</span></span><span class="sig-name descname"><span class="pre">rule_set_chart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.plotting.rule_set_chart" title="Link to this definition">#</a></dt>
+<dd><p>Draw the share of the book that each rule declines and the approval rate left.</p>
+<p>A rule set is a waterfall: each rule declines only the applicants that
+no earlier rule declined. The bars show the <code class="docutils literal notranslate"><span class="pre">new_hits</span></code> of each rule,
+in the order of the table, as a share of all rows, and a line shows the
+<code class="docutils literal notranslate"><span class="pre">approval_rate</span></code> of the book after the rule, on the same axis. The
+approval rate after a rule is therefore the one before it minus its
+bar, and the first starts from 100%.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>table</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>A table from <cite>kivi.rules.rule_set_table</cite>. It needs the columns
+<code class="docutils literal notranslate"><span class="pre">new_hits</span></code>, <code class="docutils literal notranslate"><span class="pre">approved</span></code> and <code class="docutils literal notranslate"><span class="pre">approval_rate</span></code>.</p>
+</dd>
+<dt><strong>ax</strong><span class="classifier">matplotlib.axes.Axes, optional</span></dt><dd><p>Axes to draw on. A new figure is created when it is not given.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>matplotlib.axes.Axes</dt><dd><p>The Axes drawn on, <cite>ax</cite> when it is given.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ImportError</dt><dd><p>If matplotlib is not installed.</p>
+</dd>
+<dt>ValueError</dt><dd><p>If <cite>table</cite> is not a DataFrame, lacks a column it needs or has no
+rows, a column it needs is not numeric, or <cite>ax</cite> is not a matplotlib
+Axes.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="rules.html#kivi.rules.rule_set_table" title="kivi.rules.rule_set_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.rules.rule_set_table</span></code></a></dt><dd><p>The table that this chart draws.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.plotting.cutoff_chart" title="kivi.plotting.cutoff_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cutoff_chart</span></code></a></dt><dd><p>The same trade-off for a score instead of rules.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>The total that the bars are shares of is the <code class="docutils literal notranslate"><span class="pre">approved</span></code> of the first
+rule plus its <code class="docutils literal notranslate"><span class="pre">new_hits</span></code>, so it counts every row of the rules,
+outcomes known or not, and is a total weight when the table was
+computed with weights. The tick labels are the rule names of the index.
+The legend sits at the top of the Axes, where it covers no bar and no
+point.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">rule_set_chart</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.rules</span><span class="w"> </span><span class="kn">import</span> <span class="n">rule_set_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rules</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">{</span><span class="s2">"high_debt"</span><span class="p">:</span> <span class="p">[</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">],</span> <span class="s2">"young"</span><span class="p">:</span> <span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">]}</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span> <span class="o">=</span> <span class="n">rule_set_chart</span><span class="p">(</span><span class="n">rule_set_table</span><span class="p">(</span><span class="n">rules</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">patch</span><span class="o">.</span><span class="n">get_height</span><span class="p">())</span> <span class="k">for</span> <span class="n">patch</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">patches</span><span class="p">]</span>
+<span class="go">[0.5, 0.25]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span><span class="o">.</span><span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_ydata</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<span class="go">[0.5, 0.25]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.plotting.profit_chart">
+<span class="sig-prename descclassname"><span class="pre">kivi.plotting.</span></span><span class="sig-name descname"><span class="pre">profit_chart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.plotting.profit_chart" title="Link to this definition">#</a></dt>
+<dd><p>Draw the profit against the approval rate and mark the best cut-off.</p>
+<p>Each cut-off of the table is one point, with <code class="docutils literal notranslate"><span class="pre">approval_rate</span></code> on the
+x-axis and <code class="docutils literal notranslate"><span class="pre">profit</span></code>, the revenue minus the loss of the approved book,
+on the y-axis. The cut-off with the highest profit is marked in amber
+and labeled with its value and its profit, and a dotted line marks
+zero profit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>table</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>A table from <cite>kivi.strategy.cutoff_table</cite> computed with both
+<cite>loss</cite> and <cite>revenue</cite>. It needs the columns <code class="docutils literal notranslate"><span class="pre">approval_rate</span></code> and
+<code class="docutils literal notranslate"><span class="pre">profit</span></code>.</p>
+</dd>
+<dt><strong>label</strong><span class="classifier">str, optional</span></dt><dd><p>Legend entry of the curve. A legend is drawn only when a curve has
+a label.</p>
+</dd>
+<dt><strong>ax</strong><span class="classifier">matplotlib.axes.Axes, optional</span></dt><dd><p>Axes to draw on. A new figure is created when it is not given.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>matplotlib.axes.Axes</dt><dd><p>The Axes drawn on, <cite>ax</cite> when it is given.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ImportError</dt><dd><p>If matplotlib is not installed.</p>
+</dd>
+<dt>ValueError</dt><dd><p>If <cite>table</cite> is not a DataFrame, lacks a column it needs or has no
+rows, a column it needs is not numeric, no row has a profit, or
+<cite>ax</cite> is not a matplotlib Axes.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="strategy.html#kivi.strategy.cutoff_table" title="kivi.strategy.cutoff_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.strategy.cutoff_table</span></code></a></dt><dd><p>The table that this chart draws.</p>
+</dd>
+<dt><a class="reference internal" href="metrics.html#kivi.metrics.expected_maximum_profit" title="kivi.metrics.expected_maximum_profit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.metrics.expected_maximum_profit</span></code></a></dt><dd><p>The profit of the best cut-off under a loss distribution.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.plotting.cutoff_chart" title="kivi.plotting.cutoff_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cutoff_chart</span></code></a></dt><dd><p>The event rate against the approval rate.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>The best cut-off is the first row with the largest profit, in the
+order of the table, and rows with a missing profit are left out. Its
+label shows the index of the row, the cut-off, with four significant
+digits. The curve takes the next color of the Axes’ color cycle, so
+that the tables of a current and a new score can be compared on one
+<cite>ax</cite>, each with a <cite>label</cite>; the best cut-off of each is marked in amber.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">profit_chart</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.strategy</span><span class="w"> </span><span class="kn">import</span> <span class="n">cutoff_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">score</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">loss</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span> <span class="o">=</span> <span class="n">cutoff_table</span><span class="p">(</span><span class="n">score</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">cutoffs</span><span class="o">=</span><span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">],</span> <span class="n">loss</span><span class="o">=</span><span class="n">loss</span><span class="p">,</span> <span class="n">revenue</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="mi">6</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span> <span class="o">=</span> <span class="n">profit_chart</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span><span class="o">.</span><span class="n">texts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_text</span><span class="p">()</span>
+<span class="go">'cutoff = 0.3, profit = 3'</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.plotting.lgd_chart">
+<span class="sig-prename descclassname"><span class="pre">kivi.plotting.</span></span><span class="sig-name descname"><span class="pre">lgd_chart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.plotting.lgd_chart" title="Link to this definition">#</a></dt>
+<dd><p>Draw the mean LGD of each group with its shares of zero and full losses.</p>
+<p>Each group of the table gets three bars: <code class="docutils literal notranslate"><span class="pre">mean</span></code>, the average LGD,
+<code class="docutils literal notranslate"><span class="pre">zero_share</span></code>, the share of its exposures that lost nothing, and
+<code class="docutils literal notranslate"><span class="pre">full_share</span></code>, the share that lost everything or more. The shares make
+visible the bimodal shape that a mean hides.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>table</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>A table from <cite>kivi.lgd.lgd_table</cite>. It needs the columns <code class="docutils literal notranslate"><span class="pre">mean</span></code>,
+<code class="docutils literal notranslate"><span class="pre">zero_share</span></code> and <code class="docutils literal notranslate"><span class="pre">full_share</span></code>.</p>
+</dd>
+<dt><strong>ax</strong><span class="classifier">matplotlib.axes.Axes, optional</span></dt><dd><p>Axes to draw on. A new figure is created when it is not given.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>matplotlib.axes.Axes</dt><dd><p>The Axes drawn on, <cite>ax</cite> when it is given.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ImportError</dt><dd><p>If matplotlib is not installed.</p>
+</dd>
+<dt>ValueError</dt><dd><p>If <cite>table</cite> is not a DataFrame, lacks a column it needs or has no
+rows, a column it needs is not numeric, or <cite>ax</cite> is not a matplotlib
+Axes.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="lgd.html#kivi.lgd.lgd_table" title="kivi.lgd.lgd_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.lgd.lgd_table</span></code></a></dt><dd><p>The table that this chart draws.</p>
+</dd>
+<dt><a class="reference internal" href="lgd.html#kivi.lgd.workout_lgd" title="kivi.lgd.workout_lgd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.lgd.workout_lgd</span></code></a></dt><dd><p>The realized LGDs of the loans.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.plotting.psi_chart" title="kivi.plotting.psi_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">psi_chart</span></code></a></dt><dd><p>Bars of two shares side by side for each group.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>All three bars are on one percent axis, which runs below 0 or above
+100% when a mean LGD does, as realized LGDs can. The tick labels are
+the group labels of the index, and the legend sits at the top, where it
+covers no bar. A group with a missing <code class="docutils literal notranslate"><span class="pre">mean</span></code> has no such bar.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.lgd</span><span class="w"> </span><span class="kn">import</span> <span class="n">lgd_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">lgd_chart</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span> <span class="o">=</span> <span class="n">lgd_table</span><span class="p">([</span><span class="s2">"a"</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span> <span class="o">=</span> <span class="n">lgd_chart</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">patch</span><span class="o">.</span><span class="n">get_height</span><span class="p">()),</span> <span class="mi">3</span><span class="p">)</span> <span class="k">for</span> <span class="n">patch</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">patches</span><span class="p">]</span>
+<span class="go">[0.25, 1.1, 0.5, 0.0, 0.0, 1.0]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="lifetime.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Lifetime PD and expected credit loss</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="datasets.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Example data</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.plotting.woe_chart"><code class="docutils literal notranslate"><span class="pre">woe_chart()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.plotting.correlation_chart"><code class="docutils literal notranslate"><span class="pre">correlation_chart()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.plotting.roc_chart"><code class="docutils literal notranslate"><span class="pre">roc_chart()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.plotting.precision_recall_chart"><code class="docutils literal notranslate"><span class="pre">precision_recall_chart()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.plotting.gains_chart"><code class="docutils literal notranslate"><span class="pre">gains_chart()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.plotting.distribution_chart"><code class="docutils literal notranslate"><span class="pre">distribution_chart()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.plotting.calibration_chart"><code class="docutils literal notranslate"><span class="pre">calibration_chart()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.plotting.cutoff_chart"><code class="docutils literal notranslate"><span class="pre">cutoff_chart()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.plotting.psi_chart"><code class="docutils literal notranslate"><span class="pre">psi_chart()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.plotting.monitoring_chart"><code class="docutils literal notranslate"><span class="pre">monitoring_chart()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.plotting.vintage_chart"><code class="docutils literal notranslate"><span class="pre">vintage_chart()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.plotting.survival_chart"><code class="docutils literal notranslate"><span class="pre">survival_chart()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.plotting.transition_chart"><code class="docutils literal notranslate"><span class="pre">transition_chart()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.plotting.rule_set_chart"><code class="docutils literal notranslate"><span class="pre">rule_set_chart()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.plotting.profit_chart"><code class="docutils literal notranslate"><span class="pre">profit_chart()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.plotting.lgd_chart"><code class="docutils literal notranslate"><span class="pre">lgd_chart()</span></code></a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1.
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

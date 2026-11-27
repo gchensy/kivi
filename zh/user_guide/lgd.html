@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>LGD 与 EAD &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=d005c095" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=14f9d491"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script src="../_static/translations.js?v=540d3cec"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/lgd';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="next" title="信贷策略" href="strategy.html" />
+    <link rel="prev" title="校准" href="calibration.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+  <meta name="docsearch:version" content="1.9.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">跳转至主要内容</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>回到顶部</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="版本警告"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="网页导航" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 1.9.0">1.9.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    教程
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../../en/user_guide/lgd.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="当前页面" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    教程
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../../en/user_guide/lgd.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="章节导航">
+  <p class="bd-links__title" role="heading" aria-level="1">章节导航</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="risk_workflow.html">风控建模流程</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">时间窗特征</a></li>
+<li class="toctree-l1"><a class="reference internal" href="univariate.html">单变量概况</a></li>
+<li class="toctree-l1"><a class="reference internal" href="binning.html">分箱</a></li>
+<li class="toctree-l1"><a class="reference internal" href="woe_iv.html">证据权重与信息值</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selection.html">变量筛选</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reject_inference.html">拒绝推断</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scorecard.html">评分卡</a></li>
+<li class="toctree-l1"><a class="reference internal" href="expert.html">专家评分卡</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">模型表现</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">校准</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">LGD 与 EAD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">信贷策略</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rules.html">政策规则</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spec.html">分箱方案</a></li>
+<li class="toctree-l1"><a class="reference internal" href="psi.html">群体稳定性指标</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">模型监控</a></li>
+<li class="toctree-l1"><a class="reference internal" href="validation.html">模型验证</a></li>
+<li class="toctree-l1"><a class="reference internal" href="capital.html">监管资本</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vintage.html">Vintage 与滚动率分析</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lifetime.html">存续期 PD 与预期信用损失</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html">图表</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">示例数据</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="初始页面">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">用户指南</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">LGD 与 EAD</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="lgd-and-ead">
+<h1>LGD 与 EAD<a class="headerlink" href="#lgd-and-ead" title="链接到此标题。">#</a></h1>
+<p>借款人违约时，银行损失的是清收未能收回的那部分敞口。违约损失率（LGD）是这一损失占违约风险敞口（EAD）的比例；对授信额度而言，EAD 还包括借款人在参考日与违约之间提用的金额，这由信用转换系数（CCF）度量。LGD 和 EAD 与 PD 一起构成每笔敞口的预期损失和资本要求。</p>
+<p>PD 来自上一篇指南 <a class="reference internal" href="calibration.html"><span class="doc">校准</span></a> ，三个参数给出的预期损失见下一篇指南 <a class="reference internal" href="strategy.html"><span class="doc">信贷策略</span></a> ， <a class="reference internal" href="validation.html"><span class="doc">模型验证</span></a> 按监管要求回测 LGD 和 CCF 估计值， <a class="reference internal" href="capital.html"><span class="doc">监管资本</span></a> 则把它们转化为资本要求。 <a class="reference internal" href="../api/lgd.html#kivi.lgd.workout_lgd" title="kivi.lgd.workout_lgd"><code class="xref py py-func docutils literal notranslate"><span class="pre">workout_lgd()</span></code></a> 由清收现金流给出每笔违约贷款的实际 LGD， <a class="reference internal" href="../api/lgd.html#kivi.lgd.conversion_factor" title="kivi.lgd.conversion_factor"><code class="xref py py-func docutils literal notranslate"><span class="pre">conversion_factor()</span></code></a> 给出每个授信额度的实际 CCF。 <a class="reference internal" href="../api/lgd.html#kivi.lgd.lgd_table" title="kivi.lgd.lgd_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">lgd_table()</span></code></a> 按分组汇总实际 LGD， <a class="reference internal" href="../api/binning.html#kivi.binning.variance_edges" title="kivi.binning.variance_edges"><code class="xref py py-func docutils literal notranslate"><span class="pre">variance_edges()</span></code></a> 按实际 LGD 拟合驱动因素的分箱， <a class="reference internal" href="../api/lgd.html#kivi.lgd.fractional_regression" title="kivi.lgd.fractional_regression"><code class="xref py py-func docutils literal notranslate"><span class="pre">fractional_regression()</span></code></a> 同时对多个驱动因素为其建模。</p>
+<section id="definitions">
+<h2>定义<a class="headerlink" href="#definitions" title="链接到此标题。">#</a></h2>
+<p>清收通过还款、处置押品或治愈从违约贷款中收回资金，也要花费资金，例如法律费用。日期 <span class="math notranslate nohighlight">\(t_j\)</span> 上金额为 <span class="math notranslate nohighlight">\(a_j\)</span> 的现金流（回收为正，费用为负）按年利率 <span class="math notranslate nohighlight">\(r\)</span> 折现到违约日 <span class="math notranslate nohighlight">\(t_D\)</span> ，天数按 ACT/365 计算：</p>
+<div class="math notranslate nohighlight">
+\[\mathrm{PV}_j = a_j \, (1 + r)^{-(t_j - t_D) / 365}.\]</div>
+<p>记回收现值之和为 <span class="math notranslate nohighlight">\(R\)</span> ，费用现值之和（记为正数）为 <span class="math notranslate nohighlight">\(C\)</span> ，实际 LGD 就是经济损失占违约风险敞口的比例：</p>
+<div class="math notranslate nohighlight">
+\[\mathrm{LGD} = \frac{\mathrm{EAD} + C - R}{\mathrm{EAD}}.\]</div>
+<p>参考日额度为 <span class="math notranslate nohighlight">\(L\)</span> 、提用金额为 <span class="math notranslate nohighlight">\(D\)</span> 、违约时提用金额为 <span class="math notranslate nohighlight">\(E\)</span> 的授信额度，其实际 CCF 为</p>
+<div class="math notranslate nohighlight">
+\[\mathrm{CCF} = \frac{E - D}{L - D},\]</div>
+<p>即其未提用部分中到违约时已提用的比例。两个量都不截断：回收超过敞口时 LGD 为负，费用超过回收时 LGD 大于 1，参考日之后还款时 CCF 为负，参考日之后额度提高时 CCF 大于 1。</p>
+</section>
+<section id="a-worked-example">
+<h2>计算示例<a class="headerlink" href="#a-worked-example" title="链接到此标题。">#</a></h2>
+<p>三笔贷款于 2023 年 1 月 1 日违约，其清收按每年 10% 折现。贷款 A 在违约一年后回收 55、发生费用 11；贷款 B 在违约当天回收了全部敞口，此前一年发生了 5 的法律费用；贷款 C 还没有现金流：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.lgd</span><span class="w"> </span><span class="kn">import</span> <span class="n">workout_lgd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">workout_lgd</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="s2">"A"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"C"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="s2">"2023-01-01"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">3</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="mf">100.0</span><span class="p">,</span> <span class="mf">200.0</span><span class="p">,</span> <span class="mf">50.0</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="s2">"A"</span><span class="p">,</span> <span class="s2">"A"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="s2">"2024-01-01"</span><span class="p">,</span> <span class="s2">"2024-01-01"</span><span class="p">,</span> <span class="s2">"2022-01-01"</span><span class="p">,</span> <span class="s2">"2023-01-01"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="mf">55.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">11.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">5.0</span><span class="p">,</span> <span class="mf">200.0</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">rate</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+<span class="gp">... </span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">        ead  recovery  cost     lgd</span>
+<span class="go">loan</span>
+<span class="go">A     100.0      50.0  10.0  0.6000</span>
+<span class="go">B     200.0     200.0   5.5  0.0275</span>
+<span class="go">C      50.0       0.0   0.0  1.0000</span>
+</pre></div>
+</div>
+<p>违约一年后，贷款 A 的现金流价值为 55 / 1.1 = 50 和 11 / 1.1 = 10，因此它在 100 的敞口中损失了 100 + 10 − 50 = 60。贷款 B 违约前一年的费用复利计算为 5 × 1.1 = 5.5，因此 B 虽然收回了全部敞口，仍在 200 中损失了 5.5。贷款 C 尚无任何回收，LGD 为 1；只有它的清收已经结案，这才是它的实际 LGD。</p>
+</section>
+<section id="workout-lgd">
+<h2>清收 LGD<a class="headerlink" href="#workout-lgd" title="链接到此标题。">#</a></h2>
+<p>违约贷款是一张表，每笔贷款一行；清收现金流是另一张表，每笔现金流一行，与银行系统的记录方式相同。 <a class="reference internal" href="../api/datasets.html#kivi.datasets.make_defaults" title="kivi.datasets.make_defaults"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_defaults()</span></code></a> 和 <a class="reference internal" href="../api/datasets.html#kivi.datasets.make_recoveries" title="kivi.datasets.make_recoveries"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_recoveries()</span></code></a> 模拟这样的表，见 <a class="reference internal" href="datasets.html"><span class="doc">示例数据</span></a> 。每笔贷款有自己的 <code class="docutils literal notranslate"><span class="pre">discount_rate</span></code> ，即按 EBA 指引第 143 段的要求取违约当月的货币市场利率加 5 个百分点，因此把它作为 <code class="docutils literal notranslate"><span class="pre">rate</span></code> 传入：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_defaults</span><span class="p">,</span> <span class="n">make_recoveries</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">defaults</span> <span class="o">=</span> <span class="n">make_defaults</span><span class="p">(</span><span class="n">rng</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">flows</span> <span class="o">=</span> <span class="n">make_recoveries</span><span class="p">(</span><span class="n">defaults</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">workout_lgd</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">defaults</span><span class="p">[</span><span class="s2">"loan_id"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">defaults</span><span class="p">[</span><span class="s2">"default_date"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">defaults</span><span class="p">[</span><span class="s2">"ead"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">flows</span><span class="p">[</span><span class="s2">"loan_id"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">flows</span><span class="p">[</span><span class="s2">"date"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">flows</span><span class="p">[</span><span class="s2">"amount"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">rate</span><span class="o">=</span><span class="n">defaults</span><span class="p">[</span><span class="s2">"discount_rate"</span><span class="p">],</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span><span class="o">.</span><span class="n">head</span><span class="p">()</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">            ead     recovery       cost     lgd</span>
+<span class="go">loan</span>
+<span class="go">1     307147.39  221340.3613  9282.0042  0.3096</span>
+<span class="go">2       2471.68     392.8536   190.9515  0.9183</span>
+<span class="go">3      23456.26   22385.7845    26.7730  0.0468</span>
+<span class="go">4      14235.26    2049.2144   508.3363  0.8918</span>
+<span class="go">5       7642.49     227.7722   236.7750  1.0012</span>
+</pre></div>
+</div>
+<p>这就是 <a class="reference internal" href="datasets.html"><span class="doc">示例数据</span></a> 用 pandas 逐笔现金流计算的 LGD。有押品的贷款 1 在一年半后处置了押品，无押品的贷款 3 已治愈，贷款 5 的费用超过了回收，因此损失超过了其敞口。101 笔贷款在违约前支付的法律费用复利计算到违约日后计入。</p>
+<section id="closed-workouts">
+<h3>已结案的清收<a class="headerlink" href="#closed-workouts" title="链接到此标题。">#</a></h3>
+<p><a class="reference internal" href="../api/lgd.html#kivi.lgd.workout_lgd" title="kivi.lgd.workout_lgd"><code class="xref py py-func docutils literal notranslate"><span class="pre">workout_lgd()</span></code></a> 不知道清收是否已经结束，给出的是到目前为止的现金流造成的损失。实际 LGD 只对已结案的清收成立：长期平均和回测使用按银行对清收结束的定义回收过程已结案的违约，不计其他违约的预期未来回收。这里有 <code class="docutils literal notranslate"><span class="pre">closing_date</span></code> 的清收已经结案：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">loans</span> <span class="o">=</span> <span class="n">defaults</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">"loan_id"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">closed</span> <span class="o">=</span> <span class="n">loans</span><span class="p">[</span><span class="s2">"closing_date"</span><span class="p">]</span><span class="o">.</span><span class="n">notna</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">int</span><span class="p">(</span><span class="n">closed</span><span class="o">.</span><span class="n">sum</span><span class="p">()),</span> <span class="nb">int</span><span class="p">((</span><span class="o">~</span><span class="n">closed</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+<span class="go">(1722, 278)</span>
+</pre></div>
+</div>
+<p>未结案的清收仍计入监管所指的长期平均，长期平均要对它们作调整；kivi 把这一调整留给银行自己对未来回收的估计。</p>
+</section>
+<section id="drawings-write-offs-and-cures">
+<h3>追加提款、核销和治愈<a class="headerlink" href="#drawings-write-offs-and-cures" title="链接到此标题。">#</a></h3>
+<p>现金流和敞口由调用者选定，EBA 的指引规定了如何选定：</p>
+<ul class="simple">
+<li><p><strong>治愈</strong> 使贷款恢复正常。它计为一笔回收，金额为治愈日的未偿金额，模拟数据中 <code class="docutils literal notranslate"><span class="pre">kind</span></code> 为 <code class="docutils literal notranslate"><span class="pre">&quot;cure&quot;</span></code> 的现金流就是如此。</p></li>
+<li><p>违约时或违约前 <strong>核销的金额</strong> 属于敞口，从而同样计入损失和 EAD。</p></li>
+<li><p><strong>违约后资本化的利息和费用</strong> 不是现金流，但它们的回收是。</p></li>
+<li><p><strong>违约后的追加提款</strong> 是负现金流，与费用相同，从而计入损失。若 CCF 包含追加提款，EBA 把它们也计入敞口。此时把它们的现值加到 <code class="docutils literal notranslate"><span class="pre">ead</span></code> 上，而不是作为现金流传入，因为敞口也计入损失。</p></li>
+</ul>
+<p>一个授信额度违约时敞口为 10,000，两个月后又提用了 2,000，一年后回收 9,000。作为现金流，追加提款提高了损失：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">line</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"loan"</span><span class="p">:</span> <span class="p">[</span><span class="mi">7</span><span class="p">],</span> <span class="s2">"default_date"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"2023-03-01"</span><span class="p">]}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">workout_lgd</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="o">*</span><span class="n">line</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span> <span class="p">[</span><span class="mf">10_000.0</span><span class="p">],</span> <span class="p">[</span><span class="mi">7</span><span class="p">,</span> <span class="mi">7</span><span class="p">],</span> <span class="p">[</span><span class="s2">"2023-05-01"</span><span class="p">,</span> <span class="s2">"2024-02-29"</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mf">2_000.0</span><span class="p">,</span> <span class="mf">9_000.0</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">rate</span><span class="o">=</span><span class="mf">0.06</span><span class="p">,</span>
+<span class="gp">... </span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">          ead  recovery       cost    lgd</span>
+<span class="go">loan</span>
+<span class="go">7     10000.0  8490.566  1980.6183  0.349</span>
+</pre></div>
+</div>
+<p>若 CCF 包含追加提款，它的现值（只传入追加提款调用一次所得的 <code class="docutils literal notranslate"><span class="pre">cost</span></code> ）转入敞口：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">drawing</span> <span class="o">=</span> <span class="n">workout_lgd</span><span class="p">(</span><span class="o">*</span><span class="n">line</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span> <span class="p">[</span><span class="mf">10_000.0</span><span class="p">],</span> <span class="p">[</span><span class="mi">7</span><span class="p">],</span> <span class="p">[</span><span class="s2">"2023-05-01"</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mf">2_000.0</span><span class="p">],</span> <span class="n">rate</span><span class="o">=</span><span class="mf">0.06</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ead</span> <span class="o">=</span> <span class="mf">10_000.0</span> <span class="o">+</span> <span class="n">drawing</span><span class="p">[</span><span class="s2">"cost"</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">workout_lgd</span><span class="p">(</span><span class="o">*</span><span class="n">line</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span> <span class="n">ead</span><span class="p">,</span> <span class="p">[</span><span class="mi">7</span><span class="p">],</span> <span class="p">[</span><span class="s2">"2024-02-29"</span><span class="p">],</span> <span class="p">[</span><span class="mf">9_000.0</span><span class="p">],</span> <span class="n">rate</span><span class="o">=</span><span class="mf">0.06</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">             ead  recovery  cost     lgd</span>
+<span class="go">loan</span>
+<span class="go">7     11980.6183  8490.566   0.0  0.2913</span>
+</pre></div>
+</div>
+<p>追加提款仍在损失中计一次，现在也计入敞口，因此 LGD 从 0.349 降到 0.2913。</p>
+</section>
+</section>
+<section id="credit-conversion-factors">
+<h2>信用转换系数<a class="headerlink" href="#credit-conversion-factors" title="链接到此标题。">#</a></h2>
+<p>违约授信额度的 CCF 把违约时的提用金额与参考日的额度和提用金额相比较。监管取违约前 12 个月为参考日，即固定期限法，额度取该日的值，即已告知额度与未告知额度中的较大者；之后提高的额度不进入分母。模拟违约中的循环额度带有该日的 <code class="docutils literal notranslate"><span class="pre">limit</span></code> 和 <code class="docutils literal notranslate"><span class="pre">drawn</span></code> 金额：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.lgd</span><span class="w"> </span><span class="kn">import</span> <span class="n">conversion_factor</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">revolving</span> <span class="o">=</span> <span class="n">loans</span><span class="p">[</span><span class="n">loans</span><span class="p">[</span><span class="s2">"segment"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"revolving"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ccf</span> <span class="o">=</span> <span class="n">conversion_factor</span><span class="p">(</span><span class="n">revolving</span><span class="p">[</span><span class="s2">"ead"</span><span class="p">],</span> <span class="n">revolving</span><span class="p">[</span><span class="s2">"drawn"</span><span class="p">],</span> <span class="n">revolving</span><span class="p">[</span><span class="s2">"limit"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ccf</span><span class="o">.</span><span class="n">describe</span><span class="p">()</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">count    464.000</span>
+<span class="go">mean       0.553</span>
+<span class="go">std        0.707</span>
+<span class="go">min       -3.263</span>
+<span class="go">25%        0.291</span>
+<span class="go">50%        0.554</span>
+<span class="go">75%        0.823</span>
+<span class="go">max        9.332</span>
+<span class="go">Name: ccf, dtype: float64</span>
+</pre></div>
+</div>
+<p>中位数额度到违约时提用了其未提用额度的 55%。负的 CCF 来自违约前偿还了部分余额的额度，大于 1 的 CCF 来自最终超过额度的额度。另外 25 个额度在参考日已满额或超额使用，没有未提用部分，也就没有 CCF：公式会除以 0，或除以负数而使符号反转。EBA 的 CCF 估计征求意见稿用违约时的提用金额除以额度来度量这类额度，ECB 的验证报告则改为回测它们的 EAD，而不是 CCF：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fully_drawn</span> <span class="o">=</span> <span class="n">revolving</span><span class="p">[</span><span class="s2">"limit"</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">revolving</span><span class="p">[</span><span class="s2">"drawn"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">int</span><span class="p">(</span><span class="n">fully_drawn</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+<span class="go">25</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="nb">round</span><span class="p">((</span><span class="n">revolving</span><span class="p">[</span><span class="s2">"ead"</span><span class="p">]</span> <span class="o">/</span> <span class="n">revolving</span><span class="p">[</span><span class="s2">"limit"</span><span class="p">])[</span><span class="n">fully_drawn</span><span class="p">]</span><span class="o">.</span><span class="n">median</span><span class="p">(),</span> <span class="mi">4</span><span class="p">))</span>
+<span class="go">1.0943</span>
+</pre></div>
+</div>
+<p>负的 CCF 仍能区分各额度的风险，但 CRR3 的量化把它记为 0，任何 CCF 都不得以 1 封顶。 <a class="reference internal" href="../api/lgd.html#kivi.lgd.lgd_table" title="kivi.lgd.lgd_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">lgd_table()</span></code></a> 的下限 0 正好如此处理，它按参考日的额度使用率给出 CCF：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.lgd</span><span class="w"> </span><span class="kn">import</span> <span class="n">lgd_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">undrawn</span> <span class="o">=</span> <span class="n">ccf</span><span class="o">.</span><span class="n">notna</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">usage</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">revolving</span><span class="p">[</span><span class="s2">"drawn"</span><span class="p">]</span> <span class="o">/</span> <span class="n">revolving</span><span class="p">[</span><span class="s2">"limit"</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">,</span> <span class="mi">1</span><span class="p">])[</span><span class="n">undrawn</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lgd_table</span><span class="p">(</span><span class="n">usage</span><span class="p">,</span> <span class="n">ccf</span><span class="p">[</span><span class="n">undrawn</span><span class="p">])[[</span><span class="s2">"total"</span><span class="p">,</span> <span class="s2">"mean"</span><span class="p">,</span> <span class="s2">"zero_share"</span><span class="p">,</span> <span class="s2">"full_share"</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">             total   mean  zero_share  full_share</span>
+<span class="go">bin</span>
+<span class="go">(0.0, 0.5]     138  0.582       0.094       0.109</span>
+<span class="go">(0.5, 0.75]    203  0.555       0.103       0.084</span>
+<span class="go">(0.75, 1.0]    123  0.719       0.073       0.106</span>
+</pre></div>
+</div>
+<p>到参考日已提用超过四分之三额度的额度，提用了更大比例的剩余额度。</p>
+</section>
+<section id="lgd-tables">
+<h2>LGD 表<a class="headerlink" href="#lgd-tables" title="链接到此标题。">#</a></h2>
+<p><a class="reference internal" href="../api/lgd.html#kivi.lgd.lgd_table" title="kivi.lgd.lgd_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">lgd_table()</span></code></a> 汇总每个分组的实际 LGD：违约数、平均 LGD、其标准差、取值范围以及无损失违约和全额损失违约的份额。平均值中每笔违约计一次，这是监管对长期平均 LGD 的要求；默认把负的 LGD 记为 0。已结案的清收按分段汇总：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">realized</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="n">closed</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span> <span class="o">=</span> <span class="n">lgd_table</span><span class="p">(</span><span class="n">loans</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">closed</span><span class="p">,</span> <span class="s2">"segment"</span><span class="p">],</span> <span class="n">realized</span><span class="p">[</span><span class="s2">"lgd"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s2">"total_share"</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">           total    mean     std     min     max  zero_share  full_share</span>
+<span class="go">bin</span>
+<span class="go">secured      704  0.0957  0.1176  0.0000  0.6555       0.054      0.0000</span>
+<span class="go">unsecured    580  0.7773  0.2961  0.0136  1.2490       0.000      0.1190</span>
+<span class="go">revolving    438  0.6853  0.3512  0.0120  1.3985       0.000      0.1142</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id1">
+<img alt="有抵押、无抵押和循环额度贷款已结案清收的实际 LGD 的直方图，在 0 和 100% 处有参考线" class="plot-directive" src="../_images/lgd-1.svg" />
+<figcaption>
+<p><span class="caption-text">各分段已结案清收的实际 LGD（施加下限之前）。有抵押贷款损失很少；无抵押贷款和循环额度要么治愈、接近 0，要么损失大部分敞口，其中一些损失超过全部敞口。</span><a class="headerlink" href="#id1" title="链接到此图片">#</a></p>
+</figcaption>
+</figure>
+<p>无押品贷款和循环额度的 LGD 呈双峰分布：治愈接近 0，清算接近 1；而大多数有押品贷款的损失不到 10%。 <code class="docutils literal notranslate"><span class="pre">zero_share</span></code> 包括押品价值超过其敞口的 38 笔有押品贷款， <code class="docutils literal notranslate"><span class="pre">floor=None</span></code> 保留它们的负值；这些值仍能区分损失的驱动因素：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">lgd_table</span><span class="p">(</span><span class="n">loans</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">closed</span><span class="p">,</span> <span class="s2">"segment"</span><span class="p">],</span> <span class="n">realized</span><span class="p">[</span><span class="s2">"lgd"</span><span class="p">],</span> <span class="n">floor</span><span class="o">=</span><span class="kc">None</span><span class="p">)[[</span><span class="s2">"mean"</span><span class="p">,</span> <span class="s2">"min"</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">             mean     min</span>
+<span class="go">bin</span>
+<span class="go">secured    0.0941 -0.0950</span>
+<span class="go">unsecured  0.7773  0.0136</span>
+<span class="go">revolving  0.6853  0.0120</span>
+</pre></div>
+</div>
+<p>这张表的用法与连续目标下的 <a class="reference internal" href="../api/woe.html#kivi.woe.woe_table" title="kivi.woe.woe_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">woe_table()</span></code></a> 相同：传入某个驱动因素的箱，例如有押品贷款的贷款价值比，就能看到平均 LGD 如何随箱变化。箱也可以来自 <a class="reference internal" href="../api/binning.html#kivi.binning.bin_edges" title="kivi.binning.bin_edges"><code class="xref py py-func docutils literal notranslate"><span class="pre">bin_edges()</span></code></a> 和 <a class="reference internal" href="../api/binning.html#kivi.binning.cut" title="kivi.binning.cut"><code class="xref py py-func docutils literal notranslate"><span class="pre">cut()</span></code></a> ：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">secured</span> <span class="o">=</span> <span class="n">closed</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">loans</span><span class="p">[</span><span class="s2">"segment"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"secured"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ltv</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">cut</span><span class="p">((</span><span class="n">loans</span><span class="p">[</span><span class="s2">"ead"</span><span class="p">]</span> <span class="o">/</span> <span class="n">loans</span><span class="p">[</span><span class="s2">"collateral_value"</span><span class="p">])[</span><span class="n">secured</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lgd_table</span><span class="p">(</span><span class="n">ltv</span><span class="p">,</span> <span class="n">realized</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">secured</span><span class="p">[</span><span class="n">closed</span><span class="p">],</span> <span class="s2">"lgd"</span><span class="p">])[[</span><span class="s2">"total"</span><span class="p">,</span> <span class="s2">"mean"</span><span class="p">,</span> <span class="s2">"zero_share"</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">            total   mean  zero_share</span>
+<span class="go">bin</span>
+<span class="go">(0.0, 0.6]    156  0.040       0.141</span>
+<span class="go">(0.6, 0.8]    235  0.053       0.055</span>
+<span class="go">(0.8, 1.0]    191  0.115       0.016</span>
+<span class="go">(1.0, inf]    122  0.220       0.000</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id3">
+<img alt="有抵押贷款四个贷款价值比分段的平均 LGD 和无损失贷款占比的柱状图" class="plot-directive" src="../_images/lgd-2.svg" />
+<figcaption>
+<p><span class="caption-text">已结案的有抵押贷款按贷款价值比分段的平均 LGD 和无损失贷款占比。押品覆盖的敞口越少，平均 LGD 从 4% 升到 22%，无损失的贷款也随之消失。</span><a class="headerlink" href="#id3" title="链接到此图片">#</a></p>
+</figcaption>
+</figure>
+<p>欠款超过押品价值的贷款，损失是贷款价值比不超过 60% 的贷款的五倍。</p>
+<section id="bands-of-a-driver-fitted-to-the-lgds">
+<h3>按 LGD 拟合驱动因素的分段<a class="headerlink" href="#bands-of-a-driver-fitted-to-the-lgds" title="链接到此标题。">#</a></h3>
+<p>上面的四个分段出自人为判断。 <a class="reference internal" href="../api/binning.html#kivi.binning.variance_edges" title="kivi.binning.variance_edges"><code class="xref py py-func docutils literal notranslate"><span class="pre">variance_edges()</span></code></a> 则按 LGD 来拟合分段：在该比率 20 个等频箱的所有合并方式中，它返回各箱平均 LGD 解释 LGD 方差比例最大的分箱，并要求每箱至少有 5% 的贷款，且均值逐箱上升或逐箱下降。请先像 <a class="reference internal" href="../api/lgd.html#kivi.lgd.lgd_table" title="kivi.lgd.lgd_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">lgd_table()</span></code></a> 那样把 LGD 的下限设为 0，使分段拟合的正是表中求平均的 LGD：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.binning</span><span class="w"> </span><span class="kn">import</span> <span class="n">cut</span><span class="p">,</span> <span class="n">variance_edges</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ratio</span> <span class="o">=</span> <span class="p">(</span><span class="n">loans</span><span class="p">[</span><span class="s2">"ead"</span><span class="p">]</span> <span class="o">/</span> <span class="n">loans</span><span class="p">[</span><span class="s2">"collateral_value"</span><span class="p">])[</span><span class="n">secured</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">secured_lgd</span> <span class="o">=</span> <span class="n">realized</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">secured</span><span class="p">[</span><span class="n">closed</span><span class="p">],</span> <span class="s2">"lgd"</span><span class="p">]</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">lower</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">edges</span> <span class="o">=</span> <span class="n">variance_edges</span><span class="p">(</span><span class="n">ratio</span><span class="p">,</span> <span class="n">secured_lgd</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">edges</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">array([ -inf, 0.76 , 0.897, 0.972, 1.189,   inf])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fitted</span> <span class="o">=</span> <span class="n">lgd_table</span><span class="p">(</span><span class="n">cut</span><span class="p">(</span><span class="n">ratio</span><span class="p">,</span> <span class="n">edges</span><span class="p">),</span> <span class="n">secured_lgd</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fitted</span><span class="p">[[</span><span class="s2">"total"</span><span class="p">,</span> <span class="s2">"mean"</span><span class="p">,</span> <span class="s2">"std"</span><span class="p">,</span> <span class="s2">"zero_share"</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">                total   mean    std  zero_share</span>
+<span class="go">bin</span>
+<span class="go">(-inf, 0.76]      352  0.044  0.048       0.091</span>
+<span class="go">(0.76, 0.897]     141  0.086  0.082       0.043</span>
+<span class="go">(0.897, 0.972]     70  0.131  0.117       0.000</span>
+<span class="go">(0.972, 1.189]    105  0.203  0.145       0.000</span>
+<span class="go">(1.189, inf]       36  0.253  0.221       0.000</span>
+</pre></div>
+</div>
+<p>平均 LGD 从 4% 升到 25%，拟合出的分段在比率 1 附近设了一个切点，也就是抵押品不再覆盖敞口的位置。它们解释的 LGD 方差比四个固定分段更多：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">explained</span><span class="p">(</span><span class="n">groups</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">means</span> <span class="o">=</span> <span class="n">secured_lgd</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">groups</span><span class="o">.</span><span class="n">cat</span><span class="o">.</span><span class="n">codes</span><span class="p">)</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="s2">"mean"</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">squares</span> <span class="o">=</span> <span class="p">((</span><span class="n">secured_lgd</span> <span class="o">-</span> <span class="n">means</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">squares</span> <span class="o">/</span> <span class="p">((</span><span class="n">secured_lgd</span> <span class="o">-</span> <span class="n">secured_lgd</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">explained</span><span class="p">(</span><span class="n">cut</span><span class="p">(</span><span class="n">ratio</span><span class="p">,</span><span class="w"> </span><span class="n">edges</span><span class="p">))</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">explained</span><span class="p">(</span><span class="n">ltv</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">0.321 0.295</span>
+</pre></div>
+</div>
+<p>与二元目标的信息值一样，在拟合分段所用的贷款上算出的解释比例偏乐观；使用之前，应在之后的违约上检验这些分段。 <code class="docutils literal notranslate"><span class="pre">max_bins</span></code> 、 <code class="docutils literal notranslate"><span class="pre">min_bin_share</span></code> 和 <code class="docutils literal notranslate"><span class="pre">trend</span></code> 的用法与 <a class="reference internal" href="../api/binning.html#kivi.binning.optimal_edges" title="kivi.binning.optimal_edges"><code class="xref py py-func docutils literal notranslate"><span class="pre">optimal_edges()</span></code></a> 相同，驱动因素的 <code class="docutils literal notranslate"><span class="pre">special</span></code> 编码会由 <a class="reference internal" href="../api/binning.html#kivi.binning.cut" title="kivi.binning.cut"><code class="xref py py-func docutils literal notranslate"><span class="pre">cut()</span></code></a> 单独成组。</p>
+</section>
+</section>
+<section id="fractional-regression">
+<h2>分数回归<a class="headerlink" href="#fractional-regression" title="链接到此标题。">#</a></h2>
+<p><a class="reference internal" href="../api/lgd.html#kivi.lgd.fractional_regression" title="kivi.lgd.fractional_regression"><code class="xref py py-func docutils literal notranslate"><span class="pre">fractional_regression()</span></code></a> 用 Papke 和 Wooldridge 的分数 logit 同时对多个驱动因素为 LGD 的均值建模：</p>
+<div class="math notranslate nohighlight">
+\[E(\mathrm{LGD} \mid x) = \frac{1}{1 + e^{-(\beta_0 + \sum_j \beta_j x_j)}}.\]</div>
+<p>响应必须在 0 到 1 之间，可以取 0 和 1，因此先把 LGD 的上限设为 1、下限设为 0。系数使与 <a class="reference internal" href="../api/selection.html#kivi.selection.logistic_regression" title="kivi.selection.logistic_regression"><code class="xref py py-func docutils literal notranslate"><span class="pre">logistic_regression()</span></code></a> 相同的似然最大，解读方式也相同：正的系数提高平均 LGD。标准误是稳健标准误，因为分数响应在均值周围的方差与二元响应不同。下面用 2018 至 2020 年违约贷款中已结案的清收，以分段和押品对敞口的覆盖率建模：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.lgd</span><span class="w"> </span><span class="kn">import</span> <span class="n">fractional_regression</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">features</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">{</span>
+<span class="gp">... </span>        <span class="s2">"unsecured"</span><span class="p">:</span> <span class="p">(</span><span class="n">loans</span><span class="p">[</span><span class="s2">"segment"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"unsecured"</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+<span class="gp">... </span>        <span class="s2">"revolving"</span><span class="p">:</span> <span class="p">(</span><span class="n">loans</span><span class="p">[</span><span class="s2">"segment"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"revolving"</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+<span class="gp">... </span>        <span class="s2">"coverage"</span><span class="p">:</span> <span class="n">loans</span><span class="p">[</span><span class="s2">"collateral_value"</span><span class="p">]</span> <span class="o">/</span> <span class="n">loans</span><span class="p">[</span><span class="s2">"ead"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">}</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">response</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s2">"lgd"</span><span class="p">]</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">development</span> <span class="o">=</span> <span class="n">closed</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">loans</span><span class="p">[</span><span class="s2">"default_date"</span><span class="p">]</span> <span class="o">&lt;</span> <span class="s2">"2021-01-01"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">fractional_regression</span><span class="p">(</span><span class="n">features</span><span class="p">[</span><span class="n">development</span><span class="p">],</span> <span class="n">response</span><span class="p">[</span><span class="n">development</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">             coef      se       z  p_value</span>
+<span class="go">variable</span>
+<span class="go">intercept  0.1951  0.3182  0.6131   0.5398</span>
+<span class="go">unsecured  1.1444  0.3345  3.4214   0.0006</span>
+<span class="go">revolving  0.8236  0.3345  2.4621   0.0138</span>
+<span class="go">coverage  -1.9216  0.2479 -7.7513   0.0000</span>
+</pre></div>
+</div>
+<p>押品降低 LGD，无押品贷款的损失高于循环额度。每笔贷款的拟合平均 LGD 由系数得出；在开发样本上，拟合均值的平均等于其平均 LGD，带截距的 logit 的均值都是如此：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">eta</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">"intercept"</span><span class="p">,</span> <span class="s2">"coef"</span><span class="p">]</span> <span class="o">+</span> <span class="nb">sum</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">model</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">column</span><span class="p">,</span> <span class="s2">"coef"</span><span class="p">]</span> <span class="o">*</span> <span class="n">features</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">features</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">estimated</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">eta</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">estimated</span><span class="p">[</span><span class="n">development</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">response</span><span class="p">[</span><span class="n">development</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">0.4840 0.4840</span>
+</pre></div>
+</div>
+</section>
+<section id="back-testing">
+<h2>回测<a class="headerlink" href="#back-testing" title="链接到此标题。">#</a></h2>
+<p>按 ECB 验证报告的要求，用 <a class="reference internal" href="../api/calibration.html#kivi.calibration.backtest_table" title="kivi.calibration.backtest_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">backtest_table()</span></code></a> 的 t 检验以已结案清收的实际值回测 LGD 和 CCF 估计值，并用 <a class="reference internal" href="../api/metrics.html#kivi.metrics.generalized_auc" title="kivi.metrics.generalized_auc"><code class="xref py py-func docutils literal notranslate"><span class="pre">generalized_auc()</span></code></a> 的广义 AUC 衡量其排序能力。2021 年起违约贷款中已结案的清收用来验证模型：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">backtest_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">validation</span> <span class="o">=</span> <span class="n">closed</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">loans</span><span class="p">[</span><span class="s2">"default_date"</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="s2">"2021-01-01"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">backtest_table</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">loans</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">validation</span><span class="p">,</span> <span class="s2">"segment"</span><span class="p">],</span> <span class="n">result</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">validation</span><span class="p">,</span> <span class="s2">"lgd"</span><span class="p">],</span> <span class="n">estimated</span><span class="p">[</span><span class="n">validation</span><span class="p">]</span>
+<span class="gp">... </span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">           total  estimated  realized  difference  variance  statistic  p_value</span>
+<span class="go">bin</span>
+<span class="go">secured      364     0.0940    0.0920     -0.0020    0.0099    -0.3807   0.6482</span>
+<span class="go">unsecured    329     0.7924    0.7633     -0.0291    0.0979    -1.6891   0.9539</span>
+<span class="go">revolving    224     0.7347    0.6324     -0.1023    0.1493    -3.9646   1.0000</span>
+</pre></div>
+</div>
+<p>没有分段拒绝估计值（这里的 p 值检验估计值是否偏低），但循环额度的实际 LGD 比估计值低 10 个百分点。近期已结案的违约是清收较短的那些，因为较长的还没有结案：2021 至 2024 年已结案的循环额度有四分之一治愈，而 2018 至 2020 年的只有八分之一。这正是长期平均要对未结案的清收作调整的原因。</p>
+<p>gAUC 在报告的十二个 LGD 分段中比较估计值的排序与实际 LGD 的排序；实际 LGD 先把下限设为 0，使每个值都落入某个分段：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">generalized_auc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">segments</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">estimated_segment</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">estimated</span><span class="p">[</span><span class="n">validation</span><span class="p">],</span> <span class="n">segments</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">realized_segment</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">validation</span><span class="p">,</span> <span class="s2">"lgd"</span><span class="p">]</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">lower</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">segments</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">generalized_auc</span><span class="p">(</span><span class="n">estimated_segment</span><span class="p">,</span> <span class="n">realized_segment</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">           estimate      se   lower   upper</span>
+<span class="go">statistic</span>
+<span class="go">gauc         0.8384  0.0098  0.8191  0.8576</span>
+<span class="go">somers_d     0.6767  0.0196  0.6383  0.7152</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="validation.html"><span class="doc">模型验证</span></a> 解释了报告中的检验和分段，以及 gAUC 与初始验证时 gAUC 的比较。实际 CCF 以同样的方式回测；满额使用额度的 EAD 以违约时的提用金额作为实际值回测。</p>
+</section>
+<section id="rules-of-basel-the-eba-and-china">
+<h2>巴塞尔、EBA 和中国的规则<a class="headerlink" href="#rules-of-basel-the-eba-and-china" title="链接到此标题。">#</a></h2>
+<p>这些函数计算实际值，周围的规则留给调用者：哪些违约计入、折现率、估计值的下限。下表把巴塞尔框架（自 2023 年 1 月 1 日起生效的 CRE 各章）、EBA 的 PD 和 LGD 估计指引（EBA/GL/2017/16）以及 CRR3（Regulation (EU) 2024/1623）的规则与中国《商业银行资本管理办法》（国家金融监督管理总局令 2023 年第 4 号）的规则并列，并注明所依据的段落和条款。</p>
+<div class="pst-scrollable-table-container"><table class="table" id="id5">
+<caption><span class="caption-text">违约损失率</span><a class="headerlink" href="#id5" title="链接到此表格。">#</a></caption>
+<colgroup>
+<col style="width: 16.0%" />
+<col style="width: 34.0%" />
+<col style="width: 28.0%" />
+<col style="width: 22.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>规则</p></th>
+<th class="head"><p>巴塞尔和 EBA</p></th>
+<th class="head"><p>中国，2023 年规则</p></th>
+<th class="head"><p>在 kivi 中</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>实际 LGD</p></td>
+<td><p>经济损失与违约时未偿金额之比（EBA 131）：未偿金额加上重大的直接和间接费用，减去折现到违约日的回收（EBA 132），来源不明的回收也计入（EBA 133）。损失是经济损失而不是会计损失，包括重大的折现效应和费用（CRE36.76）。</p></td>
+<td><p>损失与违约债项风险暴露之比（附件 5 六（四）1），风险暴露包括本金和应计未付的利息、费用；基于经济损失，包括直接和间接成本（六（四）2）。</p></td>
+<td><p><a class="reference internal" href="../api/lgd.html#kivi.lgd.workout_lgd" title="kivi.lgd.workout_lgd"><code class="xref py py-func docutils literal notranslate"><span class="pre">workout_lgd()</span></code></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>折现率</p></td>
+<td><p>违约日的 3 个月 EURIBOR（或该币种可比的流动性利率）加 5 个百分点，用于回收、费用和追加提款（EBA 143），因此随违约日和币种而不同。</p></td>
+<td><p>反映清收期间持有违约资产成本的利率；回收不确定时加风险溢价，确定时可用无风险利率（六（四）2（3））。</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">rate</span></code> ，每笔贷款一个</p></td>
+</tr>
+<tr class="row-even"><td><p>日计数</p></td>
+<td><p>未规定。</p></td>
+<td><p>未规定。</p></td>
+<td><p>ACT/365</p></td>
+</tr>
+<tr class="row-odd"><td><p>违约前的费用</p></td>
+<td><p>违约前发生的重大清收费用也计入，除非已包含在未偿金额中或属于更早的违约（EBA 144–146）。</p></td>
+<td><p>未见专门规定。</p></td>
+<td><p>复利计算到违约日</p></td>
+</tr>
+<tr class="row-even"><td><p>违约后的追加提款</p></td>
+<td><p>计入损失（EBA 142）；若 CCF 包含追加提款，也计入敞口（EBA 140），未作此处理的零售敞口不计入敞口（EBA 141）。</p></td>
+<td><p>未见专门规定。</p></td>
+<td><p>负现金流；若 CCF 包含追加提款，则把其现值计入 <code class="docutils literal notranslate"><span class="pre">ead</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>违约后资本化的利息和费用</p></td>
+<td><p>不增加损失，其回收照常计入（EBA 137–138）。</p></td>
+<td><p>未见专门规定。</p></td>
+<td><p>不作为现金流传入</p></td>
+</tr>
+<tr class="row-even"><td><p>核销</p></td>
+<td><p>违约时或违约前核销的金额加到未偿金额上，同时计入损失和敞口（EBA 134）。</p></td>
+<td><p>未见专门规定。</p></td>
+<td><p>加到 <code class="docutils literal notranslate"><span class="pre">ead</span></code> 上</p></td>
+</tr>
+<tr class="row-odd"><td><p>治愈</p></td>
+<td><p>一笔金额为治愈日未偿金额的回收，与其他现金流一样折现；多次违约从第一次违约起算（EBA 135）。</p></td>
+<td><p>附件 5 未涉及。</p></td>
+<td><p>治愈日的一笔回收</p></td>
+</tr>
+<tr class="row-even"><td><p>未结案的清收</p></td>
+<td><p>观察平均只用已结案的清收，不含预期的未来回收（EBA 154；结案的定义见 EBA 157）；长期平均对未结案的清收作调整（EBA 158），且不得剔除观察期内的任何违约（EBA 163）。ECB 只回测已结案的清收（其报告说明第 2.3(i) 和 2.6.1(d) 节）。</p></td>
+<td><p>银行设定并记录清收完成的时间点（六（四）7）。</p></td>
+<td><p>先筛选已结案的清收</p></td>
+</tr>
+<tr class="row-odd"><td><p>长期平均</p></td>
+<td><p>按违约数的算术平均（EBA 150），不按年平均；零售可给近期数据更高的权重（EBA 150–152）。长期违约加权平均（CRE36.83、CRE36.81）。</p></td>
+<td><p>不低于长期违约加权平均损失率（六（四）4）。</p></td>
+<td><p>不带 <code class="docutils literal notranslate"><span class="pre">weights</span></code> 的 <a class="reference internal" href="../api/lgd.html#kivi.lgd.lgd_table" title="kivi.lgd.lgd_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">lgd_table()</span></code></a> 的 <code class="docutils literal notranslate"><span class="pre">mean</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>负的 LGD 和超过 100% 的 LGD</p></td>
+<td><p>计算观察平均和长期平均时，负的实际 LGD 逐笔记为 0，未截断的值可用于风险区分（EBA 160）；远高于 100% 的值保留，并查明原因或单独分段（EBA 162）。</p></td>
+<td><p>小于 0 的样本按 0 处理（六（四）15）。</p></td>
+<td><p><a class="reference internal" href="../api/lgd.html#kivi.lgd.workout_lgd" title="kivi.lgd.workout_lgd"><code class="xref py py-func docutils literal notranslate"><span class="pre">workout_lgd()</span></code></a> 不截断； <a class="reference internal" href="../api/lgd.html#kivi.lgd.lgd_table" title="kivi.lgd.lgd_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">lgd_table()</span></code></a> 的 <code class="docutils literal notranslate"><span class="pre">floor=0.0</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>LGD 下限</p></td>
+<td><p>用于估计值，不用于实际 LGD：无担保公司敞口 25%，个人住房抵押贷款 5%，QRRE 50%，其他无担保零售敞口 30%（CRE32.16、CRE32.58–59）。</p></td>
+<td><p>相同，但个人住房抵押贷款为 10%（第九十二条）。</p></td>
+<td><p>由调用者施加，例如用 <code class="docutils literal notranslate"><span class="pre">numpy.maximum</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="pst-scrollable-table-container"><table class="table" id="id6">
+<caption><span class="caption-text">违约风险敞口和 CCF</span><a class="headerlink" href="#id6" title="链接到此表格。">#</a></caption>
+<colgroup>
+<col style="width: 16.0%" />
+<col style="width: 34.0%" />
+<col style="width: 28.0%" />
+<col style="width: 22.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>规则</p></th>
+<th class="head"><p>巴塞尔和欧盟</p></th>
+<th class="head"><p>中国，2023 年规则</p></th>
+<th class="head"><p>在 kivi 中</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>自行估计 CCF</p></td>
+<td><p>只限标准法 CCF 低于 100% 的未提用循环承诺（CRE32.36，零售为 CRE32.63；CRR3 第 166(8b) 条）。</p></td>
+<td><p>可循环的表外项目；其他项目用第八十二条的 CCF，100% 的仍为 100%（第九十三条三、四）。</p></td>
+<td><p>不检查</p></td>
+</tr>
+<tr class="row-odd"><td><p>EAD 下限</p></td>
+<td><p>表内金额加上表外金额按标准法 CCF 计算的 50%（CRE32.36，零售为 CRE32.64；CRR3 第 166(8c) 条，中央政府除外）。</p></td>
+<td><p>公司敞口取内部估计与上述两项之和中的较大者（第九十三条三）；零售敞口没有下限（第九十三条四），与巴塞尔不同。</p></td>
+<td><p>由调用者施加</p></td>
+</tr>
+<tr class="row-even"><td><p>参考日</p></td>
+<td><p>12 个月固定期限法：借款人和债项特征取违约前 12 个月的值（CRE36.93；CRR3 第 182(1)(g) 条；EBA/CP/2025/10 第 59 段）。放款后 12 个月内违约的，取未提用额度严格为正的最早日期（EBA/CP/2025/10 第 60 段）。</p></td>
+<td><p>12 个月固定期限法，或能证明审慎的其他方法（附件 5 六（五）12）。</p></td>
+<td><p>参考日的 <code class="docutils literal notranslate"><span class="pre">drawn</span></code> 和 <code class="docutils literal notranslate"><span class="pre">limit</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>实际 CCF</p></td>
+<td><p>违约时提用金额减去参考日提用金额，除以参考日额度减去参考日提用金额（CRE36.95 脚注；EBA/CP/2025/10 第 61(a) 段）；ECB 按银行模型的定义计算（第 2.9.1(b) 节）。</p></td>
+<td><p>口径相同，取违约加权长期平均（六（五）3）。</p></td>
+<td><p><a class="reference internal" href="../api/lgd.html#kivi.lgd.conversion_factor" title="kivi.lgd.conversion_factor"><code class="xref py py-func docutils literal notranslate"><span class="pre">conversion_factor()</span></code></a></p></td>
+</tr>
+<tr class="row-even"><td><p>额度</p></td>
+<td><p>已告知额度与未告知额度中的较大者（CRR 第 4(1)(56) 条）；之后提高的额度不进入分母，因此 CCF 可以达到 200%（EBA/CP/2025/10 例 3）。</p></td>
+<td><p>未见专门规定。</p></td>
+<td><p>参考日的 <code class="docutils literal notranslate"><span class="pre">limit</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>满额或超额使用的额度</p></td>
+<td><p>使用率达到 100% 起，改用违约时提用金额除以参考日额度（EBA/CP/2025/10 第 61(b) 段），或用银行设定的使用率阈值（第 61(c) 和 73 段）；接近满额使用时该因子不稳定（CRE36.95）。对采用 EAD 方法的债项，ECB 改为回测 EAD，而不是 CCF（第 2.9.1(g) 和 2.9.3 节）。</p></td>
+<td><p>需关注接近满额使用时该因子的不稳定（六（五）14）。</p></td>
+<td><p>NaN；由调用者计算 <code class="docutils literal notranslate"><span class="pre">ead</span> <span class="pre">/</span> <span class="pre">limit</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>负的 CCF</p></td>
+<td><p>量化时记为 0，未截断的值可用于风险区分（CRR3 第 182(1) 条；EBA/CP/2025/10 第 99 段）；ECB 报告被截断的比例。</p></td>
+<td><p>未见专门规定。</p></td>
+<td><p>不截断； <code class="docutils literal notranslate"><span class="pre">numpy.maximum(ccf,</span> <span class="pre">0)</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>上限</p></td>
+<td><p>不以 100% 封顶，参考数据也不封顶（CRE36.95–96；CRR3 第 182(1d) 条；EBA/CP/2025/10 背景部分第 22 段）。</p></td>
+<td><p>不应设置本金上限（六（五）15）。</p></td>
+<td><p>不封顶</p></td>
+</tr>
+<tr class="row-even"><td><p>初级法的 CCF</p></td>
+<td><p>与标准法相同：100%、50%、承诺 40%、20%，可无条件撤销的承诺 10%（CRE32.33、CRE20.95–100）；75% 是旧值。</p></td>
+<td><p>第八十二条的 CCF（第九十三条二）：100%，贷款承诺 40%（可无条件撤销的 10%），未使用的信用卡额度 40% 或 20%，NIF 和 RUF 50%。</p></td>
+<td><p>不计算</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>EBA 的 CCF 估计征求意见稿 EBA/CP/2025/10（2025 年 7 月 2 日）在编写 kivi 1.6 时尚未定稿；CRR3 第 182(5) 条要求在 2026 年底前发布正式指引。</p>
+</section>
+<section id="missing-values">
+<h2>缺失值<a class="headerlink" href="#missing-values" title="链接到此标题。">#</a></h2>
+<p><a class="reference internal" href="../api/lgd.html#kivi.lgd.workout_lgd" title="kivi.lgd.workout_lgd"><code class="xref py py-func docutils literal notranslate"><span class="pre">workout_lgd()</span></code></a> 对缺失的贷款、日期、敞口、金额或利率报错，因为每一项都决定损失：没有现金流的贷款不是缺失，而是没有任何回收。 <a class="reference internal" href="../api/lgd.html#kivi.lgd.conversion_factor" title="kivi.lgd.conversion_factor"><code class="xref py py-func docutils literal notranslate"><span class="pre">conversion_factor()</span></code></a> 对缺失的金额给出 NaN，因此有缺口的资产组合保持其形状。 <a class="reference internal" href="../api/lgd.html#kivi.lgd.lgd_table" title="kivi.lgd.lgd_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">lgd_table()</span></code></a> 对缺失的 LGD 报错，缺失的分组单独成组； <a class="reference internal" href="../api/lgd.html#kivi.lgd.fractional_regression" title="kivi.lgd.fractional_regression"><code class="xref py py-func docutils literal notranslate"><span class="pre">fractional_regression()</span></code></a> 对缺失的驱动因素或响应报错。</p>
+</section>
+<section id="sample-weights">
+<h2>样本权重<a class="headerlink" href="#sample-weights" title="链接到此标题。">#</a></h2>
+<p><a class="reference internal" href="../api/lgd.html#kivi.lgd.lgd_table" title="kivi.lgd.lgd_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">lgd_table()</span></code></a> 和 <a class="reference internal" href="../api/lgd.html#kivi.lgd.fractional_regression" title="kivi.lgd.fractional_regression"><code class="xref py py-func docutils literal notranslate"><span class="pre">fractional_regression()</span></code></a> 接受频数权重：整数权重与重复相应行得到相同的表、估计值和标准误。监管所指的长期平均中每笔违约计一次，因此按敞口给违约加权得到的是敞口加权平均 LGD，是另一个量。应使用计数违约的权重，例如抽样比例的倒数；与 <a class="reference internal" href="../api/selection.html#kivi.selection.logistic_regression" title="kivi.selection.logistic_regression"><code class="xref py py-func docutils literal notranslate"><span class="pre">logistic_regression()</span></code></a> 一样，这时回归的标准误会偏小。</p>
+</section>
+<section id="limits">
+<h2>局限<a class="headerlink" href="#limits" title="链接到此标题。">#</a></h2>
+<ul class="simple">
+<li><p>未结案清收的实际 LGD 是到目前为止的损失。kivi 不估计未结案清收的未来回收、长期平均对它们的调整、违约后 LGD 或 ELBE。</p></li>
+<li><p>经济下行期 LGD、保守性边际以及估计值的 LGD 和 EAD 下限由银行施加。</p></li>
+<li><p><a class="reference internal" href="../api/lgd.html#kivi.lgd.conversion_factor" title="kivi.lgd.conversion_factor"><code class="xref py py-func docutils literal notranslate"><span class="pre">conversion_factor()</span></code></a> 不实现 EBA 征求意见稿中满额使用额度的因子，因为该稿尚未定稿； <a class="reference internal" href="../api/lgd.html#kivi.lgd.workout_lgd" title="kivi.lgd.workout_lgd"><code class="xref py py-func docutils literal notranslate"><span class="pre">workout_lgd()</span></code></a> 不区分现金流的种类，因此按追加提款调整敞口需要再调用一次，如上所示。</p></li>
+<li><p>分数 logit 为平均 LGD 建模。治愈和全额损失都很多的双峰 LGD 常分两阶段建模，例如用逻辑回归对治愈建模，再用分数回归对未治愈贷款的损失建模，这可以组合现有函数实现。</p></li>
+</ul>
+</section>
+<section id="errors-and-warnings">
+<h2>错误与警告<a class="headerlink" href="#errors-and-warnings" title="链接到此标题。">#</a></h2>
+<ul class="simple">
+<li><p><strong>回收早于违约日。</strong> 违约前的还款不属于清收；检查日期，或把这笔还款计入敞口。</p></li>
+<li><p><strong>某笔现金流所属的贷款不在 loan 中。</strong> 每笔现金流都必须属于某一笔违约贷款，每笔贷款只列一次。</p></li>
+<li><p><strong>响应超出 [0, 1]。</strong> 在调用 <a class="reference internal" href="../api/lgd.html#kivi.lgd.fractional_regression" title="kivi.lgd.fractional_regression"><code class="xref py py-func docutils literal notranslate"><span class="pre">fractional_regression()</span></code></a> 之前，把实际 LGD 的下限设为 0、上限设为 1。</p></li>
+<li><p><strong>SeparationError。</strong> 某个驱动因素把损失为 0 的行与损失为 1 的行分开，而没有介于二者之间的损失约束其系数，例如某个分段中每笔贷款都损失了全部敞口。把该分段与相邻分段合并，或去掉该驱动因素。</p></li>
+<li><p><strong>RuntimeWarning: fractional regression did not converge。</strong> 拟合在 100 次迭代后停止；检查驱动因素是否有极端值。</p></li>
+</ul>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="calibration.html"
+       title="上一页">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">上一页</p>
+        <p class="prev-next-title">校准</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="strategy.html"
+       title="下一页">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">下一页</p>
+        <p class="prev-next-title">信贷策略</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 当前页面
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#definitions">定义</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-worked-example">计算示例</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#workout-lgd">清收 LGD</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#closed-workouts">已结案的清收</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#drawings-write-offs-and-cures">追加提款、核销和治愈</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#credit-conversion-factors">信用转换系数</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#lgd-tables">LGD 表</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bands-of-a-driver-fitted-to-the-lgds">按 LGD 拟合驱动因素的分段</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fractional-regression">分数回归</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#back-testing">回测</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#rules-of-basel-the-eba-and-china">巴塞尔、EBA 和中国的规则</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#missing-values">缺失值</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sample-weights">样本权重</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#limits">局限</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#errors-and-warnings">错误与警告</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    由 <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1创建。
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Reject inference &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=d005c095" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=25d9e9fd"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/reject_inference';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Scorecard" href="scorecard.html" />
+    <link rel="prev" title="Variable selection" href="selection.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="1.9.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 1.9.0">1.9.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    Tutorial
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/user_guide/reject_inference.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    Tutorial
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/user_guide/reject_inference.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="risk_workflow.html">Risk modeling workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">Time-window features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="univariate.html">Univariate profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="binning.html">Binning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="woe_iv.html">Weight of evidence and information value</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selection.html">Variable selection</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">Reject inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scorecard.html">Scorecard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="expert.html">Expert scorecards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">Model performance</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lgd.html">LGD and EAD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">Credit strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rules.html">Policy rules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spec.html">Binning specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="psi.html">Population stability index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">Model monitoring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="validation.html">Model validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="capital.html">Regulatory capital</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vintage.html">Vintage and roll-rate analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lifetime.html">Lifetime PD and expected credit loss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html">Charts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">Example data</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">User guide</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Reject inference</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="reject-inference">
+<h1>Reject inference<a class="headerlink" href="#reject-inference" title="Link to this heading">#</a></h1>
+<p>A scorecard is developed on past applicants with a known outcome, and the outcome is known only for the applicants that the previous policy approved. The model learns from them and is then applied to every applicant, including the kind that used to be declined. Reject inference supplies outcomes for the rejected applicants so that the model can be refitted on all of them. <a class="reference internal" href="../api/reject_inference.html#module-kivi.reject_inference" title="kivi.reject_inference"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.reject_inference</span></code></a> returns those outcomes as rows with weights, or returns weights for the approved applicants. The <code class="docutils literal notranslate"><span class="pre">weights</span></code> arguments of <a class="reference internal" href="../api/selection.html#kivi.selection.logistic_regression" title="kivi.selection.logistic_regression"><code class="xref py py-func docutils literal notranslate"><span class="pre">logistic_regression()</span></code></a>, <a class="reference internal" href="../api/woe.html#kivi.woe.woe_table" title="kivi.woe.woe_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">woe_table()</span></code></a> and <a class="reference internal" href="../api/spec.html#kivi.spec.fit_spec" title="kivi.spec.fit_spec"><code class="xref py py-func docutils literal notranslate"><span class="pre">fit_spec()</span></code></a> take either.</p>
+<p>Reject inference follows <a class="reference internal" href="selection.html"><span class="doc">variable selection</span></a>, whose model it refits on all applicants, and comes before the <a class="reference internal" href="scorecard.html"><span class="doc">Scorecard</span></a>, which scales the refitted model. <a class="reference internal" href="../api/reject_inference.html#kivi.reject_inference.fuzzy_augmentation" title="kivi.reject_inference.fuzzy_augmentation"><code class="xref py py-func docutils literal notranslate"><span class="pre">fuzzy_augmentation()</span></code></a> and <a class="reference internal" href="../api/reject_inference.html#kivi.reject_inference.parceling" title="kivi.reject_inference.parceling"><code class="xref py py-func docutils literal notranslate"><span class="pre">parceling()</span></code></a> return inferred rows, and <a class="reference internal" href="../api/reject_inference.html#kivi.reject_inference.reweighting" title="kivi.reject_inference.reweighting"><code class="xref py py-func docutils literal notranslate"><span class="pre">reweighting()</span></code></a> returns weights for the approved applicants.</p>
+<p>Every method rests on an assumption about the rejected applicants that the approved ones cannot confirm. The examples therefore use synthetic applications whose outcomes are known for everyone, so that each method can be checked against the model the full outcomes would give. Real data never allow that check.</p>
+<section id="applications-and-approvals">
+<h2>Applications and approvals<a class="headerlink" href="#applications-and-approvals" title="Link to this heading">#</a></h2>
+<p><a class="reference internal" href="../api/datasets.html#kivi.datasets.make_applications" title="kivi.datasets.make_applications"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_applications()</span></code></a> simulates loan applications decided by an incumbent scorecard and two policy rules; <a class="reference internal" href="datasets.html"><span class="doc">Example data</span></a> describes them. Policy declines would be declined whatever their score, so they are usually left out of the development population, as here. The approved applicants are the <em>accepts</em> and the others the <em>rejects</em>:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_applications</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">applications</span> <span class="o">=</span> <span class="n">make_applications</span><span class="p">(</span><span class="n">rng</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">population</span> <span class="o">=</span> <span class="n">applications</span><span class="p">[</span><span class="o">~</span><span class="n">applications</span><span class="p">[</span><span class="s2">"policy_decline"</span><span class="p">]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">accepts</span> <span class="o">=</span> <span class="n">population</span><span class="p">[</span><span class="n">population</span><span class="p">[</span><span class="s2">"approved"</span><span class="p">]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rejects</span> <span class="o">=</span> <span class="n">population</span><span class="p">[</span><span class="o">~</span><span class="n">population</span><span class="p">[</span><span class="s2">"approved"</span><span class="p">]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">accepts</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">rejects</span><span class="p">)</span>
+<span class="go">(6770, 2467)</span>
+</pre></div>
+</div>
+<p>In practice, <code class="docutils literal notranslate"><span class="pre">target</span></code> would be missing for the rejects. Here it shows what reject inference tries to recover: the rejects default three times as often as the accepts.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">population</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">"approved"</span><span class="p">)[</span><span class="s2">"target"</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">approved</span>
+<span class="go">False    0.301</span>
+<span class="go">True     0.097</span>
+<span class="go">Name: target, dtype: float64</span>
+</pre></div>
+</div>
+</section>
+<section id="the-accepts-only-model">
+<h2>The accepts-only model<a class="headerlink" href="#the-accepts-only-model" title="Link to this heading">#</a></h2>
+<p>All the models below use the same groups and the same WOE encoding, fitted on the accepts, so that their coefficients can be compared. Quantile edges need no outcome, so they are fitted on every applicant of the population. The number of inquiries takes few values and gets explicit edges:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.binning</span><span class="w"> </span><span class="kn">import</span> <span class="n">bin_edges</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">logistic_regression</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.spec</span><span class="w"> </span><span class="kn">import</span> <span class="n">fit_spec</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">features</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"age"</span><span class="p">,</span> <span class="s2">"income"</span><span class="p">,</span> <span class="s2">"debt_to_income"</span><span class="p">,</span> <span class="s2">"inquiries"</span><span class="p">,</span> <span class="s2">"housing"</span><span class="p">,</span> <span class="s2">"employment"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">edges</span> <span class="o">=</span> <span class="p">{</span>
+<span class="gp">... </span>    <span class="n">column</span><span class="p">:</span> <span class="n">bin_edges</span><span class="p">(</span><span class="n">population</span><span class="p">[</span><span class="n">column</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"age"</span><span class="p">,</span> <span class="s2">"income"</span><span class="p">,</span> <span class="s2">"debt_to_income"</span><span class="p">]</span>
+<span class="gp">... </span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">edges</span><span class="p">[</span><span class="s2">"inquiries"</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spec</span> <span class="o">=</span> <span class="n">fit_spec</span><span class="p">(</span><span class="n">accepts</span><span class="p">[</span><span class="n">features</span><span class="p">],</span> <span class="n">accepts</span><span class="p">[</span><span class="s2">"target"</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="n">edges</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">logistic_regression</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">woe_transform</span><span class="p">(</span><span class="n">accepts</span><span class="p">),</span> <span class="n">accepts</span><span class="p">[</span><span class="s2">"target"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">                 coef     se       z  p_value</span>
+<span class="go">variable</span>
+<span class="go">intercept      -2.230  0.043 -52.398      0.0</span>
+<span class="go">age             1.223  0.303   4.030      0.0</span>
+<span class="go">income          1.239  0.231   5.374      0.0</span>
+<span class="go">debt_to_income  1.356  0.182   7.436      0.0</span>
+<span class="go">inquiries       1.427  0.195   7.323      0.0</span>
+<span class="go">housing         1.057  0.204   5.174      0.0</span>
+<span class="go">employment      1.388  0.221   6.268      0.0</span>
+</pre></div>
+</div>
+<p>The PD of the model is the logistic function of the intercept plus the WOE values times the coefficients:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">predict</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">frame</span><span class="p">,</span> <span class="n">spec</span><span class="o">=</span><span class="n">spec</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">coef</span> <span class="o">=</span> <span class="n">model</span><span class="p">[</span><span class="s2">"coef"</span><span class="p">]</span>
+<span class="gp">... </span>    <span class="n">log_odds</span> <span class="o">=</span> <span class="n">coef</span><span class="p">[</span><span class="s2">"intercept"</span><span class="p">]</span> <span class="o">+</span> <span class="n">spec</span><span class="o">.</span><span class="n">woe_transform</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span> <span class="o">@</span> <span class="n">coef</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s2">"intercept"</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">log_odds</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">accept_pd</span><span class="p">,</span> <span class="n">reject_pd</span> <span class="o">=</span> <span class="n">predict</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">accepts</span><span class="p">),</span> <span class="n">predict</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">rejects</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">reject_pd</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">0.191</span>
+</pre></div>
+</div>
+<p>The model predicts a bad rate of 19.1% for the rejects, who actually default at 30.1%. The incumbent scorecard used information that is not among the features, like an underwriter who reads a credit bureau report, so the rejects are riskier than accepts with the same features. A model fitted on the accepts alone cannot see that.</p>
+</section>
+<section id="fuzzy-augmentation">
+<h2>Fuzzy augmentation<a class="headerlink" href="#fuzzy-augmentation" title="Link to this heading">#</a></h2>
+<p><a class="reference internal" href="../api/reject_inference.html#kivi.reject_inference.fuzzy_augmentation" title="kivi.reject_inference.fuzzy_augmentation"><code class="xref py py-func docutils literal notranslate"><span class="pre">fuzzy_augmentation()</span></code></a> splits each reject into a bad row, weighted with its PD, and a good row with the rest of its weight of 1. The rows repeat the index of the rejects, so <code class="docutils literal notranslate"><span class="pre">rejects.loc[inferred.index]</span></code> gives their features:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.reject_inference</span><span class="w"> </span><span class="kn">import</span> <span class="n">fuzzy_augmentation</span><span class="p">,</span> <span class="n">parceling</span><span class="p">,</span> <span class="n">reweighting</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">inferred</span> <span class="o">=</span> <span class="n">fuzzy_augmentation</span><span class="p">(</span><span class="n">reject_pd</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">inferred</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">    target  weight</span>
+<span class="go">14       1   0.423</span>
+<span class="go">14       0   0.577</span>
+<span class="go">15       1   0.250</span>
+<span class="go">15       0   0.750</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id1">
+<img alt="Three rejects with their PDs, each split into a row with target 1 and a row with target 0" class="plot-directive" src="../_images/reject_inference-1.svg" />
+<figcaption>
+<p><span class="caption-text"><code class="docutils literal notranslate"><span class="pre">fuzzy_augmentation</span></code> splits each reject into two rows with its index: target 1 with its PD as the weight, and target 0 with the rest of the weight of 1.</span><a class="headerlink" href="#id1" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>To refit, concatenate the accepts at weight 1 with the inferred rows and pass the weights. Only the features of the rejects enter the fit, never their <code class="docutils literal notranslate"><span class="pre">target</span></code> column:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">refit</span><span class="p">(</span><span class="n">inferred</span><span class="p">,</span> <span class="n">accept_weight</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">frame</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">accepts</span><span class="p">[</span><span class="n">features</span><span class="p">],</span> <span class="n">rejects</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">inferred</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">features</span><span class="p">]])</span>
+<span class="gp">... </span>    <span class="n">target</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">accepts</span><span class="p">[</span><span class="s2">"target"</span><span class="p">],</span> <span class="n">inferred</span><span class="p">[</span><span class="s2">"target"</span><span class="p">]])</span>
+<span class="gp">... </span>    <span class="n">weights</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">accept_weight</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">accepts</span><span class="o">.</span><span class="n">index</span><span class="p">),</span> <span class="n">inferred</span><span class="p">[</span><span class="s2">"weight"</span><span class="p">]])</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">logistic_regression</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">woe_transform</span><span class="p">(</span><span class="n">frame</span><span class="p">),</span> <span class="n">target</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fuzzy</span> <span class="o">=</span> <span class="n">refit</span><span class="p">(</span><span class="n">inferred</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">fuzzy</span><span class="p">[</span><span class="s2">"coef"</span><span class="p">],</span> <span class="n">model</span><span class="p">[</span><span class="s2">"coef"</span><span class="p">])</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">(</span><span class="n">fuzzy</span><span class="p">[</span><span class="s2">"se"</span><span class="p">]</span> <span class="o">/</span> <span class="n">model</span><span class="p">[</span><span class="s2">"se"</span><span class="p">])</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">variable</span>
+<span class="go">intercept         0.91</span>
+<span class="go">age               0.75</span>
+<span class="go">income            0.72</span>
+<span class="go">debt_to_income    0.80</span>
+<span class="go">inquiries         0.68</span>
+<span class="go">housing           0.78</span>
+<span class="go">employment        0.72</span>
+<span class="go">Name: se, dtype: float64</span>
+</pre></div>
+</div>
+<p>The refitted coefficients are those of the accepts-only model. At those coefficients, the bad row of each reject weighs exactly its fitted PD, so the inferred rows leave the fit where it was. Only the standard errors shrink, although the inferred rows add no information: they count as observations, so the standard errors of any fit with inferred rows are too small. Choose the variables on the accepts, not by the p-values of an augmented fit. With a factor of 1, fuzzy augmentation changes the model only if the encoding is refitted on the augmented sample or the variables change.</p>
+</section>
+<section id="sensitivity-to-the-factor">
+<h2>Sensitivity to the factor<a class="headerlink" href="#sensitivity-to-the-factor" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">factor</span></code> multiplies the PDs of the rejects, so a factor above 1 assumes that they are riskier than accepts with the same PD. The accepts cannot tell how much riskier, so compare several factors. <code class="docutils literal notranslate"><span class="pre">summary</span></code> gathers three results: the inferred bad rate of the rejects, their mean PD under the refitted model, and the Gini on a second sample from the same generator, where every applicant’s outcome is known. The <em>known</em> model, fitted on all applicants with their true outcomes, is the benchmark that real data never provide; its inferred rate is the rejects’ true bad rate:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">gini</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">holdout</span> <span class="o">=</span> <span class="n">make_applications</span><span class="p">(</span><span class="n">rng</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">holdout</span> <span class="o">=</span> <span class="n">holdout</span><span class="p">[</span><span class="o">~</span><span class="n">holdout</span><span class="p">[</span><span class="s2">"policy_decline"</span><span class="p">]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">summary</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">inferred</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">rate</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+<span class="gp">... </span>    <span class="k">if</span> <span class="n">inferred</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+<span class="gp">... </span>        <span class="n">rate</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">inferred</span><span class="p">[</span><span class="s2">"target"</span><span class="p">],</span> <span class="n">weights</span><span class="o">=</span><span class="n">inferred</span><span class="p">[</span><span class="s2">"weight"</span><span class="p">])</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="p">{</span>
+<span class="gp">... </span>        <span class="s2">"inferred"</span><span class="p">:</span> <span class="n">rate</span><span class="p">,</span>
+<span class="gp">... </span>        <span class="s2">"reject_pd"</span><span class="p">:</span> <span class="n">predict</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">rejects</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span>
+<span class="gp">... </span>        <span class="s2">"gini"</span><span class="p">:</span> <span class="n">gini</span><span class="p">(</span><span class="n">predict</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">holdout</span><span class="p">),</span> <span class="n">holdout</span><span class="p">[</span><span class="s2">"target"</span><span class="p">]),</span>
+<span class="gp">... </span>    <span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">known</span> <span class="o">=</span> <span class="n">logistic_regression</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">woe_transform</span><span class="p">(</span><span class="n">population</span><span class="p">),</span> <span class="n">population</span><span class="p">[</span><span class="s2">"target"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">models</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"accepts"</span><span class="p">:</span> <span class="n">model</span><span class="p">,</span> <span class="s2">"known"</span><span class="p">:</span> <span class="n">known</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"accepts"</span><span class="p">:</span> <span class="n">summary</span><span class="p">(</span><span class="n">model</span><span class="p">),</span> <span class="s2">"known"</span><span class="p">:</span> <span class="n">summary</span><span class="p">(</span><span class="n">known</span><span class="p">,</span> <span class="n">rejects</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">weight</span><span class="o">=</span><span class="mf">1.0</span><span class="p">))}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">factor</span> <span class="ow">in</span> <span class="p">[</span><span class="mf">1.25</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mi">2</span><span class="p">]:</span>
+<span class="gp">... </span>    <span class="n">inferred</span> <span class="o">=</span> <span class="n">fuzzy_augmentation</span><span class="p">(</span><span class="n">reject_pd</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="n">factor</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">models</span><span class="p">[</span><span class="sa">f</span><span class="s2">"fuzzy </span><span class="si">{</span><span class="n">factor</span><span class="si">}</span><span class="s2">"</span><span class="p">]</span> <span class="o">=</span> <span class="n">refit</span><span class="p">(</span><span class="n">inferred</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">results</span><span class="p">[</span><span class="sa">f</span><span class="s2">"fuzzy </span><span class="si">{</span><span class="n">factor</span><span class="si">}</span><span class="s2">"</span><span class="p">]</span> <span class="o">=</span> <span class="n">summary</span><span class="p">(</span><span class="n">models</span><span class="p">[</span><span class="sa">f</span><span class="s2">"fuzzy </span><span class="si">{</span><span class="n">factor</span><span class="si">}</span><span class="s2">"</span><span class="p">],</span> <span class="n">inferred</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">results</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">            inferred  reject_pd   gini</span>
+<span class="go">accepts          NaN      0.191  0.422</span>
+<span class="go">known          0.301      0.252  0.425</span>
+<span class="go">fuzzy 1.25     0.238      0.221  0.421</span>
+<span class="go">fuzzy 1.5      0.286      0.251  0.420</span>
+<span class="go">fuzzy 2        0.381      0.312  0.419</span>
+</pre></div>
+</div>
+<p>A factor of 1.5 brings the inferred bad rate of the rejects to 28.6%, near their true 30.1%, and their mean PD under the refitted model to 25.1%, close to the known model’s 25.2%. Even the known model predicts less than 30.1% for the rejects: it is fitted on all applicants and lacks the information that set the rejects apart. The Gini hardly moves. On these data, reject inference corrects how risky the model takes the rejects to be, not how it ranks applicants.</p>
+<figure class="align-default" id="id3">
+<img alt="Inferred bad rate and mean refitted PD of the rejects for factors from 1 to 2.5, with the true bad rate of the rejects and the known model's mean PD as dashed lines" class="plot-directive" src="../_images/reject_inference-2.svg" />
+<figcaption>
+<p><span class="caption-text">The inferred bad rate and the mean refitted PD of the rejects rise with <code class="docutils literal notranslate"><span class="pre">factor</span></code>. The dashed lines are the true bad rate of the rejects and the mean PD that the known model gives them; a factor of 1.5 meets the second.</span><a class="headerlink" href="#id3" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>Here the known outcomes say which factor fits. With real data, the factor is an assumption, best supported from outside the development sample: the bureau outcomes of rejects who borrowed elsewhere, a small sample of rejects approved on purpose, or business judgement. Report the results for a range of factors, as above.</p>
+</section>
+<section id="parceling">
+<h2>Parceling<a class="headerlink" href="#parceling" title="Link to this heading">#</a></h2>
+<p><a class="reference internal" href="../api/reject_inference.html#kivi.reject_inference.parceling" title="kivi.reject_inference.parceling"><code class="xref py py-func docutils literal notranslate"><span class="pre">parceling()</span></code></a> divides the scores of accepts and rejects into bands, by default ten quantile bands of both samples together. In each band, the rejects are labelled bad at the accepts’ bad rate times <code class="docutils literal notranslate"><span class="pre">factor</span></code>. The labels are drawn with a local generator, so a seed in <code class="docutils literal notranslate"><span class="pre">rng</span></code> makes them reproducible:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">parcels</span> <span class="o">=</span> <span class="n">parceling</span><span class="p">(</span><span class="n">accept_pd</span><span class="p">,</span> <span class="n">accepts</span><span class="p">[</span><span class="s2">"target"</span><span class="p">],</span> <span class="n">reject_pd</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">parcels</span><span class="p">[</span><span class="s2">"target"</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
+<span class="go">target</span>
+<span class="go">0    1818</span>
+<span class="go">1     649</span>
+<span class="go">Name: count, dtype: int64</span>
+</pre></div>
+</div>
+<p>The rejects are labelled bad at 26.3%, less than the 28.6% that fuzzy augmentation infers with the same factor. Parceling knows only the band of a reject, not its features or its own PD. The riskiest band is open above and holds almost a third of the rejects, and they all get the bad rate of the band’s accepts, which is below the mean PD that the model gives them.</p>
+<p>The draw adds noise to the refit. Over ten seeds, the Gini on the second sample varies by several thousandths:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ginis</span> <span class="o">=</span> <span class="p">[</span>
+<span class="gp">... </span>    <span class="n">summary</span><span class="p">(</span><span class="n">refit</span><span class="p">(</span><span class="n">parceling</span><span class="p">(</span><span class="n">accept_pd</span><span class="p">,</span> <span class="n">accepts</span><span class="p">[</span><span class="s2">"target"</span><span class="p">],</span> <span class="n">reject_pd</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="n">seed</span><span class="p">)))</span>
+<span class="gp">... </span>    <span class="k">for</span> <span class="n">seed</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+<span class="gp">... </span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">min</span><span class="p">(</span><span class="n">g</span><span class="p">[</span><span class="s1">'gini'</span><span class="p">]</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">g</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">ginis</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="nb">max</span><span class="p">(</span><span class="n">g</span><span class="p">[</span><span class="s1">'gini'</span><span class="p">]</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">g</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">ginis</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">0.418 to 0.425</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">expected=True</span></code> instead returns the band’s rate as the weight of a bad row and its complement as the weight of a good row, like <a class="reference internal" href="../api/reject_inference.html#kivi.reject_inference.fuzzy_augmentation" title="kivi.reject_inference.fuzzy_augmentation"><code class="xref py py-func docutils literal notranslate"><span class="pre">fuzzy_augmentation()</span></code></a>. That removes the noise of the draw, so the comparison below uses it:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">parcels</span> <span class="o">=</span> <span class="n">parceling</span><span class="p">(</span><span class="n">accept_pd</span><span class="p">,</span> <span class="n">accepts</span><span class="p">[</span><span class="s2">"target"</span><span class="p">],</span> <span class="n">reject_pd</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">expected</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">models</span><span class="p">[</span><span class="s2">"parceling"</span><span class="p">]</span> <span class="o">=</span> <span class="n">refit</span><span class="p">(</span><span class="n">parcels</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span><span class="p">[</span><span class="s2">"parceling"</span><span class="p">]</span> <span class="o">=</span> <span class="n">summary</span><span class="p">(</span><span class="n">models</span><span class="p">[</span><span class="s2">"parceling"</span><span class="p">],</span> <span class="n">parcels</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="reweighting">
+<h2>Reweighting<a class="headerlink" href="#reweighting" title="Link to this heading">#</a></h2>
+<p><a class="reference internal" href="../api/reject_inference.html#kivi.reject_inference.reweighting" title="kivi.reject_inference.reweighting"><code class="xref py py-func docutils literal notranslate"><span class="pre">reweighting()</span></code></a> adds no rows. In each score band, it gives every accept the weight (accepts + rejects) / accepts, so that the weighted accepts stand for all applicants of their band:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">weights</span> <span class="o">=</span> <span class="n">reweighting</span><span class="p">(</span><span class="n">accept_pd</span><span class="p">,</span> <span class="n">reject_pd</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">weights</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">weights</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">, total </span><span class="si">{</span><span class="n">weights</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">1.01 to 6.33, total 9237</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">models</span><span class="p">[</span><span class="s2">"reweighting"</span><span class="p">]</span> <span class="o">=</span> <span class="n">logistic_regression</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">spec</span><span class="o">.</span><span class="n">woe_transform</span><span class="p">(</span><span class="n">accepts</span><span class="p">),</span> <span class="n">accepts</span><span class="p">[</span><span class="s2">"target"</span><span class="p">],</span> <span class="n">weights</span><span class="o">=</span><span class="n">weights</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span><span class="p">[</span><span class="s2">"reweighting"</span><span class="p">]</span> <span class="o">=</span> <span class="n">summary</span><span class="p">(</span><span class="n">models</span><span class="p">[</span><span class="s2">"reweighting"</span><span class="p">])</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id5">
+<img alt="The ten score bands with their accepts, rejects and event rates, the bad weights of parceling and the weights of reweighting" class="plot-directive" src="../_images/reject_inference-3.svg" />
+<figcaption>
+<p><span class="caption-text">The ten bands of the scores of both samples. Parceling labels the rejects of a band bad at the event rate of its accepts times <code class="docutils literal notranslate"><span class="pre">factor</span></code>, and reweighting gives the accepts of a band the weight (accepts + rejects) / accepts. The rejects crowd into the riskiest bands, where accepts are fewest.</span><a class="headerlink" href="#id5" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>Reweighting assumes that rejects default like accepts with the same score, which is exactly what fails here. The weights add up to all 9,237 applicants of the population, although only the 6,770 accepts have an observed outcome, so the standard errors of the fit are too small. Each band must also hold accepts. On the incumbent PD, which decided the approval with a hard cut-off, the bands above the cut-off hold only rejects:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">reweighting</span><span class="p">(</span><span class="n">accepts</span><span class="p">[</span><span class="s2">"incumbent_pd"</span><span class="p">],</span> <span class="n">rejects</span><span class="p">[</span><span class="s2">"incumbent_pd"</span><span class="p">])</span>
+<span class="gt">Traceback (most recent call last):</span>
+<span class="c">...</span>
+<span class="gr">ValueError</span>: <span class="n">the score band (0.17118, 0.22683999999999996] holds 924 rejected applicant(s) but no accepted one, so no accepted applicant can stand in for them; use fewer bins or wider edges</span>
+</pre></div>
+</div>
+</section>
+<section id="hard-cut-off">
+<h2>Hard cut-off<a class="headerlink" href="#hard-cut-off" title="Link to this heading">#</a></h2>
+<p>The simplest method needs no function. Score the rejects with the accepts-only model, label those above a PD cut-off bad and the others good, and refit. Here the cut-off labels the riskiest 30% of the rejects bad, close to their true bad rate; like the factor, that share is chosen with the known outcomes:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cut_off</span> <span class="o">=</span> <span class="n">reject_pd</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="mf">0.7</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hard</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"target"</span><span class="p">:</span> <span class="p">(</span><span class="n">reject_pd</span> <span class="o">&gt;</span> <span class="n">cut_off</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span> <span class="s2">"weight"</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">models</span><span class="p">[</span><span class="s2">"cut-off"</span><span class="p">]</span> <span class="o">=</span> <span class="n">refit</span><span class="p">(</span><span class="n">hard</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span><span class="p">[</span><span class="s2">"cut-off"</span><span class="p">]</span> <span class="o">=</span> <span class="n">summary</span><span class="p">(</span><span class="n">models</span><span class="p">[</span><span class="s2">"cut-off"</span><span class="p">],</span> <span class="n">hard</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="comparison">
+<h2>Comparison<a class="headerlink" href="#comparison" title="Link to this heading">#</a></h2>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">results</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">             inferred  reject_pd   gini</span>
+<span class="go">accepts           NaN      0.191  0.422</span>
+<span class="go">known           0.301      0.252  0.425</span>
+<span class="go">fuzzy 1.25      0.238      0.221  0.421</span>
+<span class="go">fuzzy 1.5       0.286      0.251  0.420</span>
+<span class="go">fuzzy 2         0.381      0.312  0.419</span>
+<span class="go">parceling       0.263      0.229  0.421</span>
+<span class="go">reweighting       NaN      0.186  0.422</span>
+<span class="go">cut-off         0.300      0.311  0.418</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">compared</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"accepts"</span><span class="p">,</span> <span class="s2">"known"</span><span class="p">,</span> <span class="s2">"fuzzy 1.5"</span><span class="p">,</span> <span class="s2">"parceling"</span><span class="p">,</span> <span class="s2">"reweighting"</span><span class="p">,</span> <span class="s2">"cut-off"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="n">name</span><span class="p">:</span> <span class="n">models</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="s2">"coef"</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">compared</span><span class="p">})</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">                accepts  known  fuzzy 1.5  parceling  reweighting  cut-off</span>
+<span class="go">variable</span>
+<span class="go">intercept        -2.230 -2.067     -2.130     -2.104       -2.228   -2.574</span>
+<span class="go">age               1.223  1.640      1.652      1.404        1.201    2.644</span>
+<span class="go">income            1.239  1.345      1.624      1.373        1.146    2.980</span>
+<span class="go">debt_to_income    1.356  1.824      1.798      1.627        1.391    2.574</span>
+<span class="go">inquiries         1.427  1.899      1.901      1.596        1.286    3.459</span>
+<span class="go">housing           1.057  1.136      1.114      0.938        1.006    2.545</span>
+<span class="go">employment        1.388  1.504      1.817      1.542        1.393    3.192</span>
+</pre></div>
+</div>
+<p>With the accepts’ WOE, the known model weighs every variable more than the accepts-only model: across all applicants, the features separate good from bad more strongly than among the accepts. The methods compare as follows:</p>
+<ul class="simple">
+<li><p><strong>Ranking.</strong> The Gini on the second sample stays between 0.418 and 0.422 for every method in the table, and the known model reaches only 0.425; the random labels of parceling reach that only by chance. The extra risk of the rejects comes from information that no feature holds, so no method can recover it.</p></li>
+<li><p><strong>Fuzzy augmentation and parceling.</strong> With a factor above 1, both raise the predicted bad rate of the rejects towards their true rate and move most coefficients towards those of the known model. With a factor of 1.5, fuzzy augmentation brings the intercept and four of the six variables within 0.07 of the known model, but overshoots <code class="docutils literal notranslate"><span class="pre">income</span></code> and <code class="docutils literal notranslate"><span class="pre">employment</span></code>. Parceling lowers the coefficient of <code class="docutils literal notranslate"><span class="pre">housing</span></code>, which the known model raises. Both methods help only as far as the factor is right.</p></li>
+<li><p><strong>Reweighting.</strong> It does not help here: weights cannot make the rejects riskier than the accepts of their band.</p></li>
+<li><p><strong>Hard cut-off.</strong> It treats the rejects above the cut-off as certainly bad and the others as certainly good, so the inferred outcomes follow the model’s own score without error. The refit multiplies the coefficient of every variable by 1.9 to 2.4 and ranks slightly worse.</p></li>
+</ul>
+</section>
+<section id="refitting-the-woe">
+<h2>Refitting the WOE<a class="headerlink" href="#refitting-the-woe" title="Link to this heading">#</a></h2>
+<p>The comparisons keep the accepts’ WOE encoding. In practice, the groups are often refitted on the augmented sample with the inferred weights, so that the rejects also inform the WOE of the groups they fill. <a class="reference internal" href="../api/spec.html#kivi.spec.fit_spec" title="kivi.spec.fit_spec"><code class="xref py py-func docutils literal notranslate"><span class="pre">fit_spec()</span></code></a> takes the weights:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">inferred</span> <span class="o">=</span> <span class="n">fuzzy_augmentation</span><span class="p">(</span><span class="n">reject_pd</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="mf">1.5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">frame</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">accepts</span><span class="p">[</span><span class="n">features</span><span class="p">],</span> <span class="n">rejects</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">inferred</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">features</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">accepts</span><span class="p">[</span><span class="s2">"target"</span><span class="p">],</span> <span class="n">inferred</span><span class="p">[</span><span class="s2">"target"</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">weights</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">accepts</span><span class="o">.</span><span class="n">index</span><span class="p">),</span> <span class="n">inferred</span><span class="p">[</span><span class="s2">"weight"</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">augmented_spec</span> <span class="o">=</span> <span class="n">fit_spec</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="n">edges</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">augmented</span> <span class="o">=</span> <span class="n">logistic_regression</span><span class="p">(</span><span class="n">augmented_spec</span><span class="o">.</span><span class="n">woe_transform</span><span class="p">(</span><span class="n">frame</span><span class="p">),</span> <span class="n">target</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">known_spec</span> <span class="o">=</span> <span class="n">fit_spec</span><span class="p">(</span><span class="n">population</span><span class="p">[</span><span class="n">features</span><span class="p">],</span> <span class="n">population</span><span class="p">[</span><span class="s2">"target"</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="n">edges</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">known_refit</span> <span class="o">=</span> <span class="n">logistic_regression</span><span class="p">(</span><span class="n">known_spec</span><span class="o">.</span><span class="n">woe_transform</span><span class="p">(</span><span class="n">population</span><span class="p">),</span> <span class="n">population</span><span class="p">[</span><span class="s2">"target"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s2">"accepts"</span><span class="p">:</span> <span class="n">gini</span><span class="p">(</span><span class="n">predict</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">holdout</span><span class="p">),</span> <span class="n">holdout</span><span class="p">[</span><span class="s2">"target"</span><span class="p">]),</span>
+<span class="gp">... </span>    <span class="s2">"fuzzy 1.5, WOE refitted"</span><span class="p">:</span> <span class="n">gini</span><span class="p">(</span>
+<span class="gp">... </span>        <span class="n">predict</span><span class="p">(</span><span class="n">augmented</span><span class="p">,</span> <span class="n">holdout</span><span class="p">,</span> <span class="n">augmented_spec</span><span class="p">),</span> <span class="n">holdout</span><span class="p">[</span><span class="s2">"target"</span><span class="p">]</span>
+<span class="gp">... </span>    <span class="p">),</span>
+<span class="gp">... </span>    <span class="s2">"known, WOE refitted"</span><span class="p">:</span> <span class="n">gini</span><span class="p">(</span><span class="n">predict</span><span class="p">(</span><span class="n">known_refit</span><span class="p">,</span> <span class="n">holdout</span><span class="p">,</span> <span class="n">known_spec</span><span class="p">),</span> <span class="n">holdout</span><span class="p">[</span><span class="s2">"target"</span><span class="p">]),</span>
+<span class="gp">... </span><span class="p">})</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">accepts                    0.422</span>
+<span class="go">fuzzy 1.5, WOE refitted    0.425</span>
+<span class="go">known, WOE refitted        0.430</span>
+<span class="go">dtype: float64</span>
+</pre></div>
+</div>
+<p>Refitting the WOE raises the Gini from 0.422 to 0.425, against 0.430 for the known outcomes with their own WOE. It recovers part of a gap that is small to begin with, and it does about as well with a factor of 1: the gain comes from refitting the WOE of the groups that the rejects fill, not from the factor.</p>
+</section>
+<section id="limits">
+<h2>Limits<a class="headerlink" href="#limits" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>The methods infer outcomes from the accepts, so they cannot reveal what the accepts do not show. A factor above 1 encodes how much riskier the rejects are, and the data cannot estimate it.</p></li>
+<li><p>The weights of every method make the standard errors of <a class="reference internal" href="../api/selection.html#kivi.selection.logistic_regression" title="kivi.selection.logistic_regression"><code class="xref py py-func docutils literal notranslate"><span class="pre">logistic_regression()</span></code></a> too small and the p-values of <a class="reference internal" href="../api/selection.html#kivi.selection.stepwise" title="kivi.selection.stepwise"><code class="xref py py-func docutils literal notranslate"><span class="pre">stepwise()</span></code></a> too low, because inferred rows and extra weight count as observations. Select the variables on the accepts and read the p-values of a refit as optimistic.</p></li>
+<li><p>kivi does not implement the Heckman two-stage model or other bivariate probit models of sample selection, nor iterative reclassification.</p></li>
+</ul>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="selection.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Variable selection</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="scorecard.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Scorecard</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#applications-and-approvals">Applications and approvals</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-accepts-only-model">The accepts-only model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fuzzy-augmentation">Fuzzy augmentation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sensitivity-to-the-factor">Sensitivity to the factor</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#parceling">Parceling</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#reweighting">Reweighting</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#hard-cut-off">Hard cut-off</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#comparison">Comparison</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#refitting-the-woe">Refitting the WOE</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#limits">Limits</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1.
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

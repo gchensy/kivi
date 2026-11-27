@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Glossary &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=d005c095" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=25d9e9fd"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/glossary';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Time-window features" href="features.html" />
+    <link rel="prev" title="Compatibility" href="compatibility.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="1.9.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 1.9.0">1.9.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    Tutorial
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/api/glossary.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    Tutorial
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/api/glossary.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="conventions.html">Conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compatibility.html">Compatibility</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">Time-window features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="univariate.html">Univariate profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="binning.html">Binning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="woe.html">Weight of evidence and information value</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selection.html">Variable selection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reject_inference.html">Reject inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scorecard.html">Scorecard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="expert.html">Expert scorecards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">Model performance</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lgd.html">LGD and EAD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">Credit strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rules.html">Policy rules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spec.html">Binning specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stability.html">Population stability index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">Model monitoring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="capital.html">Regulatory capital</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vintage.html">Vintage and roll-rate analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lifetime.html">Lifetime PD and expected credit loss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html">Charts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">Example data</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../api.html" class="nav-link">API reference</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Glossary</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="glossary">
+<h1>Glossary<a class="headerlink" href="#glossary" title="Link to this heading">#</a></h1>
+<p>The terms of credit risk modeling as the guides and the docstrings use them. Each entry links to the guide that explains the term with an example.</p>
+<dl class="simple glossary">
+<dt id="term-AalenJohansen-estimator">Aalen–Johansen estimator<a class="headerlink" href="#term-AalenJohansen-estimator" title="Link to this term">#</a></dt><dd><p>The estimate of the cumulative incidence of default when other exits, such as early repayments, compete with it: the sum over the periods of the share of the accounts still on book at the start of a period times the hazard rate of default in it. Without other exits it equals 1 − Kaplan–Meier; see <a class="reference internal" href="../user_guide/lifetime.html"><span class="doc">Lifetime PD and expected credit loss</span></a>.</p>
+</dd>
+<dt id="term-Absorbing-state">Absorbing state<a class="headerlink" href="#term-Absorbing-state" title="Link to this term">#</a></dt><dd><p>A state of a transition matrix that a loan never leaves once it has entered it, such as default. The powers of the matrix then accumulate the probability of having reached it; see <a class="reference internal" href="../user_guide/lifetime.html"><span class="doc">Lifetime PD and expected credit loss</span></a>.</p>
+</dd>
+<dt id="term-Accepts-and-rejects">Accepts and rejects<a class="headerlink" href="#term-Accepts-and-rejects" title="Link to this term">#</a></dt><dd><p>The applicants that a previous policy approved and declined. The outcome is known only for the accepts, so a model developed on them alone may misjudge the rejects; see <a class="reference internal" href="../user_guide/reject_inference.html"><span class="doc">Reject inference</span></a>.</p>
+</dd>
+<dt id="term-Accuracy-ratio-AR">Accuracy ratio (AR)<a class="headerlink" href="#term-Accuracy-ratio-AR" title="Link to this term">#</a></dt><dd><p>The name of the Gini coefficient in rating validation and PD calibration: twice the AUC minus 1, with tied scores counted as half. Quasi moment matching fits a PD curve to a target accuracy ratio; see <a class="reference internal" href="../user_guide/calibration.html"><span class="doc">Calibration</span></a>.</p>
+</dd>
+<dt id="term-Analytic-hierarchy-process-AHP">Analytic hierarchy process (AHP)<a class="headerlink" href="#term-Analytic-hierarchy-process-AHP" title="Link to this term">#</a></dt><dd><p>Saaty’s method of weighing the factors of a decision, such as those of an expert scorecard, from comparisons of the factors two at a time. The weights are the principal eigenvector, or the geometric means of the rows, of the pairwise comparison matrix, and the consistency ratio checks that the comparisons agree with each other; see <a class="reference internal" href="../user_guide/expert.html"><span class="doc">Expert scorecards</span></a>.</p>
+</dd>
+<dt id="term-Area-under-the-ROC-curve-AUC">Area under the ROC curve (AUC)<a class="headerlink" href="#term-Area-under-the-ROC-curve-AUC" title="Link to this term">#</a></dt><dd><p>The probability that a randomly chosen event scores higher than a randomly chosen non-event, with ties counted as one half. A score unrelated to the target has an AUC of about 0.5; see <a class="reference internal" href="../user_guide/metrics.html"><span class="doc">Model performance</span></a>.</p>
+</dd>
+<dt id="term-Asset-class">Asset class<a class="headerlink" href="#term-Asset-class" title="Link to this term">#</a></dt><dd><p>The class of an exposure that fixes its asset correlation in the IRB risk-weight functions and whether the maturity adjustment applies: corporate, which includes sovereigns and banks, high-volatility commercial real estate, residential mortgages, qualifying revolving retail and other retail; see <a class="reference internal" href="../user_guide/capital.html"><span class="doc">Regulatory capital</span></a>.</p>
+</dd>
+<dt id="term-Asset-correlation">Asset correlation<a class="headerlink" href="#term-Asset-correlation" title="Link to this term">#</a></dt><dd><p>In the one-factor model, the share of the variance of a borrower’s assets that the systematic factor explains. The higher it is, the more the defaults of a portfolio cluster in bad years, and the higher the capital requirement; see <a class="reference internal" href="../user_guide/capital.html"><span class="doc">Regulatory capital</span></a>.</p>
+</dd>
+<dt id="term-Average-precision">Average precision<a class="headerlink" href="#term-Average-precision" title="Link to this term">#</a></dt><dd><p>The area under the precision-recall curve drawn as steps: the sum over the thresholds of the gain in recall times the precision at the threshold, <span class="math notranslate nohighlight">\(\sum_n (R_n - R_{n-1}) P_n\)</span>. A score that ranks at random has an average precision close to the event rate; see <a class="reference internal" href="../user_guide/plotting.html"><span class="doc">Charts</span></a>.</p>
+</dd>
+<dt id="term-Back-test">Back-test<a class="headerlink" href="#term-Back-test" title="Link to this term">#</a></dt><dd><p>A comparison of the estimates of a model, such as the PDs of its grades or the LGDs of its facilities, with the values realized later. kivi tests PDs with the binomial and Jeffreys tests and continuous estimates with the t-tests of the European Central Bank; see <a class="reference internal" href="../user_guide/validation.html"><span class="doc">Model validation</span></a>.</p>
+</dd>
+<dt id="term-Bad-definition">Bad definition<a class="headerlink" href="#term-Bad-definition" title="Link to this term">#</a></dt><dd><p>The condition that makes a loan bad at a month end, usually a delinquency bucket or worse, such as 90 days past due or more. A vintage table counts the loans that have met it at any month on book so far, so an earlier definition gives an earlier signal; see <a class="reference internal" href="../user_guide/vintage.html"><span class="doc">Vintage and roll-rate analysis</span></a>.</p>
+</dd>
+<dt id="term-Bad-month">Bad month<a class="headerlink" href="#term-Bad-month" title="Link to this term">#</a></dt><dd><p>A month whose status at its end is <code class="docutils literal notranslate"><span class="pre">bad</span></code> or worse in the order of an ordered status column, such as 30 days past due or more with the default <code class="docutils literal notranslate"><span class="pre">bad=&quot;30-59&quot;</span></code> of <a class="reference internal" href="features.html#kivi.features.panel_features" title="kivi.features.panel_features"><code class="xref py py-func docutils literal notranslate"><span class="pre">panel_features()</span></code></a>; see <a class="reference internal" href="../user_guide/features.html"><span class="doc">Time-window features</span></a>.</p>
+</dd>
+<dt id="term-Best-KS-binning">Best-KS binning<a class="headerlink" href="#term-Best-KS-binning" title="Link to this term">#</a></dt><dd><p>Supervised binning that cuts each bin where the KS between its events and non-events is largest, and splits first the bin whose cut ranks the most pairs of an event and a non-event apart. Its first cut keeps the KS of the raw values; see <a class="reference internal" href="../user_guide/binning.html"><span class="doc">Binning</span></a>.</p>
+</dd>
+<dt id="term-Binning">Binning<a class="headerlink" href="#term-Binning" title="Link to this term">#</a></dt><dd><p>Dividing the values of a numeric variable into intervals, the bins, whose edges are fitted on a reference sample and then applied to every other sample. Scorecard development calls it classing: fine classing forms many small bins, and coarse classing merges them into a few that are large enough to be stable. A categorical variable is binned by grouping its categories instead; see <a class="reference internal" href="../user_guide/binning.html"><span class="doc">Binning</span></a>.</p>
+</dd>
+<dt id="term-Binning-specification">Binning specification<a class="headerlink" href="#term-Binning-specification" title="Link to this term">#</a></dt><dd><p>The edges, category groupings, special codes and WOE tables of every column of a model, fitted together and saved as versioned JSON, so that production data are grouped and encoded exactly as the development sample; see <a class="reference internal" href="../user_guide/spec.html"><span class="doc">Binning specifications</span></a>.</p>
+</dd>
+<dt id="term-Brier-decomposition">Brier decomposition<a class="headerlink" href="#term-Brier-decomposition" title="Link to this term">#</a></dt><dd><p>The split of the Brier score of probabilities, by groups such as grades, into the reliability, how far the mean probability of each group lies from its event rate, the resolution, how far the event rates of the groups lie from the overall event rate, and the uncertainty, the variance of the outcomes. The Brier score is the reliability minus the resolution plus the uncertainty, plus two terms for probabilities that vary within a group; see <a class="reference internal" href="../user_guide/calibration.html"><span class="doc">Calibration</span></a>.</p>
+</dd>
+<dt id="term-Calibration-sample">Calibration sample<a class="headerlink" href="#term-Calibration-sample" title="Link to this term">#</a></dt><dd><p>The sample on which the PDs of a model are brought to their central tendency, such as the current portfolio. The EBA guidelines ask that it be comparable to the portfolio that the model rates; see <a class="reference internal" href="../user_guide/calibration.html"><span class="doc">Calibration</span></a>.</p>
+</dd>
+<dt id="term-Calibration-segment">Calibration segment<a class="headerlink" href="#term-Calibration-segment" title="Link to this term">#</a></dt><dd><p>The part of a portfolio whose PDs are calibrated to one long-run average default rate, such as the exposures of one rating system; the calibration of each grade within it is tested as well; see <a class="reference internal" href="../user_guide/calibration.html"><span class="doc">Calibration</span></a>.</p>
+</dd>
+<dt id="term-Candidate-rule">Candidate rule<a class="headerlink" href="#term-Candidate-rule" title="Link to this term">#</a></dt><dd><p>A policy rule that is considered but not yet in force, such as one that an analyst proposes or a threshold that <a class="reference internal" href="rules.html#kivi.rules.rule_candidates" title="kivi.rules.rule_candidates"><code class="xref py py-func docutils literal notranslate"><span class="pre">rule_candidates()</span></code></a> finds in the data. Its event rate can be measured on the applicants that the current policy approved, which shows what adding it would change, and a threshold found on the development sample is checked again on a validation sample; see <a class="reference internal" href="../user_guide/rules.html"><span class="doc">Policy rules</span></a>.</p>
+</dd>
+<dt id="term-Capital-requirement-K">Capital requirement (K)<a class="headerlink" href="#term-Capital-requirement-K" title="Link to this term">#</a></dt><dd><p>The unexpected loss of an exposure as a share of its EAD: the loss in the economy that is worse only once in a thousand years, minus the expected loss. Its risk weight is 12.5 K, and its risk-weighted assets are 12.5 K times the EAD; see <a class="reference internal" href="../user_guide/capital.html"><span class="doc">Regulatory capital</span></a>.</p>
+</dd>
+<dt id="term-Category-grouping">Category grouping<a class="headerlink" href="#term-Category-grouping" title="Link to this term">#</a></dt><dd><p>A mapping from each category of a categorical variable to a group, fitted on a reference sample by pooling rare categories or by merging categories with similar event rates, and applied unchanged to every other sample; see <a class="reference internal" href="../user_guide/binning.html#category-groups"><span class="std std-ref">Grouping categories</span></a>.</p>
+</dd>
+<dt id="term-Censoring">Censoring<a class="headerlink" href="#term-Censoring" title="Link to this term">#</a></dt><dd><p>Losing sight of an account before its outcome is known, as when the data end while a loan is still on book. A censored account counts among the accounts at risk up to its last period, and its later outcome stays unknown; see <a class="reference internal" href="../user_guide/lifetime.html"><span class="doc">Lifetime PD and expected credit loss</span></a>.</p>
+</dd>
+<dt id="term-Central-tendency">Central tendency<a class="headerlink" href="#term-Central-tendency" title="Link to this term">#</a></dt><dd><p>The mean PD to which a model is calibrated, such as the long-run average default rate of its calibration segment, or the event rate of a new sample; see <a class="reference internal" href="../user_guide/calibration.html"><span class="doc">Calibration</span></a>.</p>
+</dd>
+<dt id="term-Characteristic-stability-index-CSI">Characteristic stability index (CSI)<a class="headerlink" href="#term-Characteristic-stability-index-CSI" title="Link to this term">#</a></dt><dd><p>The change of a variable’s average scorecard points from a reference sample to a current one: the change of each group’s share times the group’s points, summed over the groups. Over all the variables of a scorecard, the CSI values add up to the change of the average score; see <a class="reference internal" href="../user_guide/psi.html#characteristic-stability"><span class="std std-ref">Characteristic stability index</span></a>.</p>
+</dd>
+<dt id="term-ChiMerge">ChiMerge<a class="headerlink" href="#term-ChiMerge" title="Link to this term">#</a></dt><dd><p>Supervised binning that starts from many small bins and repeatedly merges the adjacent pair with the smallest chi-square statistic, the pair whose event rates are most alike, until no more than a given number of bins remain and every adjacent pair differs significantly. Categories are merged in the same way once sorted by their WOE; see <a class="reference internal" href="../user_guide/binning.html"><span class="doc">Binning</span></a>.</p>
+</dd>
+<dt id="term-Closed-workout">Closed workout<a class="headerlink" href="#term-Closed-workout" title="Link to this term">#</a></dt><dd><p>A workout whose recovery process has ended, by the bank’s definition of its end, with a cure, the sale of the collateral or the write-off of what was not recovered. Only a closed workout has a realized LGD, and back-tests use closed workouts only; see <a class="reference internal" href="../user_guide/lgd.html"><span class="doc">LGD and EAD</span></a>.</p>
+</dd>
+<dt id="term-Coefficient-of-variation-CV">Coefficient of variation (CV)<a class="headerlink" href="#term-Coefficient-of-variation-CV" title="Link to this term">#</a></dt><dd><p>The standard deviation of values divided by their mean, as in the <code class="docutils literal notranslate"><span class="pre">cv</span></code> of <a class="reference internal" href="univariate.html#kivi.univariate.profile_table" title="kivi.univariate.profile_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">profile_table()</span></code></a>. For the shares <span class="math notranslate nohighlight">\(R_i\)</span> of <span class="math notranslate nohighlight">\(K\)</span> grades it is <span class="math notranslate nohighlight">\(\sqrt{K \sum_i (R_i - 1/K)^2}\)</span>, 0 for equally full grades and <span class="math notranslate nohighlight">\(\sqrt{K - 1}\)</span> when one grade holds everybody, and the European Central Bank tests whether it has risen since the initial validation; see <a class="reference internal" href="../user_guide/calibration.html"><span class="doc">Calibration</span></a>.</p>
+</dd>
+<dt id="term-Cohort">Cohort<a class="headerlink" href="#term-Cohort" title="Link to this term">#</a></dt><dd><p>The loans originated in the same period, usually a month, followed together as they age in a vintage table. The cohort approach to one-year default rates groups loans by a start month instead; see <a class="reference internal" href="../user_guide/vintage.html"><span class="doc">Vintage and roll-rate analysis</span></a>.</p>
+</dd>
+<dt id="term-Cohort-approach">Cohort approach<a class="headerlink" href="#term-Cohort-approach" title="Link to this term">#</a></dt><dd><p>The count of the one-year default rate behind the PDs of an IRB model: the obligors not in default at a start month, by their grade at that month, and of them those that default at least once in the following year, including those that leave the portfolio during it; see <a class="reference internal" href="../user_guide/vintage.html"><span class="doc">Vintage and roll-rate analysis</span></a>.</p>
+</dd>
+<dt id="term-Competing-risk">Competing risk<a class="headerlink" href="#term-Competing-risk" title="Link to this term">#</a></dt><dd><p>An exit that ends the risk of default without being a default, such as an early repayment. Counting it as censored, as 1 − Kaplan–Meier does, overstates the share of the accounts that default; see <a class="reference internal" href="../user_guide/lifetime.html"><span class="doc">Lifetime PD and expected credit loss</span></a>.</p>
+</dd>
+<dt id="term-Conditional-PD">Conditional PD<a class="headerlink" href="#term-Conditional-PD" title="Link to this term">#</a></dt><dd><p>The probability of a default in a period given that there was none before it, also called the hazard rate; see <a class="reference internal" href="../user_guide/lifetime.html"><span class="doc">Lifetime PD and expected credit loss</span></a>. With competing exits, the <code class="docutils literal notranslate"><span class="pre">hazard</span></code> of <a class="reference internal" href="lifetime.html#kivi.lifetime.survival_table" title="kivi.lifetime.survival_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">survival_table()</span></code></a> is conditional on the account being still on book. In the one-factor model, <a class="reference internal" href="capital.html#kivi.capital.conditional_pd" title="kivi.capital.conditional_pd"><code class="xref py py-func docutils literal notranslate"><span class="pre">conditional_pd()</span></code></a> gives the PD conditional on the systematic factor instead; see <a class="reference internal" href="../user_guide/capital.html"><span class="doc">Regulatory capital</span></a>.</p>
+</dd>
+<dt id="term-Consistency-index-CI">Consistency index (CI)<a class="headerlink" href="#term-Consistency-index-CI" title="Link to this term">#</a></dt><dd><p>How far the judgments of a pairwise comparison matrix of <span class="math notranslate nohighlight">\(n\)</span> factors contradict each other: <span class="math notranslate nohighlight">\((\lambda_{\max} - n) / (n - 1)\)</span>, where <span class="math notranslate nohighlight">\(\lambda_{\max}\)</span> is the principal eigenvalue of the matrix. It is 0 when the judgments are consistent; see <a class="reference internal" href="../user_guide/expert.html"><span class="doc">Expert scorecards</span></a>.</p>
+</dd>
+<dt id="term-Consistency-ratio-CR">Consistency ratio (CR)<a class="headerlink" href="#term-Consistency-ratio-CR" title="Link to this term">#</a></dt><dd><p>The consistency index of a pairwise comparison matrix divided by the random index for the same number of factors. Saaty’s rule of thumb asks for at most 0.1 before the weights are used; see <a class="reference internal" href="../user_guide/expert.html"><span class="doc">Expert scorecards</span></a>.</p>
+</dd>
+<dt id="term-Coverage-ratio">Coverage ratio<a class="headerlink" href="#term-Coverage-ratio" title="Link to this term">#</a></dt><dd><p>The loss allowance of a group of loans divided by their exposure; see <a class="reference internal" href="../user_guide/lifetime.html"><span class="doc">Lifetime PD and expected credit loss</span></a>.</p>
+</dd>
+<dt id="term-Credit-conversion-factor-CCF">Credit conversion factor (CCF)<a class="headerlink" href="#term-Credit-conversion-factor-CCF" title="Link to this term">#</a></dt><dd><p>The share of the undrawn amount of a credit line that a borrower draws by the time of default, so that the exposure at default is the drawn amount plus the CCF times the undrawn amount. The realized CCF of a defaulted line compares the amount drawn at default with the limit and the drawn amount at the reference date; see <a class="reference internal" href="../user_guide/lgd.html"><span class="doc">LGD and EAD</span></a>.</p>
+</dd>
+<dt id="term-Credit-impaired">Credit-impaired<a class="headerlink" href="#term-Credit-impaired" title="Link to this term">#</a></dt><dd><p>IFRS 9 calls a loan credit-impaired once events with a detrimental effect on its expected cash flows have occurred, such as significant financial difficulty of the borrower or a breach of contract like a default or a past-due event. Lenders usually align it with their definition of default, and such loans are in stage 3; see <a class="reference internal" href="../user_guide/lifetime.html"><span class="doc">Lifetime PD and expected credit loss</span></a>.</p>
+</dd>
+<dt id="term-Cumulative-incidence">Cumulative incidence<a class="headerlink" href="#term-Cumulative-incidence" title="Link to this term">#</a></dt><dd><p>The probability of a default by the end of a period when other exits compete with it: the share of all accounts that default by then, estimated by Aalen–Johansen. For a cohort observed from origination to a common end, it is the cumulative bad rate of its vintage curve; see <a class="reference internal" href="../user_guide/lifetime.html"><span class="doc">Lifetime PD and expected credit loss</span></a>.</p>
+</dd>
+<dt id="term-Cumulative-PD">Cumulative PD<a class="headerlink" href="#term-Cumulative-PD" title="Link to this term">#</a></dt><dd><p>The probability of a default in any of the periods from the first up to a given one, which never falls as the horizon grows; see <a class="reference internal" href="../user_guide/lifetime.html"><span class="doc">Lifetime PD and expected credit loss</span></a>.</p>
+</dd>
+<dt id="term-Cure">Cure<a class="headerlink" href="#term-Cure" title="Link to this term">#</a></dt><dd><p>The return of a defaulted loan to performing status. The EBA’s guidelines count it as a recovery of the amount outstanding on the date of the cure; see <a class="reference internal" href="../user_guide/lgd.html"><span class="doc">LGD and EAD</span></a>.</p>
+</dd>
+<dt id="term-Cut-off">Cut-off<a class="headerlink" href="#term-Cut-off" title="Link to this term">#</a></dt><dd><p>The score that separates approval from decline. kivi approves the scores at or below the cut-off, because its scores rise with the risk; see <a class="reference internal" href="../user_guide/strategy.html"><span class="doc">Credit strategy</span></a>.</p>
+</dd>
+<dt id="term-Days-past-due-DPD">Days past due (DPD)<a class="headerlink" href="#term-Days-past-due-DPD" title="Link to this term">#</a></dt><dd><p>The number of days for which a contractual payment has been overdue. IFRS 9 rebuttably presumes a significant increase in credit risk when a payment is more than 30 days past due, and default no later than when it is 90 days past due; see <a class="reference internal" href="../user_guide/lifetime.html"><span class="doc">Lifetime PD and expected credit loss</span></a>, and <a class="reference internal" href="../user_guide/vintage.html"><span class="doc">Vintage and roll-rate analysis</span></a> for how they are counted from a repayment schedule.</p>
+</dd>
+<dt id="term-Decision-waterfall">Decision waterfall<a class="headerlink" href="#term-Decision-waterfall" title="Link to this term">#</a></dt><dd><p>A set of policy rules applied in order, each declining the applicants it hits among those that the rules before it left approved, so that every decline counts once, under the first rule that hits it. The last row of <a class="reference internal" href="rules.html#kivi.rules.rule_set_table" title="kivi.rules.rule_set_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">rule_set_table()</span></code></a> describes the book that the whole set approves, whatever the order; see <a class="reference internal" href="../user_guide/rules.html"><span class="doc">Policy rules</span></a>.</p>
+</dd>
+<dt id="term-Delinquency-bucket">Delinquency bucket<a class="headerlink" href="#term-Delinquency-bucket" title="Link to this term">#</a></dt><dd><p>A range of days past due that the status of a loan falls into at a month end, such as <code class="docutils literal notranslate"><span class="pre">current</span></code>, <code class="docutils literal notranslate"><span class="pre">1-29</span></code>, <code class="docutils literal notranslate"><span class="pre">30-59</span></code>, <code class="docutils literal notranslate"><span class="pre">60-89</span></code> and <code class="docutils literal notranslate"><span class="pre">90+</span></code>. Roll rates and transition matrices count how loans move between buckets from one month end to the next; see <a class="reference internal" href="../user_guide/vintage.html"><span class="doc">Vintage and roll-rate analysis</span></a>.</p>
+</dd>
+<dt id="term-DeLong-test">DeLong test<a class="headerlink" href="#term-DeLong-test" title="Link to this term">#</a></dt><dd><p>A test of whether two scores have the same AUC on the same sample. It uses the variances and the covariance of the two AUCs that DeLong, DeLong and Clarke-Pearson (1988) derived from the placement values; see <a class="reference internal" href="../user_guide/metrics.html"><span class="doc">Model performance</span></a>.</p>
+</dd>
+<dt id="term-Deprecation">Deprecation<a class="headerlink" href="#term-Deprecation" title="Link to this term">#</a></dt><dd><p>A part of the public API that still works but warns with a <code class="docutils literal notranslate"><span class="pre">FutureWarning</span></code>, because a later release removes or changes it. The warning says what to use instead; see <a class="reference internal" href="compatibility.html"><span class="doc">Compatibility</span></a>.</p>
+</dd>
+<dt id="term-Discrete-time-hazard-model">Discrete-time hazard model<a class="headerlink" href="#term-Discrete-time-hazard-model" title="Link to this term">#</a></dt><dd><p>A logistic regression of the hazard rate on the period and on the characteristics of each account, fitted on a person-period table, which has one row for every period in which an account is at risk and a target of 1 in the period of its default; see <a class="reference internal" href="../user_guide/lifetime.html"><span class="doc">Lifetime PD and expected credit loss</span></a>.</p>
+</dd>
+<dt id="term-Early-repayment">Early repayment<a class="headerlink" href="#term-Early-repayment" title="Link to this term">#</a></dt><dd><p>The repayment of the whole balance of a loan before its last instalment is due, also called prepayment. It ends the risk of default, so a survival table counts it as a competing risk; <code class="docutils literal notranslate"><span class="pre">prepayment</span></code> gives its monthly probability in <a class="reference internal" href="datasets.html#kivi.datasets.make_loan_panel" title="kivi.datasets.make_loan_panel"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_loan_panel()</span></code></a>; see <a class="reference internal" href="../user_guide/lifetime.html"><span class="doc">Lifetime PD and expected credit loss</span></a>.</p>
+</dd>
+<dt id="term-Economic-loss">Economic loss<a class="headerlink" href="#term-Economic-loss" title="Link to this term">#</a></dt><dd><p>The loss of a workout as the regulations define it: the exposure at default plus the material direct and indirect costs, minus the recoveries, all discounted to the date of default, rather than the accounting loss; see <a class="reference internal" href="../user_guide/lgd.html"><span class="doc">LGD and EAD</span></a>.</p>
+</dd>
+<dt id="term-Economic-scenario">Economic scenario<a class="headerlink" href="#term-Economic-scenario" title="Link to this term">#</a></dt><dd><p>A forecast of the economy, such as an upside, a base case or a downturn, with its probability. IFRS 9 weights the ECL of each scenario with its probability, and the one-factor model moves the PDs to a scenario through the systematic factor; see <a class="reference internal" href="../user_guide/lifetime.html"><span class="doc">Lifetime PD and expected credit loss</span></a>.</p>
+</dd>
+<dt id="term-Effective-interest-rate">Effective interest rate<a class="headerlink" href="#term-Effective-interest-rate" title="Link to this term">#</a></dt><dd><p>The rate that discounts the estimated future cash flows of a loan over its expected life to its gross carrying amount at initial recognition. IFRS 9 discounts expected credit losses at this rate; see <a class="reference internal" href="../user_guide/lifetime.html"><span class="doc">Lifetime PD and expected credit loss</span></a>.</p>
+</dd>
+<dt id="term-Entity">Entity<a class="headerlink" href="#term-Entity" title="Link to this term">#</a></dt><dd><p>The customer, account or loan that events, monthly statuses and observations belong to, named by the <code class="docutils literal notranslate"><span class="pre">id</span></code> column of <a class="reference internal" href="features.html#module-kivi.features" title="kivi.features"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.features</span></code></a>; see <a class="reference internal" href="../user_guide/features.html"><span class="doc">Time-window features</span></a>.</p>
+</dd>
+<dt id="term-Estimated-and-realized-values">Estimated and realized values<a class="headerlink" href="#term-Estimated-and-realized-values" title="Link to this term">#</a></dt><dd><p>The estimates of a model, such as the LGD of a facility, and the values observed later, such as the loss realized when its recovery process closed. kivi takes them as <code class="docutils literal notranslate"><span class="pre">estimated</span></code> and <code class="docutils literal notranslate"><span class="pre">realized</span></code>: continuous values in <a class="reference internal" href="calibration.html#kivi.calibration.backtest_table" title="kivi.calibration.backtest_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">backtest_table()</span></code></a> and ordered segments in <a class="reference internal" href="metrics.html#kivi.metrics.generalized_auc" title="kivi.metrics.generalized_auc"><code class="xref py py-func docutils literal notranslate"><span class="pre">generalized_auc()</span></code></a>; see <a class="reference internal" href="../user_guide/validation.html"><span class="doc">Model validation</span></a>.</p>
+</dd>
+<dt id="term-Event-and-non-event">Event and non-event<a class="headerlink" href="#term-Event-and-non-event" title="Link to this term">#</a></dt><dd><p>The two outcomes of a binary target: an event has target 1, such as a default or another bad outcome, and a non-event has target 0. The guides read the subscription of the bundled bank data as the event; see <a class="reference internal" href="../user_guide/woe_iv.html"><span class="doc">Weight of evidence and information value</span></a>. The events that <a class="reference internal" href="features.html#module-kivi.features" title="kivi.features"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.features</span></code></a> aggregates are of another kind: dated records of an entity, such as its transactions; see <a class="reference internal" href="../user_guide/features.html"><span class="doc">Time-window features</span></a>.</p>
+</dd>
+<dt id="term-Event-rate">Event rate<a class="headerlink" href="#term-Event-rate" title="Link to this term">#</a></dt><dd><p>The share of events among the observations of a group, called the bad rate when the event is a default. It is computed from the raw counts, without smoothing; see <a class="reference internal" href="../user_guide/woe_iv.html"><span class="doc">Weight of evidence and information value</span></a>.</p>
+</dd>
+<dt id="term-Ever-bad">Ever bad<a class="headerlink" href="#term-Ever-bad" title="Link to this term">#</a></dt><dd><p>A loan is ever bad by a month on book if it was bad at any month on book up to then, even if it has cured since. The cumulative bad rates of a vintage table count the loans that are ever bad; see <a class="reference internal" href="../user_guide/vintage.html"><span class="doc">Vintage and roll-rate analysis</span></a>.</p>
+</dd>
+<dt id="term-Expected-credit-loss-ECL">Expected credit loss (ECL)<a class="headerlink" href="#term-Expected-credit-loss-ECL" title="Link to this term">#</a></dt><dd><p>Under IFRS 9, the present value of the credit losses of an exposure, weighted with the probabilities of default. The 12-month ECL counts the losses from defaults in the next 12 months, and the lifetime ECL those over the remaining life of the exposure; see <a class="reference internal" href="../user_guide/lifetime.html"><span class="doc">Lifetime PD and expected credit loss</span></a>.</p>
+</dd>
+<dt id="term-Expected-loss-EL">Expected loss (EL)<a class="headerlink" href="#term-Expected-loss-EL" title="Link to this term">#</a></dt><dd><p>The loss that an exposure is expected to cause: its probability of default times its loss given default times its exposure at default; see <a class="reference internal" href="../user_guide/strategy.html"><span class="doc">Credit strategy</span></a>.</p>
+</dd>
+<dt id="term-Expected-loss-best-estimate-ELBE">Expected loss best estimate (ELBE)<a class="headerlink" href="#term-Expected-loss-best-estimate-ELBE" title="Link to this term">#</a></dt><dd><p>The best estimate of the loss of an exposure that is already in default, given the economic conditions at the time. The European Central Bank back-tests it against the realized losses with a two-sided t-test; see <a class="reference internal" href="../user_guide/validation.html"><span class="doc">Model validation</span></a>.</p>
+</dd>
+<dt id="term-Expected-maximum-profit-EMP">Expected maximum profit (EMP)<a class="headerlink" href="#term-Expected-maximum-profit-EMP" title="Link to this term">#</a></dt><dd><p>The profit per applicant, as a share of the loan amount, of the best cut-off of a credit score, compared with approving everyone and averaged over the uncertain loss of a default: none with one probability, all of the loan with another, and evenly spread in between. Proposed by Verbraken, Bravo, Weber and Baesens; see <a class="reference internal" href="../user_guide/metrics.html"><span class="doc">Model performance</span></a>.</p>
+</dd>
+<dt id="term-Expert-scorecard">Expert scorecard<a class="headerlink" href="#term-Expert-scorecard" title="Link to this term">#</a></dt><dd><p>A scorecard whose weights are set by the judgment of credit analysts rather than fitted to outcomes, for portfolios with too few defaults to fit a model; see <a class="reference internal" href="../user_guide/expert.html"><span class="doc">Expert scorecards</span></a>.</p>
+</dd>
+<dt id="term-Exposure-at-default-EAD">Exposure at default (EAD)<a class="headerlink" href="#term-Exposure-at-default-EAD" title="Link to this term">#</a></dt><dd><p>The amount owed when a borrower defaults, such as the outstanding balance of a loan; see <a class="reference internal" href="../user_guide/lgd.html"><span class="doc">LGD and EAD</span></a>.</p>
+</dd>
+<dt id="term-Feature-specification">Feature specification<a class="headerlink" href="#term-Feature-specification" title="Link to this term">#</a></dt><dd><p>The definitions of the window and repayment features of a model: the columns of the entities and of the observation times, groups of features with their tables, windows and aggregations, and ratios. Saved as versioned JSON, it lets production compute the same features as development. Unlike a binning specification, it is not fitted to data; see <a class="reference internal" href="../user_guide/features.html"><span class="doc">Time-window features</span></a>.</p>
+</dd>
+<dt id="term-Format-version">Format version<a class="headerlink" href="#term-Format-version" title="Link to this term">#</a></dt><dd><p>The version of the JSON format of a binning or feature specification, stored in each file. A release reads every format version up to its own and rejects a newer one; see <a class="reference internal" href="compatibility.html"><span class="doc">Compatibility</span></a>.</p>
+</dd>
+<dt id="term-Fractional-logit">Fractional logit<a class="headerlink" href="#term-Fractional-logit" title="Link to this term">#</a></dt><dd><p>A logistic model of the mean of a response between 0 and 1, such as an LGD, fitted by the quasi-likelihood of Papke and Wooldridge, with robust standard errors; see <a class="reference internal" href="../user_guide/lgd.html"><span class="doc">LGD and EAD</span></a>.</p>
+</dd>
+<dt id="term-Gains-table">Gains table<a class="headerlink" href="#term-Gains-table" title="Link to this term">#</a></dt><dd><p>A table of score bands from the riskiest to the safest, with the event rate and lift of each band and the cumulative shares of events and non-events; see <a class="reference internal" href="../user_guide/metrics.html"><span class="doc">Model performance</span></a>.</p>
+</dd>
+<dt id="term-Generalized-AUC-gAUC">Generalized AUC (gAUC)<a class="headerlink" href="#term-Generalized-AUC-gAUC" title="Link to this term">#</a></dt><dd><p>The AUC extended to ordered outcomes that are not binary, such as realized LGDs cut into segments: of two observations in different estimated segments, the probability that the one estimated higher also realized more, with ties counting as one half. It is Somers’ D plus one, halved; see <a class="reference internal" href="../user_guide/metrics.html"><span class="doc">Model performance</span></a>.</p>
+</dd>
+<dt id="term-Gini-coefficient">Gini coefficient<a class="headerlink" href="#term-Gini-coefficient" title="Link to this term">#</a></dt><dd><p>Twice the AUC minus 1: 0 for a score unrelated to the target and 1 for a score that ranks every event above every non-event. Scorecard development reports it more often than the AUC itself, and rating validation calls it the accuracy ratio; see <a class="reference internal" href="../user_guide/metrics.html"><span class="doc">Model performance</span></a>.</p>
+</dd>
+<dt id="term-Global-weight">Global weight<a class="headerlink" href="#term-Global-weight" title="Link to this term">#</a></dt><dd><p>The weight of a sub-factor in a whole expert scorecard: the weight of its factor times its weight among the sub-factors of that factor. The global weights of all sub-factors sum to 1; see <a class="reference internal" href="../user_guide/expert.html"><span class="doc">Expert scorecards</span></a>.</p>
+</dd>
+<dt id="term-Grace-period">Grace period<a class="headerlink" href="#term-Grace-period" title="Link to this term">#</a></dt><dd><p>The months after the origination of a loan in which nothing falls due, so that its first instalment falls due later than a month after origination. <a class="reference internal" href="vintage.html#kivi.vintage.delinquency_panel" title="kivi.vintage.delinquency_panel"><code class="xref py py-func docutils literal notranslate"><span class="pre">delinquency_panel()</span></code></a> puts a loan in the cohort of the month before its first due date unless <code class="docutils literal notranslate"><span class="pre">origination</span></code> gives the origination dates, which keep the loans with a grace period in the cohort of their origination month; see <a class="reference internal" href="../user_guide/vintage.html"><span class="doc">Vintage and roll-rate analysis</span></a>.</p>
+</dd>
+<dt id="term-Grade">Grade<a class="headerlink" href="#term-Grade" title="Link to this term">#</a></dt><dd><p>One class of a rating system or master scale, with a PD of its own and bounds that decide which predicted PDs fall into it. The functions that follow migrations take the grades of a rating system from the best to the worst as <code class="docutils literal notranslate"><span class="pre">grades</span></code>; see <a class="reference internal" href="../user_guide/calibration.html"><span class="doc">Calibration</span></a>.</p>
+</dd>
+<dt id="term-Herfindahl-Hirschman-index-HHI">Herfindahl-Hirschman index (HHI)<a class="headerlink" href="#term-Herfindahl-Hirschman-index-HHI" title="Link to this term">#</a></dt><dd><p>The sum of the squared shares of the grades of a rating scale: <span class="math notranslate nohighlight">\(1/K\)</span> when <span class="math notranslate nohighlight">\(K\)</span> grades are equally full and 1 when one grade holds everybody. The European Central Bank measures the concentration with the HI, <span class="math notranslate nohighlight">\(1 + \ln \mathrm{HHI} / \ln K\)</span>, which runs from 0 to 1 instead; see <a class="reference internal" href="../user_guide/calibration.html"><span class="doc">Calibration</span></a>.</p>
+</dd>
+<dt id="term-High-volatility-commercial-real-estate-HVCRE">High-volatility commercial real estate (HVCRE)<a class="headerlink" href="#term-High-volatility-commercial-real-estate-HVCRE" title="Link to this term">#</a></dt><dd><p>Commercial real estate lending whose repayment depends on the property and whose losses vary strongly with the economy. Its asset correlation falls from 0.30 to 0.12 as the PD rises, with 0.30 in place of the 0.24 of other corporate exposures; see <a class="reference internal" href="../user_guide/capital.html"><span class="doc">Regulatory capital</span></a>.</p>
+</dd>
+<dt id="term-Hit-rate">Hit rate<a class="headerlink" href="#term-Hit-rate" title="Link to this term">#</a></dt><dd><p>The share of applicants that a policy rule hits, that is declines or flags; see <a class="reference internal" href="../user_guide/rules.html"><span class="doc">Policy rules</span></a>.</p>
+</dd>
+<dt id="term-Information-value-IV">Information value (IV)<a class="headerlink" href="#term-Information-value-IV" title="Link to this term">#</a></dt><dd><p>The sum of the differences between the event share and the non-event share of each group, each times the group’s WOE. It measures how strongly a grouped variable separates events from non-events on its own; see <a class="reference internal" href="../user_guide/woe_iv.html"><span class="doc">Weight of evidence and information value</span></a>.</p>
+</dd>
+<dt id="term-Initial-validation">Initial validation<a class="headerlink" href="#term-Initial-validation" title="Link to this term">#</a></dt><dd><p>The validation of a rating model before its first use. Later validations compare their AUC, gAUC and concentration of grades with those of the initial validation, which they take as known; see <a class="reference internal" href="../user_guide/validation.html"><span class="doc">Model validation</span></a>.</p>
+</dd>
+<dt id="term-Internal-ratings-based-approach-IRB">Internal ratings-based approach (IRB)<a class="headerlink" href="#term-Internal-ratings-based-approach-IRB" title="Link to this term">#</a></dt><dd><p>The approach of the Basel framework and of China’s capital rules under which a bank sets its capital for credit risk from its own estimates of the PD, and for retail exposures and in the advanced approach also of the LGD and the EAD, through the risk-weight functions of the rules; see <a class="reference internal" href="../user_guide/capital.html"><span class="doc">Regulatory capital</span></a>.</p>
+</dd>
+<dt id="term-KaplanMeier-estimator">Kaplan–Meier estimator<a class="headerlink" href="#term-KaplanMeier-estimator" title="Link to this term">#</a></dt><dd><p>The estimate of the probability of getting through a series of periods as the product of the shares of the accounts at risk that get through each one. One minus it is the cumulative PD when every exit other than a default counts as censored; see <a class="reference internal" href="../user_guide/lifetime.html"><span class="doc">Lifetime PD and expected credit loss</span></a>.</p>
+</dd>
+<dt id="term-Kolmogorov-Smirnov-statistic-KS">Kolmogorov-Smirnov statistic (KS)<a class="headerlink" href="#term-Kolmogorov-Smirnov-statistic-KS" title="Link to this term">#</a></dt><dd><p>The largest absolute gap between the distribution functions of the scores of events and of non-events; see <a class="reference internal" href="../user_guide/metrics.html"><span class="doc">Model performance</span></a>.</p>
+</dd>
+<dt id="term-Left-truncation">Left truncation<a class="headerlink" href="#term-Left-truncation" title="Link to this term">#</a></dt><dd><p>Observing accounts only from some age on, as in data that start after the loans were originated, so that those that defaulted or left before are missing. The <code class="docutils literal notranslate"><span class="pre">entry</span></code> of <a class="reference internal" href="lifetime.html#kivi.lifetime.survival_table" title="kivi.lifetime.survival_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">survival_table()</span></code></a> keeps each account out of the risk sets of the periods before it was observed; see <a class="reference internal" href="../user_guide/lifetime.html"><span class="doc">Lifetime PD and expected credit loss</span></a>.</p>
+</dd>
+<dt id="term-Lift">Lift<a class="headerlink" href="#term-Lift" title="Link to this term">#</a></dt><dd><p>The event rate of a group, such as a score band or the applicants that a policy rule hits, divided by the event rate of the whole sample. A lift above 1 marks a group that is riskier than average; see <a class="reference internal" href="../user_guide/metrics.html"><span class="doc">Model performance</span></a>.</p>
+</dd>
+<dt id="term-Long-run-average-default-rate">Long-run average default rate<a class="headerlink" href="#term-Long-run-average-default-rate" title="Link to this term">#</a></dt><dd><p>The average of the one-year default rates over a historical observation period of at least five years that reflects the likely range of default rates, with good and bad years. The PDs of an IRB model are calibrated to it, and the lender adjusts it upwards where bad years are missing; see <a class="reference internal" href="../user_guide/vintage.html"><span class="doc">Vintage and roll-rate analysis</span></a>.</p>
+</dd>
+<dt id="term-Long-run-average-LGD">Long-run average LGD<a class="headerlink" href="#term-Long-run-average-LGD" title="Link to this term">#</a></dt><dd><p>The default-weighted average LGD of all the defaults of a long period, each default counted once and negative LGDs counted as 0, with the open workouts included through an adjustment for their future recoveries. An LGD estimate may not fall below it; see <a class="reference internal" href="../user_guide/lgd.html"><span class="doc">LGD and EAD</span></a>.</p>
+</dd>
+<dt id="term-Loss-allowance">Loss allowance<a class="headerlink" href="#term-Loss-allowance" title="Link to this term">#</a></dt><dd><p>The provision that IFRS 9 requires for the expected credit losses of a loan: the 12-month ECL in stage 1 and the lifetime ECL in stages 2 and 3; see <a class="reference internal" href="../user_guide/lifetime.html"><span class="doc">Lifetime PD and expected credit loss</span></a>.</p>
+</dd>
+<dt id="term-Loss-given-default-LGD">Loss given default (LGD)<a class="headerlink" href="#term-Loss-given-default-LGD" title="Link to this term">#</a></dt><dd><p>The share of the exposure that is lost when a borrower defaults, after recoveries and collateral; see <a class="reference internal" href="../user_guide/lgd.html"><span class="doc">LGD and EAD</span></a>.</p>
+</dd>
+<dt id="term-Low-default-portfolio">Low-default portfolio<a class="headerlink" href="#term-Low-default-portfolio" title="Link to this term">#</a></dt><dd><p>A portfolio with so few defaults, such as banks, sovereigns or large corporates, that its default rates cannot calibrate a PD. The most prudent estimate bounds its PDs instead; see <a class="reference internal" href="../user_guide/capital.html"><span class="doc">Regulatory capital</span></a>.</p>
+</dd>
+<dt id="term-Marginal-PD">Marginal PD<a class="headerlink" href="#term-Marginal-PD" title="Link to this term">#</a></dt><dd><p>The probability, seen from the starting point, of a default in one given period. The marginal PDs of the periods up to a horizon add up to the cumulative PD; see <a class="reference internal" href="../user_guide/lifetime.html"><span class="doc">Lifetime PD and expected credit loss</span></a>.</p>
+</dd>
+<dt id="term-Master-scale">Master scale<a class="headerlink" href="#term-Master-scale" title="Link to this term">#</a></dt><dd><p>A fixed set of grades that divides the PD range from 0 to 1, so that ratings from different models share one meaning; see <a class="reference internal" href="../user_guide/calibration.html"><span class="doc">Calibration</span></a>.</p>
+</dd>
+<dt id="term-Matrix-weighted-bandwidth-MWB">Matrix weighted bandwidth (MWB)<a class="headerlink" href="#term-Matrix-weighted-bandwidth-MWB" title="Link to this term">#</a></dt><dd><p>A summary of how far customers move between the grades of a rating system in a period: the distances of the moves to worse grades, for the upper MWB, or to better grades, for the lower MWB, relative to the furthest move possible from each customer’s grade. Both run from 0 to 1, and smaller values mean shorter migrations; see <a class="reference internal" href="../user_guide/vintage.html"><span class="doc">Vintage and roll-rate analysis</span></a>.</p>
+</dd>
+<dt id="term-Maturity-adjustment">Maturity adjustment<a class="headerlink" href="#term-Maturity-adjustment" title="Link to this term">#</a></dt><dd><p>The factor <span class="math notranslate nohighlight">\((1 + (M - 2.5)\,b) / (1 - 1.5\,b)\)</span> of the corporate risk-weight function, with the effective maturity <span class="math notranslate nohighlight">\(M\)</span> in years and <span class="math notranslate nohighlight">\(b\)</span> a function of the PD, which raises the capital of longer exposures. Retail exposures have none; see <a class="reference internal" href="../user_guide/capital.html"><span class="doc">Regulatory capital</span></a>.</p>
+</dd>
+<dt id="term-Migration-matrix">Migration matrix<a class="headerlink" href="#term-Migration-matrix" title="Link to this term">#</a></dt><dd><p>The transition matrix of the grades of a rating system over a period, usually a year: the share of the customers of each grade at the beginning that are in each grade at the end. Customers who defaulted or left count among the customers of their grade at the beginning, so the shares of a row may add up to less than 1; see <a class="reference internal" href="../user_guide/vintage.html"><span class="doc">Vintage and roll-rate analysis</span></a>.</p>
+</dd>
+<dt id="term-Monitoring-report">Monitoring report<a class="headerlink" href="#term-Monitoring-report" title="Link to this term">#</a></dt><dd><p>A table with one row per period that tracks a model in use: its population, the known outcomes, its discrimination and the stability of its score against a reference sample; see <a class="reference internal" href="../user_guide/monitoring.html"><span class="doc">Model monitoring</span></a>.</p>
+</dd>
+<dt id="term-Monotonic-binning">Monotonic binning<a class="headerlink" href="#term-Monotonic-binning" title="Link to this term">#</a></dt><dd><p>Supervised binning whose WOE rises or falls steadily from the lowest bin to the highest, so that the bins can be explained. kivi starts from many small bins and merges the adjacent bins that break the trend, pooling adjacent violators; see <a class="reference internal" href="../user_guide/binning.html"><span class="doc">Binning</span></a>.</p>
+</dd>
+<dt id="term-Month-on-book">Month on book<a class="headerlink" href="#term-Month-on-book" title="Link to this term">#</a></dt><dd><p>The number of months since a loan was originated. A vintage table compares cohorts at the same month on book; see <a class="reference internal" href="../user_guide/vintage.html"><span class="doc">Vintage and roll-rate analysis</span></a>.</p>
+</dd>
+<dt id="term-Monthly-status-panel">Monthly status panel<a class="headerlink" href="#term-Monthly-status-panel" title="Link to this term">#</a></dt><dd><p>A table with one row per loan and month and the status of the loan at the month end, such as its delinquency bucket. <a class="reference internal" href="vintage.html#kivi.vintage.delinquency_panel" title="kivi.vintage.delinquency_panel"><code class="xref py py-func docutils literal notranslate"><span class="pre">delinquency_panel()</span></code></a> builds one from repayment schedules and payments, and <a class="reference internal" href="features.html#kivi.features.panel_features" title="kivi.features.panel_features"><code class="xref py py-func docutils literal notranslate"><span class="pre">panel_features()</span></code></a> summarizes it before each observation time; see <a class="reference internal" href="../user_guide/vintage.html"><span class="doc">Vintage and roll-rate analysis</span></a>.</p>
+</dd>
+<dt id="term-Most-prudent-estimate">Most prudent estimate<a class="headerlink" href="#term-Most-prudent-estimate" title="Link to this term">#</a></dt><dd><p>Pluto and Tasche’s upper bound for the PD of a grade: the largest PD that the defaults of the grade and of all riskier grades do not reject at a confidence level, assuming that the PD does not fall from one grade to the next riskier one; see <a class="reference internal" href="../user_guide/capital.html"><span class="doc">Regulatory capital</span></a>.</p>
+</dd>
+<dt id="term-New-hits">New hits<a class="headerlink" href="#term-New-hits" title="Link to this term">#</a></dt><dd><p>The applicants that a rule of a decision waterfall hits and no earlier rule did, the declines that the waterfall credits to it. They range from its unique hits, when the rule comes last, to all its hits, when it comes first; see <a class="reference internal" href="../user_guide/rules.html"><span class="doc">Policy rules</span></a>.</p>
+</dd>
+<dt id="term-Observation">Observation<a class="headerlink" href="#term-Observation" title="Link to this term">#</a></dt><dd><p>In <a class="reference internal" href="features.html#module-kivi.features" title="kivi.features"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.features</span></code></a>, an entity and an observation time, such as an applicant and the date of the application: one row of the table <code class="docutils literal notranslate"><span class="pre">observations</span></code>, for which every window is computed. An entity may have several observations, such as one per month end; see <a class="reference internal" href="../user_guide/features.html"><span class="doc">Time-window features</span></a>.</p>
+</dd>
+<dt id="term-Observation-month">Observation month<a class="headerlink" href="#term-Observation-month" title="Link to this term">#</a></dt><dd><p>The calendar month of an observation time. Its month-end status is not known at the observation time, so <a class="reference internal" href="features.html#kivi.features.panel_features" title="kivi.features.panel_features"><code class="xref py py-func docutils literal notranslate"><span class="pre">panel_features()</span></code></a> uses only the months before it; see <a class="reference internal" href="../user_guide/features.html"><span class="doc">Time-window features</span></a>.</p>
+</dd>
+<dt id="term-Observation-time">Observation time<a class="headerlink" href="#term-Observation-time" title="Link to this term">#</a></dt><dd><p>The time at which a feature is computed, such as the date of an application. Events at or after it are not used, unless <code class="docutils literal notranslate"><span class="pre">closed=&quot;right&quot;</span></code> admits those at that very time; see <a class="reference internal" href="../user_guide/features.html"><span class="doc">Time-window features</span></a>.</p>
+</dd>
+<dt id="term-Observed-average-default-rate">Observed average default rate<a class="headerlink" href="#term-Observed-average-default-rate" title="Link to this term">#</a></dt><dd><p>The arithmetic mean of the one-year default rates of the start months of a historical observation period, for a grade or for a calibration segment, each start month counted once however many obligors it holds; see <a class="reference internal" href="../user_guide/vintage.html"><span class="doc">Vintage and roll-rate analysis</span></a>.</p>
+</dd>
+<dt id="term-One-factor-model">One-factor model<a class="headerlink" href="#term-One-factor-model" title="Link to this term">#</a></dt><dd><p>Vasicek’s model of portfolio credit risk, behind the IRB risk-weight functions: a borrower defaults when its assets, a mix of a systematic factor that all borrowers share and a factor of its own, fall below a threshold that its PD sets. Given the factor, defaults are independent; see <a class="reference internal" href="../user_guide/capital.html"><span class="doc">Regulatory capital</span></a>.</p>
+</dd>
+<dt id="term-One-year-default-rate">One-year default rate<a class="headerlink" href="#term-One-year-default-rate" title="Link to this term">#</a></dt><dd><p>The share of the obligors not in default at a start month that default at least once in the twelve months after it, counted by their grade at the start month; see <a class="reference internal" href="../user_guide/vintage.html"><span class="doc">Vintage and roll-rate analysis</span></a>.</p>
+</dd>
+<dt id="term-Optimal-binning">Optimal binning<a class="headerlink" href="#term-Optimal-binning" title="Link to this term">#</a></dt><dd><p>Supervised binning that returns, of all the ways to merge fine bins, the one with the largest information value that meets constraints at once, such as a minimum share and a minimum number of events in every bin and a shape of the WOE. The IV is a sum over the bins, so dynamic programming finds it exactly. For a continuous response, such as an LGD, the same search finds the bins with the smallest sum of squares of the response within them; see <a class="reference internal" href="../user_guide/binning.html"><span class="doc">Binning</span></a>.</p>
+</dd>
+<dt id="term-Outcome-window">Outcome window<a class="headerlink" href="#term-Outcome-window" title="Link to this term">#</a></dt><dd><p>The time after which the outcome of an observation is known, such as twelve months after a loan was granted. Until it has passed, the target is missing and the outcome counts as unknown; see <a class="reference internal" href="../user_guide/monitoring.html"><span class="doc">Model monitoring</span></a>.</p>
+</dd>
+<dt id="term-Output-floor">Output floor<a class="headerlink" href="#term-Output-floor" title="Link to this term">#</a></dt><dd><p>The rule that the risk-weighted assets of the IRB approach may not fall below 72.5% of those of the standardized approach. It applies to the total risk-weighted assets of a bank and is phased in over several years, and kivi leaves it out; see <a class="reference internal" href="../user_guide/capital.html"><span class="doc">Regulatory capital</span></a>.</p>
+</dd>
+<dt id="term-Outstanding-amount">Outstanding amount<a class="headerlink" href="#term-Outstanding-amount" title="Link to this term">#</a></dt><dd><p>The unpaid amount of all the instalments of a loan at a month end, whether they have fallen due or not: the <code class="docutils literal notranslate"><span class="pre">outstanding</span></code> column of <a class="reference internal" href="vintage.html#kivi.vintage.delinquency_panel" title="kivi.vintage.delinquency_panel"><code class="xref py py-func docutils literal notranslate"><span class="pre">delinquency_panel()</span></code></a>. It includes interest, while the <code class="docutils literal notranslate"><span class="pre">balance</span></code> column, given the principal of each instalment, counts only the unpaid principal; see <a class="reference internal" href="../user_guide/vintage.html"><span class="doc">Vintage and roll-rate analysis</span></a>.</p>
+</dd>
+<dt id="term-Overdue-amount">Overdue amount<a class="headerlink" href="#term-Overdue-amount" title="Link to this term">#</a></dt><dd><p>The unpaid amount of the instalments of a loan that fell due before a month end: the <code class="docutils literal notranslate"><span class="pre">overdue_amount</span></code> column of <a class="reference internal" href="vintage.html#kivi.vintage.delinquency_panel" title="kivi.vintage.delinquency_panel"><code class="xref py py-func docutils literal notranslate"><span class="pre">delinquency_panel()</span></code></a>. An instalment due on the month end itself is not overdue yet; see <a class="reference internal" href="../user_guide/vintage.html"><span class="doc">Vintage and roll-rate analysis</span></a>.</p>
+</dd>
+<dt id="term-Overlap-matrix">Overlap matrix<a class="headerlink" href="#term-Overlap-matrix" title="Link to this term">#</a></dt><dd><p>The number of applicants that both rules of each pair hit, with the hits of each rule on the diagonal; see <a class="reference internal" href="../user_guide/rules.html"><span class="doc">Policy rules</span></a>.</p>
+</dd>
+<dt id="term-Pairwise-comparison-matrix">Pairwise comparison matrix<a class="headerlink" href="#term-Pairwise-comparison-matrix" title="Link to this term">#</a></dt><dd><p>A square matrix whose entry <span class="math notranslate nohighlight">\(a_{ij}\)</span> says how many times more important factor <span class="math notranslate nohighlight">\(i\)</span> is than factor <span class="math notranslate nohighlight">\(j\)</span>, on the Saaty scale. Its diagonal is 1 and <span class="math notranslate nohighlight">\(a_{ji} = 1 / a_{ij}\)</span>; see <a class="reference internal" href="../user_guide/expert.html"><span class="doc">Expert scorecards</span></a>.</p>
+</dd>
+<dt id="term-PD-term-structure">PD term structure<a class="headerlink" href="#term-PD-term-structure" title="Link to this term">#</a></dt><dd><p>The PD of each period after a starting point, such as the origination of a loan or the reporting date, given as cumulative, marginal or conditional PDs; see <a class="reference internal" href="../user_guide/lifetime.html"><span class="doc">Lifetime PD and expected credit loss</span></a>.</p>
+</dd>
+<dt id="term-Permutation-test">Permutation test<a class="headerlink" href="#term-Permutation-test" title="Link to this term">#</a></dt><dd><p>A test that computes a statistic again on many shuffles of the target, which break any link between the target and the variable, refitting every step that used the target, such as supervised bins. The statistic of the real target is significant when few shuffles reach it; see <a class="reference internal" href="../user_guide/woe_iv.html"><span class="doc">Weight of evidence and information value</span></a>.</p>
+</dd>
+<dt id="term-Placement-value">Placement value<a class="headerlink" href="#term-Placement-value" title="Link to this term">#</a></dt><dd><p>For an event, the share of non-events that score below it, and for a non-event, the share of events that score above it, with ties counted as one half. The average over either class is the AUC, and their variances give its DeLong standard error; see <a class="reference internal" href="../user_guide/metrics.html"><span class="doc">Model performance</span></a>.</p>
+</dd>
+<dt id="term-Point-in-time">Point in time<a class="headerlink" href="#term-Point-in-time" title="Link to this term">#</a></dt><dd><p>A feature is point in time when it uses only what was known at its observation time, so that it is computed in development as it would have been at the time of the decision, and no later event leaks into the model; see <a class="reference internal" href="../user_guide/features.html"><span class="doc">Time-window features</span></a>.</p>
+</dd>
+<dt id="term-Points-to-double-the-odds-PDO">Points to double the odds (PDO)<a class="headerlink" href="#term-Points-to-double-the-odds-PDO" title="Link to this term">#</a></dt><dd><p>The number of scorecard points by which the score rises when the good:bad odds double. Together with a base score and the odds at that score, it sets the scale of a scorecard; see <a class="reference internal" href="../user_guide/scorecard.html"><span class="doc">Scorecard</span></a>.</p>
+</dd>
+<dt id="term-Policy-rule">Policy rule<a class="headerlink" href="#term-Policy-rule" title="Link to this term">#</a></dt><dd><p>A condition on the data of an applicant, such as a debt-to-income ratio above a cap or an age below a minimum, that declines or refers the applicant whatever the score; see <a class="reference internal" href="../user_guide/rules.html"><span class="doc">Policy rules</span></a>.</p>
+</dd>
+<dt id="term-Population-stability-index-PSI">Population stability index (PSI)<a class="headerlink" href="#term-Population-stability-index-PSI" title="Link to this term">#</a></dt><dd><p>A measure of how much the distribution of a variable or a score has shifted between a reference sample and a current one, summed over the groups from the change of each group’s share; see <a class="reference internal" href="../user_guide/psi.html"><span class="doc">Population stability index</span></a>.</p>
+</dd>
+<dt id="term-Precision">Precision<a class="headerlink" href="#term-Precision" title="Link to this term">#</a></dt><dd><p>The share of events among the observations that a score flags at a threshold, that is, the event rate of the flagged observations; see <a class="reference internal" href="../user_guide/metrics.html"><span class="doc">Model performance</span></a>.</p>
+</dd>
+<dt id="term-Precision-recall-curve">Precision-recall curve<a class="headerlink" href="#term-Precision-recall-curve" title="Link to this term">#</a></dt><dd><p>The precision against the recall at every threshold of a score, drawn as steps from one threshold to the next. It shows how the share of events among the flagged observations falls as more of the events are found, which matters most when events are rare; see <a class="reference internal" href="../user_guide/plotting.html"><span class="doc">Charts</span></a>.</p>
+</dd>
+<dt id="term-Probability-of-default-PD">Probability of default (PD)<a class="headerlink" href="#term-Probability-of-default-PD" title="Link to this term">#</a></dt><dd><p>The probability that a borrower defaults within a given horizon, usually twelve months. kivi calls a predicted PD, or any other predicted event probability, <code class="docutils literal notranslate"><span class="pre">probability</span></code>; see <a class="reference internal" href="../user_guide/calibration.html"><span class="doc">Calibration</span></a>.</p>
+</dd>
+<dt id="term-Qualifying-revolving-retail-exposure-QRRE">Qualifying revolving retail exposure (QRRE)<a class="headerlink" href="#term-Qualifying-revolving-retail-exposure-QRRE" title="Link to this term">#</a></dt><dd><p>Revolving, unsecured retail credit such as credit cards and overdrafts, within limits on the size of each exposure, which the IRB approach weights with a fixed asset correlation of 0.04; <code class="docutils literal notranslate"><span class="pre">asset_class=&quot;revolving&quot;</span></code> in <a class="reference internal" href="capital.html#module-kivi.capital" title="kivi.capital"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.capital</span></code></a>; see <a class="reference internal" href="../user_guide/capital.html"><span class="doc">Regulatory capital</span></a>.</p>
+</dd>
+<dt id="term-Quasi-moment-matching">Quasi moment matching<a class="headerlink" href="#term-Quasi-moment-matching" title="Link to this term">#</a></dt><dd><p>Tasche’s calibration of a logistic PD curve of a score to two targets: the mean PD equals a central tendency, and the accuracy ratio that the curve implies equals a target accuracy ratio, such as that of the development sample; see <a class="reference internal" href="../user_guide/calibration.html"><span class="doc">Calibration</span></a>.</p>
+</dd>
+<dt id="term-Random-index-RI">Random index (RI)<a class="headerlink" href="#term-Random-index-RI" title="Link to this term">#</a></dt><dd><p>The average consistency index of pairwise comparison matrices filled with random judgments on the Saaty scale, which depends only on the number of factors. kivi uses the table of Tone (1986) for 3 to 15 factors; see <a class="reference internal" href="../user_guide/expert.html"><span class="doc">Expert scorecards</span></a>.</p>
+</dd>
+<dt id="term-Realized-LGD">Realized LGD<a class="headerlink" href="#term-Realized-LGD" title="Link to this term">#</a></dt><dd><p>The economic loss of a closed workout as a share of its exposure at default, with the cash flows discounted at the rate of its date of default. It is negative when the recoveries exceed the exposure and the costs, and above 1 when the costs exceed the recoveries; see <a class="reference internal" href="../user_guide/lgd.html"><span class="doc">LGD and EAD</span></a>.</p>
+</dd>
+<dt id="term-Reason-codes">Reason codes<a class="headerlink" href="#term-Reason-codes" title="Link to this term">#</a></dt><dd><p>The variables that lowered an applicant’s score most, compared with the best group of each variable, as given to a declined applicant; see <a class="reference internal" href="../user_guide/scorecard.html"><span class="doc">Scorecard</span></a>.</p>
+</dd>
+<dt id="term-Recall">Recall<a class="headerlink" href="#term-Recall" title="Link to this term">#</a></dt><dd><p>The share of all events that a score flags at a threshold, or that a policy rule hits: the <code class="docutils literal notranslate"><span class="pre">true_positive_rate</span></code> of <a class="reference internal" href="metrics.html#kivi.metrics.roc_table" title="kivi.metrics.roc_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">roc_table()</span></code></a> and the <code class="docutils literal notranslate"><span class="pre">recall</span></code> of <a class="reference internal" href="strategy.html#kivi.strategy.confusion_table" title="kivi.strategy.confusion_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">confusion_table()</span></code></a> and <a class="reference internal" href="rules.html#kivi.rules.rule_table" title="kivi.rules.rule_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">rule_table()</span></code></a>; see <a class="reference internal" href="../user_guide/metrics.html"><span class="doc">Model performance</span></a>.</p>
+</dd>
+<dt id="term-Reference-date">Reference date<a class="headerlink" href="#term-Reference-date" title="Link to this term">#</a></dt><dd><p>The date at which the limit and the drawn amount of a credit line are taken for its realized CCF, 12 months before default in the fixed-horizon approach of the regulations; see <a class="reference internal" href="../user_guide/lgd.html"><span class="doc">LGD and EAD</span></a>.</p>
+</dd>
+<dt id="term-Reference-sample">Reference sample<a class="headerlink" href="#term-Reference-sample" title="Link to this term">#</a></dt><dd><p>The sample that later samples are compared with, usually the development sample or a period right after it. Bin edges, score bands and groups are fitted on it; see <a class="reference internal" href="../user_guide/monitoring.html"><span class="doc">Model monitoring</span></a>.</p>
+</dd>
+<dt id="term-Reject-inference">Reject inference<a class="headerlink" href="#term-Reject-inference" title="Link to this term">#</a></dt><dd><p>Methods that supply outcomes for rejected applicants, as rows with weights or as weights for the accepts, so that a model can be refitted on all applicants; see <a class="reference internal" href="../user_guide/reject_inference.html"><span class="doc">Reject inference</span></a>.</p>
+</dd>
+<dt id="term-Repayment-schedule">Repayment schedule<a class="headerlink" href="#term-Repayment-schedule" title="Link to this term">#</a></dt><dd><p>The instalments that a loan owes, each with its due date and its amount. Compared with the payments made, it gives the days past due of the loan at each month end; see <a class="reference internal" href="../user_guide/vintage.html"><span class="doc">Vintage and roll-rate analysis</span></a>.</p>
+</dd>
+<dt id="term-Reporting-date">Reporting date<a class="headerlink" href="#term-Reporting-date" title="Link to this term">#</a></dt><dd><p>The date at which a loss allowance is measured. Period 1 of an expected credit loss is the first period after it; see <a class="reference internal" href="../user_guide/lifetime.html"><span class="doc">Lifetime PD and expected credit loss</span></a>.</p>
+</dd>
+<dt id="term-Return-on-investment-ROI">Return on investment (ROI)<a class="headerlink" href="#term-Return-on-investment-ROI" title="Link to this term">#</a></dt><dd><p>In the expected maximum profit, the return that a good loan earns over its term as a share of the amount lent, which a cut-off gives up for each good applicant that it rejects; see <a class="reference internal" href="../user_guide/metrics.html"><span class="doc">Model performance</span></a>.</p>
+</dd>
+<dt id="term-Revenue-and-profit">Revenue and profit<a class="headerlink" href="#term-Revenue-and-profit" title="Link to this term">#</a></dt><dd><p>The revenue of an approved loan is what it earns, such as its interest margin and fees, and the profit of a cut-off is the revenue of the book that it approves less the losses of that book; see <a class="reference internal" href="../user_guide/strategy.html"><span class="doc">Credit strategy</span></a>.</p>
+</dd>
+<dt id="term-Risk-set">Risk set<a class="headerlink" href="#term-Risk-set" title="Link to this term">#</a></dt><dd><p>The accounts at risk of default in a period: already observed and with neither a default nor another exit before it. The accounts censored in the period still belong to it; see <a class="reference internal" href="../user_guide/lifetime.html"><span class="doc">Lifetime PD and expected credit loss</span></a>.</p>
+</dd>
+<dt id="term-Risk-weight">Risk weight<a class="headerlink" href="#term-Risk-weight" title="Link to this term">#</a></dt><dd><p>The capital requirement times 12.5, the share of an exposure that counts as risk-weighted assets (RWA), so that the minimum capital ratio of 8% of the RWA gives back the capital requirement; see <a class="reference internal" href="../user_guide/capital.html"><span class="doc">Regulatory capital</span></a>.</p>
+</dd>
+<dt id="term-Robust-standard-error">Robust standard error<a class="headerlink" href="#term-Robust-standard-error" title="Link to this term">#</a></dt><dd><p>A standard error from the sandwich estimator, the inverse information times the sum of the outer products of the scores times the inverse information, which holds whatever the variance of the response, as for a fractional response; see <a class="reference internal" href="../user_guide/lgd.html"><span class="doc">LGD and EAD</span></a>.</p>
+</dd>
+<dt id="term-ROC-convex-hull">ROC convex hull<a class="headerlink" href="#term-ROC-convex-hull" title="Link to this term">#</a></dt><dd><p>The upper convex hull of the ROC curve, the smallest concave curve on or above it. Whatever the loss of a default and the return of a good loan, the most profitable cut-off of a score lies on a vertex of the hull; see <a class="reference internal" href="../user_guide/metrics.html"><span class="doc">Model performance</span></a>.</p>
+</dd>
+<dt id="term-ROC-curve">ROC curve<a class="headerlink" href="#term-ROC-curve" title="Link to this term">#</a></dt><dd><p>The true positive rate, the share of events flagged, against the false positive rate, the share of non-events flagged, as the threshold moves through the scores from the riskiest down. The area under it is the AUC, and its largest vertical distance from the diagonal is the KS; see <a class="reference internal" href="../user_guide/metrics.html"><span class="doc">Model performance</span></a>.</p>
+</dd>
+<dt id="term-Roll-rate">Roll rate<a class="headerlink" href="#term-Roll-rate" title="Link to this term">#</a></dt><dd><p>The share of the loans in a delinquency bucket at one month end that are in the next worse bucket at the next month end; see <a class="reference internal" href="../user_guide/vintage.html"><span class="doc">Vintage and roll-rate analysis</span></a>.</p>
+</dd>
+<dt id="term-Run">Run<a class="headerlink" href="#term-Run" title="Link to this term">#</a></dt><dd><p>A stretch of consecutive months with bad statuses, or with good ones. A month without a status ends a run, and a window counts only the months of a run that lie inside it; see <a class="reference internal" href="../user_guide/features.html"><span class="doc">Time-window features</span></a>.</p>
+</dd>
+<dt id="term-Saaty-scale">Saaty scale<a class="headerlink" href="#term-Saaty-scale" title="Link to this term">#</a></dt><dd><p>The scale of pairwise comparisons from 1, equally important, through 3, 5 and 7 to 9, extremely more important, with 2, 4, 6 and 8 in between and the reciprocals for the reverse comparisons; see <a class="reference internal" href="../user_guide/expert.html"><span class="doc">Expert scorecards</span></a>.</p>
+</dd>
+<dt id="term-Scaled-likelihood-ratio">Scaled likelihood ratio<a class="headerlink" href="#term-Scaled-likelihood-ratio" title="Link to this term">#</a></dt><dd><p>Tasche’s name for the calibration that multiplies the odds of every PD by one constant, the same shift of every log odds, chosen so that the mean PD of the calibration sample equals the central tendency. It keeps the order of the PDs and never leaves [0, 1]; see <a class="reference internal" href="../user_guide/calibration.html"><span class="doc">Calibration</span></a>.</p>
+</dd>
+<dt id="term-Selection-path">Selection path<a class="headerlink" href="#term-Selection-path" title="Link to this term">#</a></dt><dd><p>The models fitted on the first 1, 2, 3 and more variables of a fixed order, such as the variables sorted by IV, with the measures of each model on the development sample and on a validation sample, which show where adding variables stops paying off; see <a class="reference internal" href="../user_guide/selection.html"><span class="doc">Variable selection</span></a>.</p>
+</dd>
+<dt id="term-Significant-increase-in-credit-risk-SICR">Significant increase in credit risk (SICR)<a class="headerlink" href="#term-Significant-increase-in-credit-risk-SICR" title="Link to this term">#</a></dt><dd><p>The IFRS 9 criterion that moves a loan from stage 1 to stage 2: its risk of default has risen significantly since initial recognition. Each lender sets the test in its own policy, for example as relative and absolute increases of the PD; see <a class="reference internal" href="../user_guide/lifetime.html"><span class="doc">Lifetime PD and expected credit loss</span></a>.</p>
+</dd>
+<dt id="term-SME-adjustment">SME adjustment<a class="headerlink" href="#term-SME-adjustment" title="Link to this term">#</a></dt><dd><p>The reduction of the corporate asset correlation for small and medium-sized enterprises by up to 0.04, according to their annual sales within a range: 5 to 50 million euros in the Basel framework and 30 to 300 million yuan in China’s rules; see <a class="reference internal" href="../user_guide/capital.html"><span class="doc">Regulatory capital</span></a>.</p>
+</dd>
+<dt id="term-Smoothing">Smoothing<a class="headerlink" href="#term-Smoothing" title="Link to this term">#</a></dt><dd><p>The value that replaces an empty count before shares are computed, 0.5 by default, so that the WOE, the IV and the PSI of a group stay finite. Counts are reported as observed, and only the shares are smoothed; see <a class="reference internal" href="../user_guide/woe_iv.html"><span class="doc">Weight of evidence and information value</span></a>.</p>
+</dd>
+<dt id="term-Somers-D">Somers’ D<a class="headerlink" href="#term-Somers-D" title="Link to this term">#</a></dt><dd><p>A rank correlation of an ordered outcome with ordered estimates: of the pairs of observations in different estimated segments, the share that the outcome orders the same way minus the share that it orders the other way. It runs from -1 to 1, and the generalized AUC is Somers’ D plus one, halved; see <a class="reference internal" href="../user_guide/metrics.html"><span class="doc">Model performance</span></a>.</p>
+</dd>
+<dt id="term-Special-codes">Special codes<a class="headerlink" href="#term-Special-codes" title="Link to this term">#</a></dt><dd><p>Values that stand for a state rather than a measurement, such as -1 for “never contacted”, 999 for “no record” or the label “unknown” of a categorical variable. Passed in <code class="docutils literal notranslate"><span class="pre">special</span></code>, they are left out of the fit of the edges or of the grouping and each gets a group of its own; see <a class="reference internal" href="../user_guide/binning.html#special-values"><span class="std std-ref">Special values</span></a>.</p>
+</dd>
+<dt id="term-Spiegelhalter-test">Spiegelhalter test<a class="headerlink" href="#term-Spiegelhalter-test" title="Link to this term">#</a></dt><dd><p>A test of the calibration of single probabilities, without groups: it standardizes the difference between the Brier score of the probabilities and the score that they would have if they were the true ones. For PDs below 1/2, a positive statistic means more defaults than the PDs predict and a negative one fewer; see <a class="reference internal" href="../user_guide/calibration.html"><span class="doc">Calibration</span></a>.</p>
+</dd>
+<dt id="term-Stage">Stage<a class="headerlink" href="#term-Stage" title="Link to this term">#</a></dt><dd><p>One of the three IFRS 9 buckets of a loan: stage 1 for loans without a significant increase in credit risk, with a 12-month ECL; stage 2 for loans with one, with a lifetime ECL; and stage 3 for credit-impaired loans, also with a lifetime ECL; see <a class="reference internal" href="../user_guide/lifetime.html"><span class="doc">Lifetime PD and expected credit loss</span></a>.</p>
+</dd>
+<dt id="term-Standard-error-and-confidence-interval">Standard error and confidence interval<a class="headerlink" href="#term-Standard-error-and-confidence-interval" title="Link to this term">#</a></dt><dd><p>The standard error measures how much an estimate, such as an AUC, would vary from sample to sample. A confidence interval at a level such as 95% is a range around the estimate that would cover the true value in that share of samples; see <a class="reference internal" href="../user_guide/metrics.html"><span class="doc">Model performance</span></a>.</p>
+</dd>
+<dt id="term-Start-month">Start month<a class="headerlink" href="#term-Start-month" title="Link to this term">#</a></dt><dd><p>The month at whose end a cohort of the cohort approach is formed; the defaults of the twelve months after it make its one-year default rates. The EBA guidelines ask for start months at least every quarter; see <a class="reference internal" href="../user_guide/vintage.html"><span class="doc">Vintage and roll-rate analysis</span></a>.</p>
+</dd>
+<dt id="term-Stressed-PD">Stressed PD<a class="headerlink" href="#term-Stressed-PD" title="Link to this term">#</a></dt><dd><p>The PD of the one-factor model in a bad economy, such as the PD at the 0.1% quantile of the systematic factor, a <code class="docutils literal notranslate"><span class="pre">level</span></code> of 0.999, that the IRB capital requirement uses, or the PD of a downturn scenario; <a class="reference internal" href="capital.html#kivi.capital.conditional_pd" title="kivi.capital.conditional_pd"><code class="xref py py-func docutils literal notranslate"><span class="pre">conditional_pd()</span></code></a> gives it; see <a class="reference internal" href="../user_guide/capital.html"><span class="doc">Regulatory capital</span></a>.</p>
+</dd>
+<dt id="term-Swap-set">Swap set<a class="headerlink" href="#term-Swap-set" title="Link to this term">#</a></dt><dd><p>The four groups of applicants that two scores, each with its cut-off, approve or decline. The swap-outs are approved only by the current score and the swap-ins only by the new one; see <a class="reference internal" href="../user_guide/strategy.html"><span class="doc">Credit strategy</span></a>.</p>
+</dd>
+<dt id="term-Systematic-factor">Systematic factor<a class="headerlink" href="#term-Systematic-factor" title="Link to this term">#</a></dt><dd><p>The state of the economy in the one-factor model, a standard normal variable that all borrowers share, positive in years better than the median and negative in worse ones. A default rate implies its value given the PD and the asset correlation; see <a class="reference internal" href="../user_guide/capital.html"><span class="doc">Regulatory capital</span></a>.</p>
+</dd>
+<dt id="term-Test-group">Test group<a class="headerlink" href="#term-Test-group" title="Link to this term">#</a></dt><dd><p>A random share of the applicants that is approved despite a policy rule or the cut-off, so that the outcomes of the applicants the policy declines become known; see <a class="reference internal" href="../user_guide/rules.html"><span class="doc">Policy rules</span></a>.</p>
+</dd>
+<dt id="term-Through-the-cycle-PD-TTC">Through-the-cycle PD (TTC)<a class="headerlink" href="#term-Through-the-cycle-PD-TTC" title="Link to this term">#</a></dt><dd><p>A PD that averages over the states of the economy, such as the long-run PD of the one-factor model, the mean of the yearly default rates. A point-in-time PD follows the economy of the moment instead, the PD given the systematic factor; this sense differs from the point-in-time features of <a class="reference internal" href="features.html#module-kivi.features" title="kivi.features"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.features</span></code></a>; see <a class="reference internal" href="../user_guide/capital.html"><span class="doc">Regulatory capital</span></a>.</p>
+</dd>
+<dt id="term-Tolerance">Tolerance<a class="headerlink" href="#term-Tolerance" title="Link to this term">#</a></dt><dd><p>How far a value may miss a rule and still count as meeting it. <a class="reference internal" href="vintage.html#kivi.vintage.delinquency_panel" title="kivi.vintage.delinquency_panel"><code class="xref py py-func docutils literal notranslate"><span class="pre">delinquency_panel()</span></code></a> counts an instalment as paid once at most <code class="docutils literal notranslate"><span class="pre">tolerance</span></code>, an amount, remains unpaid of it and the older instalments together, so that a rounding difference does not make a loan past due; see <a class="reference internal" href="../user_guide/vintage.html"><span class="doc">Vintage and roll-rate analysis</span></a>. <a class="reference internal" href="expert.html#kivi.expert.ahp_weights" title="kivi.expert.ahp_weights"><code class="xref py py-func docutils literal notranslate"><span class="pre">ahp_weights()</span></code></a> and <a class="reference internal" href="expert.html#kivi.expert.ahp_consistency" title="kivi.expert.ahp_consistency"><code class="xref py py-func docutils literal notranslate"><span class="pre">ahp_consistency()</span></code></a> accept a pairwise comparison matrix whose diagonal is 1 and whose entries are reciprocal within the relative tolerance <code class="docutils literal notranslate"><span class="pre">rtol</span></code>, so that 0.3333 passes for 1 / 3; see <a class="reference internal" href="../user_guide/expert.html"><span class="doc">Expert scorecards</span></a>.</p>
+</dd>
+<dt id="term-Total">Total<a class="headerlink" href="#term-Total" title="Link to this term">#</a></dt><dd><p>The number of observations in a row of a table, missing values included, or their sum of weights. The <code class="docutils literal notranslate"><span class="pre">count</span></code> of <a class="reference internal" href="univariate.html#kivi.univariate.profile_table" title="kivi.univariate.profile_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">profile_table()</span></code></a> is the number of values that are not missing instead, as in <code class="docutils literal notranslate"><span class="pre">pandas.DataFrame.describe</span></code>; see <a class="reference internal" href="../user_guide/univariate.html"><span class="doc">Univariate profile</span></a>.</p>
+</dd>
+<dt id="term-Transition-matrix">Transition matrix<a class="headerlink" href="#term-Transition-matrix" title="Link to this term">#</a></dt><dd><p>A table that counts the loans or obligors that moved from each state to each other state between two dates, such as delinquency buckets or rating grades; see <a class="reference internal" href="../user_guide/vintage.html"><span class="doc">Vintage and roll-rate analysis</span></a>.</p>
+</dd>
+<dt id="term-Unique-hits">Unique hits<a class="headerlink" href="#term-Unique-hits" title="Link to this term">#</a></dt><dd><p>The applicants that a policy rule hits and no other rule of the set does: the declines that rest on this rule alone, which removing it from the set would approve; see <a class="reference internal" href="../user_guide/rules.html"><span class="doc">Policy rules</span></a>.</p>
+</dd>
+<dt id="term-Unseen-category">Unseen category<a class="headerlink" href="#term-Unseen-category" title="Link to this term">#</a></dt><dd><p>A category of a later sample that did not occur in the reference sample, so that its grouping or WOE table has no row for it. kivi raises an error for such a category unless an <code class="docutils literal notranslate"><span class="pre">unseen</span></code> policy says how to treat it; see <a class="reference internal" href="../user_guide/woe_iv.html"><span class="doc">Weight of evidence and information value</span></a>.</p>
+</dd>
+<dt id="term-Validation-sample">Validation sample<a class="headerlink" href="#term-Validation-sample" title="Link to this term">#</a></dt><dd><p>A sample left out of the development of a model, such as later applicants, on which the fitted model is measured, so that its measures do not reward a fit to the chance features of the development sample; see <a class="reference internal" href="../user_guide/metrics.html"><span class="doc">Model performance</span></a>.</p>
+</dd>
+<dt id="term-Variance-inflation-factor-VIF">Variance inflation factor (VIF)<a class="headerlink" href="#term-Variance-inflation-factor-VIF" title="Link to this term">#</a></dt><dd><p>How much the variance of a coefficient grows because its variable is correlated with the other variables: <span class="math notranslate nohighlight">\(1 / (1 - R^2)\)</span> for the <span class="math notranslate nohighlight">\(R^2\)</span> of the regression of the variable on the others, with an intercept. It is 1 without collinearity, and values above 5 or 10 are usually taken as too high; see <a class="reference internal" href="../user_guide/selection.html"><span class="doc">Variable selection</span></a>.</p>
+</dd>
+<dt id="term-VIF-elimination">VIF elimination<a class="headerlink" href="#term-VIF-elimination" title="Link to this term">#</a></dt><dd><p>Dropping the variable with the largest VIF, computing the VIFs of the others again and repeating until no VIF exceeds a threshold, so that one collinear variable at a time is removed; see <a class="reference internal" href="../user_guide/selection.html"><span class="doc">Variable selection</span></a>.</p>
+</dd>
+<dt id="term-Vintage-table">Vintage table<a class="headerlink" href="#term-Vintage-table" title="Link to this term">#</a></dt><dd><p>The cumulative ever-bad rate of each cohort by month on book; see <a class="reference internal" href="../user_guide/vintage.html"><span class="doc">Vintage and roll-rate analysis</span></a>.</p>
+</dd>
+<dt id="term-Weight-of-evidence-WOE">Weight of evidence (WOE)<a class="headerlink" href="#term-Weight-of-evidence-WOE" title="Link to this term">#</a></dt><dd><p>The logarithm of a group’s share of all events over its share of all non-events. A positive WOE marks a group that is relatively more common among events; see <a class="reference internal" href="../user_guide/woe_iv.html"><span class="doc">Weight of evidence and information value</span></a>.</p>
+</dd>
+<dt id="term-Window">Window<a class="headerlink" href="#term-Window" title="Link to this term">#</a></dt><dd><p>The period before an observation time <span class="math notranslate nohighlight">\(t\)</span> over which a feature aggregates the events: <span class="math notranslate nohighlight">\([t - k, t)\)</span> for <span class="math notranslate nohighlight">\(k\)</span> calendar months or days, or <span class="math notranslate nohighlight">\((t - k, t]\)</span> with <code class="docutils literal notranslate"><span class="pre">closed=&quot;right&quot;</span></code>. For monthly statuses, the <span class="math notranslate nohighlight">\(k\)</span> months before the observation month; see <a class="reference internal" href="../user_guide/features.html"><span class="doc">Time-window features</span></a>.</p>
+</dd>
+<dt id="term-Window-pair">Window pair<a class="headerlink" href="#term-Window-pair" title="Link to this term">#</a></dt><dd><p>Two bounds of the same unit, such as <code class="docutils literal notranslate"><span class="pre">(&quot;6M&quot;,</span> <span class="pre">&quot;3M&quot;)</span></code>, that make one window from the first to the second, here <span class="math notranslate nohighlight">\([t - 6M, t - 3M)\)</span>, the period before the most recent one. Its features are named with both bounds, as <code class="docutils literal notranslate"><span class="pre">6m_3m</span></code>; see <a class="reference internal" href="../user_guide/features.html"><span class="doc">Time-window features</span></a>.</p>
+</dd>
+<dt id="term-WOE-trend">WOE trend<a class="headerlink" href="#term-WOE-trend" title="Link to this term">#</a></dt><dd><p>The shape of the WOE over the bins of a numeric variable, from its lowest values to its highest: increasing, decreasing, U-shaped, an inverted U, irregular when it changes direction more than once, or flat. Monotonic binning makes it increasing or decreasing; see <a class="reference internal" href="../user_guide/woe_iv.html"><span class="doc">Weight of evidence and information value</span></a>.</p>
+</dd>
+<dt id="term-Workout">Workout<a class="headerlink" href="#term-Workout" title="Link to this term">#</a></dt><dd><p>The recovery process of a defaulted loan, from the default to the cure, the sale of the collateral or the write-off, whose recoveries and costs give the realized LGD; see <a class="reference internal" href="../user_guide/lgd.html"><span class="doc">LGD and EAD</span></a>.</p>
+</dd>
+</dl>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="compatibility.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Compatibility</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="features.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Time-window features</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1.
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

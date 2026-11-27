@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>11. The loan book under IFRS 9 &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=d005c095" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=25d9e9fd"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'tutorial/portfolio';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="User guide" href="../user_guide/index.html" />
+    <link rel="prev" title="10. Production and monitoring" href="monitoring.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="1.9.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 1.9.0">1.9.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    Tutorial
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/tutorial/portfolio.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    Tutorial
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/tutorial/portfolio.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="data.html">1. Data and samples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">2. Transaction features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="binning.html">3. Binning and WOE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model.html">4. Variable selection and the model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reject_inference.html">5. Reject inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scorecard.html">6. The scorecard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="evaluation.html">7. Model evaluation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">8. Calibration and grades</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">9. Cut-off and strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">10. Production and monitoring</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">11. The loan book under IFRS 9</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Tutorial</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis"><span class="section-number">11. </span>The loan book under IFRS 9</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="the-loan-book-under-ifrs-9">
+<h1><span class="section-number">11. </span>The loan book under IFRS 9<a class="headerlink" href="#the-loan-book-under-ifrs-9" title="Link to this heading">#</a></h1>
+<p>The approved applications become loans, and the lender follows them until they are repaid. This chapter tracks how the loans go bad by origination month and how they move between delinquency buckets, turns those movements into the PD term structures, stages and loss allowance that IFRS 9 requires, and reads the repayment history of each loan; <a class="reference internal" href="../user_guide/vintage.html"><span class="doc">Vintage and roll-rate analysis</span></a> and <a class="reference internal" href="../user_guide/lifetime.html"><span class="doc">Lifetime PD and expected credit loss</span></a> explain each step.</p>
+<p>The loan book is the synthetic panel of <a class="reference internal" href="../api/datasets.html#kivi.datasets.make_loan_panel" title="kivi.datasets.make_loan_panel"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_loan_panel()</span></code></a>: 5,000 instalment loans originated from January 2024 to December 2025, with their status at every month end up to January 2026. It stands in for the loans that the lender booked; it is simulated apart from the applications of the earlier chapters, so this chapter needs none of their code.</p>
+<section id="follow-the-vintages">
+<h2>Follow the vintages<a class="headerlink" href="#follow-the-vintages" title="Link to this heading">#</a></h2>
+<p><a class="reference internal" href="../api/vintage.html#kivi.vintage.vintage_table" title="kivi.vintage.vintage_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">vintage_table()</span></code></a> gives, for each origination month and month on book, the share of the loans that have been 90 days past due at least once:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_loan_panel</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.vintage</span><span class="w"> </span><span class="kn">import</span> <span class="n">roll_rates</span><span class="p">,</span> <span class="n">transition_matrix</span><span class="p">,</span> <span class="n">vintage_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">panel</span> <span class="o">=</span> <span class="n">make_loan_panel</span><span class="p">(</span><span class="n">rng</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ever_90</span> <span class="o">=</span> <span class="n">vintage_table</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">panel</span><span class="p">[</span><span class="s2">"loan_id"</span><span class="p">],</span> <span class="n">panel</span><span class="p">[</span><span class="s2">"cohort"</span><span class="p">],</span> <span class="n">panel</span><span class="p">[</span><span class="s2">"month_on_book"</span><span class="p">],</span> <span class="n">panel</span><span class="p">[</span><span class="s2">"status"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"90+"</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ever_90</span><span class="p">[[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="mi">24</span><span class="p">]]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[::</span><span class="mi">6</span><span class="p">]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">month_on_book     6      12     18     24</span>
+<span class="go">cohort</span>
+<span class="go">2024-01        0.000  0.068  0.094  0.094</span>
+<span class="go">2024-07        0.005  0.051  0.081    NaN</span>
+<span class="go">2025-01        0.005  0.034    NaN    NaN</span>
+<span class="go">2025-07        0.005    NaN    NaN    NaN</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id1">
+<img alt="Cumulative 90+ bad rate by month on book for one cohort in each half year" class="plot-directive" src="../_images/portfolio-1.svg" />
+<figcaption>
+<p><span class="caption-text">Vintage curves of the cohorts in the table: each stops at the cohort’s latest month on book.</span><a class="headerlink" href="#id1" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>Each row follows one cohort and never decreases, because a loan that went bad stays counted. Months that a cohort has not reached are missing, not zero.</p>
+</section>
+<section id="measure-the-roll-rates">
+<h2>Measure the roll rates<a class="headerlink" href="#measure-the-roll-rates" title="Link to this heading">#</a></h2>
+<p>A transition matrix counts how loans move between the delinquency buckets from one month end to the next. Pair each row of the panel with the row of the same loan one month later, then pass the two statuses to <a class="reference internal" href="../api/vintage.html#kivi.vintage.transition_matrix" title="kivi.vintage.transition_matrix"><code class="xref py py-func docutils literal notranslate"><span class="pre">transition_matrix()</span></code></a> and <a class="reference internal" href="../api/vintage.html#kivi.vintage.roll_rates" title="kivi.vintage.roll_rates"><code class="xref py py-func docutils literal notranslate"><span class="pre">roll_rates()</span></code></a>:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">later</span> <span class="o">=</span> <span class="n">panel</span><span class="p">[[</span><span class="s2">"loan_id"</span><span class="p">,</span> <span class="s2">"month_on_book"</span><span class="p">,</span> <span class="s2">"status"</span><span class="p">]]</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">month_on_book</span><span class="o">=</span><span class="n">panel</span><span class="p">[</span><span class="s2">"month_on_book"</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pairs</span> <span class="o">=</span> <span class="n">panel</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">later</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">"loan_id"</span><span class="p">,</span> <span class="s2">"month_on_book"</span><span class="p">],</span> <span class="n">suffixes</span><span class="o">=</span><span class="p">(</span><span class="s2">""</span><span class="p">,</span> <span class="s2">"_next"</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">monthly</span> <span class="o">=</span> <span class="n">transition_matrix</span><span class="p">(</span><span class="n">pairs</span><span class="p">[</span><span class="s2">"status"</span><span class="p">],</span> <span class="n">pairs</span><span class="p">[</span><span class="s2">"status_next"</span><span class="p">],</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">roll_rates</span><span class="p">(</span><span class="n">pairs</span><span class="p">[</span><span class="s2">"status"</span><span class="p">],</span> <span class="n">pairs</span><span class="p">[</span><span class="s2">"status_next"</span><span class="p">])</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">before</span>
+<span class="go">current    0.023</span>
+<span class="go">1-29       0.295</span>
+<span class="go">30-59      0.553</span>
+<span class="go">60-89      0.712</span>
+<span class="go">Name: roll_rate, dtype: float64</span>
+</pre></div>
+</div>
+<p>Each month 2.3% of the current loans miss an instalment, and seven in ten loans at 60 to 89 days past due reach 90+ a month later.</p>
+</section>
+<section id="project-the-pds">
+<h2>Project the PDs<a class="headerlink" href="#project-the-pds" title="Link to this heading">#</a></h2>
+<p>If the movements follow the same monthly matrix every month, its powers give the probability of reaching 90+ within any horizon from each bucket. <a class="reference internal" href="../api/lifetime.html#kivi.lifetime.transition_pd" title="kivi.lifetime.transition_pd"><code class="xref py py-func docutils literal notranslate"><span class="pre">transition_pd()</span></code></a> makes 90+ absorbing and returns these cumulative PDs, and <a class="reference internal" href="../api/lifetime.html#kivi.lifetime.convert_pd" title="kivi.lifetime.convert_pd"><code class="xref py py-func docutils literal notranslate"><span class="pre">convert_pd()</span></code></a> turns them into the marginal PD of each month:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.lifetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">assign_stages</span><span class="p">,</span> <span class="n">convert_pd</span><span class="p">,</span> <span class="n">expected_credit_loss</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.lifetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">significant_increase</span><span class="p">,</span> <span class="n">stage_table</span><span class="p">,</span> <span class="n">transition_pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cumulative</span> <span class="o">=</span> <span class="n">transition_pd</span><span class="p">(</span><span class="n">monthly</span><span class="p">,</span> <span class="n">horizons</span><span class="o">=</span><span class="mi">36</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cumulative</span><span class="p">[[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">36</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">horizon      3       12      36</span>
+<span class="go">state</span>
+<span class="go">current  0.0000  0.0393  0.1440</span>
+<span class="go">1-29     0.1159  0.2420  0.3246</span>
+<span class="go">30-59    0.5381  0.6041  0.6472</span>
+<span class="go">60-89    0.8635  0.8731  0.8869</span>
+<span class="go">90+      1.0000  1.0000  1.0000</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">marginal</span> <span class="o">=</span> <span class="n">convert_pd</span><span class="p">(</span><span class="n">cumulative</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">"cumulative"</span><span class="p">,</span> <span class="n">to</span><span class="o">=</span><span class="s2">"marginal"</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>A current loan needs four months to reach 90+, so its PD is 0 for three months; a loan at 60 to 89 days past due reaches 90+ within the year with a probability of 87%.</p>
+</section>
+<section id="measure-the-expected-credit-loss">
+<h2>Measure the expected credit loss<a class="headerlink" href="#measure-the-expected-credit-loss" title="Link to this heading">#</a></h2>
+<p>The reporting date is the end of January 2026, the last month of the panel, and the book holds the loans that still have a balance. Each loan gets the marginal PDs of its bucket, one column per month after the reporting date:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">book</span> <span class="o">=</span> <span class="n">panel</span><span class="p">[(</span><span class="n">panel</span><span class="p">[</span><span class="s2">"month"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"2026-01"</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">panel</span><span class="p">[</span><span class="s2">"balance"</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)]</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">"loan_id"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">account_pd</span> <span class="o">=</span> <span class="n">marginal</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">book</span><span class="p">[</span><span class="s2">"status"</span><span class="p">]]</span><span class="o">.</span><span class="n">set_axis</span><span class="p">(</span><span class="n">book</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The exposure of each month is the balance that the loan is expected to owe then, repaid by its remaining instalments of an annuity at 1% a month; <a class="reference internal" href="../user_guide/lifetime.html"><span class="doc">Lifetime PD and expected credit loss</span></a> derives it. A loan at 90+ has defaulted at the reporting date, so its loss is not discounted:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">remaining</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">book</span><span class="p">[</span><span class="s2">"term"</span><span class="p">]</span> <span class="o">-</span> <span class="n">book</span><span class="p">[</span><span class="s2">"month_on_book"</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()[:,</span> <span class="kc">None</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">paid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">36</span><span class="p">),</span> <span class="n">remaining</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ead</span> <span class="o">=</span> <span class="n">book</span><span class="p">[[</span><span class="s2">"balance"</span><span class="p">]]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.01</span><span class="o">**</span><span class="n">remaining</span> <span class="o">-</span> <span class="mf">1.01</span><span class="o">**</span><span class="n">paid</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.01</span><span class="o">**</span><span class="n">remaining</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">defaulted</span> <span class="o">=</span> <span class="n">book</span><span class="p">[</span><span class="s2">"status"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"90+"</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rate</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">defaulted</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">twelve_month</span> <span class="o">=</span> <span class="n">expected_credit_loss</span><span class="p">(</span><span class="n">account_pd</span><span class="p">,</span> <span class="mf">0.45</span><span class="p">,</span> <span class="n">ead</span><span class="p">,</span> <span class="n">rate</span><span class="o">=</span><span class="n">rate</span><span class="p">,</span> <span class="n">horizon</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lifetime</span> <span class="o">=</span> <span class="n">expected_credit_loss</span><span class="p">(</span><span class="n">account_pd</span><span class="p">,</span> <span class="mf">0.45</span><span class="p">,</span> <span class="n">ead</span><span class="p">,</span> <span class="n">rate</span><span class="o">=</span><span class="n">rate</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="allocate-the-stages">
+<h2>Allocate the stages<a class="headerlink" href="#allocate-the-stages" title="Link to this heading">#</a></h2>
+<p>A loan whose credit risk has increased significantly since it was granted is in stage 2 and carries its lifetime ECL; a loan in default is in stage 3. <a class="reference internal" href="../api/lifetime.html#kivi.lifetime.significant_increase" title="kivi.lifetime.significant_increase"><code class="xref py py-func docutils literal notranslate"><span class="pre">significant_increase()</span></code></a> compares the 12-month PD of each loan’s bucket with that of a current loan, as every loan was current when granted, and <a class="reference internal" href="../api/lifetime.html#kivi.lifetime.assign_stages" title="kivi.lifetime.assign_stages"><code class="xref py py-func docutils literal notranslate"><span class="pre">assign_stages()</span></code></a> adds the backstops of 30 and 90 days past due. The panel records buckets, so the example takes the middle of each bucket as the days past due:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">increase</span> <span class="o">=</span> <span class="n">significant_increase</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">cumulative</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">book</span><span class="p">[</span><span class="s2">"status"</span><span class="p">],</span> <span class="mi">12</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span>
+<span class="gp">... </span>    <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">book</span><span class="p">),</span> <span class="n">cumulative</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">"current"</span><span class="p">,</span> <span class="mi">12</span><span class="p">]),</span>
+<span class="gp">... </span>    <span class="n">relative</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">absolute</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">days_past_due</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">75</span><span class="p">,</span> <span class="mi">105</span><span class="p">])[</span><span class="n">book</span><span class="p">[</span><span class="s2">"status"</span><span class="p">]</span><span class="o">.</span><span class="n">cat</span><span class="o">.</span><span class="n">codes</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stage</span> <span class="o">=</span> <span class="n">assign_stages</span><span class="p">(</span><span class="n">increase</span><span class="p">,</span> <span class="n">days_past_due</span><span class="p">,</span> <span class="n">defaulted</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="../api/lifetime.html#kivi.lifetime.stage_table" title="kivi.lifetime.stage_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">stage_table()</span></code></a> adds up the exposure and the loss allowance of each stage: the 12-month ECL in stage 1 and the lifetime ECL in stages 2 and 3:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">allowance</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">stage</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="n">twelve_month</span><span class="p">,</span> <span class="n">lifetime</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span> <span class="o">=</span> <span class="n">stage_table</span><span class="p">(</span><span class="n">stage</span><span class="p">,</span> <span class="n">book</span><span class="p">[</span><span class="s2">"balance"</span><span class="p">],</span> <span class="n">allowance</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">       total     exposure  exposure_share  expected_credit_loss  coverage</span>
+<span class="go">stage</span>
+<span class="go">1       4076  22660955.57          0.9126           219165.5680    0.0097</span>
+<span class="go">2        135    739820.77          0.0298           129643.3610    0.1752</span>
+<span class="go">3        205   1431123.43          0.0576           644005.5435    0.4500</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">table</span><span class="p">[</span><span class="s1">'expected_credit_loss'</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">table</span><span class="p">[</span><span class="s1">'exposure'</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">0.0400</span>
+</pre></div>
+</div>
+<p>Stage 1 holds nine tenths of the exposure at a coverage below 1%, while stage 3 holds the defaulted loans at the LGD of 45%. The loss allowance of the whole book is 4% of its exposure.</p>
+</section>
+<section id="read-the-repayment-history">
+<h2>Read the repayment history<a class="headerlink" href="#read-the-repayment-history" title="Link to this heading">#</a></h2>
+<p>The stages above look only at the bucket of each loan at the reporting date, so a loan returns to stage 1 as soon as it has paid its arrears. Many lenders keep a loan that has cured in stage 2 for a probation period instead. <a class="reference internal" href="../api/features.html#kivi.features.panel_features" title="kivi.features.panel_features"><code class="xref py py-func docutils literal notranslate"><span class="pre">panel_features()</span></code></a> reads the history of each loan from the panel: for each window of months before the month of the reporting date, the months with a status, the months in arrears, the longest runs of bad and good months and the worst status, and the months since the latest month in arrears. With <code class="docutils literal notranslate"><span class="pre">bad=&quot;1-29&quot;</span></code> every month end in arrears counts as bad, as every bucket in arrears puts a loan in stage 2 or 3 above; <a class="reference internal" href="../user_guide/features.html"><span class="doc">Time-window features</span></a> describes the features:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.features</span><span class="w"> </span><span class="kn">import</span> <span class="n">panel_features</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">observations</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">{</span><span class="s2">"loan_id"</span><span class="p">:</span> <span class="n">book</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="s2">"reporting_date"</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="s2">"2026-01-31"</span><span class="p">)},</span> <span class="n">index</span><span class="o">=</span><span class="n">book</span><span class="o">.</span><span class="n">index</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">history</span> <span class="o">=</span> <span class="n">panel_features</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">panel</span><span class="p">,</span> <span class="n">observations</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">"loan_id"</span><span class="p">,</span> <span class="n">month</span><span class="o">=</span><span class="s2">"month"</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="s2">"status"</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">observation_time</span><span class="o">=</span><span class="s2">"reporting_date"</span><span class="p">,</span> <span class="n">windows</span><span class="o">=</span><span class="p">[</span><span class="s2">"6M"</span><span class="p">,</span> <span class="s2">"12M"</span><span class="p">],</span> <span class="n">bad</span><span class="o">=</span><span class="s2">"1-29"</span><span class="p">,</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pd</span><span class="o">.</span><span class="n">crosstab</span><span class="p">(</span><span class="n">stage</span><span class="p">,</span> <span class="n">history</span><span class="p">[</span><span class="s2">"worst_status_6m"</span><span class="p">])</span>
+<span class="go">worst_status_6m  current  1-29  30-59  60-89  90+</span>
+<span class="go">stage</span>
+<span class="go">1                   3558   240     43      9    0</span>
+<span class="go">2                     54    42     28      7    0</span>
+<span class="go">3                      0     0      0     14  191</span>
+</pre></div>
+</div>
+<p>The windows end before January, the month of the reporting date, so the six months are July to December 2025, and the status of January is the bucket that the stages already use. Of the loans in stage 1, 292 were in arrears at one of those month ends and are current again. The 230 loans originated in December 2025 have no month end before January, so their worst status is missing and the table leaves them out.</p>
+<p>A probation of six months keeps those 292 loans in stage 2: a loan in arrears at any of the six month ends before the reporting date counts as a significant increase too:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">probation</span> <span class="o">=</span> <span class="n">history</span><span class="p">[</span><span class="s2">"bad_months_6m"</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">revised</span> <span class="o">=</span> <span class="n">assign_stages</span><span class="p">(</span><span class="n">increase</span> <span class="o">|</span> <span class="n">probation</span><span class="p">,</span> <span class="n">days_past_due</span><span class="p">,</span> <span class="n">defaulted</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">revised_table</span> <span class="o">=</span> <span class="n">stage_table</span><span class="p">(</span><span class="n">revised</span><span class="p">,</span> <span class="n">book</span><span class="p">[</span><span class="s2">"balance"</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">revised</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="n">twelve_month</span><span class="p">,</span> <span class="n">lifetime</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">revised_table</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">       total     exposure  exposure_share  expected_credit_loss  coverage</span>
+<span class="go">stage</span>
+<span class="go">1       3784  21218424.37          0.8545           205727.2235    0.0097</span>
+<span class="go">2        427   2182351.97          0.0879           148631.8793    0.0681</span>
+<span class="go">3        205   1431123.43          0.0576           644005.5435    0.4500</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">revised_table</span><span class="p">[</span><span class="s1">'expected_credit_loss'</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">table</span><span class="p">[</span><span class="s1">'expected_credit_loss'</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">5550</span>
+</pre></div>
+</div>
+<p>The rule moves 1.4 million of exposure into stage 2 but adds only 5,550 to the allowance, and the coverage of stage 2 falls from 17.5% to 6.8%. The cured loans are current, so the transition matrix gives them the PDs of every other current loan, and only the horizon of their ECL changes, from 12 months to the lifetime. The matrix forgets the history of a loan, so it cannot tell whether a loan that was recently in arrears is riskier than one that never was. A model with the features of the history can: they are the characteristics of a behaviour scorecard, which the steps of this tutorial would build from the book as they built the application scorecard.</p>
+</section>
+<section id="close-the-loop">
+<h2>Close the loop<a class="headerlink" href="#close-the-loop" title="Link to this heading">#</a></h2>
+<p>The project has gone from the applications to the loss allowance of the loans they became. In production the steps repeat: the monitoring of <a class="reference internal" href="monitoring.html"><span class="doc">Production and monitoring</span></a> watches the applicants and the scorecard, the vintages, roll rates and repayment histories of this chapter watch the loans, and when either drifts, the project returns to the data of <a class="reference internal" href="data.html"><span class="doc">Data and samples</span></a> with the new outcomes.</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="monitoring.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title"><span class="section-number">10. </span>Production and monitoring</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../user_guide/index.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">User guide</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#follow-the-vintages">Follow the vintages</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#measure-the-roll-rates">Measure the roll rates</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#project-the-pds">Project the PDs</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#measure-the-expected-credit-loss">Measure the expected credit loss</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#allocate-the-stages">Allocate the stages</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#read-the-repayment-history">Read the repayment history</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#close-the-loop">Close the loop</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1.
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

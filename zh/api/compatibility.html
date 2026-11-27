@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>兼容性 &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=d005c095" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=14f9d491"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script src="../_static/translations.js?v=540d3cec"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/compatibility';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="next" title="术语表" href="glossary.html" />
+    <link rel="prev" title="约定" href="conventions.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+  <meta name="docsearch:version" content="1.9.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">跳转至主要内容</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>回到顶部</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="版本警告"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="网页导航" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 1.9.0">1.9.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    教程
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../../en/api/compatibility.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="当前页面" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    教程
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../../en/api/compatibility.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="章节导航">
+  <p class="bd-links__title" role="heading" aria-level="1">章节导航</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="conventions.html">约定</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">兼容性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">术语表</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">时间窗特征</a></li>
+<li class="toctree-l1"><a class="reference internal" href="univariate.html">单变量概况</a></li>
+<li class="toctree-l1"><a class="reference internal" href="binning.html">分箱</a></li>
+<li class="toctree-l1"><a class="reference internal" href="woe.html">证据权重与信息值</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selection.html">变量筛选</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reject_inference.html">拒绝推断</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scorecard.html">评分卡</a></li>
+<li class="toctree-l1"><a class="reference internal" href="expert.html">专家评分卡</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">模型表现</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">校准</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lgd.html">LGD 与 EAD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">信贷策略</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rules.html">政策规则</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spec.html">分箱方案</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stability.html">群体稳定性指标</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">模型监控</a></li>
+<li class="toctree-l1"><a class="reference internal" href="capital.html">监管资本</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vintage.html">Vintage 与滚动率分析</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lifetime.html">存续期 PD 与预期信用损失</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html">图表</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">示例数据</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="初始页面">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../api.html" class="nav-link">API 参考</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">兼容性</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="compatibility">
+<h1>兼容性<a class="headerlink" href="#compatibility" title="链接到此标题。">#</a></h1>
+<p>本页说明 kivi 的一个版本可以改变什么、保留什么：支持的版本、公共名称、返回表格的结构、异常类型，以及 <a class="reference internal" href="spec.html#kivi.spec.BinningSpec" title="kivi.spec.BinningSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">BinningSpec</span></code></a> 和 <a class="reference internal" href="features.html#kivi.features.FeatureSpec" title="kivi.features.FeatureSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">FeatureSpec</span></code></a> 的文件。每个函数都遵循的规则（例如参数的顺序）见 <a class="reference internal" href="conventions.html"><span class="doc">约定</span></a> ，它们同样属于 API。</p>
+<section id="releases-and-deprecations">
+<h2>版本与弃用<a class="headerlink" href="#releases-and-deprecations" title="链接到此标题。">#</a></h2>
+<p>从 1.0 版起，kivi 遵循语义化版本：</p>
+<ul class="simple">
+<li><p>主版本（例如 2.0）可以移除或修改公共 API 的任何部分。</p></li>
+<li><p>次版本（例如 1.3）会新增函数、参数、表格列或格式版本，并可能弃用 API 的某一部分。</p></li>
+<li><p>补丁版本（例如 1.3.1）只修复错误。</p></li>
+<li><p>已弃用的函数、参数或行为在该主版本的其余版本中继续可用，并发出说明替代用法的 <code class="docutils literal notranslate"><span class="pre">FutureWarning</span></code> 。它在下一个主版本中才改变，因此 1.4 中的弃用在 2.0 中生效。版本说明在“变更”下列出每项弃用。</p></li>
+<li><p>对错误结果的修复可以出现在任何版本中，无论次版本还是补丁版本，即使已有代码依赖该错误结果。版本说明在“修复”下列出这类修复。</p></li>
+</ul>
+<p>1.0 之前曾适用更短的规则：0.9 中弃用的内容已在 1.0 中改变，见 <a class="reference internal" href="../release/migration.html"><span class="doc">迁移指南</span></a> 。要找出某个版本将会改变的调用，可以把 <code class="docutils literal notranslate"><span class="pre">FutureWarning</span></code> 变为错误来运行代码或其测试，例如 <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-W</span> <span class="pre">error::FutureWarning</span></code> 或 <code class="docutils literal notranslate"><span class="pre">pytest</span> <span class="pre">-W</span> <span class="pre">error::FutureWarning</span></code> 。</p>
+</section>
+<section id="supported-versions">
+<h2>支持的版本<a class="headerlink" href="#supported-versions" title="链接到此标题。">#</a></h2>
+<p>kivi 支持 Python 3.11 或更高版本、NumPy 1.24 或更高版本，以及 pandas 2.0 或更高版本，其测试同时在这些最低版本和最新版本上运行。 <a class="reference internal" href="plotting.html#module-kivi.plotting" title="kivi.plotting"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.plotting</span></code></a> 的图表还需要 matplotlib 3.7 或更高版本，可用 <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">&quot;kivi[plot]&quot;</span></code> 安装；其他模块都不导入它。从 1.0 起，最低版本只会在次版本中提高，并由前一个版本的版本说明预先公布。补丁版本从不提高最低版本。</p>
+</section>
+<section id="what-is-public">
+<h2>哪些属于公共 API<a class="headerlink" href="#what-is-public" title="链接到此标题。">#</a></h2>
+<ul class="simple">
+<li><p>公共模块在其 <code class="docutils literal notranslate"><span class="pre">__all__</span></code> 中列出的名称，这些模块是 <a class="reference internal" href="features.html#module-kivi.features" title="kivi.features"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.features</span></code></a> 、 <a class="reference internal" href="binning.html#module-kivi.binning" title="kivi.binning"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.binning</span></code></a> 、 <a class="reference internal" href="woe.html#module-kivi.woe" title="kivi.woe"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.woe</span></code></a> 、 <a class="reference internal" href="stability.html#module-kivi.stability" title="kivi.stability"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.stability</span></code></a> 、 <a class="reference internal" href="univariate.html#module-kivi.univariate" title="kivi.univariate"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.univariate</span></code></a> 、 <a class="reference internal" href="selection.html#module-kivi.selection" title="kivi.selection"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.selection</span></code></a> 、 <a class="reference internal" href="scorecard.html#module-kivi.scorecard" title="kivi.scorecard"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.scorecard</span></code></a> 、 <a class="reference internal" href="expert.html#module-kivi.expert" title="kivi.expert"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.expert</span></code></a> 、 <a class="reference internal" href="metrics.html#module-kivi.metrics" title="kivi.metrics"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.metrics</span></code></a> 、 <a class="reference internal" href="calibration.html#module-kivi.calibration" title="kivi.calibration"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.calibration</span></code></a> 、 <a class="reference internal" href="lgd.html#module-kivi.lgd" title="kivi.lgd"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.lgd</span></code></a> 、 <a class="reference internal" href="strategy.html#module-kivi.strategy" title="kivi.strategy"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.strategy</span></code></a> 、 <a class="reference internal" href="rules.html#module-kivi.rules" title="kivi.rules"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.rules</span></code></a> 、 <a class="reference internal" href="reject_inference.html#module-kivi.reject_inference" title="kivi.reject_inference"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.reject_inference</span></code></a> 、 <a class="reference internal" href="spec.html#module-kivi.spec" title="kivi.spec"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.spec</span></code></a> 、 <a class="reference internal" href="monitoring.html#module-kivi.monitoring" title="kivi.monitoring"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.monitoring</span></code></a> 、 <a class="reference internal" href="capital.html#module-kivi.capital" title="kivi.capital"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.capital</span></code></a> 、 <a class="reference internal" href="vintage.html#module-kivi.vintage" title="kivi.vintage"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.vintage</span></code></a> 、 <a class="reference internal" href="lifetime.html#module-kivi.lifetime" title="kivi.lifetime"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.lifetime</span></code></a> 、 <a class="reference internal" href="plotting.html#module-kivi.plotting" title="kivi.plotting"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.plotting</span></code></a> 和 <a class="reference internal" href="datasets.html#module-kivi.datasets" title="kivi.datasets"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.datasets</span></code></a> 。本参考中每个模块都有一页，记录所有这些名称。 <code class="docutils literal notranslate"><span class="pre">kivi.__version__</span></code> 也是公共的。</p></li>
+<li><p><a class="reference internal" href="spec.html#kivi.spec.BinningSpec" title="kivi.spec.BinningSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">BinningSpec</span></code></a> 有文档的成员：它的字段、 <code class="docutils literal notranslate"><span class="pre">FORMAT_VERSION</span></code> 、 <code class="docutils literal notranslate"><span class="pre">format_version</span></code> 和 <code class="docutils literal notranslate"><span class="pre">columns</span></code> ，它的方法，以及它的相等比较、哈希、pickle 序列化和 <code class="docutils literal notranslate"><span class="pre">dataclasses.replace</span></code> 。 <a class="reference internal" href="features.html#kivi.features.FeatureSpec" title="kivi.features.FeatureSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">FeatureSpec</span></code></a> 同样如此，它有 <code class="docutils literal notranslate"><span class="pre">FORMAT_VERSION</span></code> 和 <code class="docutils literal notranslate"><span class="pre">columns</span></code> ，但没有 <code class="docutils literal notranslate"><span class="pre">format_version</span></code> ，因为它的格式目前只有一个版本。 <a class="reference internal" href="selection.html#kivi.selection.SeparationError" title="kivi.selection.SeparationError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">SeparationError</span></code></a> 也会由 <a class="reference internal" href="calibration.html#kivi.calibration.platt_fit" title="kivi.calibration.platt_fit"><code class="xref py py-func docutils literal notranslate"><span class="pre">platt_fit()</span></code></a> 引发，但它仍位于 <a class="reference internal" href="selection.html#module-kivi.selection" title="kivi.selection"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.selection</span></code></a> 。</p></li>
+<li><p>参数的名称（例如 <a class="reference internal" href="binning.html#kivi.binning.variance_edges" title="kivi.binning.variance_edges"><code class="xref py py-func docutils literal notranslate"><span class="pre">variance_edges()</span></code></a> 和 <a class="reference internal" href="lgd.html#kivi.lgd.fractional_regression" title="kivi.lgd.fractional_regression"><code class="xref py py-func docutils literal notranslate"><span class="pre">fractional_regression()</span></code></a> 的 <code class="docutils literal notranslate"><span class="pre">response</span></code> ），以及选择方法或形状的选项取值，例如 <a class="reference internal" href="spec.html#kivi.spec.fit_spec" title="kivi.spec.fit_spec"><code class="xref py py-func docutils literal notranslate"><span class="pre">fit_spec()</span></code></a> 的 <code class="docutils literal notranslate"><span class="pre">method</span></code> （1.8 起包括 <code class="docutils literal notranslate"><span class="pre">&quot;optimal&quot;</span></code> ）以及 <a class="reference internal" href="binning.html#kivi.binning.optimal_edges" title="kivi.binning.optimal_edges"><code class="xref py py-func docutils literal notranslate"><span class="pre">optimal_edges()</span></code></a> 和 <a class="reference internal" href="binning.html#kivi.binning.variance_edges" title="kivi.binning.variance_edges"><code class="xref py py-func docutils literal notranslate"><span class="pre">variance_edges()</span></code></a> 的 <code class="docutils literal notranslate"><span class="pre">trend</span></code> 。关键字是调用的一部分，因此即使是通常按位置传入的参数，改名也需要先弃用。次版本可以新增默认值保持原有结果的关键字，例如 1.8 起 <a class="reference internal" href="binning.html#kivi.binning.chimerge_edges" title="kivi.binning.chimerge_edges"><code class="xref py py-func docutils literal notranslate"><span class="pre">chimerge_edges()</span></code></a> 和 <a class="reference internal" href="binning.html#kivi.binning.monotonic_edges" title="kivi.binning.monotonic_edges"><code class="xref py py-func docutils literal notranslate"><span class="pre">monotonic_edges()</span></code></a> 的 <code class="docutils literal notranslate"><span class="pre">min_bin_share</span></code> 。</p></li>
+<li><p>其余一切都是私有的：以下划线开头的模块和名称，以及公共模块导入的模块，例如 <code class="docutils literal notranslate"><span class="pre">kivi.binning.np</span></code> 。它们可能在任何版本中改变。</p></li>
+</ul>
+<p>成对参数的结果是元组，例如 <a class="reference internal" href="scorecard.html#kivi.scorecard.score_scaling" title="kivi.scorecard.score_scaling"><code class="xref py py-func docutils literal notranslate"><span class="pre">score_scaling()</span></code></a> 的 <code class="docutils literal notranslate"><span class="pre">(factor,</span> <span class="pre">offset)</span></code> 、 <a class="reference internal" href="calibration.html#kivi.calibration.platt_fit" title="kivi.calibration.platt_fit"><code class="xref py py-func docutils literal notranslate"><span class="pre">platt_fit()</span></code></a> 和 <a class="reference internal" href="calibration.html#kivi.calibration.quasi_moment_fit" title="kivi.calibration.quasi_moment_fit"><code class="xref py py-func docutils literal notranslate"><span class="pre">quasi_moment_fit()</span></code></a> 的 <code class="docutils literal notranslate"><span class="pre">(slope,</span> <span class="pre">intercept)</span></code> 、 <a class="reference internal" href="calibration.html#kivi.calibration.isotonic_fit" title="kivi.calibration.isotonic_fit"><code class="xref py py-func docutils literal notranslate"><span class="pre">isotonic_fit()</span></code></a> 的 <code class="docutils literal notranslate"><span class="pre">(edges,</span> <span class="pre">probability)</span></code> 、 <a class="reference internal" href="calibration.html#kivi.calibration.hosmer_lemeshow" title="kivi.calibration.hosmer_lemeshow"><code class="xref py py-func docutils literal notranslate"><span class="pre">hosmer_lemeshow()</span></code></a> 和 <a class="reference internal" href="calibration.html#kivi.calibration.spiegelhalter_test" title="kivi.calibration.spiegelhalter_test"><code class="xref py py-func docutils literal notranslate"><span class="pre">spiegelhalter_test()</span></code></a> 的 <code class="docutils literal notranslate"><span class="pre">(statistic,</span> <span class="pre">p_value)</span></code> ，以及 <a class="reference internal" href="capital.html#kivi.capital.vasicek_fit" title="kivi.capital.vasicek_fit"><code class="xref py py-func docutils literal notranslate"><span class="pre">vasicek_fit()</span></code></a> 的 <code class="docutils literal notranslate"><span class="pre">(probability,</span> <span class="pre">correlation)</span></code> 。次版本可能把它们改为具名元组，其解包方式不变。供另一次调用使用的单个拟合数值是 Python <code class="docutils literal notranslate"><span class="pre">float</span></code> ，例如 <a class="reference internal" href="calibration.html#kivi.calibration.central_tendency_shift" title="kivi.calibration.central_tendency_shift"><code class="xref py py-func docutils literal notranslate"><span class="pre">central_tendency_shift()</span></code></a> 给出的 log odds 平移量。</p>
+</section>
+<section id="tables">
+<h2>表格<a class="headerlink" href="#tables" title="链接到此标题。">#</a></h2>
+<p>每个表格的索引名称、列名及列的顺序都是公共的。次版本可以在表格末尾追加列，但只有经过弃用才会重命名、重排或移除某列，因此请按名称而不是按位置选取列。 <a class="reference internal" href="selection.html#kivi.selection.logistic_regression" title="kivi.selection.logistic_regression"><code class="xref py py-func docutils literal notranslate"><span class="pre">logistic_regression()</span></code></a> 和 <a class="reference internal" href="lgd.html#kivi.lgd.fractional_regression" title="kivi.lgd.fractional_regression"><code class="xref py py-func docutils literal notranslate"><span class="pre">fractional_regression()</span></code></a> 的 <code class="docutils literal notranslate"><span class="pre">attrs</span></code> 设置在返回的数据框上，pandas 在许多操作中会丢弃它们。</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 24.0%" />
+<col style="width: 30.0%" />
+<col style="width: 46.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>函数</p></th>
+<th class="head"><p>索引</p></th>
+<th class="head"><p>列</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="features.html#kivi.features.window_features" title="kivi.features.window_features"><code class="xref py py-func docutils literal notranslate"><span class="pre">window_features()</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">observations</span></code> 的索引，保持其顺序</p></td>
+<td><p>按窗口依次给出 <code class="docutils literal notranslate"><span class="pre">{prefix}events_{window}</span></code> ，然后逐列、逐个聚合给出 <code class="docutils literal notranslate"><span class="pre">{prefix}{column}_{aggregation}_{window}</span></code> ，最后是比率 <code class="docutils literal notranslate"><span class="pre">{numerator}_over_{window}</span></code> 或 <code class="docutils literal notranslate"><span class="pre">{numerator}_over_{denominator}</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="features.html#kivi.features.panel_features" title="kivi.features.panel_features"><code class="xref py py-func docutils literal notranslate"><span class="pre">panel_features()</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">observations</span></code> 的索引，保持其顺序</p></td>
+<td><p>按窗口依次给出 <code class="docutils literal notranslate"><span class="pre">{prefix}months_{window}</span></code> 、 <code class="docutils literal notranslate"><span class="pre">{prefix}bad_months_{window}</span></code> 、 <code class="docutils literal notranslate"><span class="pre">{prefix}longest_bad_run_{window}</span></code> 、 <code class="docutils literal notranslate"><span class="pre">{prefix}longest_good_run_{window}</span></code> 、 <code class="docutils literal notranslate"><span class="pre">{prefix}worst_status_{window}</span></code> ，然后是 <code class="docutils literal notranslate"><span class="pre">{prefix}months_since_bad</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="features.html#kivi.features.FeatureSpec.compute" title="kivi.features.FeatureSpec.compute"><code class="xref py py-meth docutils literal notranslate"><span class="pre">FeatureSpec.compute</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">observations</span></code> 的索引，保持其顺序</p></td>
+<td><p>先是 <code class="docutils literal notranslate"><span class="pre">events</span></code> 中每组的列，再是 <code class="docutils literal notranslate"><span class="pre">panel</span></code> 中每组的列，与上面两个函数给出的相同，最后是比率； <code class="docutils literal notranslate"><span class="pre">FeatureSpec.columns</span></code> 列出这些列</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="woe.html#kivi.woe.woe_table" title="kivi.woe.woe_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">woe_table()</span></code></a> 、 <code class="docutils literal notranslate"><span class="pre">BinningSpec.tables</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">bin</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">non_event</span></code>, <code class="docutils literal notranslate"><span class="pre">event</span></code>, <code class="docutils literal notranslate"><span class="pre">total</span></code>, <code class="docutils literal notranslate"><span class="pre">non_event_share</span></code>, <code class="docutils literal notranslate"><span class="pre">event_share</span></code>, <code class="docutils literal notranslate"><span class="pre">total_share</span></code>, <code class="docutils literal notranslate"><span class="pre">event_rate</span></code>, <code class="docutils literal notranslate"><span class="pre">woe</span></code>, <code class="docutils literal notranslate"><span class="pre">iv</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="woe.html#kivi.woe.woe" title="kivi.woe.woe"><code class="xref py py-func docutils literal notranslate"><span class="pre">woe()</span></code></a> ，计数为 Series 时</p></td>
+<td><p>名为 <code class="docutils literal notranslate"><span class="pre">woe</span></code> 、索引与计数相同的 Series</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="stability.html#kivi.stability.psi_table" title="kivi.stability.psi_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">psi_table()</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">bin</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">reference</span></code>, <code class="docutils literal notranslate"><span class="pre">current</span></code>, <code class="docutils literal notranslate"><span class="pre">reference_share</span></code>, <code class="docutils literal notranslate"><span class="pre">current_share</span></code>, <code class="docutils literal notranslate"><span class="pre">psi</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="stability.html#kivi.stability.csi_table" title="kivi.stability.csi_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">csi_table()</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">bin</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">reference</span></code>, <code class="docutils literal notranslate"><span class="pre">current</span></code>, <code class="docutils literal notranslate"><span class="pre">reference_share</span></code>, <code class="docutils literal notranslate"><span class="pre">current_share</span></code>, <code class="docutils literal notranslate"><span class="pre">points</span></code>, <code class="docutils literal notranslate"><span class="pre">csi</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="calibration.html#kivi.calibration.calibration_table" title="kivi.calibration.calibration_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">calibration_table()</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">bin</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">total</span></code>, <code class="docutils literal notranslate"><span class="pre">event</span></code>, <code class="docutils literal notranslate"><span class="pre">event_rate</span></code>, <code class="docutils literal notranslate"><span class="pre">mean_probability</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="calibration.html#kivi.calibration.backtest_table" title="kivi.calibration.backtest_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">backtest_table()</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">bin</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">total</span></code> 、 <code class="docutils literal notranslate"><span class="pre">estimated</span></code> 、 <code class="docutils literal notranslate"><span class="pre">realized</span></code> 、 <code class="docutils literal notranslate"><span class="pre">difference</span></code> 、 <code class="docutils literal notranslate"><span class="pre">variance</span></code> 、 <code class="docutils literal notranslate"><span class="pre">statistic</span></code> 、 <code class="docutils literal notranslate"><span class="pre">p_value</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="calibration.html#kivi.calibration.brier_decomposition" title="kivi.calibration.brier_decomposition"><code class="xref py py-func docutils literal notranslate"><span class="pre">brier_decomposition()</span></code></a></p></td>
+<td><p>索引为 <code class="docutils literal notranslate"><span class="pre">statistic</span></code> 的 Series： <code class="docutils literal notranslate"><span class="pre">brier</span></code> 、 <code class="docutils literal notranslate"><span class="pre">reliability</span></code> 、 <code class="docutils literal notranslate"><span class="pre">resolution</span></code> 、 <code class="docutils literal notranslate"><span class="pre">uncertainty</span></code> 、 <code class="docutils literal notranslate"><span class="pre">within_variance</span></code> 、 <code class="docutils literal notranslate"><span class="pre">within_covariance</span></code></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="calibration.html#kivi.calibration.concentration_test" title="kivi.calibration.concentration_test"><code class="xref py py-func docutils literal notranslate"><span class="pre">concentration_test()</span></code></a></p></td>
+<td><p>索引为 <code class="docutils literal notranslate"><span class="pre">statistic</span></code> 的 Series： <code class="docutils literal notranslate"><span class="pre">hi</span></code> 、 <code class="docutils literal notranslate"><span class="pre">cv</span></code> 、 <code class="docutils literal notranslate"><span class="pre">initial_hi</span></code> 、 <code class="docutils literal notranslate"><span class="pre">initial_cv</span></code> 、 <code class="docutils literal notranslate"><span class="pre">statistic</span></code> 、 <code class="docutils literal notranslate"><span class="pre">p_value</span></code></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="strategy.html#kivi.strategy.expected_loss_table" title="kivi.strategy.expected_loss_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">expected_loss_table()</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">bin</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">total</span></code>, <code class="docutils literal notranslate"><span class="pre">exposure</span></code>, <code class="docutils literal notranslate"><span class="pre">exposure_weighted_probability</span></code>, <code class="docutils literal notranslate"><span class="pre">expected_loss</span></code>, <code class="docutils literal notranslate"><span class="pre">expected_loss_rate</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="metrics.html#kivi.metrics.gains_table" title="kivi.metrics.gains_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">gains_table()</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">bin</span></code> ，以区间表示的评分区段</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">non_event</span></code>, <code class="docutils literal notranslate"><span class="pre">event</span></code>, <code class="docutils literal notranslate"><span class="pre">total</span></code>, <code class="docutils literal notranslate"><span class="pre">event_rate</span></code>, <code class="docutils literal notranslate"><span class="pre">lift</span></code>, <code class="docutils literal notranslate"><span class="pre">cum_non_event_share</span></code>, <code class="docutils literal notranslate"><span class="pre">cum_event_share</span></code>, <code class="docutils literal notranslate"><span class="pre">cum_total_share</span></code>, <code class="docutils literal notranslate"><span class="pre">ks</span></code>, <code class="docutils literal notranslate"><span class="pre">cum_lift</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="metrics.html#kivi.metrics.roc_table" title="kivi.metrics.roc_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">roc_table()</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">threshold</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">cum_non_event</span></code>, <code class="docutils literal notranslate"><span class="pre">cum_event</span></code>, <code class="docutils literal notranslate"><span class="pre">false_positive_rate</span></code>, <code class="docutils literal notranslate"><span class="pre">true_positive_rate</span></code>, <code class="docutils literal notranslate"><span class="pre">precision</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="metrics.html#kivi.metrics.roc_auc_interval" title="kivi.metrics.roc_auc_interval"><code class="xref py py-func docutils literal notranslate"><span class="pre">roc_auc_interval()</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">statistic</span></code> ： <code class="docutils literal notranslate"><span class="pre">auc</span></code> 和 <code class="docutils literal notranslate"><span class="pre">gini</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">estimate</span></code>, <code class="docutils literal notranslate"><span class="pre">se</span></code>, <code class="docutils literal notranslate"><span class="pre">lower</span></code>, <code class="docutils literal notranslate"><span class="pre">upper</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="metrics.html#kivi.metrics.delong_test" title="kivi.metrics.delong_test"><code class="xref py py-func docutils literal notranslate"><span class="pre">delong_test()</span></code></a></p></td>
+<td><p>索引为 <code class="docutils literal notranslate"><span class="pre">current_auc</span></code> 、 <code class="docutils literal notranslate"><span class="pre">new_auc</span></code> 、 <code class="docutils literal notranslate"><span class="pre">difference</span></code> 、 <code class="docutils literal notranslate"><span class="pre">se</span></code> 、 <code class="docutils literal notranslate"><span class="pre">lower</span></code> 、 <code class="docutils literal notranslate"><span class="pre">upper</span></code> 、 <code class="docutils literal notranslate"><span class="pre">z</span></code> 、 <code class="docutils literal notranslate"><span class="pre">p_value</span></code> 的 Series</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="metrics.html#kivi.metrics.generalized_auc" title="kivi.metrics.generalized_auc"><code class="xref py py-func docutils literal notranslate"><span class="pre">generalized_auc()</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">statistic</span></code> ： <code class="docutils literal notranslate"><span class="pre">gauc</span></code> 和 <code class="docutils literal notranslate"><span class="pre">somers_d</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">estimate</span></code>, <code class="docutils literal notranslate"><span class="pre">se</span></code>, <code class="docutils literal notranslate"><span class="pre">lower</span></code>, <code class="docutils literal notranslate"><span class="pre">upper</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="metrics.html#kivi.metrics.expected_maximum_profit" title="kivi.metrics.expected_maximum_profit"><code class="xref py py-func docutils literal notranslate"><span class="pre">expected_maximum_profit()</span></code></a></p></td>
+<td><p>索引为 <code class="docutils literal notranslate"><span class="pre">statistic</span></code> 的 Series： <code class="docutils literal notranslate"><span class="pre">emp</span></code> 、 <code class="docutils literal notranslate"><span class="pre">rejected_share</span></code></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="univariate.html#kivi.univariate.profile_table" title="kivi.univariate.profile_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">profile_table()</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">variable</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">kind</span></code> 、 <code class="docutils literal notranslate"><span class="pre">count</span></code> 、 <code class="docutils literal notranslate"><span class="pre">missing</span></code> 、 <code class="docutils literal notranslate"><span class="pre">missing_share</span></code> 、 <code class="docutils literal notranslate"><span class="pre">distinct</span></code> 、 <code class="docutils literal notranslate"><span class="pre">top</span></code> 、 <code class="docutils literal notranslate"><span class="pre">top_share</span></code> 、 <code class="docutils literal notranslate"><span class="pre">special</span></code> 、 <code class="docutils literal notranslate"><span class="pre">special_share</span></code> 、 <code class="docutils literal notranslate"><span class="pre">mean</span></code> 、 <code class="docutils literal notranslate"><span class="pre">std</span></code> 、 <code class="docutils literal notranslate"><span class="pre">min</span></code> 、 <code class="docutils literal notranslate"><span class="pre">q01</span></code> 、 <code class="docutils literal notranslate"><span class="pre">q50</span></code> 、 <code class="docutils literal notranslate"><span class="pre">q99</span></code> 、 <code class="docutils literal notranslate"><span class="pre">max</span></code> ，给出目标变量时接着是 <code class="docutils literal notranslate"><span class="pre">event_rate</span></code> 、 <code class="docutils literal notranslate"><span class="pre">missing_event_rate</span></code> 、 <code class="docutils literal notranslate"><span class="pre">non_missing_event_rate</span></code> 、 <code class="docutils literal notranslate"><span class="pre">missing_lift</span></code> 、 <code class="docutils literal notranslate"><span class="pre">non_missing_lift</span></code> 、 <code class="docutils literal notranslate"><span class="pre">iv</span></code> 、 <code class="docutils literal notranslate"><span class="pre">tied_bins</span></code> 、 <code class="docutils literal notranslate"><span class="pre">gini</span></code> ，然后是 <code class="docutils literal notranslate"><span class="pre">skewness</span></code> 、 <code class="docutils literal notranslate"><span class="pre">kurtosis</span></code> 、 <code class="docutils literal notranslate"><span class="pre">cv</span></code> ，给出目标变量时最后是 <code class="docutils literal notranslate"><span class="pre">ks</span></code> 、 <code class="docutils literal notranslate"><span class="pre">chi2_p_value</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="selection.html#kivi.selection.logistic_regression" title="kivi.selection.logistic_regression"><code class="xref py py-func docutils literal notranslate"><span class="pre">logistic_regression()</span></code></a> 、 <a class="reference internal" href="lgd.html#kivi.lgd.fractional_regression" title="kivi.lgd.fractional_regression"><code class="xref py py-func docutils literal notranslate"><span class="pre">fractional_regression()</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">variable</span></code> ：先是 <code class="docutils literal notranslate"><span class="pre">intercept</span></code> ，然后是 <code class="docutils literal notranslate"><span class="pre">X</span></code> 的各列</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">coef</span></code>, <code class="docutils literal notranslate"><span class="pre">se</span></code>, <code class="docutils literal notranslate"><span class="pre">z</span></code>, <code class="docutils literal notranslate"><span class="pre">p_value</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="selection.html#kivi.selection.vif" title="kivi.selection.vif"><code class="xref py py-func docutils literal notranslate"><span class="pre">vif()</span></code></a></p></td>
+<td><p>名为 <code class="docutils literal notranslate"><span class="pre">vif</span></code> 、索引为 <code class="docutils literal notranslate"><span class="pre">variable</span></code> 的 Series</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="selection.html#kivi.selection.correlation_filter" title="kivi.selection.correlation_filter"><code class="xref py py-func docutils literal notranslate"><span class="pre">correlation_filter()</span></code></a> 、 <a class="reference internal" href="selection.html#kivi.selection.vif_filter" title="kivi.selection.vif_filter"><code class="xref py py-func docutils literal notranslate"><span class="pre">vif_filter()</span></code></a></p></td>
+<td><p>由 <code class="docutils literal notranslate"><span class="pre">X</span></code> 中保留的列组成的 <code class="docutils literal notranslate"><span class="pre">pandas.Index</span></code> ，按原顺序排列；当 <code class="docutils literal notranslate"><span class="pre">X</span></code> 不是 DataFrame 时为列的位置</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="selection.html#kivi.selection.selection_path" title="kivi.selection.selection_path"><code class="xref py py-func docutils literal notranslate"><span class="pre">selection_path()</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">step</span></code> ：1 到 <code class="docutils literal notranslate"><span class="pre">order</span></code> 中的变量个数</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">variable</span></code> 、 <code class="docutils literal notranslate"><span class="pre">auc</span></code> 、 <code class="docutils literal notranslate"><span class="pre">gini</span></code> 、 <code class="docutils literal notranslate"><span class="pre">ks</span></code> 、 <code class="docutils literal notranslate"><span class="pre">max_p_value</span></code> 、 <code class="docutils literal notranslate"><span class="pre">min_coefficient</span></code> ，给出 <code class="docutils literal notranslate"><span class="pre">validation</span></code> 时还有 <code class="docutils literal notranslate"><span class="pre">validation_auc</span></code> 、 <code class="docutils literal notranslate"><span class="pre">validation_gini</span></code> 、 <code class="docutils literal notranslate"><span class="pre">validation_ks</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="scorecard.html#kivi.scorecard.points_table" title="kivi.scorecard.points_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">points_table()</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">variable</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">bin</span></code>, <code class="docutils literal notranslate"><span class="pre">woe</span></code>, <code class="docutils literal notranslate"><span class="pre">points</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="scorecard.html#kivi.scorecard.woe_to_points" title="kivi.scorecard.woe_to_points"><code class="xref py py-func docutils literal notranslate"><span class="pre">woe_to_points()</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">woe</span></code> 的索引</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">coefficients</span></code> 的每个变量一列，列名称取自其索引的名称</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="scorecard.html#kivi.scorecard.reason_codes" title="kivi.scorecard.reason_codes"><code class="xref py py-func docutils literal notranslate"><span class="pre">reason_codes()</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">points</span></code> 的索引</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">reason_1</span></code> 到 <code class="docutils literal notranslate"><span class="pre">reason_&lt;top&gt;</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="expert.html#kivi.expert.ahp_weights" title="kivi.expert.ahp_weights"><code class="xref py py-func docutils literal notranslate"><span class="pre">ahp_weights()</span></code></a></p></td>
+<td><p>名为 <code class="docutils literal notranslate"><span class="pre">weight</span></code> 、索引为 <code class="docutils literal notranslate"><span class="pre">factor</span></code> 的 Series</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="expert.html#kivi.expert.ahp_consistency" title="kivi.expert.ahp_consistency"><code class="xref py py-func docutils literal notranslate"><span class="pre">ahp_consistency()</span></code></a></p></td>
+<td><p>索引为 <code class="docutils literal notranslate"><span class="pre">statistic</span></code> 的 Series： <code class="docutils literal notranslate"><span class="pre">lambda_max</span></code> 、 <code class="docutils literal notranslate"><span class="pre">ci</span></code> 、 <code class="docutils literal notranslate"><span class="pre">ri</span></code> 、 <code class="docutils literal notranslate"><span class="pre">cr</span></code></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="expert.html#kivi.expert.combine_weights" title="kivi.expert.combine_weights"><code class="xref py py-func docutils literal notranslate"><span class="pre">combine_weights()</span></code></a></p></td>
+<td><p>名为 <code class="docutils literal notranslate"><span class="pre">weight</span></code> 、索引为 <code class="docutils literal notranslate"><span class="pre">factor</span></code> 和 <code class="docutils literal notranslate"><span class="pre">sub_factor</span></code> 的 Series</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="calibration.html#kivi.calibration.master_scale" title="kivi.calibration.master_scale"><code class="xref py py-func docutils literal notranslate"><span class="pre">master_scale()</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">grade</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">lower</span></code>, <code class="docutils literal notranslate"><span class="pre">probability</span></code>, <code class="docutils literal notranslate"><span class="pre">upper</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="strategy.html#kivi.strategy.cutoff_table" title="kivi.strategy.cutoff_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">cutoff_table()</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">cutoff</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">approved</span></code> 、 <code class="docutils literal notranslate"><span class="pre">approval_rate</span></code> 、 <code class="docutils literal notranslate"><span class="pre">approved_event</span></code> 、 <code class="docutils literal notranslate"><span class="pre">approved_event_rate</span></code> 、 <code class="docutils literal notranslate"><span class="pre">rejected_event_share</span></code> 、 <code class="docutils literal notranslate"><span class="pre">rejected_non_event_share</span></code> ，随后给出 <code class="docutils literal notranslate"><span class="pre">loss</span></code> 时有 <code class="docutils literal notranslate"><span class="pre">approved_loss</span></code> ，给出 <code class="docutils literal notranslate"><span class="pre">revenue</span></code> 时有 <code class="docutils literal notranslate"><span class="pre">approved_revenue</span></code> ，两者都给出时还有 <code class="docutils literal notranslate"><span class="pre">profit</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="strategy.html#kivi.strategy.confusion_table" title="kivi.strategy.confusion_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">confusion_table()</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">cutoff</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">true_positive</span></code> 、 <code class="docutils literal notranslate"><span class="pre">false_positive</span></code> 、 <code class="docutils literal notranslate"><span class="pre">true_negative</span></code> 、 <code class="docutils literal notranslate"><span class="pre">false_negative</span></code> 、 <code class="docutils literal notranslate"><span class="pre">precision</span></code> 、 <code class="docutils literal notranslate"><span class="pre">recall</span></code> 、 <code class="docutils literal notranslate"><span class="pre">f1</span></code> 、 <code class="docutils literal notranslate"><span class="pre">accuracy</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="strategy.html#kivi.strategy.swap_set" title="kivi.strategy.swap_set"><code class="xref py py-func docutils literal notranslate"><span class="pre">swap_set()</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">current</span></code> 和 <code class="docutils literal notranslate"><span class="pre">new</span></code> ，共四行</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">total</span></code> 、 <code class="docutils literal notranslate"><span class="pre">share</span></code> ，给出目标变量时还有 <code class="docutils literal notranslate"><span class="pre">known</span></code> 、 <code class="docutils literal notranslate"><span class="pre">event</span></code> 、 <code class="docutils literal notranslate"><span class="pre">event_rate</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="rules.html#kivi.rules.rule_candidates" title="kivi.rules.rule_candidates"><code class="xref py py-func docutils literal notranslate"><span class="pre">rule_candidates()</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">rule</span></code> ：规则的文字形式，例如 <code class="docutils literal notranslate"><span class="pre">&quot;age</span> <span class="pre">&lt;=</span> <span class="pre">25.0&quot;</span></code> ，按 <code class="docutils literal notranslate"><span class="pre">lift</span></code> 从高到低排列</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">variable</span></code>, <code class="docutils literal notranslate"><span class="pre">operator</span></code>, <code class="docutils literal notranslate"><span class="pre">threshold</span></code>, <code class="docutils literal notranslate"><span class="pre">hits</span></code>, <code class="docutils literal notranslate"><span class="pre">hit_rate</span></code>, <code class="docutils literal notranslate"><span class="pre">known</span></code>, <code class="docutils literal notranslate"><span class="pre">event</span></code>, <code class="docutils literal notranslate"><span class="pre">event_rate</span></code>, <code class="docutils literal notranslate"><span class="pre">lift</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="rules.html#kivi.rules.rule_table" title="kivi.rules.rule_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">rule_table()</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">rule</span></code> ： <code class="docutils literal notranslate"><span class="pre">rules</span></code> 的列，保持其顺序</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">hits</span></code> 、 <code class="docutils literal notranslate"><span class="pre">hit_rate</span></code> 、 <code class="docutils literal notranslate"><span class="pre">unique_hits</span></code> ，给出目标变量时还有 <code class="docutils literal notranslate"><span class="pre">known</span></code> 、 <code class="docutils literal notranslate"><span class="pre">event</span></code> 、 <code class="docutils literal notranslate"><span class="pre">event_rate</span></code> 、 <code class="docutils literal notranslate"><span class="pre">lift</span></code> 、 <code class="docutils literal notranslate"><span class="pre">recall</span></code> 、 <code class="docutils literal notranslate"><span class="pre">unique_event</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="rules.html#kivi.rules.rule_set_table" title="kivi.rules.rule_set_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">rule_set_table()</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">rule</span></code> ： <code class="docutils literal notranslate"><span class="pre">rules</span></code> 的列，保持其顺序</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">new_hits</span></code> ，给出目标变量时接着是 <code class="docutils literal notranslate"><span class="pre">new_event</span></code> ，然后是 <code class="docutils literal notranslate"><span class="pre">approved</span></code> 、 <code class="docutils literal notranslate"><span class="pre">approval_rate</span></code> ，给出目标变量时还有 <code class="docutils literal notranslate"><span class="pre">approved_event</span></code> 、 <code class="docutils literal notranslate"><span class="pre">approved_event_rate</span></code> 、 <code class="docutils literal notranslate"><span class="pre">rejected_event_share</span></code> 、 <code class="docutils literal notranslate"><span class="pre">rejected_non_event_share</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="reject_inference.html#kivi.reject_inference.fuzzy_augmentation" title="kivi.reject_inference.fuzzy_augmentation"><code class="xref py py-func docutils literal notranslate"><span class="pre">fuzzy_augmentation()</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">probability</span></code> 的索引，每个拒绝样本出现两次</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">target</span></code>, <code class="docutils literal notranslate"><span class="pre">weight</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="reject_inference.html#kivi.reject_inference.parceling" title="kivi.reject_inference.parceling"><code class="xref py py-func docutils literal notranslate"><span class="pre">parceling()</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">reject_score</span></code> 的索引，在 <code class="docutils literal notranslate"><span class="pre">expected=True</span></code> 时每个拒绝样本出现两次</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">target</span></code>, <code class="docutils literal notranslate"><span class="pre">weight</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="reject_inference.html#kivi.reject_inference.reweighting" title="kivi.reject_inference.reweighting"><code class="xref py py-func docutils literal notranslate"><span class="pre">reweighting()</span></code></a></p></td>
+<td><p>名为 <code class="docutils literal notranslate"><span class="pre">weight</span></code> 、索引与 <code class="docutils literal notranslate"><span class="pre">score</span></code> 相同的 Series</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="monitoring.html#kivi.monitoring.monitoring_table" title="kivi.monitoring.monitoring_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">monitoring_table()</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">period</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">total</span></code>, <code class="docutils literal notranslate"><span class="pre">known</span></code>, <code class="docutils literal notranslate"><span class="pre">event</span></code>, <code class="docutils literal notranslate"><span class="pre">event_rate</span></code>, <code class="docutils literal notranslate"><span class="pre">auc</span></code>, <code class="docutils literal notranslate"><span class="pre">gini</span></code>, <code class="docutils literal notranslate"><span class="pre">ks</span></code>, <code class="docutils literal notranslate"><span class="pre">psi</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="monitoring.html#kivi.monitoring.stability_table" title="kivi.monitoring.stability_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">stability_table()</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">period</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">groups</span></code> 的每列一列，列的名称为 <code class="docutils literal notranslate"><span class="pre">variable</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="lgd.html#kivi.lgd.workout_lgd" title="kivi.lgd.workout_lgd"><code class="xref py py-func docutils literal notranslate"><span class="pre">workout_lgd()</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">loan</span></code> ： <code class="docutils literal notranslate"><span class="pre">loan</span></code> 的取值，保持其顺序</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ead</span></code> 、 <code class="docutils literal notranslate"><span class="pre">recovery</span></code> 、 <code class="docutils literal notranslate"><span class="pre">cost</span></code> 、 <code class="docutils literal notranslate"><span class="pre">lgd</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="lgd.html#kivi.lgd.lgd_table" title="kivi.lgd.lgd_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">lgd_table()</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">bin</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">total</span></code> 、 <code class="docutils literal notranslate"><span class="pre">total_share</span></code> 、 <code class="docutils literal notranslate"><span class="pre">mean</span></code> 、 <code class="docutils literal notranslate"><span class="pre">std</span></code> 、 <code class="docutils literal notranslate"><span class="pre">min</span></code> 、 <code class="docutils literal notranslate"><span class="pre">max</span></code> 、 <code class="docutils literal notranslate"><span class="pre">zero_share</span></code> 、 <code class="docutils literal notranslate"><span class="pre">full_share</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="capital.html#kivi.capital.most_prudent_pd" title="kivi.capital.most_prudent_pd"><code class="xref py py-func docutils literal notranslate"><span class="pre">most_prudent_pd()</span></code></a></p></td>
+<td><p>名为 <code class="docutils literal notranslate"><span class="pre">most_prudent_pd</span></code> 的 Series，索引为 Series <code class="docutils literal notranslate"><span class="pre">event</span></code> 或 <code class="docutils literal notranslate"><span class="pre">total</span></code> 的索引；否则为数组</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="vintage.html#kivi.vintage.delinquency_panel" title="kivi.vintage.delinquency_panel"><code class="xref py py-func docutils literal notranslate"><span class="pre">delinquency_panel()</span></code></a></p></td>
+<td><p>范围索引，每笔贷款每月一行</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">loan_id</span></code> 、 <code class="docutils literal notranslate"><span class="pre">cohort</span></code> 、 <code class="docutils literal notranslate"><span class="pre">month</span></code> 、 <code class="docutils literal notranslate"><span class="pre">month_on_book</span></code> 、 <code class="docutils literal notranslate"><span class="pre">days_past_due</span></code> 、 <code class="docutils literal notranslate"><span class="pre">overdue_amount</span></code> 、 <code class="docutils literal notranslate"><span class="pre">outstanding</span></code> ，传入 <code class="docutils literal notranslate"><span class="pre">principal</span></code> 时还有 <code class="docutils literal notranslate"><span class="pre">balance</span></code> ，以及 <code class="docutils literal notranslate"><span class="pre">status</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="vintage.html#kivi.vintage.vintage_table" title="kivi.vintage.vintage_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">vintage_table()</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">cohort</span></code></p></td>
+<td><p>每个账龄月份一列，列的名称为 <code class="docutils literal notranslate"><span class="pre">month_on_book</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="vintage.html#kivi.vintage.default_rate_table" title="kivi.vintage.default_rate_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">default_rate_table()</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">start</span></code> （月度 Period）和 <code class="docutils literal notranslate"><span class="pre">grade</span></code> ，先按起点月、再按等级排序，缺失的等级排在最后</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">total</span></code> 、 <code class="docutils literal notranslate"><span class="pre">event</span></code> 、 <code class="docutils literal notranslate"><span class="pre">exited</span></code> 、 <code class="docutils literal notranslate"><span class="pre">event_rate</span></code> ，给出 <code class="docutils literal notranslate"><span class="pre">probability</span></code> 时还有 <code class="docutils literal notranslate"><span class="pre">mean_probability</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="vintage.html#kivi.vintage.transition_matrix" title="kivi.vintage.transition_matrix"><code class="xref py py-func docutils literal notranslate"><span class="pre">transition_matrix()</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">before</span></code></p></td>
+<td><p>每个状态一列，列的名称为 <code class="docutils literal notranslate"><span class="pre">after</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="vintage.html#kivi.vintage.roll_rates" title="kivi.vintage.roll_rates"><code class="xref py py-func docutils literal notranslate"><span class="pre">roll_rates()</span></code></a></p></td>
+<td><p>名为 <code class="docutils literal notranslate"><span class="pre">roll_rate</span></code> 、索引为 <code class="docutils literal notranslate"><span class="pre">before</span></code> 的 Series</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="vintage.html#kivi.vintage.migration_bandwidth" title="kivi.vintage.migration_bandwidth"><code class="xref py py-func docutils literal notranslate"><span class="pre">migration_bandwidth()</span></code></a></p></td>
+<td><p>索引为 <code class="docutils literal notranslate"><span class="pre">statistic</span></code> 的 Series： <code class="docutils literal notranslate"><span class="pre">upper</span></code> 、 <code class="docutils literal notranslate"><span class="pre">lower</span></code></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="vintage.html#kivi.vintage.migration_test" title="kivi.vintage.migration_test"><code class="xref py py-func docutils literal notranslate"><span class="pre">migration_test()</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">before</span></code> 和 <code class="docutils literal notranslate"><span class="pre">after</span></code> ， <code class="docutils literal notranslate"><span class="pre">grades</span></code> 的每个非对角单元格一行</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">total</span></code> 、 <code class="docutils literal notranslate"><span class="pre">share</span></code> 、 <code class="docutils literal notranslate"><span class="pre">statistic</span></code> 、 <code class="docutils literal notranslate"><span class="pre">p_value</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="lifetime.html#kivi.lifetime.transition_pd" title="kivi.lifetime.transition_pd"><code class="xref py py-func docutils literal notranslate"><span class="pre">transition_pd()</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">state</span></code></p></td>
+<td><p>每个期限一列，列的名称为 <code class="docutils literal notranslate"><span class="pre">horizon</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="lifetime.html#kivi.lifetime.survival_table" title="kivi.lifetime.survival_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">survival_table()</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">period</span></code> ：从 1 到最大的 <code class="docutils literal notranslate"><span class="pre">duration</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">at_risk</span></code> 、 <code class="docutils literal notranslate"><span class="pre">event</span></code> 、 <code class="docutils literal notranslate"><span class="pre">competing</span></code> （仅在给出 <code class="docutils literal notranslate"><span class="pre">competing</span></code> 时）、 <code class="docutils literal notranslate"><span class="pre">censored</span></code> 、 <code class="docutils literal notranslate"><span class="pre">hazard</span></code> 、 <code class="docutils literal notranslate"><span class="pre">survival</span></code> 、 <code class="docutils literal notranslate"><span class="pre">cumulative_pd</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="lifetime.html#kivi.lifetime.stage_table" title="kivi.lifetime.stage_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">stage_table()</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">stage</span></code> ：1、2 和 3</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">total</span></code>, <code class="docutils literal notranslate"><span class="pre">exposure</span></code>, <code class="docutils literal notranslate"><span class="pre">exposure_share</span></code>, <code class="docutils literal notranslate"><span class="pre">expected_credit_loss</span></code>, <code class="docutils literal notranslate"><span class="pre">coverage</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="datasets.html#kivi.datasets.make_loan_panel" title="kivi.datasets.make_loan_panel"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_loan_panel()</span></code></a></p></td>
+<td><p>整数范围</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">loan_id</span></code>, <code class="docutils literal notranslate"><span class="pre">cohort</span></code>, <code class="docutils literal notranslate"><span class="pre">month</span></code>, <code class="docutils literal notranslate"><span class="pre">month_on_book</span></code>, <code class="docutils literal notranslate"><span class="pre">term</span></code>, <code class="docutils literal notranslate"><span class="pre">amount</span></code>, <code class="docutils literal notranslate"><span class="pre">balance</span></code>, <code class="docutils literal notranslate"><span class="pre">status</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="datasets.html#kivi.datasets.make_applications" title="kivi.datasets.make_applications"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_applications()</span></code></a></p></td>
+<td><p>整数范围</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">age</span></code> 、 <code class="docutils literal notranslate"><span class="pre">income</span></code> 、 <code class="docutils literal notranslate"><span class="pre">debt_to_income</span></code> 、 <code class="docutils literal notranslate"><span class="pre">inquiries</span></code> 、 <code class="docutils literal notranslate"><span class="pre">housing</span></code> 、 <code class="docutils literal notranslate"><span class="pre">employment</span></code> 、 <code class="docutils literal notranslate"><span class="pre">incumbent_pd</span></code> 、 <code class="docutils literal notranslate"><span class="pre">policy_decline</span></code> 、 <code class="docutils literal notranslate"><span class="pre">approved</span></code> 、 <code class="docutils literal notranslate"><span class="pre">target</span></code> ，使用 <code class="docutils literal notranslate"><span class="pre">include_risk=True</span></code> 时还有 <code class="docutils literal notranslate"><span class="pre">risk</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="datasets.html#kivi.datasets.make_transactions" title="kivi.datasets.make_transactions"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_transactions()</span></code></a></p></td>
+<td><p>范围索引，按申请人和时间排序</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">applicant_id</span></code> 、 <code class="docutils literal notranslate"><span class="pre">timestamp</span></code> 、 <code class="docutils literal notranslate"><span class="pre">amount</span></code> 、 <code class="docutils literal notranslate"><span class="pre">kind</span></code> 、 <code class="docutils literal notranslate"><span class="pre">merchant_category</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="datasets.html#kivi.datasets.make_defaults" title="kivi.datasets.make_defaults"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_defaults()</span></code></a></p></td>
+<td><p>范围索引，按违约日期排序</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">loan_id</span></code> 、 <code class="docutils literal notranslate"><span class="pre">segment</span></code> 、 <code class="docutils literal notranslate"><span class="pre">default_date</span></code> 、 <code class="docutils literal notranslate"><span class="pre">ead</span></code> 、 <code class="docutils literal notranslate"><span class="pre">limit</span></code> 、 <code class="docutils literal notranslate"><span class="pre">drawn</span></code> 、 <code class="docutils literal notranslate"><span class="pre">collateral_value</span></code> 、 <code class="docutils literal notranslate"><span class="pre">discount_rate</span></code> 、 <code class="docutils literal notranslate"><span class="pre">closing_date</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="datasets.html#kivi.datasets.make_recoveries" title="kivi.datasets.make_recoveries"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_recoveries()</span></code></a></p></td>
+<td><p>范围索引，按 <code class="docutils literal notranslate"><span class="pre">defaults</span></code> 中贷款的顺序、再按日期排列</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">loan_id</span></code> 、 <code class="docutils literal notranslate"><span class="pre">date</span></code> 、 <code class="docutils literal notranslate"><span class="pre">amount</span></code> 、 <code class="docutils literal notranslate"><span class="pre">kind</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="datasets.html#kivi.datasets.load_bank" title="kivi.datasets.load_bank"><code class="xref py py-func docutils literal notranslate"><span class="pre">load_bank()</span></code></a></p></td>
+<td><p>整数范围</p></td>
+<td><p>UCI 数据的 16 列和 <code class="docutils literal notranslate"><span class="pre">target</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>特征名称由参数决定。列名和前缀保持原样，kivi 自己的部分，即聚合名、窗口和面板特征的名称，为小写，窗口写作 <code class="docutils literal notranslate"><span class="pre">3m</span></code> 、 <code class="docutils literal notranslate"><span class="pre">90d</span></code> 或 <code class="docutils literal notranslate"><span class="pre">6m_3m</span></code> 。数据类型同样是公共的： <code class="docutils literal notranslate"><span class="pre">events</span></code> 、 <code class="docutils literal notranslate"><span class="pre">count</span></code> 和 <code class="docutils literal notranslate"><span class="pre">nunique</span></code> 特征以及 <a class="reference internal" href="features.html#kivi.features.panel_features" title="kivi.features.panel_features"><code class="xref py py-func docutils literal notranslate"><span class="pre">panel_features()</span></code></a> 的各项计数为 int64， <code class="docutils literal notranslate"><span class="pre">worst_status</span></code> 的数据类型与状态列相同，其余特征为 float64。窗口内没有取值时，这些计数和 <code class="docutils literal notranslate"><span class="pre">sum</span></code> 为 0， <code class="docutils literal notranslate"><span class="pre">worst_status</span></code> 为缺失的状态，其余特征为 NaN。</p>
+<p><a class="reference internal" href="datasets.html#kivi.datasets.load_bank" title="kivi.datasets.load_bank"><code class="xref py py-func docutils literal notranslate"><span class="pre">load_bank()</span></code></a> 总是返回相同的数据。 <a class="reference internal" href="datasets.html#kivi.datasets.make_loan_panel" title="kivi.datasets.make_loan_panel"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_loan_panel()</span></code></a> 、 <a class="reference internal" href="datasets.html#kivi.datasets.make_applications" title="kivi.datasets.make_applications"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_applications()</span></code></a> 、 <a class="reference internal" href="datasets.html#kivi.datasets.make_transactions" title="kivi.datasets.make_transactions"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_transactions()</span></code></a> 、 <a class="reference internal" href="datasets.html#kivi.datasets.make_defaults" title="kivi.datasets.make_defaults"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_defaults()</span></code></a> 和 <a class="reference internal" href="datasets.html#kivi.datasets.make_recoveries" title="kivi.datasets.make_recoveries"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_recoveries()</span></code></a> 保持其列和数据类型不变，包括 <code class="docutils literal notranslate"><span class="pre">kind</span></code> 、 <code class="docutils literal notranslate"><span class="pre">merchant_category</span></code> 和 <code class="docutils literal notranslate"><span class="pre">segment</span></code> 的类别，但对给定的 <code class="docutils literal notranslate"><span class="pre">rng</span></code> 模拟出的取值只在同一个次版本内保持不变，以便次版本可以改进模拟。</p>
+<p><a class="reference internal" href="woe.html#kivi.woe.woe_trend" title="kivi.woe.woe_trend"><code class="xref py py-func docutils literal notranslate"><span class="pre">woe_trend()</span></code></a> 返回六个标签之一： <code class="docutils literal notranslate"><span class="pre">&quot;increasing&quot;</span></code> 、 <code class="docutils literal notranslate"><span class="pre">&quot;decreasing&quot;</span></code> 、 <code class="docutils literal notranslate"><span class="pre">&quot;u_shaped&quot;</span></code> 、 <code class="docutils literal notranslate"><span class="pre">&quot;inverted_u&quot;</span></code> 、 <code class="docutils literal notranslate"><span class="pre">&quot;irregular&quot;</span></code> 和 <code class="docutils literal notranslate"><span class="pre">&quot;flat&quot;</span></code> 。它们与列名一样属于公开接口；它的规则同样如此：WOE 的相对差不超过 <span class="math notranslate nohighlight">\(10^{-10}\)</span> 的相邻分箱既不算上升也不算下降。</p>
+<p><a class="reference internal" href="expert.html#kivi.expert.ahp_consistency" title="kivi.expert.ahp_consistency"><code class="xref py py-func docutils literal notranslate"><span class="pre">ahp_consistency()</span></code></a> 的随机一致性指标取自 Tone（1986）3 至 15 个因子的表，是常量。发布版本只会为纠正错误的数值而修改它们，并作为修复列在发布说明的 Fixed 下，因此同一矩阵的一致性比率在各版本之间保持不变。</p>
+</section>
+<section id="charts">
+<h2>图表<a class="headerlink" href="#charts" title="链接到此标题。">#</a></h2>
+<p><a class="reference internal" href="plotting.html#module-kivi.plotting" title="kivi.plotting"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.plotting</span></code></a> 的函数保持以下内容不变：从每张表绘制的数据、哪一列画在哪条轴上、参数、引发的错误以及返回值。每个函数都返回它所绘制的 <code class="docutils literal notranslate"><span class="pre">matplotlib.axes.Axes</span></code> ，只有 <a class="reference internal" href="plotting.html#kivi.plotting.woe_chart" title="kivi.plotting.woe_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">woe_chart()</span></code></a> 例外：它是唯一有两个纵轴的图表，返回柱状图和折线各自的 Axes。 <a class="reference internal" href="plotting.html#kivi.plotting.rule_set_chart" title="kivi.plotting.rule_set_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">rule_set_chart()</span></code></a> 把柱状图和折线画在同一个坐标轴上，返回这一个 Axes。有些图表对所画的数据还有更多承诺：</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="plotting.html#kivi.plotting.distribution_chart" title="kivi.plotting.distribution_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">distribution_chart()</span></code></a> 绘制原始 <code class="docutils literal notranslate"><span class="pre">non_event</span></code> 和 <code class="docutils literal notranslate"><span class="pre">event</span></code> 计数的占比，而不是 WOE 表中经过平滑的占比列。</p></li>
+<li><p><a class="reference internal" href="plotting.html#kivi.plotting.precision_recall_chart" title="kivi.plotting.precision_recall_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">precision_recall_chart()</span></code></a> 绘制 ROC 表中有精确率的行，并在最后一行的精确率（即事件率）处画一条线。</p></li>
+<li><p><a class="reference internal" href="plotting.html#kivi.plotting.survival_chart" title="kivi.plotting.survival_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">survival_chart()</span></code></a> 把 <code class="docutils literal notranslate"><span class="pre">cumulative_pd</span></code> 或 <code class="docutils literal notranslate"><span class="pre">survival</span></code> 画成阶梯线，从第一行之前的一期开始，起点为 0 或 1；表中有 <code class="docutils literal notranslate"><span class="pre">competing</span></code> 列时，还在 <code class="docutils literal notranslate"><span class="pre">cumulative_pd</span></code> 旁画出竞争原因的累计发生率，它由 <code class="docutils literal notranslate"><span class="pre">survival</span></code> 、 <code class="docutils literal notranslate"><span class="pre">competing</span></code> 和 <code class="docutils literal notranslate"><span class="pre">at_risk</span></code> 算出。</p></li>
+<li><p><a class="reference internal" href="plotting.html#kivi.plotting.transition_chart" title="kivi.plotting.transition_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">transition_chart()</span></code></a> 按每个单元格占所在行的比例着色，写出其数值，并给行标签与列标签相同的单元格加上边框。</p></li>
+<li><p><a class="reference internal" href="plotting.html#kivi.plotting.rule_set_chart" title="kivi.plotting.rule_set_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">rule_set_chart()</span></code></a> 把每条规则的 <code class="docutils literal notranslate"><span class="pre">new_hits</span></code> 画成占全部行的比例，并画出该规则之后的 <code class="docutils literal notranslate"><span class="pre">approval_rate</span></code> 。</p></li>
+<li><p><a class="reference internal" href="plotting.html#kivi.plotting.profit_chart" title="kivi.plotting.profit_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">profit_chart()</span></code></a> 绘制 <code class="docutils literal notranslate"><span class="pre">profit</span></code> 随 <code class="docutils literal notranslate"><span class="pre">approval_rate</span></code> 的变化，并标出利润最大的第一行。</p></li>
+<li><p><a class="reference internal" href="plotting.html#kivi.plotting.lgd_chart" title="kivi.plotting.lgd_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">lgd_chart()</span></code></a> 绘制每个分组的 <code class="docutils literal notranslate"><span class="pre">mean</span></code> 、 <code class="docutils literal notranslate"><span class="pre">zero_share</span></code> 和 <code class="docutils literal notranslate"><span class="pre">full_share</span></code> 。</p></li>
+</ul>
+<p>颜色、线型、图形尺寸、图例和标注的位置、刻度格式以及组成图表的 matplotlib 图元数量可能在任何版本中改变，以便改进图表的外观。需要进一步美化图表的代码应基于返回的 Axes，而不是其中的图元。</p>
+</section>
+<section id="errors-and-warnings">
+<h2>错误与警告<a class="headerlink" href="#errors-and-warnings" title="链接到此标题。">#</a></h2>
+<ul class="simple">
+<li><p>异常类型是公共的。无效输入引发 <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> ，无法拟合的模型引发 <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> 的子类 <a class="reference internal" href="selection.html#kivi.selection.SeparationError" title="kivi.selection.SeparationError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">SeparationError</span></code></a> 。Python 本身会拒绝的调用（例如缺少参数或含有未知参数）引发 <code class="docutils literal notranslate"><span class="pre">TypeError</span></code> 。</p></li>
+<li><p>警告类别是公共的： <code class="docutils literal notranslate"><span class="pre">UserWarning</span></code> 表示结果与请求不同， <code class="docutils literal notranslate"><span class="pre">RuntimeWarning</span></code> 表示拟合未收敛， <code class="docutils literal notranslate"><span class="pre">FutureWarning</span></code> 表示 API 的某一部分已被弃用。</p></li>
+<li><p>消息的措辞不是公共的，可能在任何版本中改变。消息指出参数名称和所收到的值，这一规则保持不变。</p></li>
+</ul>
+</section>
+<section id="saved-specifications">
+<h2>已保存的分箱方案<a class="headerlink" href="#saved-specifications" title="链接到此标题。">#</a></h2>
+<p><a class="reference internal" href="spec.html#kivi.spec.BinningSpec.to_json" title="kivi.spec.BinningSpec.to_json"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BinningSpec.to_json</span></code></a> 和 <a class="reference internal" href="features.html#kivi.features.FeatureSpec.to_json" title="kivi.features.FeatureSpec.to_json"><code class="xref py py-meth docutils literal notranslate"><span class="pre">FeatureSpec.to_json</span></code></a> 写出的文件可以被以后的版本读取； <a class="reference internal" href="../user_guide/spec.html"><span class="doc">分箱方案</span></a> 和 <a class="reference internal" href="../user_guide/features.html"><span class="doc">时间窗特征</span></a> 说明其格式。</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">format</span></code> 总是 <code class="docutils literal notranslate"><span class="pre">&quot;kivi.BinningSpec&quot;</span></code> 或 <code class="docutils literal notranslate"><span class="pre">&quot;kivi.FeatureSpec&quot;</span></code> ， <code class="docutils literal notranslate"><span class="pre">format_version</span></code> 是整数。分箱方案没有类别分组时为版本 1，对某列做了分组时为版本 2。特征方案为版本 1，即 kivi 1.3.0 的格式，其 <code class="docutils literal notranslate"><span class="pre">kivi_version</span></code> 之后的键就是 <a class="reference internal" href="features.html#kivi.features.FeatureSpec" title="kivi.features.FeatureSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">FeatureSpec</span></code></a> 接受的参数： <code class="docutils literal notranslate"><span class="pre">id</span></code> 、 <code class="docutils literal notranslate"><span class="pre">observation_time</span></code> 、 <code class="docutils literal notranslate"><span class="pre">events</span></code> 、 <code class="docutils literal notranslate"><span class="pre">ratios</span></code> 和 <code class="docutils literal notranslate"><span class="pre">panel</span></code> ，每组都写出全部的键。</p></li>
+<li><p>每个 1.x 版本都能读取 kivi 0.6.0 及以后版本写出的分箱方案的每种格式版本，以及 kivi 1.3.0 及以后版本写出的特征方案。</p></li>
+<li><p>分箱方案以能够容纳它的最低格式版本写出，因此不使用较新功能的文件仍可被较早的版本读取。新的格式版本只会增加内容，在同一个主版本内，已有键的含义从不改变。</p></li>
+<li><p>格式版本较新的文件会引发指出该版本的 <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> ，而不是只读取其中一部分。未知的键同样会引发错误，因此新键总是伴随新的格式版本出现。特征方案在缺少键或同一个 JSON 对象中键重复时也会引发错误。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi_version</span></code> 记录写出该方案的版本，从不影响文件的读取方式。相等比较和哈希像包含每个字段一样包含它，因此由较早版本保存的分箱方案与今天的同一拟合结果不相等； <a class="reference internal" href="../user_guide/spec.html#spec-saving"><span class="std std-ref">保存和加载分箱方案</span></a> 说明如何比较二者的内容。</p></li>
+<li><p>用分箱方案编码时只读取表格每行的 <code class="docutils literal notranslate"><span class="pre">bin</span></code> 和 <code class="docutils literal notranslate"><span class="pre">woe</span></code> 。其他列描述拟合结果，按写入时的内容加载。</p></li>
+</ul>
+<p>kivi 的测试保存了由 0.6.0 写出的格式版本 1 分箱方案和由 0.8.0 写出的格式版本 2 分箱方案，并检查每个文件都能加载、对一个固定样本的编码与写出它的版本完全相同，并且除 <code class="docutils literal notranslate"><span class="pre">kivi_version</span></code> 和末位数字的舍入外与重新拟合的结果一致。测试以同样的方式保存了一个 1.3.0 的特征方案，其中有时间窗组、面板组和比率，并检查它能加载、再次写出相同的 JSON，并对一个固定样本计算出相同的特征。</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="conventions.html"
+       title="上一页">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">上一页</p>
+        <p class="prev-next-title">约定</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="glossary.html"
+       title="下一页">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">下一页</p>
+        <p class="prev-next-title">术语表</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 当前页面
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#releases-and-deprecations">版本与弃用</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#supported-versions">支持的版本</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-is-public">哪些属于公共 API</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tables">表格</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#charts">图表</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#errors-and-warnings">错误与警告</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#saved-specifications">已保存的分箱方案</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    由 <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1创建。
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

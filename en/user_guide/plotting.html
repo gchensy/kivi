@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Charts &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=d005c095" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=25d9e9fd"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/plotting';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Example data" href="datasets.html" />
+    <link rel="prev" title="Lifetime PD and expected credit loss" href="lifetime.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="1.9.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 1.9.0">1.9.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    Tutorial
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/user_guide/plotting.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    Tutorial
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/user_guide/plotting.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="risk_workflow.html">Risk modeling workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">Time-window features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="univariate.html">Univariate profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="binning.html">Binning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="woe_iv.html">Weight of evidence and information value</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selection.html">Variable selection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reject_inference.html">Reject inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scorecard.html">Scorecard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="expert.html">Expert scorecards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">Model performance</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lgd.html">LGD and EAD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">Credit strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rules.html">Policy rules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spec.html">Binning specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="psi.html">Population stability index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">Model monitoring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="validation.html">Model validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="capital.html">Regulatory capital</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vintage.html">Vintage and roll-rate analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lifetime.html">Lifetime PD and expected credit loss</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">Charts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">Example data</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">User guide</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Charts</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="charts">
+<h1>Charts<a class="headerlink" href="#charts" title="Link to this heading">#</a></h1>
+<p>A risk report shows its tables as charts: the event rate of each bin, the ROC curve of a score, the shares that moved since development. <a class="reference internal" href="../api/plotting.html#module-kivi.plotting" title="kivi.plotting"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.plotting</span></code></a> draws the result tables of the other modules with matplotlib, one function per table: <a class="reference internal" href="../api/plotting.html#kivi.plotting.woe_chart" title="kivi.plotting.woe_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">woe_chart()</span></code></a> for a WOE table, <a class="reference internal" href="../api/plotting.html#kivi.plotting.correlation_chart" title="kivi.plotting.correlation_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">correlation_chart()</span></code></a> for a correlation matrix, <a class="reference internal" href="../api/plotting.html#kivi.plotting.roc_chart" title="kivi.plotting.roc_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">roc_chart()</span></code></a> and <a class="reference internal" href="../api/plotting.html#kivi.plotting.precision_recall_chart" title="kivi.plotting.precision_recall_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">precision_recall_chart()</span></code></a> for a ROC table, <a class="reference internal" href="../api/plotting.html#kivi.plotting.gains_chart" title="kivi.plotting.gains_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">gains_chart()</span></code></a> for a gains table, <a class="reference internal" href="../api/plotting.html#kivi.plotting.distribution_chart" title="kivi.plotting.distribution_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">distribution_chart()</span></code></a> for the events and non-events of a gains or WOE table, <a class="reference internal" href="../api/plotting.html#kivi.plotting.calibration_chart" title="kivi.plotting.calibration_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">calibration_chart()</span></code></a> for a calibration table, <a class="reference internal" href="../api/plotting.html#kivi.plotting.cutoff_chart" title="kivi.plotting.cutoff_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">cutoff_chart()</span></code></a> for a cut-off table, <a class="reference internal" href="../api/plotting.html#kivi.plotting.psi_chart" title="kivi.plotting.psi_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">psi_chart()</span></code></a> for a PSI table, <a class="reference internal" href="../api/plotting.html#kivi.plotting.monitoring_chart" title="kivi.plotting.monitoring_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">monitoring_chart()</span></code></a> for a monitoring report, <a class="reference internal" href="../api/plotting.html#kivi.plotting.vintage_chart" title="kivi.plotting.vintage_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">vintage_chart()</span></code></a> for a vintage table, <a class="reference internal" href="../api/plotting.html#kivi.plotting.survival_chart" title="kivi.plotting.survival_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">survival_chart()</span></code></a> for a survival table, <a class="reference internal" href="../api/plotting.html#kivi.plotting.transition_chart" title="kivi.plotting.transition_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">transition_chart()</span></code></a> for a transition matrix, <a class="reference internal" href="../api/plotting.html#kivi.plotting.rule_set_chart" title="kivi.plotting.rule_set_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">rule_set_chart()</span></code></a> for a rule set table, <a class="reference internal" href="../api/plotting.html#kivi.plotting.profit_chart" title="kivi.plotting.profit_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">profit_chart()</span></code></a> for a cut-off table with revenue and loss, and <a class="reference internal" href="../api/plotting.html#kivi.plotting.lgd_chart" title="kivi.plotting.lgd_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">lgd_chart()</span></code></a> for an LGD table.</p>
+<p>The charts draw the tables of the earlier guides, from <a class="reference internal" href="woe_iv.html"><span class="doc">Weight of evidence and information value</span></a> to <a class="reference internal" href="lifetime.html"><span class="doc">Lifetime PD and expected credit loss</span></a>, so this page comes last in the user guide.</p>
+<p>matplotlib is an optional dependency of kivi. Install it with the <code class="docutils literal notranslate"><span class="pre">plot</span></code> extra:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"kivi[plot]"</span>
+</pre></div>
+</div>
+<p>The other modules do not need it, and <a class="reference internal" href="../api/plotting.html#module-kivi.plotting" title="kivi.plotting"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.plotting</span></code></a> imports it only when a chart is drawn.</p>
+<section id="a-worked-example">
+<h2>A worked example<a class="headerlink" href="#a-worked-example" title="Link to this heading">#</a></h2>
+<p>A chart draws the values of its table and nothing else. Ten observations, nine in three groups and one missing, give this WOE table:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">woe_chart</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.woe</span><span class="w"> </span><span class="kn">import</span> <span class="n">woe_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">groups</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="s2">"a"</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"c"</span><span class="p">,</span> <span class="s2">"c"</span><span class="p">,</span> <span class="s2">"c"</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span> <span class="o">=</span> <span class="n">woe_table</span><span class="p">(</span><span class="n">groups</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span><span class="p">[[</span><span class="s2">"total_share"</span><span class="p">,</span> <span class="s2">"event_rate"</span><span class="p">]]</span>
+<span class="go">     total_share  event_rate</span>
+<span class="go">bin</span>
+<span class="go">a            0.2    0.500000</span>
+<span class="go">b            0.4    0.250000</span>
+<span class="go">c            0.3    0.666667</span>
+<span class="go">NaN          0.1    0.000000</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="../api/plotting.html#kivi.plotting.woe_chart" title="kivi.plotting.woe_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">woe_chart()</span></code></a> is the one chart with two y-axes, and so the one that returns two Axes: one for the bars, with the left y-axis, and one for the line, which shares the x-axis of the bars and has a y-axis of its own on the right. The bars are the <code class="docutils literal notranslate"><span class="pre">total_share</span></code> column, the line is the <code class="docutils literal notranslate"><span class="pre">event_rate</span></code> column, the tick labels are the groups of the index, and the legend gives the sum of the <code class="docutils literal notranslate"><span class="pre">iv</span></code> column:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bars</span><span class="p">,</span> <span class="n">line</span> <span class="o">=</span> <span class="n">woe_chart</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="n">bar</span><span class="o">.</span><span class="n">get_height</span><span class="p">()</span> <span class="k">for</span> <span class="n">bar</span> <span class="ow">in</span> <span class="n">bars</span><span class="o">.</span><span class="n">patches</span><span class="p">]</span> <span class="o">==</span> <span class="n">table</span><span class="p">[</span><span class="s2">"total_share"</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">line</span><span class="o">.</span><span class="n">get_lines</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_ydata</span><span class="p">()</span>
+<span class="go">array([0.5       , 0.25      , 0.66666667, 0.        ])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="n">label</span><span class="o">.</span><span class="n">get_text</span><span class="p">()</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">bars</span><span class="o">.</span><span class="n">get_xticklabels</span><span class="p">()]</span>
+<span class="go">['a', 'b', 'c', 'NaN']</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">line</span><span class="o">.</span><span class="n">get_legend</span><span class="p">()</span><span class="o">.</span><span class="n">get_title</span><span class="p">()</span><span class="o">.</span><span class="n">get_text</span><span class="p">()</span>
+<span class="go">'iv = 0.536'</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id1">
+<img alt="Bars of the share of groups a, b, c and NaN with a line of their event rates" class="plot-directive" src="../_images/plotting-1.svg" />
+<figcaption>
+<p><span class="caption-text">The bars read 20%, 40%, 30% and 10% on the left axis, and the line 50%, 25%, 67% and 0% on the right axis.</span><a class="headerlink" href="#id1" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="figures-and-axes">
+<h2>Figures and axes<a class="headerlink" href="#figures-and-axes" title="Link to this heading">#</a></h2>
+<p>Every function takes an optional <code class="docutils literal notranslate"><span class="pre">ax</span></code>. Without it, the function creates a figure of its own, sized for the chart and with matplotlib’s constrained layout. With it, the function draws on that Axes, so that several charts can share one figure:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">figure</span><span class="p">,</span> <span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">),</span> <span class="n">layout</span><span class="o">=</span><span class="s2">"constrained"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bars</span><span class="p">,</span> <span class="n">line</span> <span class="o">=</span> <span class="n">woe_chart</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">left</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bars</span> <span class="ow">is</span> <span class="n">left</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bars</span><span class="p">,</span> <span class="n">line</span> <span class="o">=</span> <span class="n">woe_chart</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">line</span><span class="o">=</span><span class="s2">"woe"</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">right</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">figure</span><span class="o">.</span><span class="n">axes</span><span class="p">)</span>
+<span class="go">4</span>
+</pre></div>
+</div>
+<p>Each function returns the Axes it drew on, <code class="docutils literal notranslate"><span class="pre">ax</span></code> when it is given, so that titles, limits and labels can be changed afterwards with matplotlib, as in <code class="docutils literal notranslate"><span class="pre">right.set_title(&quot;woe&quot;)</span></code>. <a class="reference internal" href="../api/plotting.html#kivi.plotting.woe_chart" title="kivi.plotting.woe_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">woe_chart()</span></code></a> returns the Axes of the bars and that of the line, which is why the figure above has four Axes.</p>
+<p>The functions never call <code class="docutils literal notranslate"><span class="pre">matplotlib.pyplot.show</span></code>, never change <code class="docutils literal notranslate"><span class="pre">matplotlib.rcParams</span></code> and never modify the table. Save a figure with <code class="docutils literal notranslate"><span class="pre">figure.savefig(&quot;woe.png&quot;)</span></code>, or show it with <code class="docutils literal notranslate"><span class="pre">plt.show()</span></code> outside a notebook. The curves that can be compared on one <code class="docutils literal notranslate"><span class="pre">ax</span></code>, those of <a class="reference internal" href="../api/plotting.html#kivi.plotting.roc_chart" title="kivi.plotting.roc_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">roc_chart()</span></code></a>, <a class="reference internal" href="../api/plotting.html#kivi.plotting.precision_recall_chart" title="kivi.plotting.precision_recall_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">precision_recall_chart()</span></code></a>, <a class="reference internal" href="../api/plotting.html#kivi.plotting.gains_chart" title="kivi.plotting.gains_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">gains_chart()</span></code></a>, <a class="reference internal" href="../api/plotting.html#kivi.plotting.calibration_chart" title="kivi.plotting.calibration_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">calibration_chart()</span></code></a>, <a class="reference internal" href="../api/plotting.html#kivi.plotting.cutoff_chart" title="kivi.plotting.cutoff_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">cutoff_chart()</span></code></a>, <a class="reference internal" href="../api/plotting.html#kivi.plotting.profit_chart" title="kivi.plotting.profit_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">profit_chart()</span></code></a>, <a class="reference internal" href="../api/plotting.html#kivi.plotting.survival_chart" title="kivi.plotting.survival_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">survival_chart()</span></code></a> and <a class="reference internal" href="../api/plotting.html#kivi.plotting.monitoring_chart" title="kivi.plotting.monitoring_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">monitoring_chart()</span></code></a>, take the next color of the Axes’ color cycle. The other charts use fixed colors. Fonts, grids and spines follow the active matplotlib style, so a style set with <code class="docutils literal notranslate"><span class="pre">plt.style.context</span></code> applies to the charts drawn inside it.</p>
+<p>Text inside a chart is limited to column names, such as <code class="docutils literal notranslate"><span class="pre">total_share</span></code> and <code class="docutils literal notranslate"><span class="pre">event_rate</span></code>, and data values, such as the group labels and the IV. Each axis is labeled with the columns it shows, or with the name of the index for the groups and periods. The same chart therefore suits a report in any language; add titles in the language of the report.</p>
+<p>Legends are placed so that they cover no data: <a class="reference internal" href="../api/plotting.html#kivi.plotting.woe_chart" title="kivi.plotting.woe_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">woe_chart()</span></code></a>, <a class="reference internal" href="../api/plotting.html#kivi.plotting.distribution_chart" title="kivi.plotting.distribution_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">distribution_chart()</span></code></a> and <a class="reference internal" href="../api/plotting.html#kivi.plotting.psi_chart" title="kivi.plotting.psi_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">psi_chart()</span></code></a> leave room for theirs at the top of the Axes, and <a class="reference internal" href="../api/plotting.html#kivi.plotting.vintage_chart" title="kivi.plotting.vintage_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">vintage_chart()</span></code></a> and <a class="reference internal" href="../api/plotting.html#kivi.plotting.monitoring_chart" title="kivi.plotting.monitoring_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">monitoring_chart()</span></code></a> put theirs to the right of the Axes.</p>
+</section>
+<section id="woe-and-event-rate">
+<h2>WOE and event rate<a class="headerlink" href="#woe-and-event-rate" title="Link to this heading">#</a></h2>
+<p>The examples from here on use the bundled bank data, split as in <a class="reference internal" href="risk_workflow.html"><span class="doc">Risk modeling workflow</span></a> into a development sample of 3,000 rows and a validation sample of 1,521 rows. A <a class="reference internal" href="../api/spec.html#kivi.spec.BinningSpec" title="kivi.spec.BinningSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">BinningSpec</span></code></a> bins five columns on the development sample:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_bank</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.spec</span><span class="w"> </span><span class="kn">import</span> <span class="n">fit_spec</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">load_bank</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">development</span><span class="p">,</span> <span class="n">validation</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="mi">3000</span><span class="p">],</span> <span class="n">data</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">3000</span><span class="p">:]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"age"</span><span class="p">,</span> <span class="s2">"balance"</span><span class="p">,</span> <span class="s2">"housing"</span><span class="p">,</span> <span class="s2">"contact"</span><span class="p">,</span> <span class="s2">"poutcome"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spec</span> <span class="o">=</span> <span class="n">fit_spec</span><span class="p">(</span><span class="n">development</span><span class="p">[</span><span class="n">columns</span><span class="p">],</span> <span class="n">development</span><span class="p">[</span><span class="s2">"target"</span><span class="p">])</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="../api/plotting.html#kivi.plotting.woe_chart" title="kivi.plotting.woe_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">woe_chart()</span></code></a> draws one of its tables in the order of the table. The bins of a numeric column are already in order; sort the groups of a categorical column, for example by WOE, and draw the WOE as the line with <code class="docutils literal notranslate"><span class="pre">line=&quot;woe&quot;</span></code>:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bars</span><span class="p">,</span> <span class="n">line</span> <span class="o">=</span> <span class="n">woe_chart</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">tables</span><span class="p">[</span><span class="s2">"age"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="n">label</span><span class="o">.</span><span class="n">get_text</span><span class="p">()</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">bars</span><span class="o">.</span><span class="n">get_xticklabels</span><span class="p">()]</span>
+<span class="go">['(-inf, 32.0]', '(32.0, 36.0]', '(36.0, 42.0]', '(42.0, 51.0]', '(51.0, inf]']</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bars</span><span class="p">,</span> <span class="n">line</span> <span class="o">=</span> <span class="n">woe_chart</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">tables</span><span class="p">[</span><span class="s2">"poutcome"</span><span class="p">]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">"woe"</span><span class="p">),</span> <span class="n">line</span><span class="o">=</span><span class="s2">"woe"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">line</span><span class="o">.</span><span class="n">get_legend</span><span class="p">()</span><span class="o">.</span><span class="n">get_title</span><span class="p">()</span><span class="o">.</span><span class="n">get_text</span><span class="p">()</span>
+<span class="go">'iv = 0.423'</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id3">
+<img alt="Share and event rate of the age bins, and share and WOE of the poutcome groups" class="plot-directive" src="../_images/plotting-2.svg" />
+<figcaption>
+<p><span class="caption-text">Left: the event rate of age is lowest in the middle bins. Right: four fifths of the customers have an unknown previous outcome, and the few with a previous success have by far the highest WOE.</span><a class="headerlink" href="#id3" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>Read the bars and the line together: a bin with a high event rate matters more when it holds many customers. The bars use the left axis and the line the right axis, which starts at 0 for <code class="docutils literal notranslate"><span class="pre">event_rate</span></code> and includes 0 for <code class="docutils literal notranslate"><span class="pre">woe</span></code>.</p>
+</section>
+<section id="correlation">
+<h2>Correlation<a class="headerlink" href="#correlation" title="Link to this heading">#</a></h2>
+<p>Before <a class="reference internal" href="selection.html"><span class="doc">Variable selection</span></a>, <a class="reference internal" href="../api/plotting.html#kivi.plotting.correlation_chart" title="kivi.plotting.correlation_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">correlation_chart()</span></code></a> shows which WOE-encoded candidates carry the same information. It takes a correlation matrix, such as the result of <code class="docutils literal notranslate"><span class="pre">DataFrame.corr</span></code>, rather than the data, so that any method of correlation can be drawn:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">correlation_chart</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">woe</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">woe_transform</span><span class="p">(</span><span class="n">development</span><span class="p">[</span><span class="n">columns</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">woe</span><span class="o">.</span><span class="n">corr</span><span class="p">()</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">           age  balance  housing  contact  poutcome</span>
+<span class="go">age       1.00     0.02     0.15     0.05      0.01</span>
+<span class="go">balance   0.02     1.00     0.04     0.03      0.09</span>
+<span class="go">housing   0.15     0.04     1.00     0.21      0.03</span>
+<span class="go">contact   0.05     0.03     0.21     1.00      0.19</span>
+<span class="go">poutcome  0.01     0.09     0.03     0.19      1.00</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span> <span class="o">=</span> <span class="n">correlation_chart</span><span class="p">(</span><span class="n">woe</span><span class="o">.</span><span class="n">corr</span><span class="p">())</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">ax</span><span class="o">.</span><span class="n">texts</span><span class="p">)</span>
+<span class="go">25</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id5">
+<img alt="Heatmap of the correlations between the WOE values of five columns" class="plot-directive" src="../_images/plotting-3.svg" />
+<figcaption>
+<p><span class="caption-text">The largest correlation between two different columns is 0.21, between housing and contact.</span><a class="headerlink" href="#id5" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>Each cell shows its value, blue for a positive correlation and amber for a negative one, darker towards 1 and -1. The colors always span -1 to 1, so charts of different samples compare directly, and a value outside that range, as in a covariance matrix, raises an error. For Spearman’s rank correlation, pass <code class="docutils literal notranslate"><span class="pre">woe.corr(method=&quot;spearman&quot;)</span></code>.</p>
+</section>
+<section id="roc-curve">
+<h2>ROC curve<a class="headerlink" href="#roc-curve" title="Link to this heading">#</a></h2>
+<p><a class="reference internal" href="../api/plotting.html#kivi.plotting.roc_chart" title="kivi.plotting.roc_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">roc_chart()</span></code></a> draws a <a class="reference internal" href="../api/metrics.html#kivi.metrics.roc_table" title="kivi.metrics.roc_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">roc_table()</span></code></a>. The score below adds up the WOE values of the five columns, so that it is higher for a higher risk, as <a class="reference internal" href="metrics.html"><span class="doc">Model performance</span></a> requires. A second call with the same <code class="docutils literal notranslate"><span class="pre">ax</span></code> adds the curve of <code class="docutils literal notranslate"><span class="pre">poutcome</span></code> alone, and <code class="docutils literal notranslate"><span class="pre">label</span></code> names both curves in the legend:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">roc_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">roc_chart</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">validation_woe</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">woe_transform</span><span class="p">(</span><span class="n">validation</span><span class="p">[</span><span class="n">columns</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">score</span> <span class="o">=</span> <span class="n">validation_woe</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="n">validation</span><span class="p">[</span><span class="s2">"target"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span> <span class="o">=</span> <span class="n">roc_chart</span><span class="p">(</span><span class="n">roc_table</span><span class="p">(</span><span class="n">score</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="n">label</span><span class="o">=</span><span class="s2">"score"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span> <span class="o">=</span> <span class="n">roc_chart</span><span class="p">(</span><span class="n">roc_table</span><span class="p">(</span><span class="n">validation_woe</span><span class="p">[</span><span class="s2">"poutcome"</span><span class="p">],</span> <span class="n">y</span><span class="p">),</span> <span class="n">ks</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"poutcome"</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="n">text</span><span class="o">.</span><span class="n">get_text</span><span class="p">()</span> <span class="k">for</span> <span class="n">text</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">texts</span><span class="p">]</span>
+<span class="go">['ks = 0.299']</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id7">
+<img alt="ROC curves of the WOE score and of poutcome alone, with the KS of the score marked" class="plot-directive" src="../_images/plotting-4.svg" />
+<figcaption>
+<p><span class="caption-text">The score lies above the curve of poutcome alone at most false positive rates. The dotted segment marks its KS of 0.299.</span><a class="headerlink" href="#id7" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>The dotted segment marks the KS statistic, the largest gap between <code class="docutils literal notranslate"><span class="pre">true_positive_rate</span></code> and <code class="docutils literal notranslate"><span class="pre">false_positive_rate</span></code>, which equals <a class="reference internal" href="../api/metrics.html#kivi.metrics.ks" title="kivi.metrics.ks"><code class="xref py py-func docutils literal notranslate"><span class="pre">ks()</span></code></a> of the score. Each curve takes the next color of the Axes, and its KS segment shares its color; pass <code class="docutils literal notranslate"><span class="pre">ks=False</span></code> for the curves whose KS is not needed.</p>
+</section>
+<section id="precision-and-recall">
+<h2>Precision and recall<a class="headerlink" href="#precision-and-recall" title="Link to this heading">#</a></h2>
+<p><a class="reference internal" href="../api/plotting.html#kivi.plotting.precision_recall_chart" title="kivi.plotting.precision_recall_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">precision_recall_chart()</span></code></a> draws two other columns of the same <a class="reference internal" href="../api/metrics.html#kivi.metrics.roc_table" title="kivi.metrics.roc_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">roc_table()</span></code></a>: flagging the customers from the highest score down, the <code class="docutils literal notranslate"><span class="pre">precision</span></code>, the event rate of those flagged, against the <code class="docutils literal notranslate"><span class="pre">true_positive_rate</span></code>, the share of all events flagged, which is also called the recall. A dashed line marks the event rate of the sample, the precision of a score that ranks at random:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">precision_recall_chart</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span> <span class="o">=</span> <span class="n">precision_recall_chart</span><span class="p">(</span><span class="n">roc_table</span><span class="p">(</span><span class="n">score</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="n">label</span><span class="o">=</span><span class="s2">"score"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span> <span class="o">=</span> <span class="n">precision_recall_chart</span><span class="p">(</span><span class="n">roc_table</span><span class="p">(</span><span class="n">validation_woe</span><span class="p">[</span><span class="s2">"poutcome"</span><span class="p">],</span> <span class="n">y</span><span class="p">),</span> <span class="n">label</span><span class="o">=</span><span class="s2">"poutcome"</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="n">text</span><span class="o">.</span><span class="n">get_text</span><span class="p">()</span> <span class="k">for</span> <span class="n">text</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">texts</span><span class="p">]</span>
+<span class="go">['event_rate = 0.114']</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id9">
+<img alt="Step curves of the precision against the recall of the WOE score and of poutcome alone, above the event rate of the validation sample" class="plot-directive" src="../_images/plotting-5.svg" />
+<figcaption>
+<p><span class="caption-text">The highest scores flag events with a precision of about 85% until 14% of the events are flagged. The precision then falls towards the event rate of 11.4%, which the curve reaches when every customer is flagged. poutcome alone takes one step for each of its four groups; its last group holds most customers, so from 37% of the events on its precision is the event rate.</span><a class="headerlink" href="#id9" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>The first row of a ROC table flags nobody and has no precision. Each curve steps from a recall of 0 through the other rows: up to the recall of a row, it stays at the precision of that row, because straight lines between the rows would overstate the precision between them. The area under the steps is therefore the average precision of the score. The last row flags every customer, so each curve ends on the dashed line. The line is drawn once for each event rate, so the two scores of the validation sample share it, while a curve of the development sample would get a line of its own. The chart suits samples with few events, such as fraud, where the ROC curves of good scores crowd into the upper left corner: the precision shows how many of the flagged customers are events at each recall. <a class="reference internal" href="../api/strategy.html#kivi.strategy.confusion_table" title="kivi.strategy.confusion_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">confusion_table()</span></code></a> gives the precision and the recall at chosen cut-offs.</p>
+</section>
+<section id="gains-and-ks">
+<h2>Gains and KS<a class="headerlink" href="#gains-and-ks" title="Link to this heading">#</a></h2>
+<p><a class="reference internal" href="../api/plotting.html#kivi.plotting.gains_chart" title="kivi.plotting.gains_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">gains_chart()</span></code></a> draws a <a class="reference internal" href="../api/metrics.html#kivi.metrics.gains_table" title="kivi.metrics.gains_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">gains_table()</span></code></a>: the shares of all events and of all non-events in the bands reviewed so far, from the highest band down, against the share of the sample reviewed:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">gains_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">gains_chart</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span> <span class="o">=</span> <span class="n">gains_chart</span><span class="p">(</span><span class="n">gains_table</span><span class="p">(</span><span class="n">score</span><span class="p">,</span> <span class="n">y</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span><span class="o">.</span><span class="n">texts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_text</span><span class="p">()</span>
+<span class="go">'ks = 0.271'</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id11">
+<img alt="Cumulative event and non-event shares of ten score bands, with the largest gap marked" class="plot-directive" src="../_images/plotting-6.svg" />
+<figcaption>
+<p><span class="caption-text">The riskiest 30% of the validation sample holds 54% of its events and 27% of its non-events, the largest gap of the ten bands.</span><a class="headerlink" href="#id11" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>The solid <code class="docutils literal notranslate"><span class="pre">cum_event_share</span></code> curve lies above the diagonal and the dashed <code class="docutils literal notranslate"><span class="pre">cum_non_event_share</span></code> curve below it when the score ranks well. The dotted segment marks the band with the largest <code class="docutils literal notranslate"><span class="pre">ks</span></code>. The KS of the bands is at most that of <a class="reference internal" href="../api/plotting.html#kivi.plotting.roc_chart" title="kivi.plotting.roc_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">roc_chart()</span></code></a>, which compares every score rather than the band edges. As in <a class="reference internal" href="../api/plotting.html#kivi.plotting.roc_chart" title="kivi.plotting.roc_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">roc_chart()</span></code></a>, <code class="docutils literal notranslate"><span class="pre">ks=False</span></code> leaves the segment out, and <code class="docutils literal notranslate"><span class="pre">label</span></code> names the score in the legend, so that the gains of several scores can be drawn on one <code class="docutils literal notranslate"><span class="pre">ax</span></code>.</p>
+</section>
+<section id="distributions">
+<h2>Distributions<a class="headerlink" href="#distributions" title="Link to this heading">#</a></h2>
+<p><a class="reference internal" href="../api/plotting.html#kivi.plotting.distribution_chart" title="kivi.plotting.distribution_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">distribution_chart()</span></code></a> draws the <code class="docutils literal notranslate"><span class="pre">non_event</span></code> and <code class="docutils literal notranslate"><span class="pre">event</span></code> columns of a gains table or a WOE table: the share of all non-events and the share of all events in each row, side by side. Fixed edges give the bands of the score short labels:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">distribution_chart</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bands</span> <span class="o">=</span> <span class="n">gains_table</span><span class="p">(</span><span class="n">score</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bands</span><span class="p">[[</span><span class="s2">"non_event"</span><span class="p">,</span> <span class="s2">"event"</span><span class="p">]]</span>
+<span class="go">              non_event  event</span>
+<span class="go">bin</span>
+<span class="go">(1.0, inf]           46     40</span>
+<span class="go">(0.5, 1.0]          166     31</span>
+<span class="go">(0.0, 0.5]          280     34</span>
+<span class="go">(-0.5, 0.0]         292     37</span>
+<span class="go">(-1.0, -0.5]        173     13</span>
+<span class="go">(-inf, -1.0]        391     18</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span> <span class="o">=</span> <span class="n">distribution_chart</span><span class="p">(</span><span class="n">bands</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">bar</span><span class="o">.</span><span class="n">get_height</span><span class="p">()</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">bar</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">patches</span><span class="p">[:</span><span class="mi">2</span><span class="p">]]</span>
+<span class="go">['0.034', '0.123']</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span> <span class="o">=</span> <span class="n">distribution_chart</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">tables</span><span class="p">[</span><span class="s2">"age"</span><span class="p">])</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id13">
+<img alt="Shares of all non-events and of all events in six score bands, and in the five age bins" class="plot-directive" src="../_images/plotting-7.svg" />
+<figcaption>
+<p><span class="caption-text">Left: the highest band holds 23% of the events and 3% of the non-events, the lowest band 10% of the events and 29% of the non-events. Right: the youngest and the oldest age bins hold a larger share of the events than of the non-events.</span><a class="headerlink" href="#id13" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>The rows keep the order of the table, so the bands of a gains table run from the highest score down, and an empty band keeps its place with bars of zero height. The shares come from the raw counts: for a group without events or without non-events they differ from the <code class="docutils literal notranslate"><span class="pre">event_share</span></code> and <code class="docutils literal notranslate"><span class="pre">non_event_share</span></code> columns of a WOE table, which smoothing keeps above zero. Where the two distributions differ most, the cumulative shares of <a class="reference internal" href="../api/plotting.html#kivi.plotting.gains_chart" title="kivi.plotting.gains_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">gains_chart()</span></code></a> move apart fastest.</p>
+</section>
+<section id="calibration">
+<h2>Calibration<a class="headerlink" href="#calibration" title="Link to this heading">#</a></h2>
+<p><a class="reference internal" href="../api/plotting.html#kivi.plotting.calibration_chart" title="kivi.plotting.calibration_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">calibration_chart()</span></code></a> draws a <a class="reference internal" href="../api/calibration.html#kivi.calibration.calibration_table" title="kivi.calibration.calibration_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">calibration_table()</span></code></a>. Below, <a class="reference internal" href="../api/calibration.html#kivi.calibration.platt_fit" title="kivi.calibration.platt_fit"><code class="xref py py-func docutils literal notranslate"><span class="pre">platt_fit()</span></code></a> turns the score into PDs on the development sample, and the validation PDs are grouped into the grades of a <a class="reference internal" href="../api/calibration.html#kivi.calibration.master_scale" title="kivi.calibration.master_scale"><code class="xref py py-func docutils literal notranslate"><span class="pre">master_scale()</span></code></a>, as in <a class="reference internal" href="calibration.html"><span class="doc">Calibration</span></a>:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+<span class="gp">... </span>    <span class="n">assign_grades</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">calibration_table</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">master_scale</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">platt_fit</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">platt_predict</span><span class="p">,</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">calibration_chart</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">slope</span><span class="p">,</span> <span class="n">intercept</span> <span class="o">=</span> <span class="n">platt_fit</span><span class="p">(</span><span class="n">woe</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">development</span><span class="p">[</span><span class="s2">"target"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">probability</span> <span class="o">=</span> <span class="n">platt_predict</span><span class="p">(</span><span class="n">score</span><span class="p">,</span> <span class="n">slope</span><span class="p">,</span> <span class="n">intercept</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">scale</span> <span class="o">=</span> <span class="n">master_scale</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">geomspace</span><span class="p">(</span><span class="mf">0.02</span><span class="p">,</span> <span class="mf">0.32</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">labels</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="s2">"ABCDE"</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span> <span class="o">=</span> <span class="n">calibration_table</span><span class="p">(</span><span class="n">assign_grades</span><span class="p">(</span><span class="n">probability</span><span class="p">,</span> <span class="n">scale</span><span class="p">),</span> <span class="n">y</span><span class="p">,</span> <span class="n">probability</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span>
+<span class="go">       total  event  event_rate  mean_probability</span>
+<span class="go">bin</span>
+<span class="go">A         43      1    0.023256          0.023619</span>
+<span class="go">B        368     17    0.046196          0.041415</span>
+<span class="go">C        466     46    0.098712          0.085882</span>
+<span class="go">D        558     69    0.123656          0.153627</span>
+<span class="go">E         86     40    0.465116          0.435768</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span> <span class="o">=</span> <span class="n">calibration_chart</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"validation"</span><span class="p">)</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id15">
+<img alt="Event rate against mean predicted probability of grades A to E, next to the diagonal" class="plot-directive" src="../_images/plotting-8.svg" />
+<figcaption>
+<p><span class="caption-text">The five grades lie close to the diagonal; grade D has fewer events than predicted.</span><a class="headerlink" href="#id15" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>Points above the diagonal have more events than predicted, and points below it fewer. Both axes run from 0 to just above the largest rate, so that the diagonal stays at 45 degrees. The chart shows how far each grade lies from its prediction, not whether the difference is significant; <a class="reference internal" href="../api/calibration.html#kivi.calibration.binomial_test" title="kivi.calibration.binomial_test"><code class="xref py py-func docutils literal notranslate"><span class="pre">binomial_test()</span></code></a> answers that.</p>
+</section>
+<section id="cut-offs">
+<h2>Cut-offs<a class="headerlink" href="#cut-offs" title="Link to this heading">#</a></h2>
+<p><a class="reference internal" href="../api/plotting.html#kivi.plotting.cutoff_chart" title="kivi.plotting.cutoff_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">cutoff_chart()</span></code></a> draws a <a class="reference internal" href="../api/strategy.html#kivi.strategy.cutoff_table" title="kivi.strategy.cutoff_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">cutoff_table()</span></code></a>: the bad rate of the approved book against the share of applicants approved, one point per cut-off of the PD:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">cutoff_chart</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.strategy</span><span class="w"> </span><span class="kn">import</span> <span class="n">cutoff_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span> <span class="o">=</span> <span class="n">cutoff_chart</span><span class="p">(</span><span class="n">cutoff_table</span><span class="p">(</span><span class="n">probability</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">cutoffs</span><span class="o">=</span><span class="mi">20</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span><span class="o">.</span><span class="n">get_xlabel</span><span class="p">(),</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_ylabel</span><span class="p">()</span>
+<span class="go">('approval_rate', 'approved_event_rate')</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id17">
+<img alt="Event rate of the approved book against the approval rate for twenty PD cut-offs" class="plot-directive" src="../_images/plotting-9.svg" />
+<figcaption>
+<p><span class="caption-text">Approving more applicants raises the event rate of the approved book, from about 1% for the safest 5% of applicants to 11% when all of them are approved.</span><a class="headerlink" href="#id17" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>The slope of the curve is the price in risk of a higher approval rate. Draw the tables of a current and a new score on the same <code class="docutils literal notranslate"><span class="pre">ax</span></code>, each with a <code class="docutils literal notranslate"><span class="pre">label</span></code>, to compare them at the same approval rate, as <a class="reference internal" href="strategy.html"><span class="doc">Credit strategy</span></a> does.</p>
+</section>
+<section id="population-stability">
+<h2>Population stability<a class="headerlink" href="#population-stability" title="Link to this heading">#</a></h2>
+<p><a class="reference internal" href="../api/plotting.html#kivi.plotting.psi_chart" title="kivi.plotting.psi_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">psi_chart()</span></code></a> draws a <a class="reference internal" href="../api/stability.html#kivi.stability.psi_table" title="kivi.stability.psi_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">psi_table()</span></code></a> as pairs of bars, the reference share and the current share of each group. Single customers, as in <a class="reference internal" href="psi.html"><span class="doc">Population stability index</span></a>, are much younger than the development sample:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">psi_chart</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.stability</span><span class="w"> </span><span class="kn">import</span> <span class="n">psi_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">reference</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">development</span><span class="p">[</span><span class="n">columns</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">single</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s2">"marital"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"single"</span><span class="p">,</span> <span class="n">columns</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span> <span class="o">=</span> <span class="n">psi_chart</span><span class="p">(</span><span class="n">psi_table</span><span class="p">(</span><span class="n">reference</span><span class="p">[</span><span class="s2">"age"</span><span class="p">],</span> <span class="n">single</span><span class="p">[</span><span class="s2">"age"</span><span class="p">]))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span><span class="o">.</span><span class="n">get_legend</span><span class="p">()</span><span class="o">.</span><span class="n">get_title</span><span class="p">()</span><span class="o">.</span><span class="n">get_text</span><span class="p">()</span>
+<span class="go">'psi = 0.586'</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id19">
+<img alt="Reference and current shares of five age bins for single customers" class="plot-directive" src="../_images/plotting-10.svg" />
+<figcaption>
+<p><span class="caption-text">Half of the single customers fall into the youngest bin, against less than a quarter of the development sample.</span><a class="headerlink" href="#id19" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>The groups whose bars differ most contribute most of the PSI, which the legend gives for the whole table.</p>
+</section>
+<section id="monitoring">
+<h2>Monitoring<a class="headerlink" href="#monitoring" title="Link to this heading">#</a></h2>
+<p><a class="reference internal" href="../api/plotting.html#kivi.plotting.monitoring_chart" title="kivi.plotting.monitoring_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">monitoring_chart()</span></code></a> draws one column of a <a class="reference internal" href="../api/monitoring.html#kivi.monitoring.monitoring_table" title="kivi.monitoring.monitoring_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">monitoring_table()</span></code></a> period by period. The applications below are simulated as in <a class="reference internal" href="monitoring.html"><span class="doc">Model monitoring</span></a>; the outcomes of the last three months are not known yet:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_applications</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.monitoring</span><span class="w"> </span><span class="kn">import</span> <span class="n">monitoring_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">monitoring_chart</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">reference_applications</span> <span class="o">=</span> <span class="n">make_applications</span><span class="p">(</span><span class="n">n_applicants</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">applications</span> <span class="o">=</span> <span class="n">make_applications</span><span class="p">(</span><span class="n">n_applicants</span><span class="o">=</span><span class="mi">24000</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">months</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">period_range</span><span class="p">(</span><span class="s2">"2025-01"</span><span class="p">,</span> <span class="n">periods</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="s2">"M"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">applications</span><span class="p">[</span><span class="s2">"month"</span><span class="p">]</span> <span class="o">=</span> <span class="n">months</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">24000</span><span class="p">)</span> <span class="o">*</span> <span class="mi">12</span> <span class="o">//</span> <span class="mi">24000</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">known</span> <span class="o">=</span> <span class="n">applications</span><span class="p">[</span><span class="s2">"approved"</span><span class="p">]</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">applications</span><span class="p">[</span><span class="s2">"month"</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">months</span><span class="p">[</span><span class="mi">8</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">report</span> <span class="o">=</span> <span class="n">monitoring_table</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">applications</span><span class="p">[</span><span class="s2">"incumbent_pd"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">applications</span><span class="p">[</span><span class="s2">"month"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">applications</span><span class="p">[</span><span class="s2">"target"</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">known</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="n">reference_score</span><span class="o">=</span><span class="n">reference_applications</span><span class="p">[</span><span class="s2">"incumbent_pd"</span><span class="p">],</span>
+<span class="gp">... </span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Call the function once for each column, on the panels of one figure. <code class="docutils literal notranslate"><span class="pre">kind</span></code> draws a column as a line, the default, or as bars, and <code class="docutils literal notranslate"><span class="pre">levels</span></code> marks the values that a column is compared with, such as the PSI thresholds 0.1 and 0.25. <code class="docutils literal notranslate"><span class="pre">label_outer</span></code> then hides the x-axis labels of the upper panel, which shares the x-axis of the lower one:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">figure</span><span class="p">,</span> <span class="p">(</span><span class="n">top</span><span class="p">,</span> <span class="n">bottom</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="s2">"constrained"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">top</span> <span class="o">=</span> <span class="n">monitoring_chart</span><span class="p">(</span><span class="n">report</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="s2">"gini"</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">top</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bottom</span> <span class="o">=</span> <span class="n">monitoring_chart</span><span class="p">(</span><span class="n">report</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="s2">"psi"</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">"bar"</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">],</span> <span class="n">ax</span><span class="o">=</span><span class="n">bottom</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">top</span><span class="o">.</span><span class="n">label_outer</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="n">text</span><span class="o">.</span><span class="n">get_text</span><span class="p">()</span> <span class="k">for</span> <span class="n">text</span> <span class="ow">in</span> <span class="n">bottom</span><span class="o">.</span><span class="n">texts</span><span class="p">]</span>
+<span class="go">['0.1', '0.25']</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id21">
+<img alt="Gini and PSI of the incumbent PD for each month of 2025, with the PSI thresholds 0.1 and 0.25" class="plot-directive" src="../_images/plotting-11.svg" />
+<figcaption>
+<p><span class="caption-text">The Gini stops in September, the last month with known outcomes. The PSI stays far below 0.1 in every month.</span><a class="headerlink" href="#id21" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>A line suits rates and measures of discrimination, and several columns on one <code class="docutils literal notranslate"><span class="pre">ax</span></code>; bars suit counts such as <code class="docutils literal notranslate"><span class="pre">total</span></code> and a single <code class="docutils literal notranslate"><span class="pre">psi</span></code>. <code class="docutils literal notranslate"><span class="pre">kind</span></code> decides, not the name of the column, so any table with one row per period can be drawn either way.</p>
+<p>A <a class="reference internal" href="../api/monitoring.html#kivi.monitoring.stability_table" title="kivi.monitoring.stability_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">stability_table()</span></code></a> holds the PSI of each variable by period. Draw its columns on one <code class="docutils literal notranslate"><span class="pre">ax</span></code>, each with a <code class="docutils literal notranslate"><span class="pre">label</span></code>. The y-axis is labeled <code class="docutils literal notranslate"><span class="pre">psi</span></code>, because the columns of a stability table are named <code class="docutils literal notranslate"><span class="pre">variable</span></code>:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.monitoring</span><span class="w"> </span><span class="kn">import</span> <span class="n">stability_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">features</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"age"</span><span class="p">,</span> <span class="s2">"income"</span><span class="p">,</span> <span class="s2">"debt_to_income"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">application_spec</span> <span class="o">=</span> <span class="n">fit_spec</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">reference_applications</span><span class="p">[</span><span class="n">features</span><span class="p">],</span> <span class="n">reference_applications</span><span class="p">[</span><span class="s2">"target"</span><span class="p">]</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stability</span> <span class="o">=</span> <span class="n">stability_table</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">application_spec</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">applications</span><span class="p">[</span><span class="n">features</span><span class="p">]),</span>
+<span class="gp">... </span>    <span class="n">applications</span><span class="p">[</span><span class="s2">"month"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">reference_groups</span><span class="o">=</span><span class="n">application_spec</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">reference_applications</span><span class="p">[</span><span class="n">features</span><span class="p">]),</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">stability</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="n">ax</span> <span class="o">=</span> <span class="n">monitoring_chart</span><span class="p">(</span><span class="n">stability</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="n">column</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">column</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span><span class="o">.</span><span class="n">get_ylabel</span><span class="p">()</span>
+<span class="go">'psi'</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id23">
+<img alt="PSI of age, income and debt_to_income for each month of 2025" class="plot-directive" src="../_images/plotting-12.svg" />
+<figcaption>
+<p><span class="caption-text">The PSI of the three variables stays below 0.01 in every month.</span><a class="headerlink" href="#id23" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="vintage-curves">
+<h2>Vintage curves<a class="headerlink" href="#vintage-curves" title="Link to this heading">#</a></h2>
+<p><a class="reference internal" href="../api/plotting.html#kivi.plotting.vintage_chart" title="kivi.plotting.vintage_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">vintage_chart()</span></code></a> draws a <a class="reference internal" href="../api/vintage.html#kivi.vintage.vintage_table" title="kivi.vintage.vintage_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">vintage_table()</span></code></a> with one curve per cohort, later cohorts in darker blue. The legend, to the right of the Axes, names eight of the twenty-four cohorts, evenly spread from the first to the last, since the shades of the others lie between theirs:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_loan_panel</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">vintage_chart</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.vintage</span><span class="w"> </span><span class="kn">import</span> <span class="n">vintage_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">panel</span> <span class="o">=</span> <span class="n">make_loan_panel</span><span class="p">(</span><span class="n">rng</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ever_90</span> <span class="o">=</span> <span class="n">vintage_table</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">panel</span><span class="p">[</span><span class="s2">"loan_id"</span><span class="p">],</span> <span class="n">panel</span><span class="p">[</span><span class="s2">"cohort"</span><span class="p">],</span> <span class="n">panel</span><span class="p">[</span><span class="s2">"month_on_book"</span><span class="p">],</span> <span class="n">panel</span><span class="p">[</span><span class="s2">"status"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"90+"</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span> <span class="o">=</span> <span class="n">vintage_chart</span><span class="p">(</span><span class="n">ever_90</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="n">text</span><span class="o">.</span><span class="n">get_text</span><span class="p">()</span> <span class="k">for</span> <span class="n">text</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_legend</span><span class="p">()</span><span class="o">.</span><span class="n">get_texts</span><span class="p">()]</span>
+<span class="go">['2024-01', '2024-04', '2024-08', '2024-11', '2025-02', '2025-05', '2025-09', '2025-12']</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id25">
+<img alt="Cumulative 90+ rate of twenty-four cohorts by month on book" class="plot-directive" src="../_images/plotting-13.svg" />
+<figcaption>
+<p><span class="caption-text">No cohort has a loan 90 days past due before its fourth month on book, and the curves of the later cohorts end where their observation ends.</span><a class="headerlink" href="#id25" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>A cohort whose curve rises above those of the cohorts before it is worth a closer look. The function takes any table of the same shape, such as the cumulative PDs of <a class="reference internal" href="../api/lifetime.html#kivi.lifetime.convert_pd" title="kivi.lifetime.convert_pd"><code class="xref py py-func docutils literal notranslate"><span class="pre">convert_pd()</span></code></a>.</p>
+</section>
+<section id="survival-curves">
+<h2>Survival curves<a class="headerlink" href="#survival-curves" title="Link to this heading">#</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="s2">"all"</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="../api/plotting.html#kivi.plotting.survival_chart" title="kivi.plotting.survival_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">survival_chart()</span></code></a> draws the <code class="docutils literal notranslate"><span class="pre">cumulative_pd</span></code> of a <a class="reference internal" href="../api/lifetime.html#kivi.lifetime.survival_table" title="kivi.lifetime.survival_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">survival_table()</span></code></a> as steps from period 0, or the <code class="docutils literal notranslate"><span class="pre">survival</span></code> with <code class="docutils literal notranslate"><span class="pre">column=&quot;survival&quot;</span></code>. In a loan book with early repayments, a loan that repays leaves the risk set without defaulting, which is a competing risk. The curve of <code class="docutils literal notranslate"><span class="pre">cumulative_pd</span></code> is then the cumulative incidence of 90+ days past due, and the chart adds the cumulative incidence of repayment:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.lifetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">survival_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">survival_chart</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">panel</span> <span class="o">=</span> <span class="n">make_loan_panel</span><span class="p">(</span><span class="n">rng</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">prepayment</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span><span class="o">.</span><span class="n">sort_values</span><span class="p">([</span><span class="s2">"loan_id"</span><span class="p">,</span> <span class="s2">"month_on_book"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">last</span> <span class="o">=</span> <span class="n">panel</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">"loan_id"</span><span class="p">)</span><span class="o">.</span><span class="n">tail</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">"loan_id"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">first</span> <span class="o">=</span> <span class="n">panel</span><span class="p">[</span><span class="n">panel</span><span class="p">[</span><span class="s2">"status"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"90+"</span><span class="p">]</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">"loan_id"</span><span class="p">)[</span><span class="s2">"month_on_book"</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">duration</span> <span class="o">=</span> <span class="n">last</span><span class="p">[</span><span class="s2">"month_on_book"</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">duration</span><span class="p">[</span><span class="n">first</span><span class="o">.</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">first</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">event</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">duration</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">event</span><span class="p">[</span><span class="n">first</span><span class="o">.</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">repaid</span> <span class="o">=</span> <span class="p">(</span>
+<span class="gp">... </span>    <span class="p">(</span><span class="n">last</span><span class="p">[</span><span class="s2">"balance"</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">last</span><span class="p">[</span><span class="s2">"month_on_book"</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">last</span><span class="p">[</span><span class="s2">"term"</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">event</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+<span class="gp">... </span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span> <span class="o">=</span> <span class="n">survival_table</span><span class="p">(</span><span class="n">duration</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">competing</span><span class="o">=</span><span class="n">repaid</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span> <span class="o">=</span> <span class="n">survival_chart</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">get_label</span><span class="p">()</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_lines</span><span class="p">()]</span>
+<span class="go">['cumulative_pd', 'competing']</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">get_ydata</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="mi">3</span><span class="p">)</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_lines</span><span class="p">()]</span>
+<span class="go">[0.076, 0.19]</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id27">
+<img alt="Cumulative incidence of 90+ days past due and of early repayment by month on book" class="plot-directive" src="../_images/plotting-14.svg" />
+<figcaption>
+<p><span class="caption-text">After 24 months 7.6% of the loans have reached 90+ days past due and 19% have repaid early.</span><a class="headerlink" href="#id27" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>Each curve is a step function, because the estimate changes only at the periods where something happens. Without <code class="docutils literal notranslate"><span class="pre">competing</span></code> the chart has one curve, and <code class="docutils literal notranslate"><span class="pre">column=&quot;survival&quot;</span></code> always draws one: the share of loans that have neither defaulted nor repaid.</p>
+</section>
+<section id="transition-matrices">
+<h2>Transition matrices<a class="headerlink" href="#transition-matrices" title="Link to this heading">#</a></h2>
+<p><a class="reference internal" href="../api/plotting.html#kivi.plotting.transition_chart" title="kivi.plotting.transition_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">transition_chart()</span></code></a> draws the <a class="reference internal" href="../api/vintage.html#kivi.vintage.transition_matrix" title="kivi.vintage.transition_matrix"><code class="xref py py-func docutils literal notranslate"><span class="pre">transition_matrix()</span></code></a> of two consecutive month ends, the states before in the rows and the states after in the columns. A cell is written with its count, in full below 10,000 and with a suffix <code class="docutils literal notranslate"><span class="pre">K</span></code>, <code class="docutils literal notranslate"><span class="pre">M</span></code> or <code class="docutils literal notranslate"><span class="pre">B</span></code> above, or with its share for a matrix computed with <code class="docutils literal notranslate"><span class="pre">normalize=True</span></code>, and shaded by the share of its row, so that the shade shows where each state goes whatever the sizes of the states. The diagonal, the entities that stayed, is outlined in amber:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">transition_chart</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.vintage</span><span class="w"> </span><span class="kn">import</span> <span class="n">transition_matrix</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">status</span> <span class="o">=</span> <span class="n">panel</span><span class="p">[</span><span class="s2">"status"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">after</span> <span class="o">=</span> <span class="n">panel</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">"loan_id"</span><span class="p">)[</span><span class="s2">"status"</span><span class="p">]</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">known</span> <span class="o">=</span> <span class="n">after</span><span class="o">.</span><span class="n">notna</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">states</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"current"</span><span class="p">,</span> <span class="s2">"1-29"</span><span class="p">,</span> <span class="s2">"30-59"</span><span class="p">,</span> <span class="s2">"60-89"</span><span class="p">,</span> <span class="s2">"90+"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">matrix</span> <span class="o">=</span> <span class="n">transition_matrix</span><span class="p">(</span><span class="n">status</span><span class="p">[</span><span class="n">known</span><span class="p">],</span> <span class="n">after</span><span class="p">[</span><span class="n">known</span><span class="p">],</span> <span class="n">states</span><span class="o">=</span><span class="n">states</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span> <span class="o">=</span> <span class="n">transition_chart</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="n">text</span><span class="o">.</span><span class="n">get_text</span><span class="p">()</span> <span class="k">for</span> <span class="n">text</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">texts</span><span class="p">][:</span><span class="mi">5</span><span class="p">]</span>
+<span class="go">['45.8K', '1068', '0', '0', '0']</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id29">
+<img alt="Heatmap of the transitions between delinquency buckets from one month end to the next" class="plot-directive" src="../_images/plotting-15.svg" />
+<figcaption>
+<p><span class="caption-text">Most loans stay current, and from the bucket 90+ none of them returns.</span><a class="headerlink" href="#id29" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>The chart draws a matrix of counts or of shares alike. The roll rates of <a class="reference internal" href="../api/vintage.html#kivi.vintage.roll_rates" title="kivi.vintage.roll_rates"><code class="xref py py-func docutils literal notranslate"><span class="pre">roll_rates()</span></code></a> are the share of each state that moved to the next worse one, the cell just right of the diagonal of <code class="docutils literal notranslate"><span class="pre">transition_matrix(...,</span> <span class="pre">normalize=True)</span></code>, which the same chart shows with all the other cells. <a class="reference internal" href="../api/vintage.html#kivi.vintage.roll_rates" title="kivi.vintage.roll_rates"><code class="xref py py-func docutils literal notranslate"><span class="pre">roll_rates()</span></code></a> itself is a Series, one value for each state, and is read as a table, not drawn: a table with a single column raises an error, since every cell of it would be shaded as a whole row.</p>
+</section>
+<section id="rule-sets">
+<h2>Rule sets<a class="headerlink" href="#rule-sets" title="Link to this heading">#</a></h2>
+<p><a class="reference internal" href="../api/plotting.html#kivi.plotting.rule_set_chart" title="kivi.plotting.rule_set_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">rule_set_chart()</span></code></a> draws a <a class="reference internal" href="../api/rules.html#kivi.rules.rule_set_table" title="kivi.rules.rule_set_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">rule_set_table()</span></code></a>, the rules applied one after the other. The bars show the <code class="docutils literal notranslate"><span class="pre">new_hits</span></code> of each rule, the applicants that it declines and no earlier rule declined, as a share of all applicants, and the line the <code class="docutils literal notranslate"><span class="pre">approval_rate</span></code> that is left after it, on the same axis. Each point of the line is therefore the one before it minus the bar of its rule, starting from 100%:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">rule_set_chart</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.rules</span><span class="w"> </span><span class="kn">import</span> <span class="n">rule_set_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">applications</span> <span class="o">=</span> <span class="n">make_applications</span><span class="p">(</span><span class="n">n_applicants</span><span class="o">=</span><span class="mi">40000</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">flags</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">{</span>
+<span class="gp">... </span>        <span class="s2">"high_debt"</span><span class="p">:</span> <span class="n">applications</span><span class="p">[</span><span class="s2">"debt_to_income"</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mf">0.5</span><span class="p">,</span>
+<span class="gp">... </span>        <span class="s2">"young"</span><span class="p">:</span> <span class="n">applications</span><span class="p">[</span><span class="s2">"age"</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">25</span><span class="p">,</span>
+<span class="gp">... </span>        <span class="s2">"many_inquiries"</span><span class="p">:</span> <span class="n">applications</span><span class="p">[</span><span class="s2">"inquiries"</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">4</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="p">}</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span> <span class="o">=</span> <span class="n">rule_set_table</span><span class="p">(</span><span class="n">flags</span><span class="p">,</span> <span class="n">applications</span><span class="p">[</span><span class="s2">"target"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span> <span class="o">=</span> <span class="n">rule_set_chart</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">bar</span><span class="o">.</span><span class="n">get_height</span><span class="p">()),</span> <span class="mi">4</span><span class="p">)</span> <span class="k">for</span> <span class="n">bar</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">patches</span><span class="p">]</span>
+<span class="go">[0.1128, 0.0696, 0.0199]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span><span class="o">.</span><span class="n">get_lines</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_ydata</span><span class="p">()</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<span class="go">[0.887, 0.818, 0.798]</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id31">
+<img alt="Bars of the applicants declined by each of three rules, with the approval rate after each rule" class="plot-directive" src="../_images/plotting-16.svg" />
+<figcaption>
+<p><span class="caption-text">The first rule declines 11.3% of the applicants and the third only 2.0%, with the approval rate falling from 88.7% to 79.8%.</span><a class="headerlink" href="#id31" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>The order of the rules decides the bars, since an applicant who hits two rules counts for the first, but it does not change the last approval rate. Both series share one axis and the function returns that one Axes.</p>
+</section>
+<section id="profit-by-cut-off">
+<h2>Profit by cut-off<a class="headerlink" href="#profit-by-cut-off" title="Link to this heading">#</a></h2>
+<p>A <a class="reference internal" href="../api/strategy.html#kivi.strategy.cutoff_table" title="kivi.strategy.cutoff_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">cutoff_table()</span></code></a> computed with <code class="docutils literal notranslate"><span class="pre">loss</span></code> and <code class="docutils literal notranslate"><span class="pre">revenue</span></code> has a <code class="docutils literal notranslate"><span class="pre">profit</span></code> column. <a class="reference internal" href="../api/plotting.html#kivi.plotting.profit_chart" title="kivi.plotting.profit_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">profit_chart()</span></code></a> draws it against the <code class="docutils literal notranslate"><span class="pre">approval_rate</span></code> and marks the cut-off with the highest profit, which <a class="reference internal" href="../api/plotting.html#kivi.plotting.cutoff_chart" title="kivi.plotting.cutoff_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">cutoff_chart()</span></code></a> cannot show, since it draws the event rate. Here every approved applicant brings a revenue of 600 and every event a loss of 5,000:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">profit_chart</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.strategy</span><span class="w"> </span><span class="kn">import</span> <span class="n">cutoff_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span> <span class="o">=</span> <span class="n">cutoff_table</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">applications</span><span class="p">[</span><span class="s2">"incumbent_pd"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">applications</span><span class="p">[</span><span class="s2">"target"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">cutoffs</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">loss</span><span class="o">=</span><span class="mf">5000.0</span> <span class="o">*</span> <span class="n">applications</span><span class="p">[</span><span class="s2">"target"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">revenue</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="mf">600.0</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">applications</span><span class="o">.</span><span class="n">index</span><span class="p">),</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span> <span class="o">=</span> <span class="n">profit_chart</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span><span class="o">.</span><span class="n">texts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_text</span><span class="p">()</span>
+<span class="go">'cutoff = 0.0962, profit = 4,261,600'</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id33">
+<img alt="Profit against the approval rate with the highest profit marked" class="plot-directive" src="../_images/plotting-17.svg" />
+<figcaption>
+<p><span class="caption-text">Profit rises with the approval rate up to 45% and falls after it, and approving the whole book makes a loss.</span><a class="headerlink" href="#id33" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>Pass a <code class="docutils literal notranslate"><span class="pre">label</span></code> to each call to draw the tables of two scores on one <code class="docutils literal notranslate"><span class="pre">ax</span></code>. The marked point is the first row with the largest profit, and the dotted line marks zero profit. The cut-offs are those of the table, so the maximum is the best of them; a finer <code class="docutils literal notranslate"><span class="pre">cutoffs</span></code> locates it more closely.</p>
+</section>
+<section id="lgd-by-group">
+<h2>LGD by group<a class="headerlink" href="#lgd-by-group" title="Link to this heading">#</a></h2>
+<p><a class="reference internal" href="../api/plotting.html#kivi.plotting.lgd_chart" title="kivi.plotting.lgd_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">lgd_chart()</span></code></a> draws a <a class="reference internal" href="../api/lgd.html#kivi.lgd.lgd_table" title="kivi.lgd.lgd_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">lgd_table()</span></code></a> with three bars for each group: the <code class="docutils literal notranslate"><span class="pre">mean</span></code> LGD, and the <code class="docutils literal notranslate"><span class="pre">zero_share</span></code> and the <code class="docutils literal notranslate"><span class="pre">full_share</span></code> of the loans that lost nothing and everything. The mean hides that realized LGDs are bimodal, which the two shares show. The workouts of the simulated defaults that have closed, with their recoveries and costs discounted at the rate of each default, give:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_defaults</span><span class="p">,</span> <span class="n">make_recoveries</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.lgd</span><span class="w"> </span><span class="kn">import</span> <span class="n">lgd_table</span><span class="p">,</span> <span class="n">workout_lgd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">lgd_chart</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">defaults</span> <span class="o">=</span> <span class="n">make_defaults</span><span class="p">(</span><span class="n">rng</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">flows</span> <span class="o">=</span> <span class="n">make_recoveries</span><span class="p">(</span><span class="n">defaults</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">closed</span> <span class="o">=</span> <span class="n">defaults</span><span class="p">[</span><span class="n">defaults</span><span class="p">[</span><span class="s2">"closing_date"</span><span class="p">]</span><span class="o">.</span><span class="n">notna</span><span class="p">()]</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">"loan_id"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">flows</span> <span class="o">=</span> <span class="n">flows</span><span class="p">[</span><span class="n">flows</span><span class="p">[</span><span class="s2">"loan_id"</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">closed</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">workouts</span> <span class="o">=</span> <span class="n">workout_lgd</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">closed</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">to_series</span><span class="p">(),</span>
+<span class="gp">... </span>    <span class="n">closed</span><span class="p">[</span><span class="s2">"default_date"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">closed</span><span class="p">[</span><span class="s2">"ead"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">flows</span><span class="p">[</span><span class="s2">"loan_id"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">flows</span><span class="p">[</span><span class="s2">"date"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">flows</span><span class="p">[</span><span class="s2">"amount"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">rate</span><span class="o">=</span><span class="n">closed</span><span class="p">[</span><span class="s2">"discount_rate"</span><span class="p">],</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span> <span class="o">=</span> <span class="n">lgd_table</span><span class="p">(</span><span class="n">closed</span><span class="p">[</span><span class="s2">"segment"</span><span class="p">],</span> <span class="n">workouts</span><span class="p">[</span><span class="s2">"lgd"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span> <span class="o">=</span> <span class="n">lgd_chart</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">bar</span><span class="o">.</span><span class="n">get_height</span><span class="p">()),</span> <span class="mi">3</span><span class="p">)</span> <span class="k">for</span> <span class="n">bar</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">patches</span><span class="p">[:</span><span class="mi">3</span><span class="p">]]</span>
+<span class="go">[0.096, 0.777, 0.685]</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id35">
+<img alt="Mean LGD, share of zero losses and share of full losses of three segments" class="plot-directive" src="../_images/plotting-18.svg" />
+<figcaption>
+<p><span class="caption-text">Secured loans lose 10% on average and sometimes nothing, while unsecured and revolving loans lose about 70% and often everything.</span><a class="headerlink" href="#id35" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>All three bars share one percent axis. <a class="reference internal" href="../api/lgd.html#kivi.lgd.lgd_table" title="kivi.lgd.lgd_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">lgd_table()</span></code></a> floors the LGDs at 0 by default, so the axis reaches below 0 only for <code class="docutils literal notranslate"><span class="pre">floor=None</span></code>, and above 100% when the mean of a group does.</p>
+</section>
+<section id="special-values">
+<h2>Special values<a class="headerlink" href="#special-values" title="Link to this heading">#</a></h2>
+<p>A special value keeps the group that <a class="reference internal" href="../api/binning.html#kivi.binning.cut" title="kivi.binning.cut"><code class="xref py py-func docutils literal notranslate"><span class="pre">cut()</span></code></a> gave it, and the chart labels it with its code. For <code class="docutils literal notranslate"><span class="pre">pdays</span></code>, where -1 means that the customer was not contacted before:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pdays</span> <span class="o">=</span> <span class="n">fit_spec</span><span class="p">(</span><span class="n">development</span><span class="p">[[</span><span class="s2">"pdays"</span><span class="p">]],</span> <span class="n">development</span><span class="p">[</span><span class="s2">"target"</span><span class="p">],</span> <span class="n">special</span><span class="o">=</span><span class="p">{</span><span class="s2">"pdays"</span><span class="p">:</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bars</span><span class="p">,</span> <span class="n">line</span> <span class="o">=</span> <span class="n">woe_chart</span><span class="p">(</span><span class="n">pdays</span><span class="o">.</span><span class="n">tables</span><span class="p">[</span><span class="s2">"pdays"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="n">label</span><span class="o">.</span><span class="n">get_text</span><span class="p">()</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">bars</span><span class="o">.</span><span class="n">get_xticklabels</span><span class="p">()]</span>
+<span class="go">['-1', '(-inf, 105.0]', '(105.0, 175.6]', '(175.6, 255.4]', '(255.4, 342.2]', '(342.2, inf]']</span>
+</pre></div>
+</div>
+<p>The bar of <code class="docutils literal notranslate"><span class="pre">-1</span></code> holds 82.5% of the sample. Charts do not reorder groups, so the special group stays where the table has it, ahead of the intervals.</p>
+</section>
+<section id="missing-values">
+<h2>Missing values<a class="headerlink" href="#missing-values" title="Link to this heading">#</a></h2>
+<p>The group of missing values is labeled <code class="docutils literal notranslate"><span class="pre">NaN</span></code>, as in the worked example. A missing value in a column, such as the <code class="docutils literal notranslate"><span class="pre">gini</span></code> of a month without known outcomes or a month on book that a cohort has not reached, leaves a gap in a line and no bar. A cut-off that approves nothing has a missing <code class="docutils literal notranslate"><span class="pre">approved_event_rate</span></code> and no point on the curve of <a class="reference internal" href="../api/plotting.html#kivi.plotting.cutoff_chart" title="kivi.plotting.cutoff_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">cutoff_chart()</span></code></a>. Periods of a survival table after the last one with accounts at risk have no value and end the curves of <a class="reference internal" href="../api/plotting.html#kivi.plotting.survival_chart" title="kivi.plotting.survival_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">survival_chart()</span></code></a>, and <a class="reference internal" href="../api/plotting.html#kivi.plotting.transition_chart" title="kivi.plotting.transition_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">transition_chart()</span></code></a> leaves a missing cell empty.</p>
+</section>
+<section id="limits">
+<h2>Limits<a class="headerlink" href="#limits" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>The charts draw a table as it is. They have no <code class="docutils literal notranslate"><span class="pre">weights</span></code> argument: draw a table computed with weights to show weighted shares and rates.</p></li>
+<li><p>The functions choose the size of a new figure, the colors and the labels, and pass no other matplotlib properties through; change them on the returned Axes.</p></li>
+<li><p>A chart has no title, so that it fits a report in any language. Add one with <code class="docutils literal notranslate"><span class="pre">ax.set_title</span></code>.</p></li>
+<li><p><a class="reference internal" href="../api/plotting.html#kivi.plotting.profit_chart" title="kivi.plotting.profit_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">profit_chart()</span></code></a> marks the best of the cut-offs of the table, not the best cut-off of the score, and <a class="reference internal" href="../api/plotting.html#kivi.plotting.transition_chart" title="kivi.plotting.transition_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">transition_chart()</span></code></a> draws a matrix, not the Series of <a class="reference internal" href="../api/vintage.html#kivi.vintage.roll_rates" title="kivi.vintage.roll_rates"><code class="xref py py-func docutils literal notranslate"><span class="pre">roll_rates()</span></code></a>.</p></li>
+<li><p><a class="reference internal" href="../api/plotting.html#kivi.plotting.monitoring_chart" title="kivi.plotting.monitoring_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">monitoring_chart()</span></code></a> draws one column per call, and <a class="reference internal" href="../api/plotting.html#kivi.plotting.correlation_chart" title="kivi.plotting.correlation_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">correlation_chart()</span></code></a> one matrix without a color bar; add one with <code class="docutils literal notranslate"><span class="pre">figure.colorbar(ax.images[0],</span> <span class="pre">ax=ax)</span></code>.</p></li>
+<li><p>The charts are static matplotlib figures, not interactive ones.</p></li>
+</ul>
+</section>
+<section id="errors-and-warnings">
+<h2>Errors and warnings<a class="headerlink" href="#errors-and-warnings" title="Link to this heading">#</a></h2>
+<p>Without matplotlib, every chart raises an <code class="docutils literal notranslate"><span class="pre">ImportError</span></code> that asks for <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">&quot;kivi[plot]&quot;</span></code>.</p>
+<p>A table that lacks a column a chart needs raises a <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> that names the columns of the table it expects and those that are missing, as when a PSI table is passed to <a class="reference internal" href="../api/plotting.html#kivi.plotting.woe_chart" title="kivi.plotting.woe_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">woe_chart()</span></code></a>:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">woe_chart</span><span class="p">(</span><span class="n">psi_table</span><span class="p">(</span><span class="n">reference</span><span class="p">[</span><span class="s2">"age"</span><span class="p">],</span> <span class="n">single</span><span class="p">[</span><span class="s2">"age"</span><span class="p">]))</span>
+<span class="gt">Traceback (most recent call last):</span>
+<span class="c">...</span>
+<span class="gr">ValueError</span>: <span class="n">table must have the columns ['total_share', 'event_rate', 'iv'] of kivi.woe.woe_table, missing ['total_share', 'event_rate', 'iv']</span>
+</pre></div>
+</div>
+<p>An <code class="docutils literal notranslate"><span class="pre">ax</span></code> that is not a matplotlib Axes, an empty table, a column that is not numeric, a negative count or a table without events or without non-events in <a class="reference internal" href="../api/plotting.html#kivi.plotting.distribution_chart" title="kivi.plotting.distribution_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">distribution_chart()</span></code></a>, and a correlation matrix with a value outside [-1, 1] raise a <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> as well. A chart that raises does not leave an empty figure behind.</p>
+<p>matplotlib warns when more than 20 figures are open. When a report draws a chart for each of many variables, save each figure and close it with <code class="docutils literal notranslate"><span class="pre">plt.close(ax.figure)</span></code>.</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="lifetime.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Lifetime PD and expected credit loss</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="datasets.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Example data</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-worked-example">A worked example</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#figures-and-axes">Figures and axes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#woe-and-event-rate">WOE and event rate</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#correlation">Correlation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#roc-curve">ROC curve</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#precision-and-recall">Precision and recall</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#gains-and-ks">Gains and KS</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#distributions">Distributions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#calibration">Calibration</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cut-offs">Cut-offs</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#population-stability">Population stability</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#monitoring">Monitoring</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#vintage-curves">Vintage curves</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#survival-curves">Survival curves</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#transition-matrices">Transition matrices</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#rule-sets">Rule sets</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#profit-by-cut-off">Profit by cut-off</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#lgd-by-group">LGD by group</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#special-values">Special values</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#missing-values">Missing values</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#limits">Limits</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#errors-and-warnings">Errors and warnings</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1.
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

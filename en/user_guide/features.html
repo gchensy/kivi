@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Time-window features &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=d005c095" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=25d9e9fd"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/features';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Univariate profile" href="univariate.html" />
+    <link rel="prev" title="Risk modeling workflow" href="risk_workflow.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="1.9.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 1.9.0">1.9.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    Tutorial
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/user_guide/features.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    Tutorial
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/user_guide/features.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="risk_workflow.html">Risk modeling workflow</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">Time-window features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="univariate.html">Univariate profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="binning.html">Binning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="woe_iv.html">Weight of evidence and information value</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selection.html">Variable selection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reject_inference.html">Reject inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scorecard.html">Scorecard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="expert.html">Expert scorecards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">Model performance</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lgd.html">LGD and EAD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">Credit strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rules.html">Policy rules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spec.html">Binning specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="psi.html">Population stability index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">Model monitoring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="validation.html">Model validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="capital.html">Regulatory capital</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vintage.html">Vintage and roll-rate analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lifetime.html">Lifetime PD and expected credit loss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html">Charts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">Example data</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">User guide</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Time-window features</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="time-window-features">
+<h1>Time-window features<a class="headerlink" href="#time-window-features" title="Link to this heading">#</a></h1>
+<p>Most behavioural variables of a scorecard summarize a history of events: the number of transactions in the last three months, the largest withdrawal in a year, the days since the last payment. Each is computed for an entity, such as a customer, at an observation time, such as the date of an application, and may only use what was known then. Code that filters and groups the events by hand easily lets a later event slip in, and code written again for production rarely gives the same numbers. <a class="reference internal" href="../api/features.html#kivi.features.window_features" title="kivi.features.window_features"><code class="xref py py-func docutils literal notranslate"><span class="pre">window_features()</span></code></a> computes such variables for many observations at once and never uses an event at or after the observation time, <a class="reference internal" href="../api/features.html#kivi.features.panel_features" title="kivi.features.panel_features"><code class="xref py py-func docutils literal notranslate"><span class="pre">panel_features()</span></code></a> does the same for monthly repayment statuses, such as the months in arrears in the last year, and a <a class="reference internal" href="../api/features.html#kivi.features.FeatureSpec" title="kivi.features.FeatureSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">FeatureSpec</span></code></a> keeps their definitions so that production computes them in the same way.</p>
+<p>Window features come first in a project. <a class="reference internal" href="univariate.html"><span class="doc">Univariate profile</span></a> profiles the features that they give against the target, and <a class="reference internal" href="binning.html"><span class="doc">Binning</span></a> bins the ones that are kept.</p>
+<section id="definitions">
+<h2>Definitions<a class="headerlink" href="#definitions" title="Link to this heading">#</a></h2>
+<p>An <em>observation</em> is an entity <span class="math notranslate nohighlight">\(i\)</span> and a time <span class="math notranslate nohighlight">\(t\)</span>, and a <em>window</em> of <span class="math notranslate nohighlight">\(k\)</span> months is the interval <span class="math notranslate nohighlight">\([t - k, t)\)</span> before it. A feature aggregates the values <span class="math notranslate nohighlight">\(v_e\)</span> of one column over the events <span class="math notranslate nohighlight">\(e\)</span> of the entity whose times <span class="math notranslate nohighlight">\(\tau_e\)</span> lie in the window:</p>
+<div class="math notranslate nohighlight">
+\[x_{i, t} = \operatorname{agg} \{\, v_e : \mathrm{id}_e = i,\ t - k \le \tau_e &lt; t \,\}.\]</div>
+<p>The aggregation is a count, a sum, a mean, an extreme value or another of the aggregations below. The window ends just before <span class="math notranslate nohighlight">\(t\)</span>, so events at the observation time and after it never count: the features are <em>point in time</em>. A pair of windows, such as from six to three months before <span class="math notranslate nohighlight">\(t\)</span>, is the interval <span class="math notranslate nohighlight">\([t - 6, t - 3)\)</span>, the period before the most recent one.</p>
+<p>Months are calendar months, counted as <code class="docutils literal notranslate"><span class="pre">pandas.DateOffset(months=k)</span></code> counts them: three months before 31 May is 28 February, or 29 February in a leap year, and the time of day is kept. A window of <span class="math notranslate nohighlight">\(k\)</span> days starts <span class="math notranslate nohighlight">\(k\)</span> days before <span class="math notranslate nohighlight">\(t\)</span>.</p>
+</section>
+<section id="a-worked-example">
+<h2>A worked example<a class="headerlink" href="#a-worked-example" title="Link to this heading">#</a></h2>
+<p>Two customers have made a few card payments and cash withdrawals, and three customers apply for a loan on 31 March 2024. Customer <code class="docutils literal notranslate"><span class="pre">c</span></code> has no history:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.features</span><span class="w"> </span><span class="kn">import</span> <span class="n">FeatureSpec</span><span class="p">,</span> <span class="n">window_features</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">events</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s2">"customer"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"a"</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s2">"time"</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">([</span>
+<span class="gp">... </span>        <span class="s2">"2023-11-20"</span><span class="p">,</span> <span class="s2">"2024-01-10"</span><span class="p">,</span> <span class="s2">"2024-02-29"</span><span class="p">,</span> <span class="s2">"2024-03-15"</span><span class="p">,</span> <span class="s2">"2024-03-31"</span><span class="p">,</span>
+<span class="gp">... </span>        <span class="s2">"2024-01-05"</span><span class="p">,</span> <span class="s2">"2024-03-20"</span><span class="p">,</span> <span class="s2">"2024-03-20"</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="p">]),</span>
+<span class="gp">... </span>    <span class="s2">"amount"</span><span class="p">:</span> <span class="p">[</span><span class="mf">300.0</span><span class="p">,</span> <span class="mf">120.0</span><span class="p">,</span> <span class="mf">80.0</span><span class="p">,</span> <span class="mf">50.0</span><span class="p">,</span> <span class="mf">200.0</span><span class="p">,</span> <span class="mf">50.0</span><span class="p">,</span> <span class="mf">40.0</span><span class="p">,</span> <span class="mf">25.0</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s2">"kind"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"card"</span><span class="p">,</span> <span class="s2">"card"</span><span class="p">,</span> <span class="s2">"cash"</span><span class="p">,</span> <span class="s2">"card"</span><span class="p">,</span> <span class="s2">"card"</span><span class="p">,</span> <span class="s2">"cash"</span><span class="p">,</span> <span class="s2">"cash"</span><span class="p">,</span> <span class="s2">"card"</span><span class="p">],</span>
+<span class="gp">... </span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">applications</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s2">"customer"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"a"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"c"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s2">"application_date"</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">([</span><span class="s2">"2024-03-31"</span><span class="p">,</span> <span class="s2">"2024-03-31"</span><span class="p">,</span> <span class="s2">"2024-03-31"</span><span class="p">]),</span>
+<span class="gp">... </span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">keys</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"id"</span><span class="p">:</span> <span class="s2">"customer"</span><span class="p">,</span> <span class="s2">"time"</span><span class="p">:</span> <span class="s2">"time"</span><span class="p">,</span> <span class="s2">"observation_time"</span><span class="p">:</span> <span class="s2">"application_date"</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">window_features</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">events</span><span class="p">,</span> <span class="n">applications</span><span class="p">,</span> <span class="o">**</span><span class="n">keys</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">windows</span><span class="o">=</span><span class="p">[</span><span class="s2">"1M"</span><span class="p">,</span> <span class="s2">"3M"</span><span class="p">],</span> <span class="n">aggregations</span><span class="o">=</span><span class="p">{</span><span class="s2">"amount"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"sum"</span><span class="p">]},</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="go">   events_1m  amount_sum_1m  events_3m  amount_sum_3m</span>
+<span class="go">0          2          130.0          3          250.0</span>
+<span class="go">1          2           65.0          3          115.0</span>
+<span class="go">2          0            0.0          0            0.0</span>
+</pre></div>
+</div>
+<p>The month before 31 March starts on 29 February, so for customer <code class="docutils literal notranslate"><span class="pre">a</span></code> the window <code class="docutils literal notranslate"><span class="pre">1m</span></code> holds the withdrawal of 80 on that day and the payment of 50 on 15 March: two events with a sum of 130. The payment of 200 on 31 March is on the application date and counts in no window. The three months start on 31 December 2023 and add the payment of 120 on 10 January, while the payment of 300 in November is older than every window. Customer <code class="docutils literal notranslate"><span class="pre">c</span></code> has no events, so its counts and sums are 0; its mean or largest amount would be NaN.</p>
+<p>The result has one row per application, on the index of <code class="docutils literal notranslate"><span class="pre">applications</span></code>, so it can be put next to the applications with <code class="docutils literal notranslate"><span class="pre">pd.concat([applications,</span> <span class="pre">features],</span> <span class="pre">axis=1)</span></code>.</p>
+<figure class="align-default" id="id2">
+<img alt="The events of customers a and b on a time line from November 2023 to April 2024, the windows of one and three months that end at the application date of 31 March 2024, and the number and the sum of the amounts of the events in each window" class="plot-directive" src="../_images/features-11.svg" />
+<figcaption>
+<p><span class="caption-text">The worked example. Each window starts one or three calendar months before the application date and ends just before it. The payment of 200 on the application date and the payment of 300 in November, drawn hollow, count in no window.</span><a class="headerlink" href="#id2" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="windows">
+<h2>Windows<a class="headerlink" href="#windows" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">windows</span></code> lists the windows as strings: <code class="docutils literal notranslate"><span class="pre">&quot;3M&quot;</span></code> for three calendar months and <code class="docutils literal notranslate"><span class="pre">&quot;90D&quot;</span></code> for 90 days. The default is <code class="docutils literal notranslate"><span class="pre">(&quot;3M&quot;,</span> <span class="pre">&quot;6M&quot;,</span> <span class="pre">&quot;12M&quot;)</span></code>. A pair such as <code class="docutils literal notranslate"><span class="pre">(&quot;3M&quot;,</span> <span class="pre">&quot;1M&quot;)</span></code> is the period from three months to one month before the observation; its bounds must have the same unit, and the first must reach further back. In the column names the windows are written in lower case, such as <code class="docutils literal notranslate"><span class="pre">3m</span></code>, <code class="docutils literal notranslate"><span class="pre">90d</span></code> and <code class="docutils literal notranslate"><span class="pre">3m_1m</span></code>:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">window_features</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">events</span><span class="p">,</span> <span class="n">applications</span><span class="p">,</span> <span class="o">**</span><span class="n">keys</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">windows</span><span class="o">=</span><span class="p">[</span><span class="s2">"30D"</span><span class="p">,</span> <span class="p">(</span><span class="s2">"3M"</span><span class="p">,</span> <span class="s2">"1M"</span><span class="p">)],</span> <span class="n">aggregations</span><span class="o">=</span><span class="p">{</span><span class="s2">"amount"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"sum"</span><span class="p">]},</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="go">   events_30d  amount_sum_30d  events_3m_1m  amount_sum_3m_1m</span>
+<span class="go">0           1            50.0             1             120.0</span>
+<span class="go">1           2            65.0             1              50.0</span>
+<span class="go">2           0             0.0             0               0.0</span>
+</pre></div>
+</div>
+<p>Thirty days before 31 March is 1 March, so the withdrawal of 29 February is outside the window <code class="docutils literal notranslate"><span class="pre">30d</span></code> but inside <code class="docutils literal notranslate"><span class="pre">1m</span></code>. The window <code class="docutils literal notranslate"><span class="pre">3m_1m</span></code> ends where <code class="docutils literal notranslate"><span class="pre">1m</span></code> begins, so the two together are the window <code class="docutils literal notranslate"><span class="pre">3m</span></code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>A pair is one window only as an item of the list of windows. <code class="docutils literal notranslate"><span class="pre">windows=[(&quot;3M&quot;,</span> <span class="pre">&quot;1M&quot;)]</span></code> is the window <code class="docutils literal notranslate"><span class="pre">3m_1m</span></code>, while <code class="docutils literal notranslate"><span class="pre">windows=(&quot;3M&quot;,</span> <span class="pre">&quot;1M&quot;)</span></code> is the two windows <code class="docutils literal notranslate"><span class="pre">3m</span></code> and <code class="docutils literal notranslate"><span class="pre">1m</span></code>:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">window_features</span><span class="p">(</span><span class="n">events</span><span class="p">,</span> <span class="n">applications</span><span class="p">,</span> <span class="o">**</span><span class="n">keys</span><span class="p">,</span> <span class="n">windows</span><span class="o">=</span><span class="p">(</span><span class="s2">"3M"</span><span class="p">,</span> <span class="s2">"1M"</span><span class="p">))</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+<span class="go">['events_3m', 'events_1m']</span>
+</pre></div>
+</div>
+</div>
+<p>By default every window is closed on the left, <span class="math notranslate nohighlight">\([t - k, t)\)</span>. With <code class="docutils literal notranslate"><span class="pre">closed=&quot;right&quot;</span></code> the windows are <span class="math notranslate nohighlight">\((t - k, t]\)</span> instead, and events at the observation time count, for events that are known at their own time, such as balances at the end of a day. Whether such an event is known at the observation time is the caller’s judgment, because kivi cannot tell. Here the payment of 31 March counts, and the withdrawal on the lower bound of the window, 29 February, does not:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">window_features</span><span class="p">(</span><span class="n">events</span><span class="p">,</span> <span class="n">applications</span><span class="p">,</span> <span class="o">**</span><span class="n">keys</span><span class="p">,</span> <span class="n">windows</span><span class="o">=</span><span class="p">[</span><span class="s2">"1M"</span><span class="p">],</span> <span class="n">closed</span><span class="o">=</span><span class="s2">"right"</span><span class="p">)</span>
+<span class="go">   events_1m</span>
+<span class="go">0          2</span>
+<span class="go">1          2</span>
+<span class="go">2          0</span>
+</pre></div>
+</div>
+<p>Time columns must hold datetimes. Both may be tz-naive, or both in one time zone. With a time zone, the bounds are computed on the local calendar and the events compared as instants. A bound in the hour that clocks skip in spring moves to the end of that hour, and one in the hour that they repeat in autumn takes its first occurrence.</p>
+</section>
+<section id="aggregations">
+<h2>Aggregations<a class="headerlink" href="#aggregations" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">aggregations</span></code> maps each column of the events to its aggregations. A missing value is left out of the aggregations of its column, while the <code class="docutils literal notranslate"><span class="pre">events</span></code> columns count every event of the window:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 20.0%" />
+<col style="width: 55.0%" />
+<col style="width: 25.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Aggregation</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Empty window</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">count</span></code></p></td>
+<td><p>Number of values</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">sum</span></code></p></td>
+<td><p>Sum of the values</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">mean</span></code></p></td>
+<td><p>Mean of the values</p></td>
+<td><p>NaN</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">min</span></code>, <code class="docutils literal notranslate"><span class="pre">max</span></code></p></td>
+<td><p>Smallest and largest value</p></td>
+<td><p>NaN</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">std</span></code></p></td>
+<td><p>Sample standard deviation, as <code class="docutils literal notranslate"><span class="pre">pandas.Series.std</span></code> gives it; NaN for a single value</p></td>
+<td><p>NaN</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nunique</span></code></p></td>
+<td><p>Number of distinct values</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">first</span></code>, <code class="docutils literal notranslate"><span class="pre">last</span></code></p></td>
+<td><p>Value of the earliest and of the latest event; events of one time are taken in the order of the rows</p></td>
+<td><p>NaN</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">days_since_last</span></code></p></td>
+<td><p>Days from the latest event to the observation time, with fractions of a day</p></td>
+<td><p>NaN</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">count</span></code>, <code class="docutils literal notranslate"><span class="pre">nunique</span></code> and <code class="docutils literal notranslate"><span class="pre">days_since_last</span></code> take columns of any dtype, such as the kind of each event; the other aggregations need numbers, and booleans count as 0 and 1, so the <code class="docutils literal notranslate"><span class="pre">sum</span></code> of a flag counts the events that have it. Counts are integers and all other columns floats. The table is transposed to fit the page:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">features</span> <span class="o">=</span> <span class="n">window_features</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">events</span><span class="p">,</span> <span class="n">applications</span><span class="p">,</span> <span class="o">**</span><span class="n">keys</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">windows</span><span class="o">=</span><span class="p">[</span><span class="s2">"3M"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">aggregations</span><span class="o">=</span><span class="p">{</span>
+<span class="gp">... </span>        <span class="s2">"amount"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"mean"</span><span class="p">,</span> <span class="s2">"min"</span><span class="p">,</span> <span class="s2">"std"</span><span class="p">,</span> <span class="s2">"first"</span><span class="p">,</span> <span class="s2">"last"</span><span class="p">,</span> <span class="s2">"days_since_last"</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="s2">"kind"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"nunique"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">},</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">features</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">                               0      1    2</span>
+<span class="go">events_3m                    3.00   3.00  0.0</span>
+<span class="go">amount_mean_3m              83.33  38.33  NaN</span>
+<span class="go">amount_min_3m               50.00  25.00  NaN</span>
+<span class="go">amount_std_3m               35.12  12.58  NaN</span>
+<span class="go">amount_first_3m            120.00  50.00  NaN</span>
+<span class="go">amount_last_3m              50.00  25.00  NaN</span>
+<span class="go">amount_days_since_last_3m   16.00  11.00  NaN</span>
+<span class="go">kind_nunique_3m              2.00   2.00  0.0</span>
+</pre></div>
+</div>
+<p>Customer <code class="docutils literal notranslate"><span class="pre">b</span></code> made two transactions on 20 March, a withdrawal of 40 and a payment of 25; <code class="docutils literal notranslate"><span class="pre">last</span></code> takes the payment, which comes later in the rows. Both are eleven days before the application. For a pair of windows <code class="docutils literal notranslate"><span class="pre">days_since_last</span></code> is still measured from the observation time. It is the time that has passed, so with a time zone it can differ by the hour that clocks change from the local calendar days that windows such as <code class="docutils literal notranslate"><span class="pre">&quot;90D&quot;</span></code> count.</p>
+</section>
+<section id="ratios-and-changes">
+<h2>Ratios and changes<a class="headerlink" href="#ratios-and-changes" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">ratios</span></code> divides two features, named by their columns. A ratio is NaN where its denominator is 0. It is named <code class="docutils literal notranslate"><span class="pre">{numerator}_over_{window}</span></code> when the two features differ only in their windows, and <code class="docutils literal notranslate"><span class="pre">{numerator}_over_{denominator}</span></code> otherwise. The share of the last month in the last three months shows whether activity is recent, and the ratio of the last month to the two months before it measures the change from one period to the next:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">window_features</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">events</span><span class="p">,</span> <span class="n">applications</span><span class="p">,</span> <span class="o">**</span><span class="n">keys</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">windows</span><span class="o">=</span><span class="p">[</span><span class="s2">"1M"</span><span class="p">,</span> <span class="s2">"3M"</span><span class="p">,</span> <span class="p">(</span><span class="s2">"3M"</span><span class="p">,</span> <span class="s2">"1M"</span><span class="p">)],</span>
+<span class="gp">... </span>    <span class="n">aggregations</span><span class="o">=</span><span class="p">{</span><span class="s2">"amount"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"sum"</span><span class="p">]},</span>
+<span class="gp">... </span>    <span class="n">ratios</span><span class="o">=</span><span class="p">[(</span><span class="s2">"amount_sum_1m"</span><span class="p">,</span> <span class="s2">"amount_sum_3m"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"amount_sum_1m"</span><span class="p">,</span> <span class="s2">"amount_sum_3m_1m"</span><span class="p">)],</span>
+<span class="gp">... </span><span class="p">)</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">2</span><span class="p">:]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">   amount_sum_1m_over_3m  amount_sum_1m_over_3m_1m</span>
+<span class="go">0                 0.5200                    1.0833</span>
+<span class="go">1                 0.5652                    1.3000</span>
+<span class="go">2                    NaN                       NaN</span>
+</pre></div>
+</div>
+<p>The change from the same quarter a year earlier is the ratio of the window <code class="docutils literal notranslate"><span class="pre">3M</span></code> to the pair <code class="docutils literal notranslate"><span class="pre">(&quot;15M&quot;,</span> <span class="pre">&quot;12M&quot;)</span></code>, such as <code class="docutils literal notranslate"><span class="pre">(&quot;amount_sum_3m&quot;,</span> <span class="pre">&quot;amount_sum_15m_12m&quot;)</span></code>. A difference needs no option of its own: subtract the two columns with pandas.</p>
+</section>
+<section id="filtered-events">
+<h2>Filtered events<a class="headerlink" href="#filtered-events" title="Link to this heading">#</a></h2>
+<p>kivi has no expressions to filter events. To compute features of some of the events only, such as the cash withdrawals, select them with pandas and give their features a <code class="docutils literal notranslate"><span class="pre">prefix</span></code>:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cash</span> <span class="o">=</span> <span class="n">events</span><span class="p">[</span><span class="n">events</span><span class="p">[</span><span class="s2">"kind"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"cash"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">window_features</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">cash</span><span class="p">,</span> <span class="n">applications</span><span class="p">,</span> <span class="o">**</span><span class="n">keys</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">windows</span><span class="o">=</span><span class="p">[</span><span class="s2">"3M"</span><span class="p">],</span> <span class="n">aggregations</span><span class="o">=</span><span class="p">{</span><span class="s2">"amount"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"sum"</span><span class="p">]},</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">"cash_"</span><span class="p">,</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="go">   cash_events_3m  cash_amount_sum_3m</span>
+<span class="go">0               1                80.0</span>
+<span class="go">1               2                90.0</span>
+<span class="go">2               0                 0.0</span>
+</pre></div>
+</div>
+<p>The prefix is put in front of every column, and ratios name the columns with it.</p>
+</section>
+<section id="observations-over-time">
+<h2>Observations over time<a class="headerlink" href="#observations-over-time" title="Link to this heading">#</a></h2>
+<p>An entity may appear in several rows of the observations, such as one row per month end to follow its features over time, or the same row twice. Each row gets the features of its own time:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">month_ends</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s2">"customer"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"a"</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s2">"application_date"</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">([</span><span class="s2">"2024-01-31"</span><span class="p">,</span> <span class="s2">"2024-02-29"</span><span class="p">,</span> <span class="s2">"2024-03-31"</span><span class="p">]),</span>
+<span class="gp">... </span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">window_features</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">events</span><span class="p">,</span> <span class="n">month_ends</span><span class="p">,</span> <span class="o">**</span><span class="n">keys</span><span class="p">,</span> <span class="n">windows</span><span class="o">=</span><span class="p">[</span><span class="s2">"3M"</span><span class="p">],</span> <span class="n">aggregations</span><span class="o">=</span><span class="p">{</span><span class="s2">"amount"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"sum"</span><span class="p">]}</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="go">   events_3m  amount_sum_3m</span>
+<span class="go">0          2          420.0</span>
+<span class="go">1          1          120.0</span>
+<span class="go">2          3          250.0</span>
+</pre></div>
+</div>
+<p>Three months before 29 February is 29 November, after the payment of 20 November, which therefore counts only at the end of January. One call computes the features of every date, which is how past samples are rebuilt. The events are sorted once and the bounds of every window are found by binary search, so counts, sums, means, first and last values and <code class="docutils literal notranslate"><span class="pre">days_since_last</span></code> take a time that grows with the number of rows of the two tables. <code class="docutils literal notranslate"><span class="pre">min</span></code>, <code class="docutils literal notranslate"><span class="pre">max</span></code>, <code class="docutils literal notranslate"><span class="pre">std</span></code> and <code class="docutils literal notranslate"><span class="pre">nunique</span></code> look at every event of every window instead, so their time grows with the number of observation dates of an entity times its events per window.</p>
+</section>
+<section id="reading-the-result">
+<h2>Reading the result<a class="headerlink" href="#reading-the-result" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 45.0%" />
+<col style="width: 25.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Column</p></th>
+<th class="head"><p>Meaning</p></th>
+<th class="head"><p>Type and empty window</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">{prefix}events_{window}</span></code></p></td>
+<td><p>Number of events in the window, with or without values</p></td>
+<td><p>Integer, 0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">{prefix}{column}_count_{window}</span></code>, <code class="docutils literal notranslate"><span class="pre">…_nunique_{window}</span></code></p></td>
+<td><p>Number of values, and of distinct values, of the column</p></td>
+<td><p>Integer, 0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">{prefix}{column}_sum_{window}</span></code></p></td>
+<td><p>Sum of the values</p></td>
+<td><p>Float, 0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">{prefix}{column}_{aggregation}_{window}</span></code></p></td>
+<td><p>The other aggregations</p></td>
+<td><p>Float, NaN</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">{numerator}_over_{window}</span></code>, <code class="docutils literal notranslate"><span class="pre">{numerator}_over_{denominator}</span></code></p></td>
+<td><p>Ratios, last</p></td>
+<td><p>Float, NaN for a denominator of 0</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The columns come window by window, then column by column in the order of <code class="docutils literal notranslate"><span class="pre">aggregations</span></code>, then aggregation by aggregation, and the ratios last. Column names and prefixes keep their case: only kivi’s own parts of the names, the aggregations and the windows, are in lower case, so the features of <code class="docutils literal notranslate"><span class="pre">Amount</span></code> and <code class="docutils literal notranslate"><span class="pre">amount</span></code> stay apart. A NaN means that the window had no value to aggregate, which is information in its own right: profile the features with <a class="reference internal" href="../api/univariate.html#kivi.univariate.profile_table" title="kivi.univariate.profile_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">profile_table()</span></code></a> to see how often they are missing and how well they separate the classes, and bin them with <a class="reference internal" href="binning.html"><span class="doc">Binning</span></a>, where missing values form their own group.</p>
+</section>
+<section id="repayment-behaviour">
+<span id="id1"></span><h2>Repayment behaviour<a class="headerlink" href="#repayment-behaviour" title="Link to this heading">#</a></h2>
+<p>A monthly panel of repayment statuses, such as the result of <a class="reference internal" href="../api/vintage.html#kivi.vintage.delinquency_panel" title="kivi.vintage.delinquency_panel"><code class="xref py py-func docutils literal notranslate"><span class="pre">delinquency_panel()</span></code></a> or <a class="reference internal" href="../api/datasets.html#kivi.datasets.make_loan_panel" title="kivi.datasets.make_loan_panel"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_loan_panel()</span></code></a>, gives the behaviour of each borrower on its earlier loans. <a class="reference internal" href="../api/features.html#kivi.features.panel_features" title="kivi.features.panel_features"><code class="xref py py-func docutils literal notranslate"><span class="pre">panel_features()</span></code></a> counts, for each window of months before the month of the observation time, the months with a status, the bad months, the longest runs of consecutive bad and good months and the worst status, and adds the months since the latest bad month. A status is bad from <code class="docutils literal notranslate"><span class="pre">bad</span></code> on, <code class="docutils literal notranslate"><span class="pre">&quot;30-59&quot;</span></code> by default, in the order of the categories of the status column, which must therefore be an ordered categorical.</p>
+<p>Customer <code class="docutils literal notranslate"><span class="pre">a</span></code> fell 30 days behind in December and January, and customer <code class="docutils literal notranslate"><span class="pre">b</span></code> has two loans in January, one current and one late:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.features</span><span class="w"> </span><span class="kn">import</span> <span class="n">panel_features</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">panel</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s2">"customer"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"a"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">7</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"b"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">7</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s2">"month"</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">PeriodIndex</span><span class="p">(</span>
+<span class="gp">... </span>        <span class="p">[</span><span class="s2">"2023-09"</span><span class="p">,</span> <span class="s2">"2023-10"</span><span class="p">,</span> <span class="s2">"2023-11"</span><span class="p">,</span> <span class="s2">"2023-12"</span><span class="p">,</span> <span class="s2">"2024-01"</span><span class="p">,</span> <span class="s2">"2024-02"</span><span class="p">,</span> <span class="s2">"2024-03"</span><span class="p">]</span>
+<span class="gp">... </span>        <span class="o">+</span> <span class="p">[</span><span class="s2">"2023-10"</span><span class="p">,</span> <span class="s2">"2023-11"</span><span class="p">,</span> <span class="s2">"2023-12"</span><span class="p">,</span> <span class="s2">"2024-01"</span><span class="p">,</span> <span class="s2">"2024-01"</span><span class="p">,</span> <span class="s2">"2024-02"</span><span class="p">,</span> <span class="s2">"2024-03"</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="n">freq</span><span class="o">=</span><span class="s2">"M"</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="p">),</span>
+<span class="gp">... </span>    <span class="s2">"status"</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Categorical</span><span class="p">(</span>
+<span class="gp">... </span>        <span class="p">[</span><span class="s2">"current"</span><span class="p">,</span> <span class="s2">"current"</span><span class="p">,</span> <span class="s2">"1-29"</span><span class="p">,</span> <span class="s2">"30-59"</span><span class="p">,</span> <span class="s2">"30-59"</span><span class="p">,</span> <span class="s2">"current"</span><span class="p">,</span> <span class="s2">"current"</span><span class="p">]</span>
+<span class="gp">... </span>        <span class="o">+</span> <span class="p">[</span><span class="s2">"current"</span><span class="p">,</span> <span class="s2">"current"</span><span class="p">,</span> <span class="s2">"current"</span><span class="p">,</span> <span class="s2">"current"</span><span class="p">,</span> <span class="s2">"1-29"</span><span class="p">,</span> <span class="s2">"60-89"</span><span class="p">,</span> <span class="s2">"90+"</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="n">categories</span><span class="o">=</span><span class="p">[</span><span class="s2">"current"</span><span class="p">,</span> <span class="s2">"1-29"</span><span class="p">,</span> <span class="s2">"30-59"</span><span class="p">,</span> <span class="s2">"60-89"</span><span class="p">,</span> <span class="s2">"90+"</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="n">ordered</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="p">),</span>
+<span class="gp">... </span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">behaviour</span> <span class="o">=</span> <span class="n">panel_features</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">panel</span><span class="p">,</span> <span class="n">applications</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">"customer"</span><span class="p">,</span> <span class="n">month</span><span class="o">=</span><span class="s2">"month"</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="s2">"status"</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">observation_time</span><span class="o">=</span><span class="s2">"application_date"</span><span class="p">,</span> <span class="n">windows</span><span class="o">=</span><span class="p">[</span><span class="s2">"3M"</span><span class="p">,</span> <span class="s2">"6M"</span><span class="p">],</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">behaviour</span><span class="o">.</span><span class="n">T</span>
+<span class="go">                         0      1    2</span>
+<span class="go">months_3m                3      3    0</span>
+<span class="go">bad_months_3m            2      1    0</span>
+<span class="go">longest_bad_run_3m       2      1    0</span>
+<span class="go">longest_good_run_3m      1      2    0</span>
+<span class="go">worst_status_3m      30-59  60-89  NaN</span>
+<span class="go">months_6m                6      5    0</span>
+<span class="go">bad_months_6m            2      1    0</span>
+<span class="go">longest_bad_run_6m       2      1    0</span>
+<span class="go">longest_good_run_6m      3      4    0</span>
+<span class="go">worst_status_6m      30-59  60-89  NaN</span>
+<span class="go">months_since_bad       2.0    1.0  NaN</span>
+</pre></div>
+</div>
+<p>The applications are dated 31 March, but the status at the end of March is not known then, so the windows end with February: the three months are December to February and the six months September to February. The 90 days behind of customer <code class="docutils literal notranslate"><span class="pre">b</span></code> in March therefore count nowhere. In January customer <code class="docutils literal notranslate"><span class="pre">b</span></code> has two loans, and the worse status, <code class="docutils literal notranslate"><span class="pre">1-29</span></code>, counts for the month. Its six months hold only five months with a status, because its first loan began in October: only months with a status count, so the columns <code class="docutils literal notranslate"><span class="pre">months_*</span></code> show how much of a window the panel covers. A month without a status also ends a run, so a bad month, a month without a loan and a bad month are two runs of one month. A run that began before a window counts only with its months inside it, and <code class="docutils literal notranslate"><span class="pre">months_since_bad</span></code> looks at all the months before the observation, whatever the windows.</p>
+<figure class="align-default" id="id4">
+<img alt="The monthly statuses of customers a, b and c from September 2023 to March 2024 as tinted cells, with the bad months outlined, March hatched, the windows of three and six months that end at the start of March, and the result of panel_features for each customer" class="plot-directive" src="../_images/features-2.svg" />
+<figcaption>
+<p><span class="caption-text">The repayment example. The windows end where the month of the application date begins, so the statuses of March, hatched, count nowhere. In January customer <code class="docutils literal notranslate"><span class="pre">b</span></code> has two loans, and the worse status counts. The bad months, from <code class="docutils literal notranslate"><span class="pre">30-59</span></code> on, are outlined.</span><a class="headerlink" href="#id4" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 45.0%" />
+<col style="width: 25.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Column</p></th>
+<th class="head"><p>Meaning</p></th>
+<th class="head"><p>Type and empty window</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">{prefix}months_{window}</span></code></p></td>
+<td><p>Number of months of the window with a status</p></td>
+<td><p>Integer, 0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">{prefix}bad_months_{window}</span></code></p></td>
+<td><p>Number of bad months</p></td>
+<td><p>Integer, 0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">{prefix}longest_bad_run_{window}</span></code>, <code class="docutils literal notranslate"><span class="pre">…_longest_good_run_{window}</span></code></p></td>
+<td><p>Longest runs of consecutive bad and good months</p></td>
+<td><p>Integer, 0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">{prefix}worst_status_{window}</span></code></p></td>
+<td><p>Worst status of the window</p></td>
+<td><p>The dtype of the status, missing</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">{prefix}months_since_bad</span></code></p></td>
+<td><p>Months from the latest bad month to the month of the observation time</p></td>
+<td><p>Float, NaN if never bad</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The windows count months only, as <code class="docutils literal notranslate"><span class="pre">&quot;6M&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">(&quot;12M&quot;,</span> <span class="pre">&quot;6M&quot;)</span></code>; windows of days raise an error, because the statuses are monthly. The month column may hold monthly periods or datetimes, which stand for their month. Months and observation times are each taken on their own calendar, so tz-aware months and tz-aware observation times must share one time zone: 1 April in Tokyo is still 31 March in New York, before the status at the end of March there exists.</p>
+<p>On the simulated book of <a class="reference internal" href="../api/datasets.html#kivi.datasets.make_loan_panel" title="kivi.datasets.make_loan_panel"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_loan_panel()</span></code></a>, the features of every loan in January 2025 summarize its last year:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_loan_panel</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">loans</span> <span class="o">=</span> <span class="n">make_loan_panel</span><span class="p">(</span><span class="n">rng</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">book</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"loan_id"</span><span class="p">:</span> <span class="n">loans</span><span class="p">[</span><span class="s2">"loan_id"</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">(),</span> <span class="s2">"date"</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="s2">"2025-01-15"</span><span class="p">)})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">year</span> <span class="o">=</span> <span class="n">panel_features</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">loans</span><span class="p">,</span> <span class="n">book</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">"loan_id"</span><span class="p">,</span> <span class="n">month</span><span class="o">=</span><span class="s2">"month"</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="s2">"status"</span><span class="p">,</span> <span class="n">observation_time</span><span class="o">=</span><span class="s2">"date"</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">windows</span><span class="o">=</span><span class="p">[</span><span class="s2">"12M"</span><span class="p">],</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">year</span><span class="p">[</span><span class="s2">"worst_status_12m"</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">(</span><span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dropna</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="go">worst_status_12m</span>
+<span class="go">current    1976</span>
+<span class="go">1-29        205</span>
+<span class="go">30-59        48</span>
+<span class="go">60-89        20</span>
+<span class="go">90+          40</span>
+<span class="go">NaN        2711</span>
+<span class="go">Name: count, dtype: int64</span>
+</pre></div>
+</div>
+<p>The 2,711 loans whose first month on book is in 2025 have no month before January 2025, so their windows are empty and their worst status is missing. Of the others, 108 were 30 days or more behind at some month end of 2024.</p>
+</section>
+<section id="feature-specifications">
+<h2>Feature specifications<a class="headerlink" href="#feature-specifications" title="Link to this heading">#</a></h2>
+<p>A <a class="reference internal" href="../api/features.html#kivi.features.FeatureSpec" title="kivi.features.FeatureSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">FeatureSpec</span></code></a> holds the definitions of the features: the column of the entities, the column of the observation times, and one or more groups of window features, each with the keyword arguments of one call of <a class="reference internal" href="../api/features.html#kivi.features.window_features" title="kivi.features.window_features"><code class="xref py py-func docutils literal notranslate"><span class="pre">window_features()</span></code></a>. A group that reads other events, such as the cash withdrawals, names its event table with <code class="docutils literal notranslate"><span class="pre">table</span></code>. Ratios may divide features of different groups:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">spec</span> <span class="o">=</span> <span class="n">FeatureSpec</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="nb">id</span><span class="o">=</span><span class="s2">"customer"</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">observation_time</span><span class="o">=</span><span class="s2">"application_date"</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">events</span><span class="o">=</span><span class="p">[</span>
+<span class="gp">... </span>        <span class="p">{</span><span class="s2">"time"</span><span class="p">:</span> <span class="s2">"time"</span><span class="p">,</span> <span class="s2">"windows"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"1M"</span><span class="p">,</span> <span class="s2">"3M"</span><span class="p">],</span> <span class="s2">"aggregations"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"amount"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"sum"</span><span class="p">]}},</span>
+<span class="gp">... </span>        <span class="p">{</span>
+<span class="gp">... </span>            <span class="s2">"table"</span><span class="p">:</span> <span class="s2">"cash"</span><span class="p">,</span>
+<span class="gp">... </span>            <span class="s2">"time"</span><span class="p">:</span> <span class="s2">"time"</span><span class="p">,</span>
+<span class="gp">... </span>            <span class="s2">"windows"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"3M"</span><span class="p">],</span>
+<span class="gp">... </span>            <span class="s2">"aggregations"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"amount"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"sum"</span><span class="p">]},</span>
+<span class="gp">... </span>            <span class="s2">"prefix"</span><span class="p">:</span> <span class="s2">"cash_"</span><span class="p">,</span>
+<span class="gp">... </span>        <span class="p">},</span>
+<span class="gp">... </span>    <span class="p">],</span>
+<span class="gp">... </span>    <span class="n">ratios</span><span class="o">=</span><span class="p">[(</span><span class="s2">"cash_amount_sum_3m"</span><span class="p">,</span> <span class="s2">"amount_sum_3m"</span><span class="p">)],</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+<span class="go">['events_1m', 'amount_sum_1m', 'events_3m', 'amount_sum_3m', 'cash_events_3m',</span>
+<span class="go"> 'cash_amount_sum_3m', 'cash_amount_sum_3m_over_amount_sum_3m']</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="../api/features.html#kivi.features.FeatureSpec.compute" title="kivi.features.FeatureSpec.compute"><code class="xref py py-meth docutils literal notranslate"><span class="pre">compute()</span></code></a> takes the observations and the event tables by name. A single DataFrame serves when every group reads the same table:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">features</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="n">applications</span><span class="p">,</span> <span class="n">events</span><span class="o">=</span><span class="p">{</span><span class="s2">"events"</span><span class="p">:</span> <span class="n">events</span><span class="p">,</span> <span class="s2">"cash"</span><span class="p">:</span> <span class="n">cash</span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">features</span><span class="p">[[</span><span class="s2">"amount_sum_3m"</span><span class="p">,</span> <span class="s2">"cash_amount_sum_3m"</span><span class="p">,</span> <span class="s2">"cash_amount_sum_3m_over_amount_sum_3m"</span><span class="p">]]</span>
+<span class="go">   amount_sum_3m  cash_amount_sum_3m  cash_amount_sum_3m_over_amount_sum_3m</span>
+<span class="go">0          250.0                80.0                               0.320000</span>
+<span class="go">1          115.0                90.0                               0.782609</span>
+<span class="go">2            0.0                 0.0                                    NaN</span>
+</pre></div>
+</div>
+<p>Each group gives the columns that <a class="reference internal" href="../api/features.html#kivi.features.window_features" title="kivi.features.window_features"><code class="xref py py-func docutils literal notranslate"><span class="pre">window_features()</span></code></a> gives for its definitions, so the specification reproduces the calls of development exactly. A specification holds definitions only: nothing in it is fitted to data, so it can be written by hand or read from a configuration file.</p>
+<p>Groups of panel features go in <code class="docutils literal notranslate"><span class="pre">panel</span></code>, each with the keyword arguments of one call of <a class="reference internal" href="../api/features.html#kivi.features.panel_features" title="kivi.features.panel_features"><code class="xref py py-func docutils literal notranslate"><span class="pre">panel_features()</span></code></a> and the name of its panel in <code class="docutils literal notranslate"><span class="pre">table</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;panel&quot;</span></code> by default, and <a class="reference internal" href="../api/features.html#kivi.features.FeatureSpec.compute" title="kivi.features.FeatureSpec.compute"><code class="xref py py-meth docutils literal notranslate"><span class="pre">compute()</span></code></a> takes the panels as <code class="docutils literal notranslate"><span class="pre">panel</span></code>. A specification may hold only panel features, and its ratios may divide window features by panel features. Two groups with different <code class="docutils literal notranslate"><span class="pre">bad</span></code> statuses and prefixes give the features of two definitions of default:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">both</span> <span class="o">=</span> <span class="n">FeatureSpec</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="nb">id</span><span class="o">=</span><span class="s2">"customer"</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">observation_time</span><span class="o">=</span><span class="s2">"application_date"</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">events</span><span class="o">=</span><span class="p">[{</span><span class="s2">"time"</span><span class="p">:</span> <span class="s2">"time"</span><span class="p">,</span> <span class="s2">"windows"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"3M"</span><span class="p">]}],</span>
+<span class="gp">... </span>    <span class="n">panel</span><span class="o">=</span><span class="p">[</span>
+<span class="gp">... </span>        <span class="p">{</span><span class="s2">"month"</span><span class="p">:</span> <span class="s2">"month"</span><span class="p">,</span> <span class="s2">"status"</span><span class="p">:</span> <span class="s2">"status"</span><span class="p">,</span> <span class="s2">"windows"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"6M"</span><span class="p">]},</span>
+<span class="gp">... </span>        <span class="p">{</span><span class="s2">"month"</span><span class="p">:</span> <span class="s2">"month"</span><span class="p">,</span> <span class="s2">"status"</span><span class="p">:</span> <span class="s2">"status"</span><span class="p">,</span> <span class="s2">"windows"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"6M"</span><span class="p">],</span> <span class="s2">"bad"</span><span class="p">:</span> <span class="s2">"90+"</span><span class="p">,</span>
+<span class="gp">... </span>         <span class="s2">"prefix"</span><span class="p">:</span> <span class="s2">"severe_"</span><span class="p">},</span>
+<span class="gp">... </span>    <span class="p">],</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">both</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+<span class="go">['events_3m', 'months_6m', 'bad_months_6m', 'longest_bad_run_6m', 'longest_good_run_6m',</span>
+<span class="go"> 'worst_status_6m', 'months_since_bad', 'severe_months_6m', 'severe_bad_months_6m',</span>
+<span class="go"> 'severe_longest_bad_run_6m', 'severe_longest_good_run_6m', 'severe_worst_status_6m',</span>
+<span class="go"> 'severe_months_since_bad']</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">both</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="n">applications</span><span class="p">,</span> <span class="n">events</span><span class="o">=</span><span class="n">events</span><span class="p">,</span> <span class="n">panel</span><span class="o">=</span><span class="n">panel</span><span class="p">)[[</span><span class="s2">"bad_months_6m"</span><span class="p">,</span> <span class="s2">"severe_bad_months_6m"</span><span class="p">]]</span>
+<span class="go">   bad_months_6m  severe_bad_months_6m</span>
+<span class="go">0              2                     0</span>
+<span class="go">1              1                     0</span>
+<span class="go">2              0                     0</span>
+</pre></div>
+</div>
+<p>The window features come first, then the panel features and the ratios last.</p>
+<p><a class="reference internal" href="../api/features.html#kivi.features.FeatureSpec.to_json" title="kivi.features.FeatureSpec.to_json"><code class="xref py py-meth docutils literal notranslate"><span class="pre">to_json()</span></code></a> writes the specification as JSON text, and <a class="reference internal" href="../api/features.html#kivi.features.FeatureSpec.from_json" title="kivi.features.FeatureSpec.from_json"><code class="xref py py-meth docutils literal notranslate"><span class="pre">from_json()</span></code></a> reads it back into an equal specification. Two specifications are equal when their JSON text is the same, which includes the version of kivi that wrote them:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">loaded</span> <span class="o">=</span> <span class="n">FeatureSpec</span><span class="o">.</span><span class="n">from_json</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">loaded</span> <span class="o">==</span> <span class="n">spec</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">loaded</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="n">applications</span><span class="p">,</span> <span class="n">events</span><span class="o">=</span><span class="p">{</span><span class="s2">"events"</span><span class="p">:</span> <span class="n">events</span><span class="p">,</span> <span class="s2">"cash"</span><span class="p">:</span> <span class="n">cash</span><span class="p">})</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="n">features</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<p>The file has the keys below. After <code class="docutils literal notranslate"><span class="pre">kivi_version</span></code> they are the arguments of <a class="reference internal" href="../api/features.html#kivi.features.FeatureSpec" title="kivi.features.FeatureSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">FeatureSpec</span></code></a> as it takes them, with lists for tuples and every key of each group, so <a class="reference internal" href="../api/features.html#kivi.features.FeatureSpec.to_dict" title="kivi.features.FeatureSpec.to_dict"><code class="xref py py-meth docutils literal notranslate"><span class="pre">to_dict()</span></code></a> gives what the constructor takes:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 75.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Key</p></th>
+<th class="head"><p>Content</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">format</span></code></p></td>
+<td><p>Always <code class="docutils literal notranslate"><span class="pre">&quot;kivi.FeatureSpec&quot;</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">format_version</span></code></p></td>
+<td><p>Version of the format, 1. <code class="docutils literal notranslate"><span class="pre">FeatureSpec.FORMAT_VERSION</span></code> is the newest version that kivi reads. A file with a newer version raises an error that asks for a newer kivi, instead of being read in part.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">kivi_version</span></code></p></td>
+<td><p>Version of kivi that wrote the specification.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">id</span></code> and <code class="docutils literal notranslate"><span class="pre">observation_time</span></code></p></td>
+<td><p>The columns of the entities and of the observation times.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">events</span></code></p></td>
+<td><p>One dict per group, in order, with <code class="docutils literal notranslate"><span class="pre">table</span></code>, <code class="docutils literal notranslate"><span class="pre">time</span></code>, <code class="docutils literal notranslate"><span class="pre">windows</span></code> (strings and pairs of strings), <code class="docutils literal notranslate"><span class="pre">aggregations</span></code> (a dict from each column to the list of its aggregations, in the order of the columns of the result), <code class="docutils literal notranslate"><span class="pre">closed</span></code> and <code class="docutils literal notranslate"><span class="pre">prefix</span></code>. A JSON object that repeats a key raises an error, because it would otherwise lose a value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ratios</span></code></p></td>
+<td><p>The pairs of column names of the ratios.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">panel</span></code></p></td>
+<td><p>One dict per group of panel features, in order, with <code class="docutils literal notranslate"><span class="pre">table</span></code>, <code class="docutils literal notranslate"><span class="pre">month</span></code>, <code class="docutils literal notranslate"><span class="pre">status</span></code>, <code class="docutils literal notranslate"><span class="pre">windows</span></code>, <code class="docutils literal notranslate"><span class="pre">bad</span></code> and <code class="docutils literal notranslate"><span class="pre">prefix</span></code>. <code class="docutils literal notranslate"><span class="pre">bad</span></code> is written as the string or integer of its category.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="features-of-synthetic-transactions">
+<h2>Features of synthetic transactions<a class="headerlink" href="#features-of-synthetic-transactions" title="Link to this heading">#</a></h2>
+<p><a class="reference internal" href="../api/datasets.html#kivi.datasets.make_transactions" title="kivi.datasets.make_transactions"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_transactions()</span></code></a> simulates the card purchases, cash withdrawals and instalment repayments of the twelve months before each application of <a class="reference internal" href="../api/datasets.html#kivi.datasets.make_applications" title="kivi.datasets.make_applications"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_applications()</span></code></a>, as <a class="reference internal" href="datasets.html"><span class="doc">Example data</span></a> describes. The transactions depend on a risk factor of the applicants that no lender sees, which <code class="docutils literal notranslate"><span class="pre">include_risk=True</span></code> adds to the applications as the column <code class="docutils literal notranslate"><span class="pre">risk</span></code>. The applications have no dates, so they are spread over 2024 in the order of the rows, and the observations are the applicants and their application dates, on the index of the applications:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_applications</span><span class="p">,</span> <span class="n">make_transactions</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sample</span> <span class="o">=</span> <span class="n">make_applications</span><span class="p">(</span><span class="n">n_applicants</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span> <span class="n">include_risk</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">days</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_timedelta</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">10000</span><span class="p">)</span> <span class="o">*</span> <span class="mi">366</span> <span class="o">//</span> <span class="mi">10000</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">"D"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sample</span><span class="p">[</span><span class="s2">"application_date"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="s2">"2024-01-01"</span><span class="p">)</span> <span class="o">+</span> <span class="n">days</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">transactions</span> <span class="o">=</span> <span class="n">make_transactions</span><span class="p">(</span><span class="n">sample</span><span class="p">,</span> <span class="n">application_date</span><span class="o">=</span><span class="s2">"application_date"</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">observations</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">{</span><span class="s2">"applicant_id"</span><span class="p">:</span> <span class="n">sample</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="s2">"application_date"</span><span class="p">:</span> <span class="n">sample</span><span class="p">[</span><span class="s2">"application_date"</span><span class="p">]},</span>
+<span class="gp">... </span>    <span class="n">index</span><span class="o">=</span><span class="n">sample</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+<span class="gp">... </span><span class="p">)</span>
+</pre></div>
+</div>
+<p>A <a class="reference internal" href="../api/features.html#kivi.features.FeatureSpec" title="kivi.features.FeatureSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">FeatureSpec</span></code></a> with one group for each kind of transaction gives the cash withdrawals and the repayments of the last three months and of the three months before them, and the purchases of the last three months with the number of their merchant categories. Two ratios compare the last three months with the three months before them:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">two_periods</span> <span class="o">=</span> <span class="p">{</span>
+<span class="gp">... </span>    <span class="s2">"time"</span><span class="p">:</span> <span class="s2">"timestamp"</span><span class="p">,</span> <span class="s2">"windows"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"3M"</span><span class="p">,</span> <span class="p">(</span><span class="s2">"6M"</span><span class="p">,</span> <span class="s2">"3M"</span><span class="p">)],</span> <span class="s2">"aggregations"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"amount"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"sum"</span><span class="p">]},</span>
+<span class="gp">... </span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">transaction_spec</span> <span class="o">=</span> <span class="n">FeatureSpec</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="nb">id</span><span class="o">=</span><span class="s2">"applicant_id"</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">observation_time</span><span class="o">=</span><span class="s2">"application_date"</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">events</span><span class="o">=</span><span class="p">[</span>
+<span class="gp">... </span>        <span class="p">{</span><span class="s2">"table"</span><span class="p">:</span> <span class="s2">"cash"</span><span class="p">,</span> <span class="s2">"prefix"</span><span class="p">:</span> <span class="s2">"cash_"</span><span class="p">,</span> <span class="o">**</span><span class="n">two_periods</span><span class="p">},</span>
+<span class="gp">... </span>        <span class="p">{</span><span class="s2">"table"</span><span class="p">:</span> <span class="s2">"repayments"</span><span class="p">,</span> <span class="s2">"prefix"</span><span class="p">:</span> <span class="s2">"repayment_"</span><span class="p">,</span> <span class="o">**</span><span class="n">two_periods</span><span class="p">},</span>
+<span class="gp">... </span>        <span class="p">{</span>
+<span class="gp">... </span>            <span class="s2">"table"</span><span class="p">:</span> <span class="s2">"purchases"</span><span class="p">,</span>
+<span class="gp">... </span>            <span class="s2">"prefix"</span><span class="p">:</span> <span class="s2">"purchase_"</span><span class="p">,</span>
+<span class="gp">... </span>            <span class="s2">"time"</span><span class="p">:</span> <span class="s2">"timestamp"</span><span class="p">,</span>
+<span class="gp">... </span>            <span class="s2">"windows"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"3M"</span><span class="p">],</span>
+<span class="gp">... </span>            <span class="s2">"aggregations"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"amount"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"sum"</span><span class="p">],</span> <span class="s2">"merchant_category"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"nunique"</span><span class="p">]},</span>
+<span class="gp">... </span>        <span class="p">},</span>
+<span class="gp">... </span>    <span class="p">],</span>
+<span class="gp">... </span>    <span class="n">ratios</span><span class="o">=</span><span class="p">[</span>
+<span class="gp">... </span>        <span class="p">(</span><span class="s2">"cash_events_3m"</span><span class="p">,</span> <span class="s2">"cash_events_6m_3m"</span><span class="p">),</span>
+<span class="gp">... </span>        <span class="p">(</span><span class="s2">"repayment_amount_sum_3m"</span><span class="p">,</span> <span class="s2">"repayment_amount_sum_6m_3m"</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="p">],</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">kind</span> <span class="o">=</span> <span class="n">transactions</span><span class="p">[</span><span class="s2">"kind"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">transaction_features</span> <span class="o">=</span> <span class="n">transaction_spec</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">observations</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">events</span><span class="o">=</span><span class="p">{</span>
+<span class="gp">... </span>        <span class="s2">"cash"</span><span class="p">:</span> <span class="n">transactions</span><span class="p">[</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">"cash_withdrawal"</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="s2">"repayments"</span><span class="p">:</span> <span class="n">transactions</span><span class="p">[</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">"repayment"</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="s2">"purchases"</span><span class="p">:</span> <span class="n">transactions</span><span class="p">[</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">"purchase"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">},</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">transaction_features</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">(10000, 13)</span>
+</pre></div>
+</div>
+<p>The features are candidates like the columns of the applications, so <a class="reference internal" href="../api/univariate.html#kivi.univariate.profile_table" title="kivi.univariate.profile_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">profile_table()</span></code></a> screens them against the outcome, as <a class="reference internal" href="univariate.html"><span class="doc">Univariate profile</span></a> describes:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.univariate</span><span class="w"> </span><span class="kn">import</span> <span class="n">profile_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">screening</span> <span class="o">=</span> <span class="n">profile_table</span><span class="p">(</span><span class="n">transaction_features</span><span class="p">,</span> <span class="n">sample</span><span class="p">[</span><span class="s2">"target"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">screening</span><span class="p">[[</span><span class="s2">"missing_share"</span><span class="p">,</span> <span class="s2">"iv"</span><span class="p">,</span> <span class="s2">"gini"</span><span class="p">]]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">"iv"</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">                                       missing_share     iv   gini</span>
+<span class="go">variable</span>
+<span class="go">cash_events_3m                                 0.000  0.310  0.316</span>
+<span class="go">repayment_events_3m                            0.000  0.199 -0.257</span>
+<span class="go">cash_amount_sum_3m                             0.000  0.192  0.249</span>
+<span class="go">cash_events_3m_over_6m_3m                      0.241  0.185  0.185</span>
+<span class="go">repayment_amount_sum_3m_over_6m_3m             0.004  0.185 -0.218</span>
+<span class="go">cash_events_6m_3m                              0.000  0.180  0.247</span>
+<span class="go">purchase_amount_sum_3m                         0.000  0.104 -0.181</span>
+<span class="go">cash_amount_sum_6m_3m                          0.000  0.085  0.177</span>
+<span class="go">repayment_events_6m_3m                         0.000  0.082 -0.123</span>
+<span class="go">purchase_events_3m                             0.000  0.048 -0.121</span>
+<span class="go">repayment_amount_sum_3m                        0.000  0.031 -0.089</span>
+<span class="go">purchase_merchant_category_nunique_3m          0.000  0.030 -0.094</span>
+<span class="go">repayment_amount_sum_6m_3m                     0.000  0.005  0.037</span>
+</pre></div>
+</div>
+<p>The number of cash withdrawals in the last three months separates the classes best, and more withdrawals mean more defaults, as the positive <code class="docutils literal notranslate"><span class="pre">gini</span></code> shows. The repayments of the last three months come next with the opposite sign: applicants at risk miss more of them, so fewer repayments, and a smaller sum than in the three months before, mean more defaults. Both follow from how the transactions are simulated, with a stress that builds up before the application, and both are stronger in the last three months than in the three months before them. The purchases say little. The ratio of the cash withdrawals is missing for the 24% of applicants who withdrew no cash in the three months before the last three, because its denominator is 0. The profile counts them as a group of their own, which defaults less often than the others: a missing value is information too.</p>
+<figure class="align-default" id="id6">
+<img alt="The share of applicants and the event rate in each band of cash_events_3m and cash_events_6m_3m: the event rate rises from 9.4% to 31.4% over the bands of the last three months and from 11.6% to 28.0% over those of the three months before, against 16.1% for all applicants" class="plot-directive" src="../_images/features-3.svg" />
+<figcaption>
+<p><span class="caption-text">The bands of the quick binning of the profile for the number of cash withdrawals in the last three months and in the three months before them, with the IV of each feature. In both windows more withdrawals mean more defaults, and the last three months separate the classes better. The dashed line is the event rate of all applicants.</span><a class="headerlink" href="#id6" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>The signal is clear but modest, and only simulated data can tie it to a factor that no lender sees: the transactions show how window features work, not how well behaviour predicts default in a real portfolio. Bin the features that are kept as <a class="reference internal" href="binning.html"><span class="doc">Binning</span></a> describes and select them with the rest of the candidates, as <a class="reference internal" href="selection.html"><span class="doc">Variable selection</span></a> describes.</p>
+</section>
+<section id="missing-values">
+<h2>Missing values<a class="headerlink" href="#missing-values" title="Link to this heading">#</a></h2>
+<p>Missing values of an aggregated column are left out of its aggregations, so <code class="docutils literal notranslate"><span class="pre">count</span></code> counts the values and <code class="docutils literal notranslate"><span class="pre">events</span></code> the rows:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">partial</span> <span class="o">=</span> <span class="n">events</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">amount</span><span class="o">=</span><span class="n">events</span><span class="p">[</span><span class="s2">"amount"</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">events</span><span class="p">[</span><span class="s2">"kind"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"card"</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">window_features</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">partial</span><span class="p">,</span> <span class="n">applications</span><span class="p">,</span> <span class="o">**</span><span class="n">keys</span><span class="p">,</span> <span class="n">windows</span><span class="o">=</span><span class="p">[</span><span class="s2">"3M"</span><span class="p">],</span> <span class="n">aggregations</span><span class="o">=</span><span class="p">{</span><span class="s2">"amount"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"count"</span><span class="p">,</span> <span class="s2">"mean"</span><span class="p">]}</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="go">   events_3m  amount_count_3m  amount_mean_3m</span>
+<span class="go">0          3                2            85.0</span>
+<span class="go">1          3                1            25.0</span>
+<span class="go">2          0                0             NaN</span>
+</pre></div>
+</div>
+<p>A missing entity or time raises an error, because the event could not be placed in a window.</p>
+</section>
+<section id="limits">
+<h2>Limits<a class="headerlink" href="#limits" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>The windows compare times only. Events that are recorded late, such as transactions booked days after they were made, are known later than their time says; shift their times, or the observation times, before computing the features.</p></li>
+<li><p>kivi has no expressions to filter events and no ranks of an entity within a population; filter with pandas and rank the features afterwards.</p></li>
+<li><p>The features are not weighted: each event counts once.</p></li>
+<li><p>An entity has one id column, shared by the events and the panels. To combine several keys, such as a customer and a product, join them into one column first.</p></li>
+<li><p>Panel features need monthly statuses. A panel with another frequency, such as weekly snapshots, has to be reduced to month ends first.</p></li>
+</ul>
+</section>
+<section id="errors-and-warnings">
+<h2>Errors and warnings<a class="headerlink" href="#errors-and-warnings" title="Link to this heading">#</a></h2>
+<p>Time columns must hold datetimes; convert strings first:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">text</span> <span class="o">=</span> <span class="n">applications</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">application_date</span><span class="o">=</span><span class="p">[</span><span class="s2">"2024-03-31"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">({</span><span class="s2">"application_date"</span><span class="p">:</span> <span class="nb">object</span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">try</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="n">window_features</span><span class="p">(</span><span class="n">events</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="o">**</span><span class="n">keys</span><span class="p">)</span>
+<span class="gp">... </span><span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
+<span class="go">observation_time column 'application_date' of observations must hold datetimes, got dtype object; convert it with pandas.to_datetime</span>
+</pre></div>
+</div>
+<p>A single window is still a list:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">try</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="n">window_features</span><span class="p">(</span><span class="n">events</span><span class="p">,</span> <span class="n">applications</span><span class="p">,</span> <span class="o">**</span><span class="n">keys</span><span class="p">,</span> <span class="n">windows</span><span class="o">=</span><span class="s2">"3M"</span><span class="p">)</span>
+<span class="gp">... </span><span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
+<span class="go">windows must be a list of windows such as '3M', '90D' or ('6M', '3M'), got '3M'; pass ['3M'] for one window</span>
+</pre></div>
+</div>
+<p>A time column with a time zone and one without, or two time zones, raise an error that names both; convert them to one zone with <code class="docutils literal notranslate"><span class="pre">Series.dt.tz_convert</span></code> or remove the zones with <code class="docutils literal notranslate"><span class="pre">Series.dt.tz_localize(None)</span></code>. For a panel, tz-aware months and tz-aware observation times in two time zones raise the same way. The aggregations other than <code class="docutils literal notranslate"><span class="pre">count</span></code>, <code class="docutils literal notranslate"><span class="pre">nunique</span></code> and <code class="docutils literal notranslate"><span class="pre">days_since_last</span></code> raise an error for a column of text, and every aggregation of numbers raises one for infinite values.</p>
+<p>A status column of strings has no order, so <a class="reference internal" href="../api/features.html#kivi.features.panel_features" title="kivi.features.panel_features"><code class="xref py py-func docutils literal notranslate"><span class="pre">panel_features()</span></code></a> asks for an ordered categorical, and <code class="docutils literal notranslate"><span class="pre">bad</span></code> must be one of its categories:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">try</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="n">panel_features</span><span class="p">(</span>
+<span class="gp">... </span>        <span class="n">panel</span><span class="o">.</span><span class="n">astype</span><span class="p">({</span><span class="s2">"status"</span><span class="p">:</span> <span class="nb">object</span><span class="p">}),</span> <span class="n">applications</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">"customer"</span><span class="p">,</span> <span class="n">month</span><span class="o">=</span><span class="s2">"month"</span><span class="p">,</span>
+<span class="gp">... </span>        <span class="n">status</span><span class="o">=</span><span class="s2">"status"</span><span class="p">,</span> <span class="n">observation_time</span><span class="o">=</span><span class="s2">"application_date"</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="p">)</span>
+<span class="gp">... </span><span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
+<span class="go">status column 'status' of panel must be an ordered categorical, from the best status to the worst, got dtype object; convert it with pandas.Categorical(values, categories=[...], ordered=True)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">try</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="n">panel_features</span><span class="p">(</span>
+<span class="gp">... </span>        <span class="n">panel</span><span class="p">,</span> <span class="n">applications</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">"customer"</span><span class="p">,</span> <span class="n">month</span><span class="o">=</span><span class="s2">"month"</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="s2">"status"</span><span class="p">,</span>
+<span class="gp">... </span>        <span class="n">observation_time</span><span class="o">=</span><span class="s2">"application_date"</span><span class="p">,</span> <span class="n">bad</span><span class="o">=</span><span class="s2">"30+"</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="p">)</span>
+<span class="gp">... </span><span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
+<span class="go">bad must be one of the categories of status column 'status' of panel, got '30+'; the categories are ['current', '1-29', '30-59', '60-89', '90+']</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="risk_workflow.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Risk modeling workflow</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="univariate.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Univariate profile</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#definitions">Definitions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-worked-example">A worked example</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#windows">Windows</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#aggregations">Aggregations</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ratios-and-changes">Ratios and changes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#filtered-events">Filtered events</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#observations-over-time">Observations over time</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#reading-the-result">Reading the result</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#repayment-behaviour">Repayment behaviour</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#feature-specifications">Feature specifications</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#features-of-synthetic-transactions">Features of synthetic transactions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#missing-values">Missing values</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#limits">Limits</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#errors-and-warnings">Errors and warnings</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1.
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

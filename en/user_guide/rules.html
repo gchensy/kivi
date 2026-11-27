@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Policy rules &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=d005c095" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=25d9e9fd"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/rules';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Binning specifications" href="spec.html" />
+    <link rel="prev" title="Credit strategy" href="strategy.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="1.9.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 1.9.0">1.9.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    Tutorial
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/user_guide/rules.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    Tutorial
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/user_guide/rules.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="risk_workflow.html">Risk modeling workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">Time-window features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="univariate.html">Univariate profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="binning.html">Binning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="woe_iv.html">Weight of evidence and information value</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selection.html">Variable selection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reject_inference.html">Reject inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scorecard.html">Scorecard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="expert.html">Expert scorecards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">Model performance</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lgd.html">LGD and EAD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">Credit strategy</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">Policy rules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spec.html">Binning specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="psi.html">Population stability index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">Model monitoring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="validation.html">Model validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="capital.html">Regulatory capital</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vintage.html">Vintage and roll-rate analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lifetime.html">Lifetime PD and expected credit loss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html">Charts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">Example data</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">User guide</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Policy rules</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="policy-rules">
+<h1>Policy rules<a class="headerlink" href="#policy-rules" title="Link to this heading">#</a></h1>
+<p>Besides a score, a credit policy has rules that decline or refer an applicant whatever the score: a debt-to-income ratio above a cap, an applicant below a minimum age, too many recent credit inquiries. Each rule raises the same questions: how many applicants it hits, how risky they are, which declines rest on it alone, and what it adds to the rules before it. <a class="reference internal" href="../api/rules.html#module-kivi.rules" title="kivi.rules"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.rules</span></code></a> answers them: <a class="reference internal" href="../api/rules.html#kivi.rules.rule_table" title="kivi.rules.rule_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">rule_table()</span></code></a> counts the hits and the events of each rule, and <a class="reference internal" href="../api/rules.html#kivi.rules.rule_set_table" title="kivi.rules.rule_set_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">rule_set_table()</span></code></a> applies the rules in order, as a decision waterfall, and reports the book they leave approved with the columns of <a class="reference internal" href="../api/strategy.html#kivi.strategy.cutoff_table" title="kivi.strategy.cutoff_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">cutoff_table()</span></code></a>. <a class="reference internal" href="../api/rules.html#kivi.rules.rule_candidates" title="kivi.rules.rule_candidates"><code class="xref py py-func docutils literal notranslate"><span class="pre">rule_candidates()</span></code></a> proposes new rules: it searches each numeric variable for thresholds whose hits are riskier than the sample.</p>
+<p>Rules belong to the credit strategy of <a class="reference internal" href="strategy.html"><span class="doc">Credit strategy</span></a>, the previous guide, which chooses the cut-off of the score, and come before the <a class="reference internal" href="spec.html"><span class="doc">binning specifications</span></a>, the next guide, which take the model to production.</p>
+<section id="definitions">
+<h2>Definitions<a class="headerlink" href="#definitions" title="Link to this heading">#</a></h2>
+<p>A rule is a condition on the data of an applicant, passed as a column of booleans that is True where the rule hits, that is where it declines or flags the applicant. For a rule that hits the applicants <span class="math notranslate nohighlight">\(H\)</span> of a sample of <span class="math notranslate nohighlight">\(n\)</span> applicants, with the known outcomes <span class="math notranslate nohighlight">\(K\)</span> and the events <span class="math notranslate nohighlight">\(E\)</span>,</p>
+<div class="math notranslate nohighlight">
+\[\text{hit rate} = \frac{\lvert H \rvert}{n}, \qquad
+\text{event rate} = \frac{\lvert H \cap E \rvert}{\lvert H \cap K \rvert}, \qquad
+\text{lift} = \frac{\text{event rate}}{\lvert E \rvert / \lvert K \rvert}, \qquad
+\text{recall} = \frac{\lvert H \cap E \rvert}{\lvert E \rvert}.\]</div>
+<p>The lift compares the event rate of the hits with that of the whole sample, and the recall is the share of all events that the rule hits. The unique hits of a rule are the applicants that it hits and no other rule of the set does.</p>
+<p>A rule set applies its rules <span class="math notranslate nohighlight">\(H_1, \dots, H_m\)</span> in order. The new hits of rule <span class="math notranslate nohighlight">\(j\)</span> are those that no earlier rule hit, and the applicants still approved after it are those that none of the first <span class="math notranslate nohighlight">\(j\)</span> rules hit:</p>
+<div class="math notranslate nohighlight">
+\[N_j = H_j \setminus (H_1 \cup \dots \cup H_{j-1}), \qquad
+A_j = \overline{H_1 \cup \dots \cup H_j}.\]</div>
+<p>The approved book <span class="math notranslate nohighlight">\(A_j\)</span> is described as a cut-off describes its book: its size, its event rate <span class="math notranslate nohighlight">\(\lvert A_j \cap E \rvert / \lvert A_j \cap K \rvert\)</span>, and the shares of all events and of all non-events that the rules up to <span class="math notranslate nohighlight">\(j\)</span> decline. With <code class="docutils literal notranslate"><span class="pre">weights</span></code>, every count is a sum of weights.</p>
+</section>
+<section id="a-worked-example">
+<h2>A worked example<a class="headerlink" href="#a-worked-example" title="Link to this heading">#</a></h2>
+<p>Eight applicants, three rules and three events. <code class="docutils literal notranslate"><span class="pre">high_debt</span></code> hits applicants 0, 1 and 5, <code class="docutils literal notranslate"><span class="pre">young</span></code> applicants 1 and 2, and <code class="docutils literal notranslate"><span class="pre">inquiries</span></code> applicants 2 and 3; applicants 0, 1 and 3 default:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.rules</span><span class="w"> </span><span class="kn">import</span> <span class="n">rule_set_table</span><span class="p">,</span> <span class="n">rule_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">example</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s2">"high_debt"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s2">"young"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s2">"inquiries"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+<span class="gp">... </span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">example_target</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rule_table</span><span class="p">(</span><span class="n">example</span><span class="p">,</span> <span class="n">example_target</span><span class="p">)[[</span><span class="s2">"hits"</span><span class="p">,</span> <span class="s2">"unique_hits"</span><span class="p">,</span> <span class="s2">"event"</span><span class="p">,</span> <span class="s2">"event_rate"</span><span class="p">,</span> <span class="s2">"lift"</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">           hits  unique_hits  event  event_rate   lift</span>
+<span class="go">rule</span>
+<span class="go">high_debt     3            2      2       0.667  1.778</span>
+<span class="go">young         2            0      1       0.500  1.333</span>
+<span class="go">inquiries     2            1      1       0.500  1.333</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">high_debt</span></code> hits three applicants, two of whom default: an event rate of 2/3, against 3/8 for all eight, a lift of <span class="math notranslate nohighlight">\((2/3) / (3/8) = 1.78\)</span>. Applicant 1 is also hit by <code class="docutils literal notranslate"><span class="pre">young</span></code>, so <code class="docutils literal notranslate"><span class="pre">high_debt</span></code> alone declines two. <code class="docutils literal notranslate"><span class="pre">young</span></code> has no unique hit: each of its applicants is hit by another rule as well. Applied in order, each rule counts only the applicants that the rules before it left:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rule_set_table</span><span class="p">(</span><span class="n">example</span><span class="p">,</span> <span class="n">example_target</span><span class="p">)[[</span><span class="s2">"new_hits"</span><span class="p">,</span> <span class="s2">"new_event"</span><span class="p">,</span> <span class="s2">"approved"</span><span class="p">,</span> <span class="s2">"approved_event_rate"</span><span class="p">]]</span>
+<span class="go">           new_hits  new_event  approved  approved_event_rate</span>
+<span class="go">rule</span>
+<span class="go">high_debt         3          2         5                 0.20</span>
+<span class="go">young             1          0         4                 0.25</span>
+<span class="go">inquiries         1          1         3                 0.00</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">young</span></code> adds only applicant 2, and <code class="docutils literal notranslate"><span class="pre">inquiries</span></code> only applicant 3, the last event. The three approved applicants that remain, 4, 6 and 7, have no event.</p>
+<figure class="align-default" id="id1">
+<img alt="The three rule columns and the target of the eight applicants next to the table of rule_set_table, with the first hit of each applicant marked" class="plot-directive" src="../_images/rules-1.svg" />
+<figcaption>
+<p><span class="caption-text">The waterfall of the worked example. Each applicant’s first hit, marked, counts in the <code class="docutils literal notranslate"><span class="pre">new_hits</span></code> of its rule, and a later hit of the same applicant, such as that of <code class="docutils literal notranslate"><span class="pre">young</span></code> on applicant 1, counts only in the hits of <a class="reference internal" href="../api/rules.html#kivi.rules.rule_table" title="kivi.rules.rule_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">rule_table()</span></code></a>. The applicants hit by no rule stay approved.</span><a class="headerlink" href="#id1" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="rules-on-the-applications">
+<h2>Rules on the applications<a class="headerlink" href="#rules-on-the-applications" title="Link to this heading">#</a></h2>
+<p>The examples use the synthetic applications of <a class="reference internal" href="../api/datasets.html#kivi.datasets.make_applications" title="kivi.datasets.make_applications"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_applications()</span></code></a>, described in <a class="reference internal" href="datasets.html"><span class="doc">Example data</span></a>. Two policy rules declined some of them whatever their score: a debt-to-income ratio above 0.6 and an age below 21. Two candidate rules join them: three or more credit inquiries in the last six months, and a monthly income below 1,500. Each rule is a column of booleans built from the data:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_applications</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">applications</span> <span class="o">=</span> <span class="n">make_applications</span><span class="p">(</span><span class="n">rng</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rules</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s2">"high_debt"</span><span class="p">:</span> <span class="n">applications</span><span class="p">[</span><span class="s2">"debt_to_income"</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">0.6</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s2">"young"</span><span class="p">:</span> <span class="n">applications</span><span class="p">[</span><span class="s2">"age"</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">21</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s2">"many_inquiries"</span><span class="p">:</span> <span class="n">applications</span><span class="p">[</span><span class="s2">"inquiries"</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s2">"low_income"</span><span class="p">:</span> <span class="n">applications</span><span class="p">[</span><span class="s2">"income"</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">1500</span><span class="p">,</span>
+<span class="gp">... </span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target</span> <span class="o">=</span> <span class="n">applications</span><span class="p">[</span><span class="s2">"target"</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>The two policy rules give exactly the column <code class="docutils literal notranslate"><span class="pre">policy_decline</span></code> of the data:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="p">(</span><span class="n">rules</span><span class="p">[</span><span class="s2">"high_debt"</span><span class="p">]</span> <span class="o">|</span> <span class="n">rules</span><span class="p">[</span><span class="s2">"young"</span><span class="p">])</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="n">applications</span><span class="p">[</span><span class="s2">"policy_decline"</span><span class="p">])</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<p>The simulation gives every applicant an outcome, also those that were declined, so the first examples measure each rule on all the applicants it hits. Real data have outcomes only for the approved applicants; <a class="reference internal" href="#rules-unknown-outcomes"><span class="std std-ref">Unknown outcomes</span></a> shows what the tables report then.</p>
+</section>
+<section id="hit-table">
+<h2>Hit table<a class="headerlink" href="#hit-table" title="Link to this heading">#</a></h2>
+<p><a class="reference internal" href="../api/rules.html#kivi.rules.rule_table" title="kivi.rules.rule_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">rule_table()</span></code></a> evaluates each rule on every applicant, whatever the other rules do. Without a target it counts the hits, which are known for every applicant:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rule_table</span><span class="p">(</span><span class="n">rules</span><span class="p">)</span>
+<span class="go">                hits  hit_rate  unique_hits</span>
+<span class="go">rule</span>
+<span class="go">high_debt        399    0.0399          340</span>
+<span class="go">young            377    0.0377          289</span>
+<span class="go">many_inquiries   799    0.0799          699</span>
+<span class="go">low_income       482    0.0482          379</span>
+</pre></div>
+</div>
+<p>With the target, it adds the outcomes of the hits:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">table</span> <span class="o">=</span> <span class="n">rule_table</span><span class="p">(</span><span class="n">rules</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span><span class="p">[[</span><span class="s2">"known"</span><span class="p">,</span> <span class="s2">"event"</span><span class="p">,</span> <span class="s2">"event_rate"</span><span class="p">,</span> <span class="s2">"lift"</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">                known  event  event_rate   lift</span>
+<span class="go">rule</span>
+<span class="go">high_debt         399    125       0.313  1.946</span>
+<span class="go">young             377     89       0.236  1.466</span>
+<span class="go">many_inquiries    799    261       0.327  2.029</span>
+<span class="go">low_income        482    122       0.253  1.572</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span><span class="p">[[</span><span class="s2">"recall"</span><span class="p">,</span> <span class="s2">"unique_event"</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">                recall  unique_event</span>
+<span class="go">rule</span>
+<span class="go">high_debt        0.078            97</span>
+<span class="go">young            0.055            63</span>
+<span class="go">many_inquiries   0.162           216</span>
+<span class="go">low_income       0.076            88</span>
+</pre></div>
+</div>
+<p>The applicants with a debt-to-income ratio above 0.6 default at 31.3%, almost twice the 16.1% of all applicants, so the rule has a lift of 1.95. It hits 4% of the applicants and 7.8% of the events. <code class="docutils literal notranslate"><span class="pre">many_inquiries</span></code> hits twice as many applicants at a slightly higher event rate, and catches 16.2% of the events. The rules overlap little: 340 of the 399 applicants with a high debt-to-income ratio are hit by no other rule.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 70.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Column</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">hits</span></code>, <code class="docutils literal notranslate"><span class="pre">hit_rate</span></code></p></td>
+<td><p>Applicants that the rule hits, and their share of all applicants.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">unique_hits</span></code></p></td>
+<td><p>Applicants that this rule hits and no other rule of the set does: the declines that rest on this rule alone.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">known</span></code></p></td>
+<td><p>Hits with a known outcome.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">event</span></code>, <code class="docutils literal notranslate"><span class="pre">event_rate</span></code></p></td>
+<td><p>Events among the hits, and their share of the known hits.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">lift</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">event_rate</span></code> divided by the event rate of all known outcomes. A lift of 2 means that the hits default twice as often as the sample.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">recall</span></code></p></td>
+<td><p>Share of all known events that the rule hits.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">unique_event</span></code></p></td>
+<td><p>Events among the unique hits.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The rows of the table do not add up, because an applicant hit by two rules counts in both. A rule is worth its declines when its event rate is well above the rate at which the business breaks even, as for the marginal bad rate of a cut-off in <a class="reference internal" href="strategy.html"><span class="doc">Credit strategy</span></a>. To compare thresholds of one rule, pass one column per threshold, for example <code class="docutils literal notranslate"><span class="pre">inquiries</span> <span class="pre">&gt;=</span> <span class="pre">2</span></code>, <code class="docutils literal notranslate"><span class="pre">&gt;=</span> <span class="pre">3</span></code> and <code class="docutils literal notranslate"><span class="pre">&gt;=</span> <span class="pre">4</span></code>.</p>
+</section>
+<section id="overlap-matrix">
+<h2>Overlap matrix<a class="headerlink" href="#overlap-matrix" title="Link to this heading">#</a></h2>
+<p>The overlap of two rules is the number of applicants that both hit. For every pair at once, it is the product of the rule columns as 0 and 1, which needs no function of its own:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">hits</span> <span class="o">=</span> <span class="n">rules</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">overlap</span> <span class="o">=</span> <span class="n">hits</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">hits</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">overlap</span>
+<span class="go">                high_debt  young  many_inquiries  low_income</span>
+<span class="go">high_debt             399     13              28          20</span>
+<span class="go">young                  13    377              33          44</span>
+<span class="go">many_inquiries         28     33             799          43</span>
+<span class="go">low_income             20     44              43         482</span>
+</pre></div>
+</div>
+<p>The diagonal holds the <code class="docutils literal notranslate"><span class="pre">hits</span></code> of <a class="reference internal" href="../api/rules.html#kivi.rules.rule_table" title="kivi.rules.rule_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">rule_table()</span></code></a>. Dividing each row by its diagonal gives the share of the row rule’s hits that the column rule also hits:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">overlap</span><span class="o">.</span><span class="n">div</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">overlap</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">                high_debt  young  many_inquiries  low_income</span>
+<span class="go">high_debt           1.000  0.033           0.070       0.050</span>
+<span class="go">young               0.034  1.000           0.088       0.117</span>
+<span class="go">many_inquiries      0.035  0.041           1.000       0.054</span>
+<span class="go">low_income          0.041  0.091           0.089       1.000</span>
+</pre></div>
+</div>
+<p>The largest overlap is between <code class="docutils literal notranslate"><span class="pre">young</span></code> and <code class="docutils literal notranslate"><span class="pre">low_income</span></code>: 11.7% of the young applicants have an income below 1,500, because income rises with age in the data. Convert boolean columns to integers first: the product of two boolean columns is a boolean, True when at least one applicant is hit by both rules, and not a count. Multiplying by the target instead, <code class="docutils literal notranslate"><span class="pre">hits.T</span> <span class="pre">&#64;</span> <span class="pre">hits.mul(target,</span> <span class="pre">axis=0)</span></code>, counts the events that both rules hit.</p>
+</section>
+<section id="decision-waterfall">
+<h2>Decision waterfall<a class="headerlink" href="#decision-waterfall" title="Link to this heading">#</a></h2>
+<p><a class="reference internal" href="../api/rules.html#kivi.rules.rule_set_table" title="kivi.rules.rule_set_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">rule_set_table()</span></code></a> applies the rules in the order of the columns. Each rule declines the applicants that it hits among those that the rules before it left, so every hit counts once, under the first rule that hits it:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">waterfall</span> <span class="o">=</span> <span class="n">rule_set_table</span><span class="p">(</span><span class="n">rules</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">waterfall</span><span class="p">[[</span><span class="s2">"new_hits"</span><span class="p">,</span> <span class="s2">"new_event"</span><span class="p">,</span> <span class="s2">"approved"</span><span class="p">,</span> <span class="s2">"approval_rate"</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">                new_hits  new_event  approved  approval_rate</span>
+<span class="go">rule</span>
+<span class="go">high_debt            399        125      9601          0.960</span>
+<span class="go">young                364         84      9237          0.924</span>
+<span class="go">many_inquiries       738        232      8499          0.850</span>
+<span class="go">low_income           379         88      8120          0.812</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">waterfall</span><span class="p">[[</span><span class="s2">"approved_event"</span><span class="p">,</span> <span class="s2">"approved_event_rate"</span><span class="p">,</span> <span class="s2">"rejected_event_share"</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">                approved_event  approved_event_rate  rejected_event_share</span>
+<span class="go">rule</span>
+<span class="go">high_debt                 1485                0.155                 0.078</span>
+<span class="go">young                     1401                0.152                 0.130</span>
+<span class="go">many_inquiries            1169                0.138                 0.274</span>
+<span class="go">low_income                1081                0.133                 0.329</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">waterfall</span><span class="p">[</span><span class="s2">"rejected_non_event_share"</span><span class="p">]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">rule</span>
+<span class="go">high_debt         0.033</span>
+<span class="go">young             0.066</span>
+<span class="go">many_inquiries    0.126</span>
+<span class="go">low_income        0.161</span>
+<span class="go">Name: rejected_non_event_share, dtype: float64</span>
+</pre></div>
+</div>
+<p>The first row is <code class="docutils literal notranslate"><span class="pre">high_debt</span></code> on its own. <code class="docutils literal notranslate"><span class="pre">young</span></code> adds 364 applicants, the 377 it hits less the 13 that <code class="docutils literal notranslate"><span class="pre">high_debt</span></code> has already declined. After all four rules, 8,120 applicants, 81.2%, are approved, with an event rate of 13.3% instead of 16.1%. The rules decline 32.9% of the events and 16.1% of the non-events.</p>
+<figure class="align-default" id="id3">
+<img alt="Floating bars of the applicants that each of the four rules declines, stepping down from 10,000 to 8,120 approved applicants, next to the event rate of the approved book after each rule" class="plot-directive" src="../_images/rules-2.svg" />
+<figcaption>
+<p><span class="caption-text">The decision waterfall of the four rules. Each bar is the <code class="docutils literal notranslate"><span class="pre">new_hits</span></code> of a rule, from the applicants the rules before it left approved; the line is the <code class="docutils literal notranslate"><span class="pre">approved_event_rate</span></code> after the rule, against the event rate of all applicants, dashed.</span><a class="headerlink" href="#id3" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 70.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Column</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">new_hits</span></code>, <code class="docutils literal notranslate"><span class="pre">new_event</span></code></p></td>
+<td><p>Applicants that the rule hits and no earlier rule did, and the events among them.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">approved</span></code>, <code class="docutils literal notranslate"><span class="pre">approval_rate</span></code></p></td>
+<td><p>Applicants that none of the rules up to this one hits, and their share of all applicants.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">approved_event</span></code>, <code class="docutils literal notranslate"><span class="pre">approved_event_rate</span></code></p></td>
+<td><p>Events among the approved applicants, and their share of the approved applicants with a known outcome.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rejected_event_share</span></code></p></td>
+<td><p>Share of all known events that a rule up to this one declines.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rejected_non_event_share</span></code></p></td>
+<td><p>Share of all known non-events that a rule up to this one declines: the good business the rules give up.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The cumulative columns are those of <a class="reference internal" href="../api/strategy.html#kivi.strategy.cutoff_table" title="kivi.strategy.cutoff_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">cutoff_table()</span></code></a>, so a row reads like a cut-off: with every outcome known, it equals <code class="docutils literal notranslate"><span class="pre">cutoff_table(declined,</span> <span class="pre">target,</span> <span class="pre">cutoffs=[0])</span></code> where <code class="docutils literal notranslate"><span class="pre">declined</span></code> is 1 for the applicants that a rule up to that row hits and 0 for the others.</p>
+<p>A score cut-off is a rule too. The decisions of the simulated data are a waterfall of the two policy rules and the cut-off of 0.15 on <code class="docutils literal notranslate"><span class="pre">incumbent_pd</span></code>, and its last row approves exactly the applicants marked <code class="docutils literal notranslate"><span class="pre">approved</span></code>:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">decisions</span> <span class="o">=</span> <span class="n">rules</span><span class="p">[[</span><span class="s2">"high_debt"</span><span class="p">,</span> <span class="s2">"young"</span><span class="p">]]</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">high_pd</span><span class="o">=</span><span class="n">applications</span><span class="p">[</span><span class="s2">"incumbent_pd"</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mf">0.15</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rule_set_table</span><span class="p">(</span><span class="n">decisions</span><span class="p">)[[</span><span class="s2">"new_hits"</span><span class="p">,</span> <span class="s2">"approved"</span><span class="p">,</span> <span class="s2">"approval_rate"</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">          new_hits  approved  approval_rate</span>
+<span class="go">rule</span>
+<span class="go">high_debt      399      9601          0.960</span>
+<span class="go">young          364      9237          0.924</span>
+<span class="go">high_pd       2467      6770          0.677</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">int</span><span class="p">(</span><span class="n">applications</span><span class="p">[</span><span class="s2">"approved"</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+<span class="go">6770</span>
+</pre></div>
+</div>
+</section>
+<section id="rule-order">
+<h2>Rule order<a class="headerlink" href="#rule-order" title="Link to this heading">#</a></h2>
+<p>The order of the rules decides which rule gets the credit for a decline that several rules share, but not which applicants the set declines. Applying the candidate rules first gives them more new hits and the policy rules fewer:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">order</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"many_inquiries"</span><span class="p">,</span> <span class="s2">"low_income"</span><span class="p">,</span> <span class="s2">"high_debt"</span><span class="p">,</span> <span class="s2">"young"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">reordered</span> <span class="o">=</span> <span class="n">rule_set_table</span><span class="p">(</span><span class="n">rules</span><span class="p">[</span><span class="n">order</span><span class="p">],</span> <span class="n">target</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s2">"policy_first"</span><span class="p">:</span> <span class="n">waterfall</span><span class="p">[</span><span class="s2">"new_hits"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s2">"candidates_first"</span><span class="p">:</span> <span class="n">reordered</span><span class="p">[</span><span class="s2">"new_hits"</span><span class="p">]</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">waterfall</span><span class="o">.</span><span class="n">index</span><span class="p">),</span>
+<span class="gp">... </span><span class="p">})</span>
+<span class="go">                policy_first  candidates_first</span>
+<span class="go">rule</span>
+<span class="go">high_debt                399               353</span>
+<span class="go">young                    364               289</span>
+<span class="go">many_inquiries           738               799</span>
+<span class="go">low_income               379               439</span>
+</pre></div>
+</div>
+<p>The last row describes the whole set and does not change:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cumulative</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"approved"</span><span class="p">,</span> <span class="s2">"approved_event"</span><span class="p">,</span> <span class="s2">"rejected_event_share"</span><span class="p">,</span> <span class="s2">"rejected_non_event_share"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">waterfall</span><span class="p">[</span><span class="n">cumulative</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="n">reordered</span><span class="p">[</span><span class="n">cumulative</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<p>A rule’s new hits range from its <code class="docutils literal notranslate"><span class="pre">unique_hits</span></code> in <a class="reference internal" href="../api/rules.html#kivi.rules.rule_table" title="kivi.rules.rule_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">rule_table()</span></code></a>, when it comes last, to its <code class="docutils literal notranslate"><span class="pre">hits</span></code>, when it comes first: <code class="docutils literal notranslate"><span class="pre">young</span></code> adds 289 applicants in the last place and 377 in the first. The unique hits are therefore the applicants that removing the rule from the set would approve. A rule with few unique hits adds little to the others, however many applicants it hits. Report the waterfall in the order in which the rules run in production, for example with the rules that need no credit bureau data first, which are the cheapest to check.</p>
+</section>
+<section id="unknown-outcomes">
+<span id="rules-unknown-outcomes"></span><h2>Unknown outcomes<a class="headerlink" href="#unknown-outcomes" title="Link to this heading">#</a></h2>
+<p>In real data, the outcome is known only for the applicants that were approved: the others never received a loan. Pass missing labels for them. They count in the hits and in <code class="docutils literal notranslate"><span class="pre">approved</span></code>, but not in <code class="docutils literal notranslate"><span class="pre">known</span></code>, <code class="docutils literal notranslate"><span class="pre">event</span></code> and the rates and shares:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">observed</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">applications</span><span class="p">[</span><span class="s2">"approved"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rule_table</span><span class="p">(</span><span class="n">rules</span><span class="p">,</span> <span class="n">observed</span><span class="p">)[[</span><span class="s2">"hits"</span><span class="p">,</span> <span class="s2">"known"</span><span class="p">,</span> <span class="s2">"event"</span><span class="p">,</span> <span class="s2">"event_rate"</span><span class="p">,</span> <span class="s2">"lift"</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">                hits  known  event  event_rate   lift</span>
+<span class="go">rule</span>
+<span class="go">high_debt        399      0      0         NaN    NaN</span>
+<span class="go">young            377      0      0         NaN    NaN</span>
+<span class="go">many_inquiries   799    260     41       0.158  1.620</span>
+<span class="go">low_income       482    184     27       0.147  1.507</span>
+</pre></div>
+</div>
+<p>The policy rules declined every applicant they hit, so none of their hits has a known outcome, and their event rate cannot be measured on the data they produced. The candidate rules are measured on the 260 and 184 of their hits that were approved. On the approved applicants they show what adding them to the current policy would change. Put them after the current decisions:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">extended</span> <span class="o">=</span> <span class="n">rule_set_table</span><span class="p">(</span><span class="n">decisions</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">rules</span><span class="p">[[</span><span class="s2">"many_inquiries"</span><span class="p">,</span> <span class="s2">"low_income"</span><span class="p">]]),</span> <span class="n">observed</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">extended</span><span class="p">[[</span><span class="s2">"new_hits"</span><span class="p">,</span> <span class="s2">"new_event"</span><span class="p">,</span> <span class="s2">"approved"</span><span class="p">,</span> <span class="s2">"approved_event_rate"</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">                new_hits  new_event  approved  approved_event_rate</span>
+<span class="go">rule</span>
+<span class="go">high_debt            399          0      9601               0.0973</span>
+<span class="go">young                364          0      9237               0.0973</span>
+<span class="go">high_pd             2467          0      6770               0.0973</span>
+<span class="go">many_inquiries       260         41      6510               0.0949</span>
+<span class="go">low_income           181         27      6329               0.0934</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">extended</span><span class="p">[[</span><span class="s2">"approval_rate"</span><span class="p">,</span> <span class="s2">"rejected_event_share"</span><span class="p">,</span> <span class="s2">"rejected_non_event_share"</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">                approval_rate  rejected_event_share  rejected_non_event_share</span>
+<span class="go">rule</span>
+<span class="go">high_debt               0.960                 0.000                     0.000</span>
+<span class="go">young                   0.924                 0.000                     0.000</span>
+<span class="go">high_pd                 0.677                 0.000                     0.000</span>
+<span class="go">many_inquiries          0.651                 0.062                     0.036</span>
+<span class="go">low_income              0.633                 0.103                     0.061</span>
+</pre></div>
+</div>
+<p>The current decisions approve 6,770 applicants with an observed event rate of 9.73%. The two candidate rules would decline 441 of them, lower the approval rate from 67.7% to 63.3% and the event rate to 9.34%, and avoid 10.3% of the known events for 6.1% of the known non-events. Whether that pays depends on the margin of a good loan and the loss of a bad one, as in <a class="reference internal" href="strategy.html"><span class="doc">Credit strategy</span></a>. Every number of this table is known in practice, because the candidate rules only decline applicants with a known outcome.</p>
+<div class="kivi-check admonition">
+<p class="admonition-title">Simulation check</p>
+<p>The simulated declined applicants do have an outcome. The applicants that the policy rules declined default at 31.3% and 23.6%, which the observed outcomes cannot show, and the candidate rules hit much riskier applicants among the declined ones than among the approved ones:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s2">"observed"</span><span class="p">:</span> <span class="n">rule_table</span><span class="p">(</span><span class="n">rules</span><span class="p">,</span> <span class="n">observed</span><span class="p">)[</span><span class="s2">"event_rate"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s2">"all_hits"</span><span class="p">:</span> <span class="n">rule_table</span><span class="p">(</span><span class="n">rules</span><span class="p">,</span> <span class="n">target</span><span class="p">)[</span><span class="s2">"event_rate"</span><span class="p">],</span>
+<span class="gp">... </span><span class="p">})</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">                observed  all_hits</span>
+<span class="go">rule</span>
+<span class="go">high_debt            NaN     0.313</span>
+<span class="go">young                NaN     0.236</span>
+<span class="go">many_inquiries     0.158     0.327</span>
+<span class="go">low_income         0.147     0.253</span>
+</pre></div>
+</div>
+<p>The incumbent scorecard already declined the riskiest applicants with many inquiries, so the approved ones default at half the rate of all of them. Event rates measured on approved applicants describe the rule as an addition to the current policy, not the rule on its own.</p>
+</div>
+</section>
+<section id="missing-values">
+<span id="rules-missing-values"></span><h2>Missing values<a class="headerlink" href="#missing-values" title="Link to this heading">#</a></h2>
+<p>A missing value in <code class="docutils literal notranslate"><span class="pre">rules</span></code> raises an error, because whether a rule hits when its data are missing is part of the rule. Comparisons of NumPy floats return False for NaN, so a rule built from a comparison silently does not hit where the value is missing. pandas’ nullable dtypes return a missing value instead, which <a class="reference internal" href="../api/rules.html#kivi.rules.rule_table" title="kivi.rules.rule_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">rule_table()</span></code></a> and <a class="reference internal" href="../api/rules.html#kivi.rules.rule_set_table" title="kivi.rules.rule_set_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">rule_set_table()</span></code></a> reject:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">income</span> <span class="o">=</span> <span class="n">applications</span><span class="p">[</span><span class="s2">"income"</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">"Float64"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">income</span><span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rule_table</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"low_income"</span><span class="p">:</span> <span class="n">income</span> <span class="o">&lt;</span> <span class="mi">1500</span><span class="p">}))</span>
+<span class="gt">Traceback (most recent call last):</span>
+<span class="c">...</span>
+<span class="gr">ValueError</span>: <span class="n">rules column 'low_income' must not have missing values, got 2; decide whether the rule hits when its data are missing</span>
+</pre></div>
+</div>
+<p>Decide with <code class="docutils literal notranslate"><span class="pre">fillna</span></code>: <code class="docutils literal notranslate"><span class="pre">(income</span> <span class="pre">&lt;</span> <span class="pre">1500).fillna(True)</span></code> declines applicants whose income is unknown, and <code class="docutils literal notranslate"><span class="pre">fillna(False)</span></code> approves them. A missing label in <code class="docutils literal notranslate"><span class="pre">target</span></code> is not an error but an unknown outcome, as <a class="reference internal" href="#rules-unknown-outcomes"><span class="std std-ref">Unknown outcomes</span></a> shows.</p>
+</section>
+<section id="sample-weights">
+<h2>Sample weights<a class="headerlink" href="#sample-weights" title="Link to this heading">#</a></h2>
+<p>Both functions take <code class="docutils literal notranslate"><span class="pre">weights</span></code>, one non-negative frequency weight per applicant, as the functions of <a class="reference internal" href="../api/strategy.html#module-kivi.strategy" title="kivi.strategy"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.strategy</span></code></a> do. Counts become sums of weights, so integer weights give the same tables as repeating rows. An outcome-based sample, which keeps every event and a quarter of the non-events, gets back the event rates of all applicants with a weight of 4 for the non-events:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">kept</span> <span class="o">=</span> <span class="p">(</span><span class="n">target</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">rng</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">target</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mf">0.25</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sample_weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">target</span><span class="p">[</span><span class="n">kept</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s2">"unweighted"</span><span class="p">:</span> <span class="n">rule_table</span><span class="p">(</span><span class="n">rules</span><span class="p">[</span><span class="n">kept</span><span class="p">],</span> <span class="n">target</span><span class="p">[</span><span class="n">kept</span><span class="p">])[</span><span class="s2">"event_rate"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s2">"weighted"</span><span class="p">:</span> <span class="n">rule_table</span><span class="p">(</span><span class="n">rules</span><span class="p">[</span><span class="n">kept</span><span class="p">],</span> <span class="n">target</span><span class="p">[</span><span class="n">kept</span><span class="p">],</span> <span class="n">weights</span><span class="o">=</span><span class="n">sample_weights</span><span class="p">)[</span><span class="s2">"event_rate"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s2">"everyone"</span><span class="p">:</span> <span class="n">table</span><span class="p">[</span><span class="s2">"event_rate"</span><span class="p">],</span>
+<span class="gp">... </span><span class="p">})</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">                unweighted  weighted  everyone</span>
+<span class="go">rule</span>
+<span class="go">high_debt            0.676     0.342     0.313</span>
+<span class="go">young                0.571     0.249     0.236</span>
+<span class="go">many_inquiries       0.632     0.300     0.327</span>
+<span class="go">low_income           0.584     0.260     0.253</span>
+</pre></div>
+</div>
+<p>Without the weights, the sample of 3,724 applicants overstates every event rate, because it keeps only a quarter of the non-events. The weighted rates differ from those of all applicants only by the sampling of the non-events.</p>
+</section>
+<section id="searching-for-rules">
+<h2>Searching for rules<a class="headerlink" href="#searching-for-rules" title="Link to this heading">#</a></h2>
+<p>The rules above came from a policy. <a class="reference internal" href="../api/rules.html#kivi.rules.rule_candidates" title="kivi.rules.rule_candidates"><code class="xref py py-func docutils literal notranslate"><span class="pre">rule_candidates()</span></code></a> proposes thresholds from the data, one variable at a time. For each numeric column it fits cut points with <a class="reference internal" href="../api/binning.html#kivi.binning.tree_edges" title="kivi.binning.tree_edges"><code class="xref py py-func docutils literal notranslate"><span class="pre">tree_edges()</span></code></a> (or with <a class="reference internal" href="../api/binning.html#kivi.binning.ks_edges" title="kivi.binning.ks_edges"><code class="xref py py-func docutils literal notranslate"><span class="pre">ks_edges()</span></code></a>, <code class="docutils literal notranslate"><span class="pre">method=&quot;ks&quot;</span></code>), takes each interior edge <span class="math notranslate nohighlight">\(t\)</span> and keeps the side, <code class="docutils literal notranslate"><span class="pre">&gt;</span> <span class="pre">t</span></code> or <code class="docutils literal notranslate"><span class="pre">&lt;=</span> <span class="pre">t</span></code>, whose hits default more often. It keeps the rules that hit at least <code class="docutils literal notranslate"><span class="pre">min_hit_rate</span></code> of the applicants and have at least <code class="docutils literal notranslate"><span class="pre">min_lift</span></code>, and lists them from the highest lift down. The first 6,000 applications are the development sample here, and the last 4,000 the validation sample:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.rules</span><span class="w"> </span><span class="kn">import</span> <span class="n">rule_candidates</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">development</span><span class="p">,</span> <span class="n">validation</span> <span class="o">=</span> <span class="n">applications</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="mi">6000</span><span class="p">],</span> <span class="n">applications</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">6000</span><span class="p">:]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"age"</span><span class="p">,</span> <span class="s2">"income"</span><span class="p">,</span> <span class="s2">"debt_to_income"</span><span class="p">,</span> <span class="s2">"inquiries"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">candidates</span> <span class="o">=</span> <span class="n">rule_candidates</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">development</span><span class="p">,</span> <span class="n">development</span><span class="p">[</span><span class="s2">"target"</span><span class="p">],</span> <span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">,</span> <span class="n">min_lift</span><span class="o">=</span><span class="mf">1.5</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">candidates</span><span class="p">[[</span><span class="s2">"operator"</span><span class="p">,</span> <span class="s2">"threshold"</span><span class="p">,</span> <span class="s2">"hits"</span><span class="p">,</span> <span class="s2">"hit_rate"</span><span class="p">,</span> <span class="s2">"event_rate"</span><span class="p">,</span> <span class="s2">"lift"</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">                      operator  threshold  hits  hit_rate  event_rate   lift</span>
+<span class="go">rule</span>
+<span class="go">inquiries &gt; 3.0              &gt;       3.00   136     0.023       0.412  2.529</span>
+<span class="go">inquiries &gt; 2.0              &gt;       2.00   475     0.079       0.347  2.133</span>
+<span class="go">debt_to_income &gt; 0.58        &gt;       0.58   283     0.047       0.329  2.018</span>
+<span class="go">income &lt;= 1650.0            &lt;=    1650.00   448     0.075       0.279  1.714</span>
+<span class="go">income &lt;= 1850.0            &lt;=    1850.00   701     0.117       0.262  1.612</span>
+<span class="go">inquiries &gt; 1.0              &gt;       1.00  1475     0.246       0.256  1.574</span>
+<span class="go">debt_to_income &gt; 0.42        &gt;       0.42  1162     0.194       0.248  1.522</span>
+<span class="go">income &lt;= 1790.0            &lt;=    1790.00   621     0.104       0.246  1.513</span>
+</pre></div>
+</div>
+<p>Without <code class="docutils literal notranslate"><span class="pre">columns</span></code> every numeric column is searched, and categorical and boolean columns are skipped (naming one in <code class="docutils literal notranslate"><span class="pre">columns</span></code> raises an error). The count columns of the table, <code class="docutils literal notranslate"><span class="pre">hits</span></code>, <code class="docutils literal notranslate"><span class="pre">hit_rate</span></code>, <code class="docutils literal notranslate"><span class="pre">known</span></code>, <code class="docutils literal notranslate"><span class="pre">event</span></code>, <code class="docutils literal notranslate"><span class="pre">event_rate</span></code> and <code class="docutils literal notranslate"><span class="pre">lift</span></code>, are those of <a class="reference internal" href="../api/rules.html#kivi.rules.rule_table" title="kivi.rules.rule_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">rule_table()</span></code></a>, in its order, and they are exactly what <a class="reference internal" href="../api/rules.html#kivi.rules.rule_table" title="kivi.rules.rule_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">rule_table()</span></code></a> reports for the rule written as a column of booleans (below), also with <code class="docutils literal notranslate"><span class="pre">weights</span></code>: the lift is the event rate of the hits divided by the event rate of all known outcomes. Several thresholds of one variable, such as <code class="docutils literal notranslate"><span class="pre">inquiries</span> <span class="pre">&gt;</span> <span class="pre">2</span></code> and <code class="docutils literal notranslate"><span class="pre">inquiries</span> <span class="pre">&gt;</span> <span class="pre">1</span></code>, overlap and are alternatives, so choose one for each variable. A candidate becomes a rule when you write it as a column of booleans, which <a class="reference internal" href="../api/rules.html#kivi.rules.rule_table" title="kivi.rules.rule_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">rule_table()</span></code></a> and <a class="reference internal" href="../api/rules.html#kivi.rules.rule_set_table" title="kivi.rules.rule_set_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">rule_set_table()</span></code></a> take as they are:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">chosen</span> <span class="o">=</span> <span class="n">candidates</span><span class="o">.</span><span class="n">loc</span><span class="p">[[</span><span class="s2">"inquiries &gt; 2.0"</span><span class="p">,</span> <span class="s2">"debt_to_income &gt; 0.58"</span><span class="p">,</span> <span class="s2">"income &lt;= 1850.0"</span><span class="p">]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">as_rules</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">table</span><span class="p">,</span> <span class="n">special</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">special</span> <span class="o">=</span> <span class="n">special</span> <span class="ow">or</span> <span class="p">{}</span>
+<span class="gp">... </span>    <span class="n">rules</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="gp">... </span>    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">table</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+<span class="gp">... </span>        <span class="n">values</span> <span class="o">=</span> <span class="n">frame</span><span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="s2">"variable"</span><span class="p">]]</span>
+<span class="gp">... </span>        <span class="n">hit</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">gt</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">"threshold"</span><span class="p">])</span> <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="s2">"operator"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"&gt;"</span> <span class="k">else</span> <span class="n">values</span><span class="o">.</span><span class="n">le</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">"threshold"</span><span class="p">])</span>
+<span class="gp">... </span>        <span class="c1"># Special codes and missing values hit no threshold rule.</span>
+<span class="gp">... </span>        <span class="n">rules</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">hit</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">values</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">special</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">"variable"</span><span class="p">],</span> <span class="p">[])))</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">rules</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rule_set_table</span><span class="p">(</span><span class="n">as_rules</span><span class="p">(</span><span class="n">development</span><span class="p">,</span> <span class="n">chosen</span><span class="p">),</span> <span class="n">development</span><span class="p">[</span><span class="s2">"target"</span><span class="p">])[</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="s2">"new_hits"</span><span class="p">,</span> <span class="s2">"new_event"</span><span class="p">,</span> <span class="s2">"approved"</span><span class="p">,</span> <span class="s2">"approved_event_rate"</span><span class="p">]</span>
+<span class="gp">... </span><span class="p">]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">                       new_hits  new_event  approved  approved_event_rate</span>
+<span class="go">rule</span>
+<span class="go">inquiries &gt; 2.0             475        165      5525                0.147</span>
+<span class="go">debt_to_income &gt; 0.58       259         77      5266                0.140</span>
+<span class="go">income &lt;= 1850.0            611        145      4655                0.127</span>
+</pre></div>
+</div>
+<p>The thresholds and their event rates come from the same applicants, so they are optimistic, as the IV of supervised bins is. Measure the chosen rules again on applicants that the search did not see:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">{</span>
+<span class="gp">... </span>        <span class="s2">"development"</span><span class="p">:</span> <span class="n">rule_table</span><span class="p">(</span><span class="n">as_rules</span><span class="p">(</span><span class="n">development</span><span class="p">,</span> <span class="n">chosen</span><span class="p">),</span> <span class="n">development</span><span class="p">[</span><span class="s2">"target"</span><span class="p">]),</span>
+<span class="gp">... </span>        <span class="s2">"validation"</span><span class="p">:</span> <span class="n">rule_table</span><span class="p">(</span><span class="n">as_rules</span><span class="p">(</span><span class="n">validation</span><span class="p">,</span> <span class="n">chosen</span><span class="p">),</span> <span class="n">validation</span><span class="p">[</span><span class="s2">"target"</span><span class="p">]),</span>
+<span class="gp">... </span>    <span class="p">},</span>
+<span class="gp">... </span>    <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+<span class="gp">... </span><span class="p">)[[(</span><span class="s2">"development"</span><span class="p">,</span> <span class="s2">"event_rate"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"validation"</span><span class="p">,</span> <span class="s2">"event_rate"</span><span class="p">)]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">                      development validation</span>
+<span class="go">                       event_rate event_rate</span>
+<span class="go">rule</span>
+<span class="go">inquiries &gt; 2.0             0.347      0.296</span>
+<span class="go">debt_to_income &gt; 0.58       0.329      0.341</span>
+<span class="go">income &lt;= 1850.0            0.262      0.256</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">inquiries</span></code> rule falls from 34.7% to 29.6%, while <code class="docutils literal notranslate"><span class="pre">debt_to_income</span></code> holds and <code class="docutils literal notranslate"><span class="pre">income</span></code> is nearly unchanged. The shrinkage is part of the price of a search, so judge a rule by its validation event rate, not by its lift in the development sample.</p>
+<p>Missing values and special codes hit no threshold rule, and the search leaves them out of the fit. <code class="docutils literal notranslate"><span class="pre">special</span></code> names the codes of each column, as <a class="reference internal" href="../api/spec.html#kivi.spec.fit_spec" title="kivi.spec.fit_spec"><code class="xref py py-func docutils literal notranslate"><span class="pre">fit_spec()</span></code></a> does. To decline or flag a special code, write it as a rule of its own and measure it with <a class="reference internal" href="../api/rules.html#kivi.rules.rule_table" title="kivi.rules.rule_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">rule_table()</span></code></a>, whose lift shows whether it is risky. Here every twentieth income is replaced by the code <code class="docutils literal notranslate"><span class="pre">-1</span></code>:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">coded</span> <span class="o">=</span> <span class="n">development</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">income</span><span class="o">=</span><span class="n">development</span><span class="p">[</span><span class="s2">"income"</span><span class="p">]</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">6000</span><span class="p">)</span> <span class="o">%</span> <span class="mi">20</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">found</span> <span class="o">=</span> <span class="n">rule_candidates</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">coded</span><span class="p">,</span> <span class="n">coded</span><span class="p">[</span><span class="s2">"target"</span><span class="p">],</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">"income"</span><span class="p">],</span> <span class="n">special</span><span class="o">=</span><span class="p">{</span><span class="s2">"income"</span><span class="p">:</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]},</span> <span class="n">min_lift</span><span class="o">=</span><span class="mf">1.2</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">found</span><span class="p">[[</span><span class="s2">"operator"</span><span class="p">,</span> <span class="s2">"threshold"</span><span class="p">,</span> <span class="s2">"hits"</span><span class="p">,</span> <span class="s2">"lift"</span><span class="p">]]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">                  operator  threshold  hits   lift</span>
+<span class="go">rule</span>
+<span class="go">income &lt;= 1640.0        &lt;=     1640.0   419  1.715</span>
+<span class="go">income &lt;= 1850.0        &lt;=     1850.0   673  1.597</span>
+<span class="go">income &lt;= 1750.0        &lt;=     1750.0   545  1.499</span>
+<span class="go">income &lt;= 2420.0        &lt;=     2420.0  1569  1.366</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rule_table</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"income_unknown"</span><span class="p">:</span> <span class="n">coded</span><span class="p">[</span><span class="s2">"income"</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">}),</span> <span class="n">coded</span><span class="p">[</span><span class="s2">"target"</span><span class="p">])[</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="s2">"hits"</span><span class="p">,</span> <span class="s2">"event_rate"</span><span class="p">,</span> <span class="s2">"lift"</span><span class="p">]</span>
+<span class="gp">... </span><span class="p">]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">                hits  event_rate   lift</span>
+<span class="go">rule</span>
+<span class="go">income_unknown   300       0.133  0.819</span>
+</pre></div>
+</div>
+<p>None of the thresholds hits the 300 coded applicants, who default at 13.3%, less often than the sample (a lift of 0.82), so they need no rule. Written with the exclusion of the codes, as <code class="docutils literal notranslate"><span class="pre">as_rules</span></code> does, the candidates have the counts of the table:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">measured</span> <span class="o">=</span> <span class="n">rule_table</span><span class="p">(</span><span class="n">as_rules</span><span class="p">(</span><span class="n">coded</span><span class="p">,</span> <span class="n">found</span><span class="p">,</span> <span class="p">{</span><span class="s2">"income"</span><span class="p">:</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]}),</span> <span class="n">coded</span><span class="p">[</span><span class="s2">"target"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">measured</span><span class="p">[</span><span class="s2">"hits"</span><span class="p">]</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="n">found</span><span class="p">[</span><span class="s2">"hits"</span><span class="p">])</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">measured</span><span class="p">[</span><span class="s2">"lift"</span><span class="p">],</span> <span class="n">found</span><span class="p">[</span><span class="s2">"lift"</span><span class="p">])</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<p>Without the exclusion, <code class="docutils literal notranslate"><span class="pre">income</span> <span class="pre">&lt;=</span> <span class="pre">1640</span></code> would also hit the coded applicants, because <code class="docutils literal notranslate"><span class="pre">-1</span></code> is below the threshold.</p>
+<p>The cut points are fit with a smallest bin of <code class="docutils literal notranslate"><span class="pre">min_hit_rate</span></code> of the applicants, so the search can find a small risky tail, such as the 136 applicants (2.3%) with more than three inquiries in the table above, as well as a broad one.</p>
+</section>
+<section id="limits">
+<h2>Limits<a class="headerlink" href="#limits" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>A rule in force declines every applicant it hits, so the outcomes it produces cannot measure it. Only a test group of applicants that are approved despite the rule, or <a class="reference internal" href="reject_inference.html"><span class="doc">reject inference</span></a>, gives its event rate.</p></li>
+<li><p>The tables give no confidence intervals. With a few hundred known outcomes, an event rate is uncertain by several points, and the difference between two rules may be noise.</p></li>
+<li><p><a class="reference internal" href="../api/rules.html#kivi.rules.rule_candidates" title="kivi.rules.rule_candidates"><code class="xref py py-func docutils literal notranslate"><span class="pre">rule_candidates()</span></code></a> looks at one variable at a time and finds only single thresholds. It does not combine variables, and it does not search categorical columns, where a rule is a list of categories that you write yourself. Its candidates are found and measured on the same applicants, so they are optimistic: re-check them with <a class="reference internal" href="../api/rules.html#kivi.rules.rule_table" title="kivi.rules.rule_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">rule_table()</span></code></a> on a validation sample, as shown above, before putting them in the policy.</p></li>
+<li><p>The new hits of a rule depend on the order of the set. Compare rules by their hits and unique hits, and use the waterfall for the decisions of one fixed order.</p></li>
+</ul>
+</section>
+<section id="errors-and-warnings">
+<h2>Errors and warnings<a class="headerlink" href="#errors-and-warnings" title="Link to this heading">#</a></h2>
+<p>The functions raise <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> and do not warn. The errors that readers are likely to meet:</p>
+<ul class="simple">
+<li><p>A rule column that is not boolean or 0 and 1, such as a raw column of the data passed by mistake: <code class="docutils literal notranslate"><span class="pre">rules</span> <span class="pre">column</span> <span class="pre">'inquiries'</span> <span class="pre">must</span> <span class="pre">contain</span> <span class="pre">only</span> <span class="pre">booleans</span> <span class="pre">or</span> <span class="pre">0</span> <span class="pre">and</span> <span class="pre">1</span></code>. Build the rule with a comparison, such as <code class="docutils literal notranslate"><span class="pre">applications[&quot;inquiries&quot;]</span> <span class="pre">&gt;=</span> <span class="pre">3</span></code>.</p></li>
+<li><p>A missing value in a rule, shown in <a class="reference internal" href="#rules-missing-values"><span class="std std-ref">Missing values</span></a> above.</p></li>
+<li><p>A target or weights that do not describe the rows of <code class="docutils literal notranslate"><span class="pre">rules</span></code>: <code class="docutils literal notranslate"><span class="pre">rules</span> <span class="pre">and</span> <span class="pre">target</span> <span class="pre">must</span> <span class="pre">have</span> <span class="pre">identical</span> <span class="pre">indices</span></code> when a Series has another index, for example a target of all applications next to rules built on a subset, or <code class="docutils literal notranslate"><span class="pre">target</span> <span class="pre">must</span> <span class="pre">have</span> <span class="pre">one</span> <span class="pre">label</span> <span class="pre">per</span> <span class="pre">row</span> <span class="pre">of</span> <span class="pre">rules</span></code> when an array has another length. Select the same rows of both, as in <code class="docutils literal notranslate"><span class="pre">rule_table(rules[kept],</span> <span class="pre">target[kept])</span></code>.</p></li>
+</ul>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="strategy.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Credit strategy</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="spec.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Binning specifications</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#definitions">Definitions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-worked-example">A worked example</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#rules-on-the-applications">Rules on the applications</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#hit-table">Hit table</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overlap-matrix">Overlap matrix</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#decision-waterfall">Decision waterfall</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#rule-order">Rule order</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#unknown-outcomes">Unknown outcomes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#missing-values">Missing values</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sample-weights">Sample weights</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#searching-for-rules">Searching for rules</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#limits">Limits</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#errors-and-warnings">Errors and warnings</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1.
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

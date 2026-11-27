@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>专家评分卡 &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=d005c095" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=14f9d491"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script src="../_static/translations.js?v=540d3cec"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/expert';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="next" title="模型表现" href="metrics.html" />
+    <link rel="prev" title="评分卡" href="scorecard.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+  <meta name="docsearch:version" content="1.9.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">跳转至主要内容</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>回到顶部</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="版本警告"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="网页导航" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 1.9.0">1.9.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    教程
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../../en/user_guide/expert.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="当前页面" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    教程
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../../en/user_guide/expert.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="章节导航">
+  <p class="bd-links__title" role="heading" aria-level="1">章节导航</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="risk_workflow.html">风控建模流程</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">时间窗特征</a></li>
+<li class="toctree-l1"><a class="reference internal" href="univariate.html">单变量概况</a></li>
+<li class="toctree-l1"><a class="reference internal" href="binning.html">分箱</a></li>
+<li class="toctree-l1"><a class="reference internal" href="woe_iv.html">证据权重与信息值</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selection.html">变量筛选</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reject_inference.html">拒绝推断</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scorecard.html">评分卡</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">专家评分卡</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">模型表现</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">校准</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lgd.html">LGD 与 EAD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">信贷策略</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rules.html">政策规则</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spec.html">分箱方案</a></li>
+<li class="toctree-l1"><a class="reference internal" href="psi.html">群体稳定性指标</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">模型监控</a></li>
+<li class="toctree-l1"><a class="reference internal" href="validation.html">模型验证</a></li>
+<li class="toctree-l1"><a class="reference internal" href="capital.html">监管资本</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vintage.html">Vintage 与滚动率分析</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lifetime.html">存续期 PD 与预期信用损失</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html">图表</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">示例数据</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="初始页面">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">用户指南</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">专家评分卡</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="expert-scorecards">
+<h1>专家评分卡<a class="headerlink" href="#expert-scorecards" title="链接到此标题。">#</a></h1>
+<p>专家评分卡不是用数据拟合权重，而是由判断来设定权重。它适用于违约样本太少、无法建立统计模型的组合，例如大型企业、小微企业或新产品：信贷分析师对少数几个因子打分，由委员会决定每个因子的分量。层次分析法（AHP）让这一决定不那么随意：委员会对因子两两比较，由比较得出权重，并检验各项比较是否相互吻合。</p>
+<p>当没有数据可供拟合时，专家评分卡取代 <a class="reference internal" href="selection.html"><span class="doc">变量筛选</span></a> 和 <a class="reference internal" href="scorecard.html"><span class="doc">评分卡</span></a> 中的拟合步骤。有了结果数据之后，用 <a class="reference internal" href="metrics.html"><span class="doc">模型表现</span></a> 评估其评分，并用 <a class="reference internal" href="calibration.html"><span class="doc">校准</span></a> 把评级校准到违约率。 <a class="reference internal" href="../api/expert.html#kivi.expert.ahp_weights" title="kivi.expert.ahp_weights"><code class="xref py py-func docutils literal notranslate"><span class="pre">ahp_weights()</span></code></a> 把两两比较矩阵转换为权重， <a class="reference internal" href="../api/expert.html#kivi.expert.ahp_consistency" title="kivi.expert.ahp_consistency"><code class="xref py py-func docutils literal notranslate"><span class="pre">ahp_consistency()</span></code></a> 度量各项比较的吻合程度， <a class="reference internal" href="../api/expert.html#kivi.expert.combine_weights" title="kivi.expert.combine_weights"><code class="xref py py-func docutils literal notranslate"><span class="pre">combine_weights()</span></code></a> 把因子和子因子的权重合成为全局权重。</p>
+<section id="definitions">
+<h2>定义<a class="headerlink" href="#definitions" title="链接到此标题。">#</a></h2>
+<p>比较就是按 Saaty 标度做出的判断。对两个因子 <span class="math notranslate nohighlight">\(i\)</span> 和 <span class="math notranslate nohighlight">\(j\)</span> ， <span class="math notranslate nohighlight">\(a_{ij}\)</span> 表示 <span class="math notranslate nohighlight">\(i\)</span> 比 <span class="math notranslate nohighlight">\(j\)</span> 重要多少倍，而 <span class="math notranslate nohighlight">\(a_{ji} = 1 / a_{ij}\)</span> 表示反过来的情形：</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 20.0%" />
+<col style="width: 80.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p><span class="math notranslate nohighlight">\(a_{ij}\)</span></p></th>
+<th class="head"><p>含义</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1</p></td>
+<td><p>同等重要</p></td>
+</tr>
+<tr class="row-odd"><td><p>3</p></td>
+<td><p>稍微重要</p></td>
+</tr>
+<tr class="row-even"><td><p>5</p></td>
+<td><p>明显重要</p></td>
+</tr>
+<tr class="row-odd"><td><p>7</p></td>
+<td><p>强烈重要</p></td>
+</tr>
+<tr class="row-even"><td><p>9</p></td>
+<td><p>极端重要</p></td>
+</tr>
+<tr class="row-odd"><td><p>2, 4, 6, 8</p></td>
+<td><p>中间值</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>全部比较构成的 <span class="math notranslate nohighlight">\(n \times n\)</span> 矩阵 <span class="math notranslate nohighlight">\(A = (a_{ij})\)</span> 的对角线为 1，元素互为倒数。如果各项判断相互吻合，即任意三个因子都满足 <span class="math notranslate nohighlight">\(a_{ij} a_{jk} = a_{ik}\)</span> ，那么存在总和为 1 的权重 <span class="math notranslate nohighlight">\(w\)</span> 使 <span class="math notranslate nohighlight">\(a_{ij} = w_i / w_j\)</span> ，该矩阵是 <em>一致</em> 的。判断很少完全一致，所以 <a class="reference internal" href="../api/expert.html#kivi.expert.ahp_weights" title="kivi.expert.ahp_weights"><code class="xref py py-func docutils literal notranslate"><span class="pre">ahp_weights()</span></code></a> 用两种方法之一来估计权重，两种方法对一致矩阵给出相同的结果。Saaty 的估计是主特征向量，</p>
+<div class="math notranslate nohighlight">
+\[A w = \lambda_{\max} w, \qquad \sum_i w_i = 1,\]</div>
+<p>几何法则把矩阵各行的几何平均数缩放为总和 1：</p>
+<div class="math notranslate nohighlight">
+\[w_i = \frac{\left(\prod_j a_{ij}\right)^{1/n}}{\sum_k \left(\prod_j a_{kj}\right)^{1/n}}.\]</div>
+<p>对互反矩阵， <span class="math notranslate nohighlight">\(\lambda_{\max} \ge n\)</span> ，当且仅当矩阵一致时等号成立。因此 <a class="reference internal" href="../api/expert.html#kivi.expert.ahp_consistency" title="kivi.expert.ahp_consistency"><code class="xref py py-func docutils literal notranslate"><span class="pre">ahp_consistency()</span></code></a> 用一致性指标度量不一致程度，并与随机判断平均给出的指标，即只取决于因子数的随机一致性指标 <span class="math notranslate nohighlight">\(\mathrm{RI}\)</span> 相比：</p>
+<div class="math notranslate nohighlight">
+\[\mathrm{CI} = \frac{\lambda_{\max} - n}{n - 1}, \qquad
+\mathrm{CR} = \frac{\mathrm{CI}}{\mathrm{RI}}.\]</div>
+<p>比值 <span class="math notranslate nohighlight">\(\mathrm{CR}\)</span> 即一致性比率。Saaty 的经验法则是，比率不超过 0.1 的判断一致性足够好，可以使用，Saaty（1994 年）后来又把限值收紧为：三个因子 0.05，四个因子 0.08。3 到 15 个因子对应的随机一致性指标，按 Obata 和 Shiraishi 列出的 Tone（1986 年）的表，依次为 0.58、0.90、1.12、1.24、1.32、1.41、1.45、1.49、1.51、1.53、1.56、1.57 和 1.59。Saaty 的著作中 12 个因子的数值印的是 1.48，一般认为这是印刷错误。一个或两个因子的比较必然一致，因此其比率为 0。</p>
+</section>
+<section id="a-worked-example">
+<h2>计算示例<a class="headerlink" href="#a-worked-example" title="链接到此标题。">#</a></h2>
+<p>对企业评分卡的三个因子做比较。分析师判断销售的重要性是利润率的 2 倍、杠杆率的 4 倍，利润率的重要性是杠杆率的 2 倍：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.expert</span><span class="w"> </span><span class="kn">import</span> <span class="n">ahp_consistency</span><span class="p">,</span> <span class="n">ahp_weights</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">factors</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"sales"</span><span class="p">,</span> <span class="s2">"margin"</span><span class="p">,</span> <span class="s2">"leverage"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">matrix</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]],</span> <span class="n">index</span><span class="o">=</span><span class="n">factors</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">factors</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ahp_weights</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">factor</span>
+<span class="go">sales       0.5714</span>
+<span class="go">margin      0.2857</span>
+<span class="go">leverage    0.1429</span>
+<span class="go">Name: weight, dtype: float64</span>
+</pre></div>
+</div>
+<p>各项判断相互吻合，因为 2 × 2 = 4，所以权重分别是 7 份中的 4 份、2 份和 1 份，一致性比率为 0：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ahp_consistency</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">statistic</span>
+<span class="go">lambda_max    3.00</span>
+<span class="go">ci            0.00</span>
+<span class="go">ri            0.58</span>
+<span class="go">cr            0.00</span>
+<span class="go">dtype: float64</span>
+</pre></div>
+</div>
+<p>如果分析师改判利润率的重要性是杠杆率的 4 倍，各项判断就会相互矛盾，因为这样销售的重要性应是杠杆率的 8 倍，而不是 4 倍：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">inconsistent</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">]],</span> <span class="n">index</span><span class="o">=</span><span class="n">factors</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">factors</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">statistics</span> <span class="o">=</span> <span class="n">ahp_consistency</span><span class="p">(</span><span class="n">inconsistent</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">statistics</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">statistic</span>
+<span class="go">lambda_max    3.0536</span>
+<span class="go">ci            0.0268</span>
+<span class="go">ri            0.5800</span>
+<span class="go">cr            0.0462</span>
+<span class="go">dtype: float64</span>
+</pre></div>
+</div>
+<p>这里 <span class="math notranslate nohighlight">\(\mathrm{CI} = (3.0536 - 3) / 2 = 0.0268\)</span> ， <span class="math notranslate nohighlight">\(\mathrm{CR} = 0.0268 / 0.58 = 0.0462\)</span> ：这些判断的一致性仍然足以使用。权重向利润率倾斜：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ahp_weights</span><span class="p">(</span><span class="n">inconsistent</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">factor</span>
+<span class="go">sales       0.5469</span>
+<span class="go">margin      0.3445</span>
+<span class="go">leverage    0.1085</span>
+<span class="go">Name: weight, dtype: float64</span>
+</pre></div>
+</div>
+<p>对两个或三个因子，特征向量法与几何法对任何互反矩阵都给出相同的权重，所以这里 <code class="docutils literal notranslate"><span class="pre">method=&quot;geometric&quot;</span></code> 不会改变结果。从四个因子起，判断不一致时两者会略有差异。</p>
+</section>
+<section id="weighing-five-factors">
+<h2>确定五个因子的权重<a class="headerlink" href="#weighing-five-factors" title="链接到此标题。">#</a></h2>
+<p>一家中型企业贷款机构的信贷委员会比较五个因子： <code class="docutils literal notranslate"><span class="pre">leverage</span></code> （负债权益比）、 <code class="docutils literal notranslate"><span class="pre">coverage</span></code> （利息保障倍数）、 <code class="docutils literal notranslate"><span class="pre">liquidity</span></code> （流动性）、 <code class="docutils literal notranslate"><span class="pre">profitability</span></code> （盈利能力）和 <code class="docutils literal notranslate"><span class="pre">industry</span></code> （借款人所在行业的前景）。一个辅助函数为矩阵的行和列加上名称。只有对角线以上的元素是判断，对角线以下的每个元素是其倒数：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">factors</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"leverage"</span><span class="p">,</span> <span class="s2">"coverage"</span><span class="p">,</span> <span class="s2">"liquidity"</span><span class="p">,</span> <span class="s2">"profitability"</span><span class="p">,</span> <span class="s2">"industry"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">comparison</span><span class="p">(</span><span class="n">rows</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">factors</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">factors</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">matrix</span> <span class="o">=</span> <span class="n">comparison</span><span class="p">([</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+<span class="gp">... </span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">weights</span> <span class="o">=</span> <span class="n">ahp_weights</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">weights</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">factor</span>
+<span class="go">leverage         0.403</span>
+<span class="go">coverage         0.209</span>
+<span class="go">liquidity        0.111</span>
+<span class="go">profitability    0.209</span>
+<span class="go">industry         0.068</span>
+<span class="go">Name: weight, dtype: float64</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ahp_consistency</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">statistic</span>
+<span class="go">lambda_max    5.0182</span>
+<span class="go">ci            0.0046</span>
+<span class="go">ri            1.1200</span>
+<span class="go">cr            0.0041</span>
+<span class="go">dtype: float64</span>
+</pre></div>
+</div>
+<p>权重之和为 1，一致性比率 0.004 远低于 0.1。 <a class="reference internal" href="../api/expert.html#kivi.expert.ahp_weights" title="kivi.expert.ahp_weights"><code class="xref py py-func docutils literal notranslate"><span class="pre">ahp_weights()</span></code></a> 默认使用特征向量法； <code class="docutils literal notranslate"><span class="pre">method=&quot;geometric&quot;</span></code> 在这里给出几乎相同的权重，因为该矩阵近乎一致。</p>
+<figure class="align-default" id="id1">
+<img alt="五个因子的比较矩阵（对角线以上为判断）、权重、矩阵乘以权重（等于每个权重的 5.0182 倍），以及 ahp_consistency 的四个统计量" class="plot-directive" src="../_images/expert-1.svg" />
+<figcaption>
+<p><span class="caption-text"><code class="docutils literal notranslate"><span class="pre">ahp_weights</span></code> 和 <code class="docutils literal notranslate"><span class="pre">ahp_consistency</span></code> 如何计算本例。对角线以上的元素是委员会的判断，对角线以下是它们的倒数。权重是矩阵的主特征向量：矩阵乘以权重等于 <code class="docutils literal notranslate"><span class="pre">lambda_max</span></code> 乘以每个权重，由 <code class="docutils literal notranslate"><span class="pre">lambda_max</span></code> 又得到 <code class="docutils literal notranslate"><span class="pre">ci</span></code> 和 <code class="docutils literal notranslate"><span class="pre">cr</span></code> 。</span><a class="headerlink" href="#id1" title="链接到此图片">#</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="revising-judgments">
+<h2>修订判断<a class="headerlink" href="#revising-judgments" title="链接到此标题。">#</a></h2>
+<p>第二位分析师判断杠杆率的重要性是流动性的 4 倍，流动性的重要性是盈利能力的 4 倍，而盈利能力的重要性又是杠杆率的 3 倍。这些判断首尾相接成一个循环，一致性比率远高于 0.1：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">second</span> <span class="o">=</span> <span class="n">comparison</span><span class="p">([</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+<span class="gp">... </span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ahp_consistency</span><span class="p">(</span><span class="n">second</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">statistic</span>
+<span class="go">lambda_max    6.481</span>
+<span class="go">ci            0.370</span>
+<span class="go">ri            1.120</span>
+<span class="go">cr            0.331</span>
+<span class="go">dtype: float64</span>
+</pre></div>
+</div>
+<p>统计量并不说明应当修订哪一项判断。把每个元素除以它应当等于的权重之比 <span class="math notranslate nohighlight">\(w_i / w_j\)</span> 就能看出来：比值接近 1，说明该判断与权重吻合，而离 1 最远的判断应当最先讨论。</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">second_weights</span> <span class="o">=</span> <span class="n">ahp_weights</span><span class="p">(</span><span class="n">second</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">(</span><span class="n">second</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">second_weights</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">second_weights</span><span class="p">))</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">               leverage  coverage  liquidity  profitability  industry</span>
+<span class="go">leverage           1.00      1.24       3.02           0.27      0.96</span>
+<span class="go">coverage           0.81      1.00       2.45           1.29      0.93</span>
+<span class="go">liquidity          0.33      0.41       1.00           4.23      0.51</span>
+<span class="go">profitability      3.75      0.77       0.24           1.00      0.72</span>
+<span class="go">industry           1.04      1.07       1.97           1.39      1.00</span>
+</pre></div>
+</div>
+<p>最大的元素，即流动性对盈利能力的 4.23、盈利能力对杠杆率的 3.75 和杠杆率对流动性的 3.02，正是构成循环的三个比较，它们的倒数则是最小的元素，因此这些比较需要分析师达成一致。比率高于 0.1 时函数不会报错，因为如何处理由委员会决定。</p>
+<figure class="align-default" id="id3">
+<img alt="第二位分析师每项判断与权重之比的比值，最大的三个比值及其倒数加了边框，并把杠杆率胜过流动性、流动性胜过盈利能力、盈利能力胜过杠杆率这三项判断画成一圈箭头" class="plot-directive" src="../_images/expert-2.svg" />
+<figcaption>
+<p><span class="caption-text">第二位分析师的比值。判断离权重之比越远，单元格颜色越深。最大的三个比值（与其倒数一起加了边框）就是构成循环的三项判断：杠杆率胜过流动性，流动性胜过盈利能力，盈利能力胜过杠杆率。</span><a class="headerlink" href="#id3" title="链接到此图片">#</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="scoring-borrowers">
+<h2>为借款人评分<a class="headerlink" href="#scoring-borrowers" title="链接到此标题。">#</a></h2>
+<p>分析师按 0（弱）到 100（强）的尺度，对每个借款人的每个因子打分，借款人的评分就是各因子得分的加权和。用数据框乘以权重即可得到，并且按名称把列与因子对齐，因此缺少或拼错的因子会报错，而不会被悄悄丢弃：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">factor_scores</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">{</span>
+<span class="gp">... </span>        <span class="s2">"leverage"</span><span class="p">:</span> <span class="p">[</span><span class="mi">80</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">65</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="s2">"coverage"</span><span class="p">:</span> <span class="p">[</span><span class="mi">70</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">90</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="s2">"liquidity"</span><span class="p">:</span> <span class="p">[</span><span class="mi">60</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">85</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="s2">"profitability"</span><span class="p">:</span> <span class="p">[</span><span class="mi">75</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">55</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="s2">"industry"</span><span class="p">:</span> <span class="p">[</span><span class="mi">50</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">70</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">},</span>
+<span class="gp">... </span>    <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="s2">"Acme"</span><span class="p">,</span> <span class="s2">"Borel"</span><span class="p">,</span> <span class="s2">"Cirrus"</span><span class="p">],</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">(</span><span class="n">factor_scores</span> <span class="o">@</span> <span class="n">weights</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">Acme      72.6</span>
+<span class="go">Borel     43.4</span>
+<span class="go">Cirrus    70.7</span>
+<span class="go">dtype: float64</span>
+</pre></div>
+</div>
+<p>该评分随资信水平上升，而 <a class="reference internal" href="../api/metrics.html#module-kivi.metrics" title="kivi.metrics"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.metrics</span></code></a> 和 <a class="reference internal" href="../api/strategy.html#module-kivi.strategy" title="kivi.strategy"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.strategy</span></code></a> 期望评分随风险上升。评估时请传入 <code class="docutils literal notranslate"><span class="pre">-score</span></code> ，做法与 <a class="reference internal" href="metrics.html"><span class="doc">模型表现</span></a> 对评分卡分数的说明相同。该评分只用于给借款人排序，不是违约概率。待机构有了结果数据，再把它校准到违约率，例如使用 <a class="reference internal" href="calibration.html"><span class="doc">校准</span></a> 中的主标尺。</p>
+</section>
+<section id="sub-factors">
+<h2>子因子<a class="headerlink" href="#sub-factors" title="链接到此标题。">#</a></h2>
+<p>层次结构在每一层单独比较因子：先比较因子组，再比较每个组内的因子。 <a class="reference internal" href="../api/expert.html#kivi.expert.combine_weights" title="kivi.expert.combine_weights"><code class="xref py py-func docutils literal notranslate"><span class="pre">combine_weights()</span></code></a> 把组的权重乘以组内各因子的权重，因此全局权重之和仍为 1：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.expert</span><span class="w"> </span><span class="kn">import</span> <span class="n">combine_weights</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">compare</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">rows</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">labels</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">groups</span> <span class="o">=</span> <span class="n">ahp_weights</span><span class="p">(</span><span class="n">compare</span><span class="p">([</span><span class="s2">"financial"</span><span class="p">,</span> <span class="s2">"business"</span><span class="p">],</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">finance</span> <span class="o">=</span> <span class="n">ahp_weights</span><span class="p">(</span><span class="n">compare</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="s2">"leverage"</span><span class="p">,</span> <span class="s2">"coverage"</span><span class="p">,</span> <span class="s2">"liquidity"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]],</span>
+<span class="gp">... </span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">business</span> <span class="o">=</span> <span class="n">ahp_weights</span><span class="p">(</span><span class="n">compare</span><span class="p">([</span><span class="s2">"industry"</span><span class="p">,</span> <span class="s2">"management"</span><span class="p">],</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">global_weights</span> <span class="o">=</span> <span class="n">combine_weights</span><span class="p">(</span><span class="n">groups</span><span class="p">,</span> <span class="p">{</span><span class="s2">"financial"</span><span class="p">:</span> <span class="n">finance</span><span class="p">,</span> <span class="s2">"business"</span><span class="p">:</span> <span class="n">business</span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">global_weights</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">factor     sub_factor</span>
+<span class="go">financial  leverage      0.4286</span>
+<span class="go">           coverage      0.2143</span>
+<span class="go">           liquidity     0.1071</span>
+<span class="go">business   industry      0.1667</span>
+<span class="go">           management    0.0833</span>
+<span class="go">Name: weight, dtype: float64</span>
+</pre></div>
+</div>
+<p>财务因子的权重为 0.75，经营因子为 0.25；杠杆率占财务权重的 4 / 7，所以其全局权重是 0.75 × 4 / 7 = 0.4286。索引有 <code class="docutils literal notranslate"><span class="pre">factor</span></code> 和 <code class="docutils literal notranslate"><span class="pre">sub_factor</span></code> 两层，因此同一个子因子名称可以出现在两个因子之下。若子因子名称互不相同，去掉第一层索引后，就可以按子因子名称为评分数据框建立索引：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sub_factor_scores</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">{</span>
+<span class="gp">... </span>        <span class="s2">"leverage"</span><span class="p">:</span> <span class="p">[</span><span class="mi">80</span><span class="p">,</span> <span class="mi">40</span><span class="p">],</span> <span class="s2">"coverage"</span><span class="p">:</span> <span class="p">[</span><span class="mi">70</span><span class="p">,</span> <span class="mi">50</span><span class="p">],</span> <span class="s2">"liquidity"</span><span class="p">:</span> <span class="p">[</span><span class="mi">60</span><span class="p">,</span> <span class="mi">30</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="s2">"industry"</span><span class="p">:</span> <span class="p">[</span><span class="mi">50</span><span class="p">,</span> <span class="mi">60</span><span class="p">],</span> <span class="s2">"management"</span><span class="p">:</span> <span class="p">[</span><span class="mi">90</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">},</span>
+<span class="gp">... </span>    <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="s2">"Acme"</span><span class="p">,</span> <span class="s2">"Borel"</span><span class="p">],</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">(</span><span class="n">sub_factor_scores</span> <span class="o">@</span> <span class="n">global_weights</span><span class="o">.</span><span class="n">droplevel</span><span class="p">(</span><span class="s2">"factor"</span><span class="p">))</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">Acme     71.5</span>
+<span class="go">Borel    42.7</span>
+<span class="go">dtype: float64</span>
+</pre></div>
+</div>
+<p>第一个参数的每个因子都需要在 <code class="docutils literal notranslate"><span class="pre">children</span></code> 中有一个条目， <code class="docutils literal notranslate"><span class="pre">children</span></code> 不能有其他的键。没有子因子的因子对应只含一个标签、权重为 1 的 Series，例如 <code class="docutils literal notranslate"><span class="pre">pd.Series({&quot;cash_flow&quot;:</span> <span class="pre">1.0})</span></code> 。</p>
+<p><a class="reference internal" href="../api/expert.html#kivi.expert.combine_weights" title="kivi.expert.combine_weights"><code class="xref py py-func docutils literal notranslate"><span class="pre">combine_weights()</span></code></a> 合并两层，即因子及其子因子。对于三层的层次结构，请逐层合并：把去掉第一层索引的全局权重 <code class="docutils literal notranslate"><span class="pre">global_weights.droplevel(&quot;factor&quot;)</span></code> 作为第二次调用的第一个参数，并同时给出每个子因子下各项的权重。这要求不同因子的子因子名称互不相同，因为第一个参数的标签必须互不重复。</p>
+</section>
+<section id="several-experts">
+<h2>多位专家<a class="headerlink" href="#several-experts" title="链接到此标题。">#</a></h2>
+<p>多位专家比较因子时，常见的做法是对各元素取几何平均数来合并他们的判断，这样对角线仍为 1，矩阵仍是互反的，然后对合并后的矩阵确定权重。这里群体中每个因子的权重都介于两位专家的权重之间，但这一点并不总是成立：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">combined</span> <span class="o">=</span> <span class="n">comparison</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">matrix</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">second</span><span class="p">)],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">{</span><span class="s2">"first"</span><span class="p">:</span> <span class="n">weights</span><span class="p">,</span> <span class="s2">"second"</span><span class="p">:</span> <span class="n">second_weights</span><span class="p">,</span> <span class="s2">"group"</span><span class="p">:</span> <span class="n">ahp_weights</span><span class="p">(</span><span class="n">combined</span><span class="p">)}</span>
+<span class="gp">... </span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">               first  second  group</span>
+<span class="go">factor</span>
+<span class="go">leverage       0.403   0.297  0.355</span>
+<span class="go">coverage       0.209   0.184  0.208</span>
+<span class="go">liquidity      0.111   0.225  0.149</span>
+<span class="go">profitability  0.209   0.238  0.221</span>
+<span class="go">industry       0.068   0.057  0.067</span>
+</pre></div>
+</div>
+<p>一致矩阵的几何平均仍是一致矩阵，所以群体矩阵的一致性比率并不能说明专家们是否意见一致。请比较他们的权重，并讨论分歧最大的那些比较。</p>
+</section>
+<section id="reading-the-result">
+<h2>解读结果<a class="headerlink" href="#reading-the-result" title="链接到此标题。">#</a></h2>
+<p><a class="reference internal" href="../api/expert.html#kivi.expert.ahp_weights" title="kivi.expert.ahp_weights"><code class="xref py py-func docutils literal notranslate"><span class="pre">ahp_weights()</span></code></a> 为每个因子返回一个权重，权重均为正数，总和为 1，顺序与矩阵相同。权重越大，说明该因子在加权评分中分量越重；权重是相对的，两个权重之比就是判断所隐含的一个因子相对于另一个因子的重要程度。 <a class="reference internal" href="../api/expert.html#kivi.expert.ahp_consistency" title="kivi.expert.ahp_consistency"><code class="xref py py-func docutils literal notranslate"><span class="pre">ahp_consistency()</span></code></a> 返回四个统计量：</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 75.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>统计量</p></th>
+<th class="head"><p>含义</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">lambda_max</span></code></p></td>
+<td><p>矩阵的主特征值。它不小于因子数，判断一致时等于因子数。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ci</span></code></p></td>
+<td><p>一致性指标 <code class="docutils literal notranslate"><span class="pre">(lambda_max</span> <span class="pre">-</span> <span class="pre">n)</span> <span class="pre">/</span> <span class="pre">(n</span> <span class="pre">-</span> <span class="pre">1)</span></code> 。判断一致时为零，一致性越差越大。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ri</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">n</span></code> 个因子对应的 Saaty 随机一致性指标：随机判断的平均 <code class="docutils literal notranslate"><span class="pre">ci</span></code> 。一个或两个因子时为 0。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cr</span></code></p></td>
+<td><p>一致性比率 <code class="docutils literal notranslate"><span class="pre">ci</span> <span class="pre">/</span> <span class="pre">ri</span></code> 。常用阈值是不超过 0.1，三个因子为 0.05，四个因子为 0.08；高于该值时应复核判断，例如借助上文的比值表。一个或两个因子时为 0。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>比率低于阈值并不意味着权重正确。它只说明各项判断没有相互矛盾，而不是说明判断正确地刻画了借款人。</p>
+</section>
+<section id="missing-values">
+<h2>缺失值<a class="headerlink" href="#missing-values" title="链接到此标题。">#</a></h2>
+<p>每一项比较都必须给出。矩阵中有缺失的元素会报错而不是被跳过，因为其他因子的权重都依赖于它。因子得分有缺失值时， <code class="docutils literal notranslate"><span class="pre">factor_scores</span> <span class="pre">&#64;</span> <span class="pre">weights</span></code> 给出的该借款人的加权评分也是缺失的；评分前请先决定缺失的因子意味着什么，例如把它记为最低等级，或者对其余因子的权重重新归一化。</p>
+</section>
+<section id="limits">
+<h2>局限<a class="headerlink" href="#limits" title="链接到此标题。">#</a></h2>
+<ul class="simple">
+<li><p>权重和判断一样带有主观性。这一方法让权重变得明确、可检验，但并不能保证权重正确。不同的委员会会给出不同的权重，而权重只有在有了结果数据之后才能检验。</p></li>
+<li><p>一致性比率不超过 0.1，说明各项比较相互吻合。判断可以相互吻合却仍然是错的，例如每一项比较都带有同样的偏见。</p></li>
+<li><p>标度止于 9 及其倒数，因此在单次比较中，一个因子的分量不能超过另一个因子的 9 倍。大矩阵很难做出判断：超过约九个因子时，最好像子因子一节那样拆分为层次结构。</p></li>
+<li><p>随机一致性指标最多列到 15 个因子，因子更多时 <a class="reference internal" href="../api/expert.html#kivi.expert.ahp_consistency" title="kivi.expert.ahp_consistency"><code class="xref py py-func docutils literal notranslate"><span class="pre">ahp_consistency()</span></code></a> 会报错。已发表的各种表中，随机一致性指标略有差异，因为它们来自规模不同的模拟，而且 Saaty 的著作中 12 个因子的数值印的是 1.48，函数使用的 Tone 的表中则是 1.53。</p></li>
+<li><p><a class="reference internal" href="../api/expert.html#kivi.expert.combine_weights" title="kivi.expert.combine_weights"><code class="xref py py-func docutils literal notranslate"><span class="pre">combine_weights()</span></code></a> 一次合并两层，并且要求每个因子都在 <code class="docutils literal notranslate"><span class="pre">children</span></code> 中有一个条目；更深的层次结构要逐层合并，做法见子因子一节。</p></li>
+<li><p>这些函数只负责权重。kivi 不对因子打分，不设定因子得分的尺度，不把评分校准到违约率，也不做超出上文示例的群体判断汇总。</p></li>
+</ul>
+</section>
+<section id="errors-and-warnings">
+<h2>错误与警告<a class="headerlink" href="#errors-and-warnings" title="链接到此标题。">#</a></h2>
+<p>一个因子与另一个因子的比较，必须是反向比较的倒数，满足相对容差 <code class="docutils literal notranslate"><span class="pre">rtol</span></code> ，其默认值为 1e-3；对角线上的 1 也按同样的容差检查。四舍五入到四位小数的元素，例如用 0.3333 代替 1 / 3、用 0.1429 代替 1 / 7，可以通过。四舍五入到两位小数的元素，例如 0.33，会报错并显示这两个元素：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ahp_weights</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.33</span><span class="p">,</span> <span class="mi">1</span><span class="p">]])</span>
+<span class="gt">Traceback (most recent call last):</span>
+<span class="c">...</span>
+<span class="gr">ValueError</span>: <span class="n">matrix must be reciprocal: the entries at [0, 1] and [1, 0] must multiply to 1, got 3.0 and 0.33</span>
+</pre></div>
+</div>
+<p>请直接写成 <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">/</span> <span class="pre">3</span></code> ，或者在分析师的本意就是两位小数时传入更大的 <code class="docutils literal notranslate"><span class="pre">rtol</span></code> 。矩阵按给定的值使用，因此权重会随四舍五入后的元素而变：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s2">"rounded"</span><span class="p">:</span> <span class="n">ahp_weights</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">7</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.14</span><span class="p">,</span> <span class="mi">1</span><span class="p">]],</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">0.05</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="s2">"exact"</span><span class="p">:</span> <span class="n">ahp_weights</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">7</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]),</span>
+<span class="gp">... </span><span class="p">})</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">        rounded  exact</span>
+<span class="go">factor</span>
+<span class="go">0        0.8761  0.875</span>
+<span class="go">1        0.1239  0.125</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">rtol</span></code> 必须是有限的非负数； <code class="docutils literal notranslate"><span class="pre">rtol=0</span></code> 只接受精确的倒数。</p>
+<p>对角线必须为 1，每个元素都必须是有限的正数；DataFrame 的报错会指出有问题的因子，数组则从 0 起给因子编号：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bad</span> <span class="o">=</span> <span class="n">comparison</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">)))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bad</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">"coverage"</span><span class="p">,</span> <span class="s2">"coverage"</span><span class="p">]</span> <span class="o">=</span> <span class="mf">2.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ahp_weights</span><span class="p">(</span><span class="n">bad</span><span class="p">)</span>
+<span class="gt">Traceback (most recent call last):</span>
+<span class="c">...</span>
+<span class="gr">ValueError</span>: <span class="n">matrix must have 1 on its diagonal, got 2.0 at ['coverage', 'coverage']</span>
+</pre></div>
+</div>
+<p>DataFrame 的索引必须是单层的，并且它与列必须有相同的标签且顺序一致。 <a class="reference internal" href="../api/expert.html#kivi.expert.combine_weights" title="kivi.expert.combine_weights"><code class="xref py py-func docutils literal notranslate"><span class="pre">combine_weights()</span></code></a> 要求权重总和为 1，并且第一个参数中的每个因子在 <code class="docutils literal notranslate"><span class="pre">children</span></code> 中都有一个条目。</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="scorecard.html"
+       title="上一页">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">上一页</p>
+        <p class="prev-next-title">评分卡</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="metrics.html"
+       title="下一页">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">下一页</p>
+        <p class="prev-next-title">模型表现</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 当前页面
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#definitions">定义</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-worked-example">计算示例</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#weighing-five-factors">确定五个因子的权重</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#revising-judgments">修订判断</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#scoring-borrowers">为借款人评分</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sub-factors">子因子</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#several-experts">多位专家</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#reading-the-result">解读结果</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#missing-values">缺失值</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#limits">局限</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#errors-and-warnings">错误与警告</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    由 <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1创建。
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

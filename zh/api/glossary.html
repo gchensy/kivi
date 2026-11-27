@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>术语表 &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=d005c095" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=14f9d491"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script src="../_static/translations.js?v=540d3cec"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/glossary';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="next" title="时间窗特征" href="features.html" />
+    <link rel="prev" title="兼容性" href="compatibility.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+  <meta name="docsearch:version" content="1.9.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">跳转至主要内容</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>回到顶部</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="版本警告"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="网页导航" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 1.9.0">1.9.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    教程
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../../en/api/glossary.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    教程
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../../en/api/glossary.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="章节导航">
+  <p class="bd-links__title" role="heading" aria-level="1">章节导航</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="conventions.html">约定</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compatibility.html">兼容性</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">术语表</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">时间窗特征</a></li>
+<li class="toctree-l1"><a class="reference internal" href="univariate.html">单变量概况</a></li>
+<li class="toctree-l1"><a class="reference internal" href="binning.html">分箱</a></li>
+<li class="toctree-l1"><a class="reference internal" href="woe.html">证据权重与信息值</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selection.html">变量筛选</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reject_inference.html">拒绝推断</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scorecard.html">评分卡</a></li>
+<li class="toctree-l1"><a class="reference internal" href="expert.html">专家评分卡</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">模型表现</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">校准</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lgd.html">LGD 与 EAD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">信贷策略</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rules.html">政策规则</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spec.html">分箱方案</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stability.html">群体稳定性指标</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">模型监控</a></li>
+<li class="toctree-l1"><a class="reference internal" href="capital.html">监管资本</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vintage.html">Vintage 与滚动率分析</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lifetime.html">存续期 PD 与预期信用损失</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html">图表</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">示例数据</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="初始页面">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../api.html" class="nav-link">API 参考</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">术语表</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="glossary">
+<h1>术语表<a class="headerlink" href="#glossary" title="链接到此标题。">#</a></h1>
+<p>本页按各篇指南和 docstring 中的用法列出信用风险建模的术语。每个条目都链接到用示例解释该术语的指南。</p>
+<dl class="simple glossary">
+<dt id="term-AalenJohansen-estimator">Aalen–Johansen 估计<a class="headerlink" href="#term-AalenJohansen-estimator" title="链接到此术语。">#</a></dt><dd><p>在提前还款等其他退出与违约相竞争时，对违约累计发生率的估计：把各期期初仍在账上的账户比例乘以该期的违约风险率，再对各期求和。没有其他退出时，它等于 1 − Kaplan–Meier；见 <a class="reference internal" href="../user_guide/lifetime.html"><span class="doc">存续期 PD 与预期信用损失</span></a> 。</p>
+</dd>
+<dt id="term-Absorbing-state">吸收状态<a class="headerlink" href="#term-Absorbing-state" title="链接到此术语。">#</a></dt><dd><p>转移矩阵中贷款一旦进入就不会离开的状态，例如违约。矩阵的各次幂会累积到达该状态的概率；见 <a class="reference internal" href="../user_guide/lifetime.html"><span class="doc">存续期 PD 与预期信用损失</span></a> 。</p>
+</dd>
+<dt id="term-Accepts-and-rejects">通过样本与拒绝样本<a class="headerlink" href="#term-Accepts-and-rejects" title="链接到此术语。">#</a></dt><dd><p>以往策略批准和拒绝的申请人。只有通过样本的结果是已知的，因此只在它们上面开发的模型可能误判拒绝样本；见 <a class="reference internal" href="../user_guide/reject_inference.html"><span class="doc">拒绝推断</span></a> 。</p>
+</dd>
+<dt id="term-Accuracy-ratio-AR">准确性比率（AR）<a class="headerlink" href="#term-Accuracy-ratio-AR" title="链接到此术语。">#</a></dt><dd><p>评级验证和 PD 校准中对 Gini 系数的称呼：AUC 的两倍减 1，评分相同的按一半计。准矩匹配按目标准确性比率拟合 PD 曲线；见 <a class="reference internal" href="../user_guide/calibration.html"><span class="doc">校准</span></a> 。</p>
+</dd>
+<dt id="term-Analytic-hierarchy-process-AHP">层次分析法（AHP）<a class="headerlink" href="#term-Analytic-hierarchy-process-AHP" title="链接到此术语。">#</a></dt><dd><p>Saaty 提出的方法：通过对因子两两比较，确定一项决策（例如专家评分卡）中各因子的权重。权重是两两比较矩阵的主特征向量，或其各行的几何平均数，一致性比率则检验各项比较是否彼此一致；见 <a class="reference internal" href="../user_guide/expert.html"><span class="doc">专家评分卡</span></a> 。</p>
+</dd>
+<dt id="term-Area-under-the-ROC-curve-AUC">ROC 曲线下面积（AUC）<a class="headerlink" href="#term-Area-under-the-ROC-curve-AUC" title="链接到此术语。">#</a></dt><dd><p>随机抽取的一个事件比随机抽取的一个非事件评分更高的概率，评分相同时计为二分之一。与目标变量无关的评分 AUC 约为 0.5；见 <a class="reference internal" href="../user_guide/metrics.html"><span class="doc">模型表现</span></a> 。</p>
+</dd>
+<dt id="term-Asset-class">资产类别<a class="headerlink" href="#term-Asset-class" title="链接到此术语。">#</a></dt><dd><p>敞口的类别，它决定内部评级法风险权重函数中的资产相关系数以及是否做期限调整：公司（包括主权和银行）、高波动商业房地产、住房抵押、合格循环零售和其他零售；见 <a class="reference internal" href="../user_guide/capital.html"><span class="doc">监管资本</span></a> 。</p>
+</dd>
+<dt id="term-Asset-correlation">资产相关系数<a class="headerlink" href="#term-Asset-correlation" title="链接到此术语。">#</a></dt><dd><p>在单因子模型中，借款人资产的方差中由系统因子解释的比例。它越高，组合的违约越集中在坏年份，资本要求也越高；见 <a class="reference internal" href="../user_guide/capital.html"><span class="doc">监管资本</span></a> 。</p>
+</dd>
+<dt id="term-Average-precision">平均精确率<a class="headerlink" href="#term-Average-precision" title="链接到此术语。">#</a></dt><dd><p>以阶梯形式绘制的精确率-召回率曲线下的面积：对各阈值求召回率的增量乘以该阈值下精确率之和，即 <span class="math notranslate nohighlight">\(\sum_n (R_n - R_{n-1}) P_n\)</span> 。随机排序的评分，其平均精确率接近事件率；见 <a class="reference internal" href="../user_guide/plotting.html"><span class="doc">图表</span></a> 。</p>
+</dd>
+<dt id="term-Back-test">回测<a class="headerlink" href="#term-Back-test" title="链接到此术语。">#</a></dt><dd><p>把模型的估计值（例如各等级的 PD 或各债项的 LGD）与之后实现的值进行比较。kivi 用二项检验和 Jeffreys 检验回测 PD，用欧洲央行的 t 检验回测连续型估计值；见 <a class="reference internal" href="../user_guide/validation.html"><span class="doc">模型验证</span></a> 。</p>
+</dd>
+<dt id="term-Bad-definition">坏的定义<a class="headerlink" href="#term-Bad-definition" title="链接到此术语。">#</a></dt><dd><p>使贷款在某个月末被视为坏的条件，通常是达到某个逾期档位或更差，例如逾期 90 天及以上。Vintage 表统计到目前为止在任一账龄满足过该条件的贷款，因此更早的定义给出更早的信号；见 <a class="reference internal" href="../user_guide/vintage.html"><span class="doc">Vintage 与滚动率分析</span></a> 。</p>
+</dd>
+<dt id="term-Bad-month">坏月<a class="headerlink" href="#term-Bad-month" title="链接到此术语。">#</a></dt><dd><p>月末状态按有序状态列的顺序为 <code class="docutils literal notranslate"><span class="pre">bad</span></code> 或更差的月份，例如 <a class="reference internal" href="features.html#kivi.features.panel_features" title="kivi.features.panel_features"><code class="xref py py-func docutils literal notranslate"><span class="pre">panel_features()</span></code></a> 的默认值 <code class="docutils literal notranslate"><span class="pre">bad=&quot;30-59&quot;</span></code> 下逾期 30 天及以上的月份；参见 <a class="reference internal" href="../user_guide/features.html"><span class="doc">时间窗特征</span></a> 。</p>
+</dd>
+<dt id="term-Best-KS-binning">Best-KS 分箱<a class="headerlink" href="#term-Best-KS-binning" title="链接到此术语。">#</a></dt><dd><p>一种有监督分箱：在每个箱中事件与非事件之间 KS 最大的位置切分，并优先切分其切分点区分开的事件与非事件对最多的箱。第一次切分保留原始取值的 KS；见 <a class="reference internal" href="../user_guide/binning.html"><span class="doc">分箱</span></a> 。</p>
+</dd>
+<dt id="term-Binning">分箱<a class="headerlink" href="#term-Binning" title="链接到此术语。">#</a></dt><dd><p>把数值变量的取值划分为若干区间（即箱）：边界在基准样本上拟合，然后应用于其他每个样本。评分卡开发中也称为 classing：细分箱（fine classing）先形成许多小箱，粗分箱（coarse classing）再把它们合并为少数几个足够大、足够稳定的箱。类别变量则通过对类别分组来分箱；见 <a class="reference internal" href="../user_guide/binning.html"><span class="doc">分箱</span></a> 。</p>
+</dd>
+<dt id="term-Binning-specification">分箱方案<a class="headerlink" href="#term-Binning-specification" title="链接到此术语。">#</a></dt><dd><p>模型每一列的边界、类别分组、特殊值和 WOE 表，一起拟合并保存为带版本号的 JSON，使生产数据的分组和编码与开发样本完全一致；见 <a class="reference internal" href="../user_guide/spec.html"><span class="doc">分箱方案</span></a> 。</p>
+</dd>
+<dt id="term-Brier-decomposition">Brier 分数分解<a class="headerlink" href="#term-Brier-decomposition" title="链接到此术语。">#</a></dt><dd><p>按等级等分组，把概率的 Brier 分数分解为可靠性（每组平均概率与其事件率相差多远）、分辨力（各组事件率与总体事件率相差多远）和不确定性（结果的方差）。Brier 分数等于可靠性减去分辨力再加上不确定性，另加两个针对组内取值不同的概率的项；见 <a class="reference internal" href="../user_guide/calibration.html"><span class="doc">校准</span></a> 。</p>
+</dd>
+<dt id="term-Calibration-sample">校准样本<a class="headerlink" href="#term-Calibration-sample" title="链接到此术语。">#</a></dt><dd><p>把模型的 PD 调整到中心趋势时所用的样本，例如当前组合。EBA 指引要求它与模型所评级的组合可比；见 <a class="reference internal" href="../user_guide/calibration.html"><span class="doc">校准</span></a> 。</p>
+</dd>
+<dt id="term-Calibration-segment">校准分段<a class="headerlink" href="#term-Calibration-segment" title="链接到此术语。">#</a></dt><dd><p>组合中按同一个长期平均违约率校准 PD 的部分，例如一个评级体系覆盖的敞口；其中每个等级的校准也要检验；见 <a class="reference internal" href="../user_guide/calibration.html"><span class="doc">校准</span></a> 。</p>
+</dd>
+<dt id="term-Candidate-rule">候选规则<a class="headerlink" href="#term-Candidate-rule" title="链接到此术语。">#</a></dt><dd><p>正在考虑、尚未执行的政策规则，例如分析人员提出的规则，或 <a class="reference internal" href="rules.html#kivi.rules.rule_candidates" title="kivi.rules.rule_candidates"><code class="xref py py-func docutils literal notranslate"><span class="pre">rule_candidates()</span></code></a> 在数据中找到的阈值。它的事件率可以在现行政策通过的申请人上衡量，从而显示加入这条规则会带来什么变化；在开发样本上找到的阈值还要在验证样本上复核；见 <a class="reference internal" href="../user_guide/rules.html"><span class="doc">政策规则</span></a> 。</p>
+</dd>
+<dt id="term-Capital-requirement-K">资本要求（K）<a class="headerlink" href="#term-Capital-requirement-K" title="链接到此术语。">#</a></dt><dd><p>一笔敞口的非预期损失占其 EAD 的比例：千年一遇的坏经济状况下的损失，减去预期损失。其风险权重为 12.5 K，风险加权资产为 12.5 K 乘以 EAD；见 <a class="reference internal" href="../user_guide/capital.html"><span class="doc">监管资本</span></a> 。</p>
+</dd>
+<dt id="term-Category-grouping">类别分组<a class="headerlink" href="#term-Category-grouping" title="链接到此术语。">#</a></dt><dd><p>把类别变量的每个类别映射到一个分组：在基准样本上拟合，方法是合并稀有类别或合并事件率相近的类别，然后原样应用于其他每个样本；见 <a class="reference internal" href="../user_guide/binning.html#category-groups"><span class="std std-ref">类别分组</span></a> 。</p>
+</dd>
+<dt id="term-Censoring">删失<a class="headerlink" href="#term-Censoring" title="链接到此术语。">#</a></dt><dd><p>在结果已知之前失去对账户的观测，例如数据截止时贷款仍在账上。被删失的账户直到其最后一期都计入处于风险中的账户，其之后的结果仍然未知；见 <a class="reference internal" href="../user_guide/lifetime.html"><span class="doc">存续期 PD 与预期信用损失</span></a> 。</p>
+</dd>
+<dt id="term-Central-tendency">中心趋势<a class="headerlink" href="#term-Central-tendency" title="链接到此术语。">#</a></dt><dd><p>模型校准所对准的平均 PD，例如其校准分段的长期平均违约率，或新样本的事件率；见 <a class="reference internal" href="../user_guide/calibration.html"><span class="doc">校准</span></a> 。</p>
+</dd>
+<dt id="term-Characteristic-stability-index-CSI">特征稳定性指标（CSI）<a class="headerlink" href="#term-Characteristic-stability-index-CSI" title="链接到此术语。">#</a></dt><dd><p>变量的平均评分卡分值从基准样本到当前样本的变化：每组占比的变化乘以该组的分值，再对所有组求和。对评分卡的全部变量，CSI 之和等于平均分的变化；见 <a class="reference internal" href="../user_guide/psi.html#characteristic-stability"><span class="std std-ref">特征稳定性指标</span></a> 。</p>
+</dd>
+<dt id="term-ChiMerge">ChiMerge（卡方分箱）<a class="headerlink" href="#term-ChiMerge" title="链接到此术语。">#</a></dt><dd><p>一种有监督分箱：从许多小箱开始，反复合并卡方统计量最小的相邻两箱，即事件率最相近的一对，直到箱数不超过给定值且每对相邻箱都有显著差异。类别按 WOE 排序后以同样的方式合并；见 <a class="reference internal" href="../user_guide/binning.html"><span class="doc">分箱</span></a> 。</p>
+</dd>
+<dt id="term-Closed-workout">已结案的清收<a class="headerlink" href="#term-Closed-workout" title="链接到此术语。">#</a></dt><dd><p>按银行对清收结束的定义已经结束的清收过程，结束方式为治愈、出售押品或核销未收回的部分。只有已结案的清收才有实际 LGD，回测也只用已结案的清收；见 <a class="reference internal" href="../user_guide/lgd.html"><span class="doc">LGD 与 EAD</span></a> 。</p>
+</dd>
+<dt id="term-Coefficient-of-variation-CV">变异系数（CV）<a class="headerlink" href="#term-Coefficient-of-variation-CV" title="链接到此术语。">#</a></dt><dd><p>取值的标准差除以其均值，例如 <a class="reference internal" href="univariate.html#kivi.univariate.profile_table" title="kivi.univariate.profile_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">profile_table()</span></code></a> 的 <code class="docutils literal notranslate"><span class="pre">cv</span></code> 。对 <span class="math notranslate nohighlight">\(K\)</span> 个等级的占比 <span class="math notranslate nohighlight">\(R_i\)</span> ，它等于 <span class="math notranslate nohighlight">\(\sqrt{K \sum_i (R_i - 1/K)^2}\)</span> ：各等级同样满时为 0，所有人都在一个等级时为 <span class="math notranslate nohighlight">\(\sqrt{K - 1}\)</span> 。欧洲央行检验它自初始验证以来是否上升；见 <a class="reference internal" href="../user_guide/calibration.html"><span class="doc">校准</span></a> 。</p>
+</dd>
+<dt id="term-Cohort">放款批次<a class="headerlink" href="#term-Cohort" title="链接到此术语。">#</a></dt><dd><p>同一时期（通常是同一个月）发放的贷款，在 Vintage 表中随账龄一起跟踪。计算一年违约率的队列法则按起点月对贷款分组；见 <a class="reference internal" href="../user_guide/vintage.html"><span class="doc">Vintage 与滚动率分析</span></a> 。</p>
+</dd>
+<dt id="term-Cohort-approach">队列法<a class="headerlink" href="#term-Cohort-approach" title="链接到此术语。">#</a></dt><dd><p>IRB 模型 PD 背后一年违约率的统计方法：起点月末未处于违约的债务人，按其在该月的等级分组，其中在之后一年内至少违约一次的债务人计为违约，期间离开组合的也包括在内；见 <a class="reference internal" href="../user_guide/vintage.html"><span class="doc">Vintage 与滚动率分析</span></a> 。</p>
+</dd>
+<dt id="term-Competing-risk">竞争风险<a class="headerlink" href="#term-Competing-risk" title="链接到此术语。">#</a></dt><dd><p>一种结束违约风险、但本身不是违约的退出，例如提前还款。像 1 − Kaplan–Meier 那样把它计为删失，会高估违约账户的比例；见 <a class="reference internal" href="../user_guide/lifetime.html"><span class="doc">存续期 PD 与预期信用损失</span></a> 。</p>
+</dd>
+<dt id="term-Conditional-PD">条件 PD<a class="headerlink" href="#term-Conditional-PD" title="链接到此术语。">#</a></dt><dd><p>在之前未违约的条件下，某一期发生违约的概率，也称风险率；见 <a class="reference internal" href="../user_guide/lifetime.html"><span class="doc">存续期 PD 与预期信用损失</span></a> 。存在竞争退出时， <a class="reference internal" href="lifetime.html#kivi.lifetime.survival_table" title="kivi.lifetime.survival_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">survival_table()</span></code></a> 的 <code class="docutils literal notranslate"><span class="pre">hazard</span></code> 以账户仍在账上为条件。在单因子模型中， <a class="reference internal" href="capital.html#kivi.capital.conditional_pd" title="kivi.capital.conditional_pd"><code class="xref py py-func docutils literal notranslate"><span class="pre">conditional_pd()</span></code></a> 给出的则是以系统因子为条件的 PD；见 <a class="reference internal" href="../user_guide/capital.html"><span class="doc">监管资本</span></a> 。</p>
+</dd>
+<dt id="term-Consistency-index-CI">一致性指标（CI）<a class="headerlink" href="#term-Consistency-index-CI" title="链接到此术语。">#</a></dt><dd><p><span class="math notranslate nohighlight">\(n\)</span> 个因子的两两比较矩阵中各项判断相互矛盾的程度： <span class="math notranslate nohighlight">\((\lambda_{\max} - n) / (n - 1)\)</span> ，其中 <span class="math notranslate nohighlight">\(\lambda_{\max}\)</span> 是矩阵的主特征值。判断一致时它为 0；见 <a class="reference internal" href="../user_guide/expert.html"><span class="doc">专家评分卡</span></a> 。</p>
+</dd>
+<dt id="term-Consistency-ratio-CR">一致性比率（CR）<a class="headerlink" href="#term-Consistency-ratio-CR" title="链接到此术语。">#</a></dt><dd><p>两两比较矩阵的一致性指标除以相同因子个数下的随机一致性指标。Saaty 的经验法则要求它不超过 0.1，才能使用这些权重；见 <a class="reference internal" href="../user_guide/expert.html"><span class="doc">专家评分卡</span></a> 。</p>
+</dd>
+<dt id="term-Coverage-ratio">覆盖率<a class="headerlink" href="#term-Coverage-ratio" title="链接到此术语。">#</a></dt><dd><p>一组贷款的损失准备除以其敞口；见 <a class="reference internal" href="../user_guide/lifetime.html"><span class="doc">存续期 PD 与预期信用损失</span></a> 。</p>
+</dd>
+<dt id="term-Credit-conversion-factor-CCF">信用转换系数（CCF）<a class="headerlink" href="#term-Credit-conversion-factor-CCF" title="链接到此术语。">#</a></dt><dd><p>授信额度中未提用的金额在违约前被借款人提用的比例，因此违约风险敞口等于已提用金额加上 CCF 乘以未提用金额。违约额度的实际 CCF 把违约时的已提用金额与参考日的额度和已提用金额相比较；见 <a class="reference internal" href="../user_guide/lgd.html"><span class="doc">LGD 与 EAD</span></a> 。</p>
+</dd>
+<dt id="term-Credit-impaired">已发生信用减值<a class="headerlink" href="#term-Credit-impaired" title="链接到此术语。">#</a></dt><dd><p>IFRS 9 规定，一旦发生了对贷款预计现金流量产生不利影响的事件，例如借款人发生重大财务困难，或发生违约、逾期等违反合同的情况，该贷款即为已发生信用减值。贷款人通常使其与自身的违约定义保持一致，此类贷款处于第 3 阶段；见 <a class="reference internal" href="../user_guide/lifetime.html"><span class="doc">存续期 PD 与预期信用损失</span></a> 。</p>
+</dd>
+<dt id="term-Cumulative-incidence">累计发生率<a class="headerlink" href="#term-Cumulative-incidence" title="链接到此术语。">#</a></dt><dd><p>存在其他退出与违约相竞争时，到某期期末发生违约的概率：到那时违约的账户占全部账户的比例，由 Aalen–Johansen 估计。对于从放款一直观测到共同截止期的批次，它就是该批次 vintage 曲线的累计坏账率；见 <a class="reference internal" href="../user_guide/lifetime.html"><span class="doc">存续期 PD 与预期信用损失</span></a> 。</p>
+</dd>
+<dt id="term-Cumulative-PD">累计 PD<a class="headerlink" href="#term-Cumulative-PD" title="链接到此术语。">#</a></dt><dd><p>从第一期到某一期之间任意一期发生违约的概率，它不会随期限延长而下降；见 <a class="reference internal" href="../user_guide/lifetime.html"><span class="doc">存续期 PD 与预期信用损失</span></a> 。</p>
+</dd>
+<dt id="term-Cure">治愈<a class="headerlink" href="#term-Cure" title="链接到此术语。">#</a></dt><dd><p>违约贷款恢复为正常状态。EBA 的指引把它计为一笔回收，金额为治愈日的未偿金额；见 <a class="reference internal" href="../user_guide/lgd.html"><span class="doc">LGD 与 EAD</span></a> 。</p>
+</dd>
+<dt id="term-Cut-off">截断点<a class="headerlink" href="#term-Cut-off" title="链接到此术语。">#</a></dt><dd><p>区分通过与拒绝的评分。kivi 的评分随风险升高而增大，因此通过不高于截断点的评分；见 <a class="reference internal" href="../user_guide/strategy.html"><span class="doc">信贷策略</span></a> 。</p>
+</dd>
+<dt id="term-Days-past-due-DPD">逾期天数（DPD）<a class="headerlink" href="#term-Days-past-due-DPD" title="链接到此术语。">#</a></dt><dd><p>合同约定的还款已逾期的天数。IFRS 9 作出可反驳的推定：还款逾期超过 30 天时信用风险已显著增加，违约不晚于逾期达到 90 天之时发生；见 <a class="reference internal" href="../user_guide/lifetime.html"><span class="doc">存续期 PD 与预期信用损失</span></a> ，根据还款计划计算逾期天数的方法见 <a class="reference internal" href="../user_guide/vintage.html"><span class="doc">Vintage 与滚动率分析</span></a> 。</p>
+</dd>
+<dt id="term-Decision-waterfall">决策瀑布表<a class="headerlink" href="#term-Decision-waterfall" title="链接到此术语。">#</a></dt><dd><p>按顺序应用的一组政策规则，每条规则在之前的规则留下的通过申请人中拒绝它命中的申请人，因此每次拒绝只计一次，记在第一条命中它的规则名下。 <a class="reference internal" href="rules.html#kivi.rules.rule_set_table" title="kivi.rules.rule_set_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">rule_set_table()</span></code></a> 的最后一行描述整组规则通过的资产，与顺序无关；见 <a class="reference internal" href="../user_guide/rules.html"><span class="doc">政策规则</span></a> 。</p>
+</dd>
+<dt id="term-Delinquency-bucket">逾期档位<a class="headerlink" href="#term-Delinquency-bucket" title="链接到此术语。">#</a></dt><dd><p>贷款在月末的状态所落入的逾期天数区间，例如 <code class="docutils literal notranslate"><span class="pre">current</span></code> 、 <code class="docutils literal notranslate"><span class="pre">1-29</span></code> 、 <code class="docutils literal notranslate"><span class="pre">30-59</span></code> 、 <code class="docutils literal notranslate"><span class="pre">60-89</span></code> 和 <code class="docutils literal notranslate"><span class="pre">90+</span></code> 。滚动率和转移矩阵统计贷款从一个月末到下一个月末在各档位之间的移动；见 <a class="reference internal" href="../user_guide/vintage.html"><span class="doc">Vintage 与滚动率分析</span></a> 。</p>
+</dd>
+<dt id="term-DeLong-test">DeLong 检验<a class="headerlink" href="#term-DeLong-test" title="链接到此术语。">#</a></dt><dd><p>检验同一样本上两个评分的 AUC 是否相同。它使用 DeLong、DeLong 和 Clarke-Pearson（1988）由位置值推导出的两个 AUC 的方差和协方差；见 <a class="reference internal" href="../user_guide/metrics.html"><span class="doc">模型表现</span></a> 。</p>
+</dd>
+<dt id="term-Deprecation">弃用<a class="headerlink" href="#term-Deprecation" title="链接到此术语。">#</a></dt><dd><p>公共 API 中仍然可用、但会发出 <code class="docutils literal notranslate"><span class="pre">FutureWarning</span></code> 的部分，因为以后的版本会移除或修改它。警告会说明替代用法；参见 <a class="reference internal" href="compatibility.html"><span class="doc">兼容性</span></a> 。</p>
+</dd>
+<dt id="term-Discrete-time-hazard-model">离散时间风险模型<a class="headerlink" href="#term-Discrete-time-hazard-model" title="链接到此术语。">#</a></dt><dd><p>风险率对期数和各账户特征的逻辑回归，在“人-期”表上拟合：账户处于风险中的每一期占一行，违约当期的目标变量为 1；见 <a class="reference internal" href="../user_guide/lifetime.html"><span class="doc">存续期 PD 与预期信用损失</span></a> 。</p>
+</dd>
+<dt id="term-Early-repayment">提前还款<a class="headerlink" href="#term-Early-repayment" title="链接到此术语。">#</a></dt><dd><p>在最后一期到期之前还清贷款的全部余额，英文也称 prepayment。它结束违约风险，因此生存表把它作为竞争风险； <a class="reference internal" href="datasets.html#kivi.datasets.make_loan_panel" title="kivi.datasets.make_loan_panel"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_loan_panel()</span></code></a> 的 <code class="docutils literal notranslate"><span class="pre">prepayment</span></code> 给出其月度概率；见 <a class="reference internal" href="../user_guide/lifetime.html"><span class="doc">存续期 PD 与预期信用损失</span></a> 。</p>
+</dd>
+<dt id="term-Economic-loss">经济损失<a class="headerlink" href="#term-Economic-loss" title="链接到此术语。">#</a></dt><dd><p>监管规则所定义的清收损失：违约风险敞口加上重大的直接和间接费用，减去回收，全部折现到违约日，而不是会计损失；见 <a class="reference internal" href="../user_guide/lgd.html"><span class="doc">LGD 与 EAD</span></a> 。</p>
+</dd>
+<dt id="term-Economic-scenario">经济情景<a class="headerlink" href="#term-Economic-scenario" title="链接到此术语。">#</a></dt><dd><p>对经济状况的预测，例如上行、基准或下行情景，并附有其概率。IFRS 9 按各情景的概率对其 ECL 加权，单因子模型则通过系统因子把 PD 移到某个情景下；见 <a class="reference internal" href="../user_guide/lifetime.html"><span class="doc">存续期 PD 与预期信用损失</span></a> 。</p>
+</dd>
+<dt id="term-Effective-interest-rate">实际利率<a class="headerlink" href="#term-Effective-interest-rate" title="链接到此术语。">#</a></dt><dd><p>在初始确认时，把贷款在预计存续期内的估计未来现金流量折现为其账面余额的利率。IFRS 9 按这一利率折现预期信用损失；见 <a class="reference internal" href="../user_guide/lifetime.html"><span class="doc">存续期 PD 与预期信用损失</span></a> 。</p>
+</dd>
+<dt id="term-Entity">主体<a class="headerlink" href="#term-Entity" title="链接到此术语。">#</a></dt><dd><p>事件、月度状态和观察所属的客户、账户或贷款，由 <a class="reference internal" href="features.html#module-kivi.features" title="kivi.features"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.features</span></code></a> 的 <code class="docutils literal notranslate"><span class="pre">id</span></code> 列指明；参见 <a class="reference internal" href="../user_guide/features.html"><span class="doc">时间窗特征</span></a> 。</p>
+</dd>
+<dt id="term-Estimated-and-realized-values">估计值与实际值<a class="headerlink" href="#term-Estimated-and-realized-values" title="链接到此术语。">#</a></dt><dd><p>模型的估计值（例如一笔债项的 LGD）以及之后观察到的值（例如其回收过程结案时实现的损失）。kivi 以 <code class="docutils literal notranslate"><span class="pre">estimated</span></code> 和 <code class="docutils literal notranslate"><span class="pre">realized</span></code> 接收它们：在 <a class="reference internal" href="calibration.html#kivi.calibration.backtest_table" title="kivi.calibration.backtest_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">backtest_table()</span></code></a> 中是连续值，在 <a class="reference internal" href="metrics.html#kivi.metrics.generalized_auc" title="kivi.metrics.generalized_auc"><code class="xref py py-func docutils literal notranslate"><span class="pre">generalized_auc()</span></code></a> 中是有序的分段；见 <a class="reference internal" href="../user_guide/validation.html"><span class="doc">模型验证</span></a> 。</p>
+</dd>
+<dt id="term-Event-and-non-event">事件与非事件<a class="headerlink" href="#term-Event-and-non-event" title="链接到此术语。">#</a></dt><dd><p>二元目标变量的两种结果：事件的目标值为 1，例如违约或其他不良结果；非事件的目标值为 0。各篇指南把内置银行数据中的认购视为事件；见 <a class="reference internal" href="../user_guide/woe_iv.html"><span class="doc">证据权重与信息值</span></a> 。 <a class="reference internal" href="features.html#module-kivi.features" title="kivi.features"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.features</span></code></a> 所汇总的事件则是另一种含义：主体带有时间的记录，例如其交易；见 <a class="reference internal" href="../user_guide/features.html"><span class="doc">时间窗特征</span></a> 。</p>
+</dd>
+<dt id="term-Event-rate">事件率<a class="headerlink" href="#term-Event-rate" title="链接到此术语。">#</a></dt><dd><p>某组观测中事件所占的比例，事件为违约时称为坏账率。它按原始计数计算，不做平滑；见 <a class="reference internal" href="../user_guide/woe_iv.html"><span class="doc">证据权重与信息值</span></a> 。</p>
+</dd>
+<dt id="term-Ever-bad">曾经为坏（ever bad）<a class="headerlink" href="#term-Ever-bad" title="链接到此术语。">#</a></dt><dd><p>如果一笔贷款在某个账龄及之前的任一账龄为坏，即使之后已经恢复正常，它在该账龄也算曾经为坏。Vintage 表的累计坏账率统计的就是曾经为坏的贷款；见 <a class="reference internal" href="../user_guide/vintage.html"><span class="doc">Vintage 与滚动率分析</span></a> 。</p>
+</dd>
+<dt id="term-Expected-credit-loss-ECL">预期信用损失（ECL）<a class="headerlink" href="#term-Expected-credit-loss-ECL" title="链接到此术语。">#</a></dt><dd><p>在 IFRS 9 下，以违约概率为权重的敞口信用损失现值。12 个月 ECL 计入未来 12 个月内违约造成的损失，整个存续期 ECL 计入敞口剩余存续期内的损失；见 <a class="reference internal" href="../user_guide/lifetime.html"><span class="doc">存续期 PD 与预期信用损失</span></a> 。</p>
+</dd>
+<dt id="term-Expected-loss-EL">预期损失（EL）<a class="headerlink" href="#term-Expected-loss-EL" title="链接到此术语。">#</a></dt><dd><p>一笔敞口预期造成的损失：违约概率乘以违约损失率再乘以违约风险敞口；见 <a class="reference internal" href="../user_guide/strategy.html"><span class="doc">信贷策略</span></a> 。</p>
+</dd>
+<dt id="term-Expected-loss-best-estimate-ELBE">预期损失最佳估计（ELBE）<a class="headerlink" href="#term-Expected-loss-best-estimate-ELBE" title="链接到此术语。">#</a></dt><dd><p>在当时的经济条件下，对已违约敞口损失的最佳估计。欧洲央行用双侧 t 检验把它与实际损失进行回测；见 <a class="reference internal" href="../user_guide/validation.html"><span class="doc">模型验证</span></a> 。</p>
+</dd>
+<dt id="term-Expected-maximum-profit-EMP">期望最大利润（EMP）<a class="headerlink" href="#term-Expected-maximum-profit-EMP" title="链接到此术语。">#</a></dt><dd><p>信用评分最优截断点上每位申请人的利润，以贷款金额的比例表示，与全部通过相比较，并在违约的不确定损失上取平均：以一个概率毫无损失，以另一个概率损失全部贷款，其余情况在两者之间均匀分布。由 Verbraken、Bravo、Weber 和 Baesens 提出；见 <a class="reference internal" href="../user_guide/metrics.html"><span class="doc">模型表现</span></a> 。</p>
+</dd>
+<dt id="term-Expert-scorecard">专家评分卡<a class="headerlink" href="#term-Expert-scorecard" title="链接到此术语。">#</a></dt><dd><p>权重由信贷分析师根据判断设定、而不是根据结果拟合的评分卡，适用于违约太少、无法拟合模型的资产组合；见 <a class="reference internal" href="../user_guide/expert.html"><span class="doc">专家评分卡</span></a> 。</p>
+</dd>
+<dt id="term-Exposure-at-default-EAD">违约风险敞口（EAD）<a class="headerlink" href="#term-Exposure-at-default-EAD" title="链接到此术语。">#</a></dt><dd><p>借款人违约时所欠的金额，例如贷款的未偿余额；见 <a class="reference internal" href="../user_guide/lgd.html"><span class="doc">LGD 与 EAD</span></a> 。</p>
+</dd>
+<dt id="term-Feature-specification">特征方案<a class="headerlink" href="#term-Feature-specification" title="链接到此术语。">#</a></dt><dd><p>模型中时间窗特征和还款行为特征的定义：主体列和观察时间列、各组特征及其所读的表、窗口和聚合，以及比率。它保存为带版本号的 JSON，使生产环境计算出与开发时相同的特征。与分箱方案不同，它不从数据拟合任何东西；参见 <a class="reference internal" href="../user_guide/features.html"><span class="doc">时间窗特征</span></a> 。</p>
+</dd>
+<dt id="term-Format-version">格式版本<a class="headerlink" href="#term-Format-version" title="链接到此术语。">#</a></dt><dd><p>分箱方案或特征方案 JSON 格式的版本，保存在每个文件中。一个版本能读取不高于其自身的每种格式版本，并拒绝更新的格式版本；参见 <a class="reference internal" href="compatibility.html"><span class="doc">兼容性</span></a> 。</p>
+</dd>
+<dt id="term-Fractional-logit">分数 logit<a class="headerlink" href="#term-Fractional-logit" title="链接到此术语。">#</a></dt><dd><p>对 0 到 1 之间的响应（例如 LGD）的均值建立的逻辑模型，用 Papke 和 Wooldridge 的拟似然拟合，并给出稳健标准误；见 <a class="reference internal" href="../user_guide/lgd.html"><span class="doc">LGD 与 EAD</span></a> 。</p>
+</dd>
+<dt id="term-Gains-table">增益表<a class="headerlink" href="#term-Gains-table" title="链接到此术语。">#</a></dt><dd><p>按评分段从风险最高到最低排列的表，列出每段的事件率和提升度，以及事件和非事件的累计占比；见 <a class="reference internal" href="../user_guide/metrics.html"><span class="doc">模型表现</span></a> 。</p>
+</dd>
+<dt id="term-Generalized-AUC-gAUC">广义 AUC（gAUC）<a class="headerlink" href="#term-Generalized-AUC-gAUC" title="链接到此术语。">#</a></dt><dd><p>把 AUC 推广到非二元的有序结果，例如切分成分段的实际 LGD：在估计分段不同的两个观测中，估计较高的那个实际值也较高的概率，并列计为一半。它等于 Somers' D 加一再除以二；见 <a class="reference internal" href="../user_guide/metrics.html"><span class="doc">模型表现</span></a> 。</p>
+</dd>
+<dt id="term-Gini-coefficient">Gini 系数<a class="headerlink" href="#term-Gini-coefficient" title="链接到此术语。">#</a></dt><dd><p>AUC 的两倍减 1：与目标变量无关的评分为 0，把每个事件都排在每个非事件之前的评分为 1。评分卡开发中报告 Gini 系数比报告 AUC 本身更常见，评级验证中则称之为准确性比率；见 <a class="reference internal" href="../user_guide/metrics.html"><span class="doc">模型表现</span></a> 。</p>
+</dd>
+<dt id="term-Global-weight">全局权重<a class="headerlink" href="#term-Global-weight" title="链接到此术语。">#</a></dt><dd><p>子因子在整张专家评分卡中的权重：其所属因子的权重乘以它在该因子各子因子中的权重。所有子因子的全局权重之和为 1；见 <a class="reference internal" href="../user_guide/expert.html"><span class="doc">专家评分卡</span></a> 。</p>
+</dd>
+<dt id="term-Grace-period">宽限期<a class="headerlink" href="#term-Grace-period" title="链接到此术语。">#</a></dt><dd><p>贷款放款后没有任何款项到期的那几个月，因此其首期期款在放款一个多月之后才到期。 <a class="reference internal" href="vintage.html#kivi.vintage.delinquency_panel" title="kivi.vintage.delinquency_panel"><code class="xref py py-func docutils literal notranslate"><span class="pre">delinquency_panel()</span></code></a> 把贷款归入首个到期日前一个月的批次，除非 <code class="docutils literal notranslate"><span class="pre">origination</span></code> 给出放款日期；有了放款日期，有宽限期的贷款就留在其放款月份的批次中；见 <a class="reference internal" href="../user_guide/vintage.html"><span class="doc">Vintage 与滚动率分析</span></a> 。</p>
+</dd>
+<dt id="term-Grade">等级<a class="headerlink" href="#term-Grade" title="链接到此术语。">#</a></dt><dd><p>评级体系或主标尺中的一个类别，有自己的 PD，并由上下界决定哪些预测 PD 落入其中。跟踪迁移的函数以 <code class="docutils literal notranslate"><span class="pre">grades</span></code> 接收评级体系从最好到最差的各个等级；见 <a class="reference internal" href="../user_guide/calibration.html"><span class="doc">校准</span></a> 。</p>
+</dd>
+<dt id="term-Herfindahl-Hirschman-index-HHI">赫芬达尔-赫希曼指数（HHI）<a class="headerlink" href="#term-Herfindahl-Hirschman-index-HHI" title="链接到此术语。">#</a></dt><dd><p>评级标尺各等级占比的平方和： <span class="math notranslate nohighlight">\(K\)</span> 个等级同样满时为 <span class="math notranslate nohighlight">\(1/K\)</span> ，所有人都在一个等级时为 1。欧洲央行则用 HI 衡量集中度，即 <span class="math notranslate nohighlight">\(1 + \ln \mathrm{HHI} / \ln K\)</span> ，取值从 0 到 1；见 <a class="reference internal" href="../user_guide/calibration.html"><span class="doc">校准</span></a> 。</p>
+</dd>
+<dt id="term-High-volatility-commercial-real-estate-HVCRE">高波动商业房地产（HVCRE）<a class="headerlink" href="#term-High-volatility-commercial-real-estate-HVCRE" title="链接到此术语。">#</a></dt><dd><p>还款依赖于物业本身、损失随经济状况剧烈波动的商业房地产贷款。其资产相关系数随 PD 上升从 0.30 降到 0.12，即用 0.30 代替其他公司敞口的 0.24；见 <a class="reference internal" href="../user_guide/capital.html"><span class="doc">监管资本</span></a> 。</p>
+</dd>
+<dt id="term-Hit-rate">命中率<a class="headerlink" href="#term-Hit-rate" title="链接到此术语。">#</a></dt><dd><p>被一条政策规则命中（即拒绝或标记）的申请人占全部申请人的比例；见 <a class="reference internal" href="../user_guide/rules.html"><span class="doc">政策规则</span></a> 。</p>
+</dd>
+<dt id="term-Information-value-IV">信息值（IV）<a class="headerlink" href="#term-Information-value-IV" title="链接到此术语。">#</a></dt><dd><p>每组事件占比与非事件占比之差乘以该组 WOE，再对所有组求和。它衡量一个分组后的变量单独区分事件与非事件的能力；见 <a class="reference internal" href="../user_guide/woe_iv.html"><span class="doc">证据权重与信息值</span></a> 。</p>
+</dd>
+<dt id="term-Initial-validation">初始验证<a class="headerlink" href="#term-Initial-validation" title="链接到此术语。">#</a></dt><dd><p>评级模型首次使用之前的验证。之后的验证把自己的 AUC、gAUC 和等级集中度与初始验证的结果比较，并把后者视为已知；见 <a class="reference internal" href="../user_guide/validation.html"><span class="doc">模型验证</span></a> 。</p>
+</dd>
+<dt id="term-Internal-ratings-based-approach-IRB">内部评级法（IRB）<a class="headerlink" href="#term-Internal-ratings-based-approach-IRB" title="链接到此术语。">#</a></dt><dd><p>巴塞尔框架和中国资本规则中的一种方法：银行按规则中的风险权重函数，根据自己对 PD 的估计（零售敞口和高级法还包括对 LGD 和 EAD 的估计）确定信用风险资本；见 <a class="reference internal" href="../user_guide/capital.html"><span class="doc">监管资本</span></a> 。</p>
+</dd>
+<dt id="term-KaplanMeier-estimator">Kaplan–Meier 估计<a class="headerlink" href="#term-KaplanMeier-estimator" title="链接到此术语。">#</a></dt><dd><p>把度过一系列期间的概率估计为各期处于风险中的账户里度过该期的比例之积。除违约外的所有退出都计为删失时，1 减去它就是累计 PD；见 <a class="reference internal" href="../user_guide/lifetime.html"><span class="doc">存续期 PD 与预期信用损失</span></a> 。</p>
+</dd>
+<dt id="term-Kolmogorov-Smirnov-statistic-KS">Kolmogorov-Smirnov 统计量（KS）<a class="headerlink" href="#term-Kolmogorov-Smirnov-statistic-KS" title="链接到此术语。">#</a></dt><dd><p>事件评分与非事件评分的分布函数之间的最大绝对差距；见 <a class="reference internal" href="../user_guide/metrics.html"><span class="doc">模型表现</span></a> 。</p>
+</dd>
+<dt id="term-Left-truncation">左截断<a class="headerlink" href="#term-Left-truncation" title="链接到此术语。">#</a></dt><dd><p>只从某一账龄起观测账户，例如数据在贷款发放之后才开始，因此此前已违约或退出的账户都不在数据中。 <a class="reference internal" href="lifetime.html#kivi.lifetime.survival_table" title="kivi.lifetime.survival_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">survival_table()</span></code></a> 的 <code class="docutils literal notranslate"><span class="pre">entry</span></code> 使每个账户不进入其被观测之前各期的风险集；见 <a class="reference internal" href="../user_guide/lifetime.html"><span class="doc">存续期 PD 与预期信用损失</span></a> 。</p>
+</dd>
+<dt id="term-Lift">提升度（lift）<a class="headerlink" href="#term-Lift" title="链接到此术语。">#</a></dt><dd><p>某组（例如一个评分段，或被一条政策规则命中的申请人）的事件率除以整个样本的事件率。提升度大于 1 表示该组风险高于平均水平；见 <a class="reference internal" href="../user_guide/metrics.html"><span class="doc">模型表现</span></a> 。</p>
+</dd>
+<dt id="term-Long-run-average-default-rate">长期平均违约率<a class="headerlink" href="#term-Long-run-average-default-rate" title="链接到此术语。">#</a></dt><dd><p>历史观察期内各一年违约率的平均。观察期至少五年，并能反映违约率可能的变化范围，包含好年份和坏年份。IRB 模型的 PD 按它校准；缺少坏年份时，机构要把它向上调整；见 <a class="reference internal" href="../user_guide/vintage.html"><span class="doc">Vintage 与滚动率分析</span></a> 。</p>
+</dd>
+<dt id="term-Long-run-average-LGD">长期平均 LGD<a class="headerlink" href="#term-Long-run-average-LGD" title="链接到此术语。">#</a></dt><dd><p>一个较长时期内全部违约的按违约加权的平均 LGD：每笔违约计一次，负的 LGD 记为 0，未结案的清收通过对其未来回收的调整计入。LGD 估计值不得低于它；见 <a class="reference internal" href="../user_guide/lgd.html"><span class="doc">LGD 与 EAD</span></a> 。</p>
+</dd>
+<dt id="term-Loss-allowance">损失准备<a class="headerlink" href="#term-Loss-allowance" title="链接到此术语。">#</a></dt><dd><p>IFRS 9 要求为贷款的预期信用损失计提的准备：第 1 阶段为 12 个月 ECL，第 2 和第 3 阶段为整个存续期 ECL；见 <a class="reference internal" href="../user_guide/lifetime.html"><span class="doc">存续期 PD 与预期信用损失</span></a> 。</p>
+</dd>
+<dt id="term-Loss-given-default-LGD">违约损失率（LGD）<a class="headerlink" href="#term-Loss-given-default-LGD" title="链接到此术语。">#</a></dt><dd><p>借款人违约时，扣除回收和抵押品之后损失的敞口比例；见 <a class="reference internal" href="../user_guide/lgd.html"><span class="doc">LGD 与 EAD</span></a> 。</p>
+</dd>
+<dt id="term-Low-default-portfolio">低违约组合<a class="headerlink" href="#term-Low-default-portfolio" title="链接到此术语。">#</a></dt><dd><p>违约太少、无法用违约率校准 PD 的组合，例如银行、主权或大型企业。最审慎估计转而给出其 PD 的上界；见 <a class="reference internal" href="../user_guide/capital.html"><span class="doc">监管资本</span></a> 。</p>
+</dd>
+<dt id="term-Marginal-PD">边际 PD<a class="headerlink" href="#term-Marginal-PD" title="链接到此术语。">#</a></dt><dd><p>从起点看，在某一给定期间发生违约的概率。截至某一期限的各期边际 PD 之和即为累计 PD；见 <a class="reference internal" href="../user_guide/lifetime.html"><span class="doc">存续期 PD 与预期信用损失</span></a> 。</p>
+</dd>
+<dt id="term-Master-scale">主标尺<a class="headerlink" href="#term-Master-scale" title="链接到此术语。">#</a></dt><dd><p>把 0 到 1 的 PD 区间划分为一组固定等级，使不同模型给出的评级具有同一含义；见 <a class="reference internal" href="../user_guide/calibration.html"><span class="doc">校准</span></a> 。</p>
+</dd>
+<dt id="term-Matrix-weighted-bandwidth-MWB">矩阵加权带宽（MWB）<a class="headerlink" href="#term-Matrix-weighted-bandwidth-MWB" title="链接到此术语。">#</a></dt><dd><p>概括一段时期内客户在评级体系各等级之间迁移距离的指标：迁往较差等级（上 MWB）或较好等级（下 MWB）的迁移距离，相对于每个客户从其等级出发可能的最远迁移。两者都在 0 到 1 之间，值越小表示迁移越短；见 <a class="reference internal" href="../user_guide/vintage.html"><span class="doc">Vintage 与滚动率分析</span></a> 。</p>
+</dd>
+<dt id="term-Maturity-adjustment">期限调整<a class="headerlink" href="#term-Maturity-adjustment" title="链接到此术语。">#</a></dt><dd><p>公司风险权重函数中的因子 <span class="math notranslate nohighlight">\((1 + (M - 2.5)\,b) / (1 - 1.5\,b)\)</span> ，其中 <span class="math notranslate nohighlight">\(M\)</span> 是以年计的有效期限， <span class="math notranslate nohighlight">\(b\)</span> 是 PD 的函数；它提高期限较长的敞口的资本。零售敞口没有期限调整；见 <a class="reference internal" href="../user_guide/capital.html"><span class="doc">监管资本</span></a> 。</p>
+</dd>
+<dt id="term-Migration-matrix">迁移矩阵<a class="headerlink" href="#term-Migration-matrix" title="链接到此术语。">#</a></dt><dd><p>评级体系各等级在一段时期（通常为一年）内的转移矩阵：期初每个等级的客户中，期末处于各个等级的客户所占的比例。违约或离开的客户计入其期初等级的客户数，因此一行的占比之和可能小于 1；见 <a class="reference internal" href="../user_guide/vintage.html"><span class="doc">Vintage 与滚动率分析</span></a> 。</p>
+</dd>
+<dt id="term-Monitoring-report">监控报告<a class="headerlink" href="#term-Monitoring-report" title="链接到此术语。">#</a></dt><dd><p>每期一行、跟踪在用模型的表格：样本量、已知结果、区分能力，以及评分相对于基准样本的稳定性；见 <a class="reference internal" href="../user_guide/monitoring.html"><span class="doc">模型监控</span></a> 。</p>
+</dd>
+<dt id="term-Monotonic-binning">单调分箱<a class="headerlink" href="#term-Monotonic-binning" title="链接到此术语。">#</a></dt><dd><p>WOE 从最低的箱到最高的箱稳定上升或下降的有监督分箱，使各箱易于解释。kivi 从许多小箱开始，合并违背趋势的相邻箱，即合并相邻违序者（pool adjacent violators）；见 <a class="reference internal" href="../user_guide/binning.html"><span class="doc">分箱</span></a> 。</p>
+</dd>
+<dt id="term-Month-on-book">账龄（month on book）<a class="headerlink" href="#term-Month-on-book" title="链接到此术语。">#</a></dt><dd><p>贷款发放以来的月数。Vintage 表在相同账龄上比较各放款批次；见 <a class="reference internal" href="../user_guide/vintage.html"><span class="doc">Vintage 与滚动率分析</span></a> 。</p>
+</dd>
+<dt id="term-Monthly-status-panel">月度状态面板<a class="headerlink" href="#term-Monthly-status-panel" title="链接到此术语。">#</a></dt><dd><p>每笔贷款每月一行、记录贷款在月末状态（例如所在逾期档位）的表。 <a class="reference internal" href="vintage.html#kivi.vintage.delinquency_panel" title="kivi.vintage.delinquency_panel"><code class="xref py py-func docutils literal notranslate"><span class="pre">delinquency_panel()</span></code></a> 由还款计划和还款记录构建这样的面板， <a class="reference internal" href="features.html#kivi.features.panel_features" title="kivi.features.panel_features"><code class="xref py py-func docutils literal notranslate"><span class="pre">panel_features()</span></code></a> 则在每个观察时间之前对它进行汇总；参见 <a class="reference internal" href="../user_guide/vintage.html"><span class="doc">Vintage 与滚动率分析</span></a> 。</p>
+</dd>
+<dt id="term-Most-prudent-estimate">最审慎估计<a class="headerlink" href="#term-Most-prudent-estimate" title="链接到此术语。">#</a></dt><dd><p>Pluto 和 Tasche 给出的等级 PD 上界：在给定置信水平下，该等级及所有更差等级的违约所不能拒绝的最大 PD，前提是 PD 从一个等级到下一个更差等级不会下降；见 <a class="reference internal" href="../user_guide/capital.html"><span class="doc">监管资本</span></a> 。</p>
+</dd>
+<dt id="term-New-hits">新增命中<a class="headerlink" href="#term-New-hits" title="链接到此术语。">#</a></dt><dd><p>被决策瀑布表中某条规则命中、且未被之前任何规则命中的申请人，即瀑布表记在这条规则名下的拒绝。其数量介于该规则的独有命中（规则排在最后时）和它的全部命中（规则排在最前时）之间；见 <a class="reference internal" href="../user_guide/rules.html"><span class="doc">政策规则</span></a> 。</p>
+</dd>
+<dt id="term-Observation">观察<a class="headerlink" href="#term-Observation" title="链接到此术语。">#</a></dt><dd><p>在 <a class="reference internal" href="features.html#module-kivi.features" title="kivi.features"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.features</span></code></a> 中，指一个主体和一个观察时间，例如一位申请人和其申请日期：即 <code class="docutils literal notranslate"><span class="pre">observations</span></code> 表中的一行，每个窗口都针对它计算。一个主体可以有多个观察，例如每个月末一个；参见 <a class="reference internal" href="../user_guide/features.html"><span class="doc">时间窗特征</span></a> 。</p>
+</dd>
+<dt id="term-Observation-month">观察月<a class="headerlink" href="#term-Observation-month" title="链接到此术语。">#</a></dt><dd><p>观察时间所在的自然月。它的月末状态在观察时间还不知道，因此 <a class="reference internal" href="features.html#kivi.features.panel_features" title="kivi.features.panel_features"><code class="xref py py-func docutils literal notranslate"><span class="pre">panel_features()</span></code></a> 只使用它之前的月份；参见 <a class="reference internal" href="../user_guide/features.html"><span class="doc">时间窗特征</span></a> 。</p>
+</dd>
+<dt id="term-Observation-time">观察时间<a class="headerlink" href="#term-Observation-time" title="链接到此术语。">#</a></dt><dd><p>计算特征的时间，例如申请日期。它当时及之后的事件不会被使用，除非 <code class="docutils literal notranslate"><span class="pre">closed=&quot;right&quot;</span></code> 允许计入恰在该时间的事件；参见 <a class="reference internal" href="../user_guide/features.html"><span class="doc">时间窗特征</span></a> 。</p>
+</dd>
+<dt id="term-Observed-average-default-rate">观察平均违约率<a class="headerlink" href="#term-Observed-average-default-rate" title="链接到此术语。">#</a></dt><dd><p>历史观察期内各起点月一年违约率的算术平均，按等级或按校准分段计算，每个起点月不论包含多少债务人都只计一次；见 <a class="reference internal" href="../user_guide/vintage.html"><span class="doc">Vintage 与滚动率分析</span></a> 。</p>
+</dd>
+<dt id="term-One-factor-model">单因子模型<a class="headerlink" href="#term-One-factor-model" title="链接到此术语。">#</a></dt><dd><p>Vasicek 的组合信用风险模型，是内部评级法风险权重函数的基础：当借款人的资产（所有借款人共享的系统因子与其自身因子的组合）低于由其 PD 确定的阈值时，借款人违约。给定因子后，各笔违约相互独立；见 <a class="reference internal" href="../user_guide/capital.html"><span class="doc">监管资本</span></a> 。</p>
+</dd>
+<dt id="term-One-year-default-rate">一年违约率<a class="headerlink" href="#term-One-year-default-rate" title="链接到此术语。">#</a></dt><dd><p>起点月末未处于违约的债务人中，在之后十二个月内至少违约一次的比例，按其在起点月的等级统计；见 <a class="reference internal" href="../user_guide/vintage.html"><span class="doc">Vintage 与滚动率分析</span></a> 。</p>
+</dd>
+<dt id="term-Optimal-binning">最优分箱<a class="headerlink" href="#term-Optimal-binning" title="链接到此术语。">#</a></dt><dd><p>有监督分箱的一种：在合并细分箱的所有方式中，返回同时满足各项约束（例如每箱的最小占比和最少事件数，以及 WOE 的形状）且信息值最大的一种。IV 是各箱之和，因此动态规划可以精确求出它。对 LGD 等连续型响应，同样的搜索可以找出箱内响应平方和最小的分箱；见 <a class="reference internal" href="../user_guide/binning.html"><span class="doc">分箱</span></a> 。</p>
+</dd>
+<dt id="term-Outcome-window">表现期<a class="headerlink" href="#term-Outcome-window" title="链接到此术语。">#</a></dt><dd><p>观测结果得以知晓所需的时间，例如贷款发放后十二个月。在此之前，目标变量缺失，结果视为未知；见 <a class="reference internal" href="../user_guide/monitoring.html"><span class="doc">模型监控</span></a> 。</p>
+</dd>
+<dt id="term-Output-floor">输出下限<a class="headerlink" href="#term-Output-floor" title="链接到此术语。">#</a></dt><dd><p>内部评级法的风险加权资产不得低于标准法风险加权资产 72.5% 的规则。它适用于银行的全部风险加权资产，并在数年内逐步实施，kivi 不包含它；见 <a class="reference internal" href="../user_guide/capital.html"><span class="doc">监管资本</span></a> 。</p>
+</dd>
+<dt id="term-Outstanding-amount">未偿金额<a class="headerlink" href="#term-Outstanding-amount" title="链接到此术语。">#</a></dt><dd><p>贷款在某个月末所有期款的未还金额，无论是否已到期：即 <a class="reference internal" href="vintage.html#kivi.vintage.delinquency_panel" title="kivi.vintage.delinquency_panel"><code class="xref py py-func docutils literal notranslate"><span class="pre">delinquency_panel()</span></code></a> 的 <code class="docutils literal notranslate"><span class="pre">outstanding</span></code> 列。它包含利息；而传入各期本金时得到的 <code class="docutils literal notranslate"><span class="pre">balance</span></code> 列只计未还本金；见 <a class="reference internal" href="../user_guide/vintage.html"><span class="doc">Vintage 与滚动率分析</span></a> 。</p>
+</dd>
+<dt id="term-Overdue-amount">逾期金额<a class="headerlink" href="#term-Overdue-amount" title="链接到此术语。">#</a></dt><dd><p>贷款在某个月末之前到期的各期期款的未还金额：即 <a class="reference internal" href="vintage.html#kivi.vintage.delinquency_panel" title="kivi.vintage.delinquency_panel"><code class="xref py py-func docutils literal notranslate"><span class="pre">delinquency_panel()</span></code></a> 的 <code class="docutils literal notranslate"><span class="pre">overdue_amount</span></code> 列。恰好在月末当天到期的期款尚不算逾期；见 <a class="reference internal" href="../user_guide/vintage.html"><span class="doc">Vintage 与滚动率分析</span></a> 。</p>
+</dd>
+<dt id="term-Overlap-matrix">重叠矩阵<a class="headerlink" href="#term-Overlap-matrix" title="链接到此术语。">#</a></dt><dd><p>每一对规则同时命中的申请人数，对角线上是每条规则的命中数；见 <a class="reference internal" href="../user_guide/rules.html"><span class="doc">政策规则</span></a> 。</p>
+</dd>
+<dt id="term-Pairwise-comparison-matrix">两两比较矩阵<a class="headerlink" href="#term-Pairwise-comparison-matrix" title="链接到此术语。">#</a></dt><dd><p>一个方阵，其元素 <span class="math notranslate nohighlight">\(a_{ij}\)</span> 按 Saaty 标度表示因子 <span class="math notranslate nohighlight">\(i\)</span> 比因子 <span class="math notranslate nohighlight">\(j\)</span> 重要多少倍。其对角线为 1，且 <span class="math notranslate nohighlight">\(a_{ji} = 1 / a_{ij}\)</span> ；见 <a class="reference internal" href="../user_guide/expert.html"><span class="doc">专家评分卡</span></a> 。</p>
+</dd>
+<dt id="term-PD-term-structure">PD 期限结构<a class="headerlink" href="#term-PD-term-structure" title="链接到此术语。">#</a></dt><dd><p>起点（例如贷款发放日或报告日）之后每一期的 PD，以累计、边际或条件 PD 的形式给出；见 <a class="reference internal" href="../user_guide/lifetime.html"><span class="doc">存续期 PD 与预期信用损失</span></a> 。</p>
+</dd>
+<dt id="term-Permutation-test">置换检验<a class="headerlink" href="#term-Permutation-test" title="链接到此术语。">#</a></dt><dd><p>把目标变量打乱许多次、每次重新计算某个统计量的检验。打乱会切断目标变量与变量之间的任何联系；用到目标变量的每一步（例如有监督分箱）都要重新拟合。很少有打乱后的值能达到真实目标变量的统计量时，它就是显著的；见 <a class="reference internal" href="../user_guide/woe_iv.html"><span class="doc">证据权重与信息值</span></a> 。</p>
+</dd>
+<dt id="term-Placement-value">位置值<a class="headerlink" href="#term-Placement-value" title="链接到此术语。">#</a></dt><dd><p>对于一个事件，是评分低于它的非事件所占的比例；对于一个非事件，是评分高于它的事件所占的比例；评分相同时按一半计。任一类别的位置值的平均数就是 AUC，它们的方差给出 AUC 的 DeLong 标准误；见 <a class="reference internal" href="../user_guide/metrics.html"><span class="doc">模型表现</span></a> 。</p>
+</dd>
+<dt id="term-Point-in-time">时点正确（point in time）<a class="headerlink" href="#term-Point-in-time" title="链接到此术语。">#</a></dt><dd><p>一个特征只使用其观察时间时已知的信息，就称为时点正确的。这样，它在开发时的计算结果与决策当时会得到的相同，之后发生的事件也不会混入模型；参见 <a class="reference internal" href="../user_guide/features.html"><span class="doc">时间窗特征</span></a> 。</p>
+</dd>
+<dt id="term-Points-to-double-the-odds-PDO">好坏比翻倍所需分数（PDO）<a class="headerlink" href="#term-Points-to-double-the-odds-PDO" title="链接到此术语。">#</a></dt><dd><p>好坏比翻倍时评分增加的分数。它与基准分及基准分对应的好坏比一起确定评分卡的刻度；见 <a class="reference internal" href="../user_guide/scorecard.html"><span class="doc">评分卡</span></a> 。</p>
+</dd>
+<dt id="term-Policy-rule">政策规则<a class="headerlink" href="#term-Policy-rule" title="链接到此术语。">#</a></dt><dd><p>基于申请人数据的条件，例如负债收入比高于上限或年龄低于下限，无论评分如何都会拒绝或转人工审核该申请人；见 <a class="reference internal" href="../user_guide/rules.html"><span class="doc">政策规则</span></a> 。</p>
+</dd>
+<dt id="term-Population-stability-index-PSI">群体稳定性指标（PSI）<a class="headerlink" href="#term-Population-stability-index-PSI" title="链接到此术语。">#</a></dt><dd><p>衡量变量或评分的分布在基准样本与当前样本之间偏移了多少，由每组占比的变化计算并对所有组求和；见 <a class="reference internal" href="../user_guide/psi.html"><span class="doc">群体稳定性指标</span></a> 。</p>
+</dd>
+<dt id="term-Precision">精确率<a class="headerlink" href="#term-Precision" title="链接到此术语。">#</a></dt><dd><p>评分在某一阈值下标记的观测中事件所占的比例，即被标记观测的事件率；见 <a class="reference internal" href="../user_guide/metrics.html"><span class="doc">模型表现</span></a> 。</p>
+</dd>
+<dt id="term-Precision-recall-curve">精确率-召回率曲线<a class="headerlink" href="#term-Precision-recall-curve" title="链接到此术语。">#</a></dt><dd><p>评分在每个阈值下的精确率相对于召回率的变化，从一个阈值到下一个阈值画成阶梯。它显示随着找到的事件增多，被标记观测中事件的占比如何下降，在事件稀少时最有用；见 <a class="reference internal" href="../user_guide/plotting.html"><span class="doc">图表</span></a> 。</p>
+</dd>
+<dt id="term-Probability-of-default-PD">违约概率（PD）<a class="headerlink" href="#term-Probability-of-default-PD" title="链接到此术语。">#</a></dt><dd><p>借款人在给定期限内（通常为十二个月）违约的概率。kivi 把预测的 PD 以及其他任何预测的事件概率都称为 <code class="docutils literal notranslate"><span class="pre">probability</span></code> ；见 <a class="reference internal" href="../user_guide/calibration.html"><span class="doc">校准</span></a> 。</p>
+</dd>
+<dt id="term-Qualifying-revolving-retail-exposure-QRRE">合格循环零售敞口（QRRE）<a class="headerlink" href="#term-Qualifying-revolving-retail-exposure-QRRE" title="链接到此术语。">#</a></dt><dd><p>循环、无担保的零售信贷，例如信用卡和透支，且每笔敞口的规模有上限；内部评级法对其采用固定的资产相关系数 0.04，在 <a class="reference internal" href="capital.html#module-kivi.capital" title="kivi.capital"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.capital</span></code></a> 中为 <code class="docutils literal notranslate"><span class="pre">asset_class=&quot;revolving&quot;</span></code> ；见 <a class="reference internal" href="../user_guide/capital.html"><span class="doc">监管资本</span></a> 。</p>
+</dd>
+<dt id="term-Quasi-moment-matching">Quasi moment matching（准矩匹配）<a class="headerlink" href="#term-Quasi-moment-matching" title="链接到此术语。">#</a></dt><dd><p>Tasche 提出的校准方法：按两个目标拟合评分的 logistic PD 曲线，使平均 PD 等于中心趋势，曲线所隐含的准确性比率等于目标准确性比率（例如开发样本的准确性比率）；见 <a class="reference internal" href="../user_guide/calibration.html"><span class="doc">校准</span></a> 。</p>
+</dd>
+<dt id="term-Random-index-RI">随机一致性指标（RI）<a class="headerlink" href="#term-Random-index-RI" title="链接到此术语。">#</a></dt><dd><p>按 Saaty 标度随机填写判断的两两比较矩阵的平均一致性指标，只取决于因子个数。kivi 使用 Tone（1986）中 3 至 15 个因子的表；见 <a class="reference internal" href="../user_guide/expert.html"><span class="doc">专家评分卡</span></a> 。</p>
+</dd>
+<dt id="term-Realized-LGD">实际 LGD<a class="headerlink" href="#term-Realized-LGD" title="链接到此术语。">#</a></dt><dd><p>已结案清收的经济损失占其违约风险敞口的比例，现金流按其违约日的利率折现。回收超过敞口与费用之和时为负，费用超过回收时大于 1；见 <a class="reference internal" href="../user_guide/lgd.html"><span class="doc">LGD 与 EAD</span></a> 。</p>
+</dd>
+<dt id="term-Reason-codes">原因码<a class="headerlink" href="#term-Reason-codes" title="链接到此术语。">#</a></dt><dd><p>与每个变量的最优分组相比，使申请人评分降低最多的变量，通常告知被拒绝的申请人；见 <a class="reference internal" href="../user_guide/scorecard.html"><span class="doc">评分卡</span></a> 。</p>
+</dd>
+<dt id="term-Recall">召回率<a class="headerlink" href="#term-Recall" title="链接到此术语。">#</a></dt><dd><p>评分在某一阈值下标记出的事件、或一条政策规则命中的事件占全部事件的比例，即 <a class="reference internal" href="metrics.html#kivi.metrics.roc_table" title="kivi.metrics.roc_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">roc_table()</span></code></a> 的 <code class="docutils literal notranslate"><span class="pre">true_positive_rate</span></code> ，以及 <a class="reference internal" href="strategy.html#kivi.strategy.confusion_table" title="kivi.strategy.confusion_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">confusion_table()</span></code></a> 和 <a class="reference internal" href="rules.html#kivi.rules.rule_table" title="kivi.rules.rule_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">rule_table()</span></code></a> 的 <code class="docutils literal notranslate"><span class="pre">recall</span></code> ；见 <a class="reference internal" href="../user_guide/metrics.html"><span class="doc">模型表现</span></a> 。</p>
+</dd>
+<dt id="term-Reference-date">参考日<a class="headerlink" href="#term-Reference-date" title="链接到此术语。">#</a></dt><dd><p>计算授信额度的实际 CCF 时取额度和已提用金额的日期，在监管规则的固定期限法中为违约前 12 个月；见 <a class="reference internal" href="../user_guide/lgd.html"><span class="doc">LGD 与 EAD</span></a> 。</p>
+</dd>
+<dt id="term-Reference-sample">基准样本<a class="headerlink" href="#term-Reference-sample" title="链接到此术语。">#</a></dt><dd><p>后续样本与之比较的样本，通常是开发样本或紧随其后的一期。分箱边界、评分段和分组都在它上面拟合；见 <a class="reference internal" href="../user_guide/monitoring.html"><span class="doc">模型监控</span></a> 。</p>
+</dd>
+<dt id="term-Reject-inference">拒绝推断<a class="headerlink" href="#term-Reject-inference" title="链接到此术语。">#</a></dt><dd><p>为被拒绝的申请人补充结果的方法，结果以带权重的行或通过样本的权重给出，从而可以在全部申请人上重新拟合模型；见 <a class="reference internal" href="../user_guide/reject_inference.html"><span class="doc">拒绝推断</span></a> 。</p>
+</dd>
+<dt id="term-Repayment-schedule">还款计划<a class="headerlink" href="#term-Repayment-schedule" title="链接到此术语。">#</a></dt><dd><p>一笔贷款应还的各期期款，每期有其到期日和金额。与实际还款对照，即可得到贷款在每个月末的逾期天数；见 <a class="reference internal" href="../user_guide/vintage.html"><span class="doc">Vintage 与滚动率分析</span></a> 。</p>
+</dd>
+<dt id="term-Reporting-date">报告日<a class="headerlink" href="#term-Reporting-date" title="链接到此术语。">#</a></dt><dd><p>计量损失准备的日期。预期信用损失的第 1 期是报告日之后的第一期；见 <a class="reference internal" href="../user_guide/lifetime.html"><span class="doc">存续期 PD 与预期信用损失</span></a> 。</p>
+</dd>
+<dt id="term-Return-on-investment-ROI">投资回报率（ROI）<a class="headerlink" href="#term-Return-on-investment-ROI" title="链接到此术语。">#</a></dt><dd><p>在期望最大利润中，好贷款在其期限内赚取的回报占放款金额的比例；截断点每拒绝一个好申请人，就放弃这笔回报；见 <a class="reference internal" href="../user_guide/metrics.html"><span class="doc">模型表现</span></a> 。</p>
+</dd>
+<dt id="term-Revenue-and-profit">收益与利润<a class="headerlink" href="#term-Revenue-and-profit" title="链接到此术语。">#</a></dt><dd><p>已通过贷款的收益是它赚取的金额，例如利差和费用；截断点的利润是它所通过资产的收益减去这些资产的损失；见 <a class="reference internal" href="../user_guide/strategy.html"><span class="doc">信贷策略</span></a> 。</p>
+</dd>
+<dt id="term-Risk-set">风险集<a class="headerlink" href="#term-Risk-set" title="链接到此术语。">#</a></dt><dd><p>某期处于违约风险中的账户：已被观测，且在该期之前既未违约也未因其他原因退出。在该期被删失的账户仍属于风险集；见 <a class="reference internal" href="../user_guide/lifetime.html"><span class="doc">存续期 PD 与预期信用损失</span></a> 。</p>
+</dd>
+<dt id="term-Risk-weight">风险权重<a class="headerlink" href="#term-Risk-weight" title="链接到此术语。">#</a></dt><dd><p>资本要求乘以 12.5，即一笔敞口中计为风险加权资产（RWA）的比例，因此按 RWA 的 8% 计算的最低资本正好等于资本要求；见 <a class="reference internal" href="../user_guide/capital.html"><span class="doc">监管资本</span></a> 。</p>
+</dd>
+<dt id="term-Robust-standard-error">稳健标准误<a class="headerlink" href="#term-Robust-standard-error" title="链接到此术语。">#</a></dt><dd><p>由夹心估计量得到的标准误：信息矩阵的逆乘以各得分外积之和、再乘以信息矩阵的逆。无论响应的方差如何它都成立，例如分数响应的情形；见 <a class="reference internal" href="../user_guide/lgd.html"><span class="doc">LGD 与 EAD</span></a> 。</p>
+</dd>
+<dt id="term-ROC-convex-hull">ROC 凸包<a class="headerlink" href="#term-ROC-convex-hull" title="链接到此术语。">#</a></dt><dd><p>ROC 曲线的上凸包，即位于 ROC 曲线上或其上方的最小凹曲线。无论违约损失和好贷款的回报是多少，评分最赚钱的截断点都在凸包的某个顶点上；见 <a class="reference internal" href="../user_guide/metrics.html"><span class="doc">模型表现</span></a> 。</p>
+</dd>
+<dt id="term-ROC-curve">ROC 曲线<a class="headerlink" href="#term-ROC-curve" title="链接到此术语。">#</a></dt><dd><p>阈值从风险最高的评分开始依次下移时，真正例率（被标记的事件所占比例）对假正例率（被标记的非事件所占比例）的曲线。曲线下的面积就是 AUC，曲线与对角线之间的最大纵向距离就是 KS；见 <a class="reference internal" href="../user_guide/metrics.html"><span class="doc">模型表现</span></a> 。</p>
+</dd>
+<dt id="term-Roll-rate">滚动率<a class="headerlink" href="#term-Roll-rate" title="链接到此术语。">#</a></dt><dd><p>某个月末处于某一逾期档位的贷款中，到下一个月末进入更差一档的比例；见 <a class="reference internal" href="../user_guide/vintage.html"><span class="doc">Vintage 与滚动率分析</span></a> 。</p>
+</dd>
+<dt id="term-Run">连续月数（run）<a class="headerlink" href="#term-Run" title="链接到此术语。">#</a></dt><dd><p>一段连续都是坏状态（或都是好状态）的月份。没有状态的月份会中断连续月数，窗口只计其中落在窗口内的月份；参见 <a class="reference internal" href="../user_guide/features.html"><span class="doc">时间窗特征</span></a> 。</p>
+</dd>
+<dt id="term-Saaty-scale">Saaty 标度<a class="headerlink" href="#term-Saaty-scale" title="链接到此术语。">#</a></dt><dd><p>两两比较所用的标度：从 1（同等重要）经 3、5、7 到 9（极端重要），2、4、6、8 为中间值，反向比较取其倒数；见 <a class="reference internal" href="../user_guide/expert.html"><span class="doc">专家评分卡</span></a> 。</p>
+</dd>
+<dt id="term-Scaled-likelihood-ratio">缩放似然比<a class="headerlink" href="#term-Scaled-likelihood-ratio" title="链接到此术语。">#</a></dt><dd><p>Tasche 对这样一种校准的称呼：把每个 PD 的 odds 乘以同一个常数，即给每个 log odds 加上同一个平移量，使校准样本的平均 PD 等于中心趋势。它保持 PD 的顺序，也不会超出 [0, 1]；见 <a class="reference internal" href="../user_guide/calibration.html"><span class="doc">校准</span></a> 。</p>
+</dd>
+<dt id="term-Selection-path">变量选择路径<a class="headerlink" href="#term-Selection-path" title="链接到此术语。">#</a></dt><dd><p>依次用某个固定顺序（例如按 IV 排序）的前 1 个、前 2 个、前 3 个……变量拟合的各个模型，以及每个模型在开发样本和验证样本上的指标，由此可以看出从哪里开始增加变量不再带来收益；见 <a class="reference internal" href="../user_guide/selection.html"><span class="doc">变量筛选</span></a> 。</p>
+</dd>
+<dt id="term-Significant-increase-in-credit-risk-SICR">信用风险显著增加（SICR）<a class="headerlink" href="#term-Significant-increase-in-credit-risk-SICR" title="链接到此术语。">#</a></dt><dd><p>IFRS 9 中把贷款从第 1 阶段移至第 2 阶段的标准：自初始确认以来，其违约风险已显著上升。每个贷款人在自己的政策中设定这一判断，例如 PD 的相对增幅和绝对增幅；见 <a class="reference internal" href="../user_guide/lifetime.html"><span class="doc">存续期 PD 与预期信用损失</span></a> 。</p>
+</dd>
+<dt id="term-SME-adjustment">中小企业调整<a class="headerlink" href="#term-SME-adjustment" title="链接到此术语。">#</a></dt><dd><p>按年销售额在一个区间内的位置，把中小企业的公司资产相关系数最多降低 0.04：巴塞尔框架的区间是 500 万到 5000 万欧元，中国规则是 3000 万到 3 亿元人民币；见 <a class="reference internal" href="../user_guide/capital.html"><span class="doc">监管资本</span></a> 。</p>
+</dd>
+<dt id="term-Smoothing">平滑<a class="headerlink" href="#term-Smoothing" title="链接到此术语。">#</a></dt><dd><p>计算占比之前用来替换空计数的值，默认为 0.5，使每组的 WOE、IV 和 PSI 保持有限。计数按观测值报告，只有占比经过平滑；见 <a class="reference internal" href="../user_guide/woe_iv.html"><span class="doc">证据权重与信息值</span></a> 。</p>
+</dd>
+<dt id="term-Somers-D">Somers' D<a class="headerlink" href="#term-Somers-D" title="链接到此术语。">#</a></dt><dd><p>有序结果与有序估计之间的一种秩相关：在估计分段不同的观测对中，结果排序相同的观测对所占比例减去排序相反的比例。它在 -1 到 1 之间，广义 AUC 等于 Somers' D 加一再除以二；见 <a class="reference internal" href="../user_guide/metrics.html"><span class="doc">模型表现</span></a> 。</p>
+</dd>
+<dt id="term-Special-codes">特殊编码<a class="headerlink" href="#term-Special-codes" title="链接到此术语。">#</a></dt><dd><p>表示某种状态而不是测量值的取值，例如表示“从未联系”的 -1、表示“无记录”的 999，或类别变量的标签“unknown”。传入 <code class="docutils literal notranslate"><span class="pre">special</span></code> 后，它们不参与边界或分组的拟合，并且各自单独成组；见 <a class="reference internal" href="../user_guide/binning.html#special-values"><span class="std std-ref">特殊值</span></a> 。</p>
+</dd>
+<dt id="term-Spiegelhalter-test">Spiegelhalter 检验<a class="headerlink" href="#term-Spiegelhalter-test" title="链接到此术语。">#</a></dt><dd><p>不分组检验单个概率的校准：它把概率的 Brier 分数与这些概率若为真实概率时应有的分数之差标准化。对低于 1/2 的 PD，统计量为正表示违约多于 PD 的预测，为负表示违约少于预测；见 <a class="reference internal" href="../user_guide/calibration.html"><span class="doc">校准</span></a> 。</p>
+</dd>
+<dt id="term-Stage">阶段<a class="headerlink" href="#term-Stage" title="链接到此术语。">#</a></dt><dd><p>IFRS 9 对贷款划分的三个阶段之一：第 1 阶段为信用风险未显著增加的贷款，计提 12 个月 ECL；第 2 阶段为信用风险已显著增加的贷款，计提整个存续期 ECL；第 3 阶段为已发生信用减值的贷款，同样计提整个存续期 ECL；见 <a class="reference internal" href="../user_guide/lifetime.html"><span class="doc">存续期 PD 与预期信用损失</span></a> 。</p>
+</dd>
+<dt id="term-Standard-error-and-confidence-interval">标准误与置信区间<a class="headerlink" href="#term-Standard-error-and-confidence-interval" title="链接到此术语。">#</a></dt><dd><p>标准误衡量 AUC 等估计值在不同样本之间会有多大波动。置信水平为 95% 等的置信区间是估计值周围的一个范围，在相应比例的样本中它会覆盖真实值；见 <a class="reference internal" href="../user_guide/metrics.html"><span class="doc">模型表现</span></a> 。</p>
+</dd>
+<dt id="term-Start-month">起点月<a class="headerlink" href="#term-Start-month" title="链接到此术语。">#</a></dt><dd><p>队列法中形成一个队列的月份，以其月末为准；之后十二个月内的违约构成它的一年违约率。EBA 指引要求起点月至少每季度一个；见 <a class="reference internal" href="../user_guide/vintage.html"><span class="doc">Vintage 与滚动率分析</span></a> 。</p>
+</dd>
+<dt id="term-Stressed-PD">压力 PD<a class="headerlink" href="#term-Stressed-PD" title="链接到此术语。">#</a></dt><dd><p>单因子模型在不利经济状况下的 PD，例如内部评级法资本要求所用的、系统因子处于 0.1% 分位数（ <code class="docutils literal notranslate"><span class="pre">level</span></code> 为 0.999）时的 PD，或下行情景下的 PD；由 <a class="reference internal" href="capital.html#kivi.capital.conditional_pd" title="kivi.capital.conditional_pd"><code class="xref py py-func docutils literal notranslate"><span class="pre">conditional_pd()</span></code></a> 给出；见 <a class="reference internal" href="../user_guide/capital.html"><span class="doc">监管资本</span></a> 。</p>
+</dd>
+<dt id="term-Swap-set">交换集<a class="headerlink" href="#term-Swap-set" title="链接到此术语。">#</a></dt><dd><p>两个评分各按自己的截断点通过或拒绝申请人，由此形成的四组申请人。换出是只有现行评分通过的申请人，换入是只有新评分通过的申请人；见 <a class="reference internal" href="../user_guide/strategy.html"><span class="doc">信贷策略</span></a> 。</p>
+</dd>
+<dt id="term-Systematic-factor">系统因子<a class="headerlink" href="#term-Systematic-factor" title="链接到此术语。">#</a></dt><dd><p>单因子模型中的经济状态：所有借款人共享的一个标准正态变量，在好于中位数的年份为正，在更差的年份为负。给定 PD 和资产相关系数，违约率就确定了它的取值；见 <a class="reference internal" href="../user_guide/capital.html"><span class="doc">监管资本</span></a> 。</p>
+</dd>
+<dt id="term-Test-group">测试组<a class="headerlink" href="#term-Test-group" title="链接到此术语。">#</a></dt><dd><p>尽管被政策规则命中或高于截断点、仍随机予以通过的一部分申请人，从而得知政策所拒绝的申请人的结果；见 <a class="reference internal" href="../user_guide/rules.html"><span class="doc">政策规则</span></a> 。</p>
+</dd>
+<dt id="term-Through-the-cycle-PD-TTC">跨周期 PD（TTC）<a class="headerlink" href="#term-Through-the-cycle-PD-TTC" title="链接到此术语。">#</a></dt><dd><p>对各种经济状态取平均的 PD，例如单因子模型的长期 PD，即每年违约率的均值。时点（PIT）PD 则随当时的经济状况变化，即给定系统因子时的 PD；这里的“时点”与 <a class="reference internal" href="features.html#module-kivi.features" title="kivi.features"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.features</span></code></a> 中时点正确的特征含义不同；见 <a class="reference internal" href="../user_guide/capital.html"><span class="doc">监管资本</span></a> 。</p>
+</dd>
+<dt id="term-Tolerance">容差<a class="headerlink" href="#term-Tolerance" title="链接到此术语。">#</a></dt><dd><p>一个值可以偏离规则多少而仍算作满足规则。 <a class="reference internal" href="vintage.html#kivi.vintage.delinquency_panel" title="kivi.vintage.delinquency_panel"><code class="xref py py-func docutils literal notranslate"><span class="pre">delinquency_panel()</span></code></a> 在某一期与之前各期合计的未还金额不超过 <code class="docutils literal notranslate"><span class="pre">tolerance</span></code> （一个金额）时，就把该期算作已还清，这样舍入误差不会使贷款逾期；见 <a class="reference internal" href="../user_guide/vintage.html"><span class="doc">Vintage 与滚动率分析</span></a> 。 <a class="reference internal" href="expert.html#kivi.expert.ahp_weights" title="kivi.expert.ahp_weights"><code class="xref py py-func docutils literal notranslate"><span class="pre">ahp_weights()</span></code></a> 和 <a class="reference internal" href="expert.html#kivi.expert.ahp_consistency" title="kivi.expert.ahp_consistency"><code class="xref py py-func docutils literal notranslate"><span class="pre">ahp_consistency()</span></code></a> 接受对角线为 1、各元素在相对容差 <code class="docutils literal notranslate"><span class="pre">rtol</span></code> 内互为倒数的两两比较矩阵，因此 0.3333 可以代替 1 / 3；见 <a class="reference internal" href="../user_guide/expert.html"><span class="doc">专家评分卡</span></a> 。</p>
+</dd>
+<dt id="term-Total">合计<a class="headerlink" href="#term-Total" title="链接到此术语。">#</a></dt><dd><p>表格中一行的观测数（包括缺失值），或这些观测的权重之和。而 <a class="reference internal" href="univariate.html#kivi.univariate.profile_table" title="kivi.univariate.profile_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">profile_table()</span></code></a> 的 <code class="docutils literal notranslate"><span class="pre">count</span></code> 是非缺失值的个数，与 <code class="docutils literal notranslate"><span class="pre">pandas.DataFrame.describe</span></code> 相同；参见 <a class="reference internal" href="../user_guide/univariate.html"><span class="doc">单变量概况</span></a> 。</p>
+</dd>
+<dt id="term-Transition-matrix">转移矩阵<a class="headerlink" href="#term-Transition-matrix" title="链接到此术语。">#</a></dt><dd><p>统计贷款或债务人在两个日期之间从每种状态转移到其他每种状态的数量的表，状态可以是逾期档位或评级等级；见 <a class="reference internal" href="../user_guide/vintage.html"><span class="doc">Vintage 与滚动率分析</span></a> 。</p>
+</dd>
+<dt id="term-Unique-hits">独有命中<a class="headerlink" href="#term-Unique-hits" title="链接到此术语。">#</a></dt><dd><p>被一条政策规则命中、且不被规则集中其他任何规则命中的申请人：完全取决于这条规则的拒绝，也就是从规则集中去掉这条规则后会通过的申请人；见 <a class="reference internal" href="../user_guide/rules.html"><span class="doc">政策规则</span></a> 。</p>
+</dd>
+<dt id="term-Unseen-category">未见类别<a class="headerlink" href="#term-Unseen-category" title="链接到此术语。">#</a></dt><dd><p>后续样本中出现、但基准样本中没有的类别，因此其分组或 WOE 表中没有对应的行。kivi 对此类类别引发错误，除非 <code class="docutils literal notranslate"><span class="pre">unseen</span></code> 策略指定了处理方式；见 <a class="reference internal" href="../user_guide/woe_iv.html"><span class="doc">证据权重与信息值</span></a> 。</p>
+</dd>
+<dt id="term-Validation-sample">验证样本<a class="headerlink" href="#term-Validation-sample" title="链接到此术语。">#</a></dt><dd><p>不参与模型开发的样本，例如之后的申请人，用来衡量拟合好的模型，使衡量结果不会奖励对开发样本偶然特征的拟合；见 <a class="reference internal" href="../user_guide/metrics.html"><span class="doc">模型表现</span></a> 。</p>
+</dd>
+<dt id="term-Variance-inflation-factor-VIF">方差膨胀因子（VIF）<a class="headerlink" href="#term-Variance-inflation-factor-VIF" title="链接到此术语。">#</a></dt><dd><p>由于变量与其他变量相关，其系数的方差增大了多少：对该变量在其他变量上的回归（含截距）的 <span class="math notranslate nohighlight">\(R^2\)</span> ，VIF 为 <span class="math notranslate nohighlight">\(1 / (1 - R^2)\)</span> 。没有共线性时为 1，通常认为超过 5 或 10 就过高；见 <a class="reference internal" href="../user_guide/selection.html"><span class="doc">变量筛选</span></a> 。</p>
+</dd>
+<dt id="term-VIF-elimination">按 VIF 逐步剔除<a class="headerlink" href="#term-VIF-elimination" title="链接到此术语。">#</a></dt><dd><p>剔除 VIF 最大的变量，重新计算其余变量的 VIF，如此反复，直到没有 VIF 超过阈值，从而每次只剔除一个共线变量；见 <a class="reference internal" href="../user_guide/selection.html"><span class="doc">变量筛选</span></a> 。</p>
+</dd>
+<dt id="term-Vintage-table">Vintage 表<a class="headerlink" href="#term-Vintage-table" title="链接到此术语。">#</a></dt><dd><p>每个放款批次按账龄统计的累计曾经为坏比例；见 <a class="reference internal" href="../user_guide/vintage.html"><span class="doc">Vintage 与滚动率分析</span></a> 。</p>
+</dd>
+<dt id="term-Weight-of-evidence-WOE">证据权重（WOE）<a class="headerlink" href="#term-Weight-of-evidence-WOE" title="链接到此术语。">#</a></dt><dd><p>某组在全部事件中的占比与在全部非事件中的占比之比的对数。WOE 为正表示该组在事件中相对更常见；见 <a class="reference internal" href="../user_guide/woe_iv.html"><span class="doc">证据权重与信息值</span></a> 。</p>
+</dd>
+<dt id="term-Window">窗口<a class="headerlink" href="#term-Window" title="链接到此术语。">#</a></dt><dd><p>特征在观察时间 <span class="math notranslate nohighlight">\(t\)</span> 之前用来聚合事件的时段：长度为 <span class="math notranslate nohighlight">\(k\)</span> 个自然月或天时为 <span class="math notranslate nohighlight">\([t - k, t)\)</span> ，使用 <code class="docutils literal notranslate"><span class="pre">closed=&quot;right&quot;</span></code> 时为 <span class="math notranslate nohighlight">\((t - k, t]\)</span> 。对月度状态而言，是观察月之前的 <span class="math notranslate nohighlight">\(k\)</span> 个月；参见 <a class="reference internal" href="../user_guide/features.html"><span class="doc">时间窗特征</span></a> 。</p>
+</dd>
+<dt id="term-Window-pair">窗口对<a class="headerlink" href="#term-Window-pair" title="链接到此术语。">#</a></dt><dd><p>两个单位相同的边界，例如 <code class="docutils literal notranslate"><span class="pre">(&quot;6M&quot;,</span> <span class="pre">&quot;3M&quot;)</span></code> ，构成从第一个到第二个边界的一个窗口，这里是 <span class="math notranslate nohighlight">\([t - 6M, t - 3M)\)</span> ，即最近一期之前的那一期。其特征名同时带有两个边界，如 <code class="docutils literal notranslate"><span class="pre">6m_3m</span></code> ；参见 <a class="reference internal" href="../user_guide/features.html"><span class="doc">时间窗特征</span></a> 。</p>
+</dd>
+<dt id="term-WOE-trend">WOE 趋势<a class="headerlink" href="#term-WOE-trend" title="链接到此术语。">#</a></dt><dd><p>数值变量各箱的 WOE 从最低取值到最高取值的形状：单调上升、单调下降、U 形、倒 U 形、方向改变不止一次时为不规则，或者平坦。单调分箱使其单调上升或单调下降；见 <a class="reference internal" href="../user_guide/woe_iv.html"><span class="doc">证据权重与信息值</span></a> 。</p>
+</dd>
+<dt id="term-Workout">清收<a class="headerlink" href="#term-Workout" title="链接到此术语。">#</a></dt><dd><p>违约贷款的回收过程，从违约到治愈、出售押品或核销，其回收和费用给出实际 LGD；见 <a class="reference internal" href="../user_guide/lgd.html"><span class="doc">LGD 与 EAD</span></a> 。</p>
+</dd>
+</dl>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="compatibility.html"
+       title="上一页">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">上一页</p>
+        <p class="prev-next-title">兼容性</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="features.html"
+       title="下一页">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">下一页</p>
+        <p class="prev-next-title">时间窗特征</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    由 <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1创建。
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

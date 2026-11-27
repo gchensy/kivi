@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>拒绝推断 &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=d005c095" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=14f9d491"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script src="../_static/translations.js?v=540d3cec"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/reject_inference';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="next" title="评分卡" href="scorecard.html" />
+    <link rel="prev" title="变量筛选" href="selection.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+  <meta name="docsearch:version" content="1.9.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">跳转至主要内容</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>回到顶部</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="版本警告"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="网页导航" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 1.9.0">1.9.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    教程
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../../en/api/reject_inference.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="当前页面" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    教程
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../../en/api/reject_inference.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="章节导航">
+  <p class="bd-links__title" role="heading" aria-level="1">章节导航</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="conventions.html">约定</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compatibility.html">兼容性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">术语表</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">时间窗特征</a></li>
+<li class="toctree-l1"><a class="reference internal" href="univariate.html">单变量概况</a></li>
+<li class="toctree-l1"><a class="reference internal" href="binning.html">分箱</a></li>
+<li class="toctree-l1"><a class="reference internal" href="woe.html">证据权重与信息值</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selection.html">变量筛选</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">拒绝推断</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scorecard.html">评分卡</a></li>
+<li class="toctree-l1"><a class="reference internal" href="expert.html">专家评分卡</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">模型表现</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">校准</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lgd.html">LGD 与 EAD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">信贷策略</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rules.html">政策规则</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spec.html">分箱方案</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stability.html">群体稳定性指标</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">模型监控</a></li>
+<li class="toctree-l1"><a class="reference internal" href="capital.html">监管资本</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vintage.html">Vintage 与滚动率分析</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lifetime.html">存续期 PD 与预期信用损失</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html">图表</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">示例数据</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="初始页面">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../api.html" class="nav-link">API 参考</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">拒绝推断</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="module-kivi.reject_inference">
+<span id="reject-inference"></span><h1>拒绝推断<a class="headerlink" href="#module-kivi.reject_inference" title="链接到此标题。">#</a></h1>
+<p>为被拒绝的申请人补充结果，从而可以把在获批申请人上开发的模型在全部申请人上重新拟合。 <a class="reference internal" href="#kivi.reject_inference.fuzzy_augmentation" title="kivi.reject_inference.fuzzy_augmentation"><code class="xref py py-func docutils literal notranslate"><span class="pre">fuzzy_augmentation()</span></code></a> 和 <a class="reference internal" href="#kivi.reject_inference.parceling" title="kivi.reject_inference.parceling"><code class="xref py py-func docutils literal notranslate"><span class="pre">parceling()</span></code></a> 返回带权重的推断行， <a class="reference internal" href="#kivi.reject_inference.reweighting" title="kivi.reject_inference.reweighting"><code class="xref py py-func docutils literal notranslate"><span class="pre">reweighting()</span></code></a> 返回获批申请人的权重。</p>
+<p>各方法在合成申请数据上的比较见 <a class="reference internal" href="../user_guide/reject_inference.html"><span class="doc">拒绝推断</span></a> 。</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.reject_inference.fuzzy_augmentation" title="kivi.reject_inference.fuzzy_augmentation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fuzzy_augmentation</span></code></a>(probability, *[, factor])</p></td>
+<td><p>把每个拒绝申请人拆成带小数权重的一行坏样本和一行好样本。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.reject_inference.parceling" title="kivi.reject_inference.parceling"><code class="xref py py-obj docutils literal notranslate"><span class="pre">parceling</span></code></a>(score, target, reject_score, *[, ...])</p></td>
+<td><p>按所在评分段的坏账率把拒绝申请人标记为坏或好。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.reject_inference.reweighting" title="kivi.reject_inference.reweighting"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reweighting</span></code></a>(score, reject_score, *[, bins])</p></td>
+<td><p>给获批申请人加权，使其代表同一评分段的拒绝申请人。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.reject_inference.fuzzy_augmentation">
+<span class="sig-prename descclassname"><span class="pre">kivi.reject_inference.</span></span><span class="sig-name descname"><span class="pre">fuzzy_augmentation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">probability</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.reject_inference.fuzzy_augmentation" title="链接到此定义。">#</a></dt>
+<dd><p>把每个拒绝申请人拆成带小数权重的一行坏样本和一行好样本。</p>
+<p>拒绝申请人在仅用获批申请人拟合的模型下的 PD 作为其坏样本行的权重，总权重 1 的其余部分归其好样本行。把这些行与权重为 1 的获批申请人拼接起来，再带权重重新拟合模型。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>probability</strong><span class="classifier">array_like</span></dt><dd><p>每个拒绝申请人在仅用通过样本拟合的模型下的 PD，介于 0 和 1 之间。</p>
+</dd>
+<dt><strong>factor</strong><span class="classifier">float，默认 1</span></dt><dd><p>PD 的正乘数。大于 1 的倍数假定拒绝样本比 PD 相同的获批申请人风险更高，例如审批时用到了模型所没有的信息。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.DataFrame</dt><dd><p>每个拒绝申请人两行，坏样本行在前，列为 <code class="docutils literal notranslate"><span class="pre">target</span></code> （先 1 后 0）和 <code class="docutils literal notranslate"><span class="pre">weight</span></code> （PD 乘以 <cite>factor</cite> 后截断到 [0, 1] 的值及其补数）。索引重复 <cite>probability</cite> 的索引，不是 Series 时重复其位置。当 <cite>probability</cite> 是索引与拒绝样本相同且不重复的 Series 时， <code class="docutils literal notranslate"><span class="pre">rejects.loc[result.index]</span></code> 给出每一行的特征。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果 <cite>probability</cite> 为空、不是一维或不是数值，或有缺失值或位于 [0, 1] 之外的值；或者 <cite>factor</cite> 不是有限正数。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.reject_inference.parceling" title="kivi.reject_inference.parceling"><code class="xref py py-obj docutils literal notranslate"><span class="pre">parceling</span></code></a></dt><dd><p>根据评分段的坏账率推断结果。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.reject_inference.reweighting" title="kivi.reject_inference.reweighting"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reweighting</span></code></a></dt><dd><p>改为给获批申请人加权。</p>
+</dd>
+<dt><a class="reference internal" href="selection.html#kivi.selection.logistic_regression" title="kivi.selection.logistic_regression"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.selection.logistic_regression</span></code></a></dt><dd><p>用 <code class="docutils literal notranslate"><span class="pre">weights</span></code> 重新拟合模型。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>PD 为 <span class="math notranslate nohighlight">\(p\)</span> 、倍数为 <span class="math notranslate nohighlight">\(k\)</span> 的拒绝申请人得到以下两行</p>
+<div class="math notranslate nohighlight">
+\[(y = 1,\ w = \min(k p, 1)) \quad \text{和} \quad
+(y = 0,\ w = 1 - \min(k p, 1)).\]</div>
+<p>截断使两个权重都在 [0, 1] 之内：当 <span class="math notranslate nohighlight">\(k p \ge 1\)</span> 时，拒绝申请人以全部权重计为坏样本，其好样本行的权重为 0，kivi 的 <code class="docutils literal notranslate"><span class="pre">weights</span></code> 参数会忽略这样的行。每个拒绝申请人的总权重保持为 1，因此这些行的加权坏账率是 <span class="math notranslate nohighlight">\(\min(k p_i, 1)\)</span> 的均值。</p>
+<p>当 <code class="docutils literal notranslate"><span class="pre">factor=1</span></code> 时，在同一编码上重新拟合同一个逻辑回归，得到的恰好是仅用通过样本拟合的模型的系数：在这组系数下，每个拒绝申请人坏样本行的权重等于其拟合 PD，因此推断出的行不改变得分方程。重新拟合只会缩小标准误，尽管推断出的行并没有增加任何信息：在这样的权重下， <cite>kivi.selection.logistic_regression</cite> 的标准误偏小。只有倍数不为 1、换用其他编码（例如在扩充后的样本上重新拟合 WOE）或换用其他变量时，模型才会改变。</p>
+<p class="rubric">参考文献</p>
+<div role="list" class="citation-list">
+<div class="citation" id="r163332bd4527-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<p>N. Siddiqi, &quot;Credit Risk Scorecards: Developing and Implementing
+Intelligent Credit Scoring&quot;, Wiley, 2006.</p>
+</div>
+</div>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.reject_inference</span><span class="w"> </span><span class="kn">import</span> <span class="n">fuzzy_augmentation</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">probability</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">],</span> <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="s2">"a"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"c"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fuzzy_augmentation</span><span class="p">(</span><span class="n">probability</span><span class="p">)</span>
+<span class="go">   target  weight</span>
+<span class="go">a       1     0.1</span>
+<span class="go">a       0     0.9</span>
+<span class="go">b       1     0.4</span>
+<span class="go">b       0     0.6</span>
+<span class="go">c       1     0.7</span>
+<span class="go">c       0     0.3</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fuzzy_augmentation</span><span class="p">(</span><span class="n">probability</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="mf">1.5</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">   target  weight</span>
+<span class="go">a       1    0.15</span>
+<span class="go">a       0    0.85</span>
+<span class="go">b       1    0.60</span>
+<span class="go">b       0    0.40</span>
+<span class="go">c       1    1.00</span>
+<span class="go">c       0    0.00</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.reject_inference.parceling">
+<span class="sig-prename descclassname"><span class="pre">kivi.reject_inference.</span></span><span class="sig-name descname"><span class="pre">parceling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">score</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reject_score</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expected</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.reject_inference.parceling" title="链接到此定义。">#</a></dt>
+<dd><p>按所在评分段的坏账率把拒绝申请人标记为坏或好。</p>
+<p>把获批申请人和拒绝申请人的评分划分为若干评分段。在每个评分段内，拒绝样本的坏账率为获批申请人观测坏账率的 <cite>factor</cite> 倍（最多为 1），并随机选取该比例的拒绝样本标记为坏。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>score</strong><span class="classifier">array_like</span></dt><dd><p>获批申请人的有限数值评分，例如其在仅用通过样本拟合的模型下的 PD。方向无关紧要。</p>
+</dd>
+<dt><strong>target</strong><span class="classifier">array_like</span></dt><dd><p>获批申请人观测到的结果，1 表示坏、0 表示好，两者都必须出现。如果 <cite>score</cite> 和 <cite>target</cite> 都是 pandas Series，二者的索引必须完全相同；否则按位置对应。</p>
+</dd>
+<dt><strong>reject_score</strong><span class="classifier">array_like</span></dt><dd><p>拒绝申请人的有限数值评分，与 <cite>score</cite> 的尺度相同。</p>
+</dd>
+<dt><strong>bins</strong><span class="classifier">int 或 array_like，默认 10</span></dt><dd><p>分位数评分段的个数，由 <cite>kivi.binning.bin_edges</cite> 在获批和拒绝申请人的评分合并后拟合，因此评分并列时评分段可能更少；或者递增的右闭评分段边界，须包含所有评分。</p>
+</dd>
+<dt><strong>factor</strong><span class="classifier">float，默认 1</span></dt><dd><p>各评分段内获批申请人坏账率的正乘数。大于 1 的倍数假定拒绝样本比评分相同的获批申请人风险更高。</p>
+</dd>
+<dt><strong>expected</strong><span class="classifier">bool，默认 False</span></dt><dd><p>每个拒绝申请人返回两行，像 <cite>fuzzy_augmentation</cite> 那样以该评分段推断的坏账率及其补数为权重，而不是随机标签。</p>
+</dd>
+<dt><strong>rng</strong><span class="classifier">{None, int, numpy.random.Generator}，可选</span></dt><dd><p>传给 <cite>numpy.random.default_rng</cite> 、用于抽取标签的种子或生成器。不使用 NumPy 的全局随机状态，因此同一个种子总是给出同样的标签。 <code class="docutils literal notranslate"><span class="pre">expected=True</span></code> 时不使用。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.DataFrame</dt><dd><p>包含 <code class="docutils literal notranslate"><span class="pre">target</span></code> 和 <code class="docutils literal notranslate"><span class="pre">weight</span></code> 两列，索引与 <cite>reject_score</cite> 相同（不是 Series 时为位置）。每个拒绝申请人一行，带其标签和权重 1；或者在 <code class="docutils literal notranslate"><span class="pre">expected=True</span></code> 时，每个拒绝申请人两行，与 <cite>fuzzy_augmentation</cite> 的返回值相同。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果 <cite>score</cite> 和 <cite>target</cite> 不符合 <cite>kivi.metrics.gains_table</cite> 的要求；如果 <cite>reject_score</cite> 为空、不是一维或不是数值，或含有缺失值或无穷值；如果 <cite>bins</cite> 既不是正整数，也不是至少两个递增的边界，或者有评分落在边界之外；如果某个评分段有拒绝申请人却没有获批申请人，因而其坏账率未知；或者 <cite>factor</cite> 不是有限正数， <cite>expected</cite> 不是布尔值，或 <cite>rng</cite> 不是 <cite>numpy.random.default_rng</cite> 接受的种子或生成器。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">警告<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>UserWarning</dt><dd><p>如果评分并列使分位数评分段少于 <cite>bins</cite> 。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.reject_inference.fuzzy_augmentation" title="kivi.reject_inference.fuzzy_augmentation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fuzzy_augmentation</span></code></a></dt><dd><p>根据每个拒绝申请人自己的 PD 推断结果。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.reject_inference.reweighting" title="kivi.reject_inference.reweighting"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reweighting</span></code></a></dt><dd><p>改为给各评分段的获批申请人加权。</p>
+</dd>
+<dt><a class="reference internal" href="metrics.html#kivi.metrics.gains_table" title="kivi.metrics.gains_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.metrics.gains_table</span></code></a></dt><dd><p>各评分段的坏账率。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>若一个评分段有 <span class="math notranslate nohighlight">\(a\)</span> 个获批申请人（其中 <span class="math notranslate nohighlight">\(b\)</span> 个为坏）和 <span class="math notranslate nohighlight">\(n\)</span> 个拒绝申请人，则倍数为 <span class="math notranslate nohighlight">\(k\)</span> 时推断的坏账率为 <span class="math notranslate nohighlight">\(r = \min(k b / a, 1)\)</span> 。坏的拒绝申请人个数为 <span class="math notranslate nohighlight">\(r n\)</span> 随机向下或向上取整，向上取整的概率等于其小数部分，因此平均为 <span class="math notranslate nohighlight">\(r n\)</span> ，且与之相差从不超过 1。 <code class="docutils literal notranslate"><span class="pre">expected=True</span></code> 时，每个拒绝申请人改为得到权重为 <span class="math notranslate nohighlight">\(r\)</span> 的坏样本行和权重为 <span class="math notranslate nohighlight">\(1 - r\)</span> 的好样本行，从而消除抽样噪声。</p>
+<p>打包法只使用评分：在一个评分段内，它对每个拒绝申请人一视同仁，不论其特征如何。拒绝申请人推断的坏账率取决于其所在评分段的获批申请人，而在通过率低的评分段里，获批申请人很少。</p>
+<p class="rubric">参考文献</p>
+<div role="list" class="citation-list">
+<div class="citation" id="rc29e884af050-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<p>N. Siddiqi, &quot;Credit Risk Scorecards: Developing and Implementing
+Intelligent Credit Scoring&quot;, Wiley, 2006.</p>
+</div>
+</div>
+<p class="rubric">示例</p>
+<p>获批申请人在低评分段的坏账率为 1/4，在高评分段为 3/4。因此高评分段的四个拒绝申请人中有三个被标记为坏，低评分段唯一的拒绝申请人以 1/4 的概率为坏：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.reject_inference</span><span class="w"> </span><span class="kn">import</span> <span class="n">parceling</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">score</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">reject_score</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.65</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">,</span> <span class="mf">0.85</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">parceling</span><span class="p">(</span><span class="n">score</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">reject_score</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">rng</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="go">   target  weight</span>
+<span class="go">0       0     1.0</span>
+<span class="go">1       0     1.0</span>
+<span class="go">2       1     1.0</span>
+<span class="go">3       1     1.0</span>
+<span class="go">4       1     1.0</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">expected=True</span></code> 时，每个拒绝申请人改为以所在评分段的坏账率作为其坏样本行的权重：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">parceling</span><span class="p">(</span><span class="n">score</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">reject_score</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">expected</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">   target  weight</span>
+<span class="go">0       1    0.25</span>
+<span class="go">0       0    0.75</span>
+<span class="go">1       1    0.75</span>
+<span class="go">1       0    0.25</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.reject_inference.reweighting">
+<span class="sig-prename descclassname"><span class="pre">kivi.reject_inference.</span></span><span class="sig-name descname"><span class="pre">reweighting</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">score</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reject_score</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.reject_inference.reweighting" title="链接到此定义。">#</a></dt>
+<dd><p>给获批申请人加权，使其代表同一评分段的拒绝申请人。</p>
+<p>在每个评分段内，每个获批申请人得到权重（获批 + 拒绝）/ 获批，即该评分段通过率的倒数。加权后的获批申请人合计等于该评分段的全部申请人，因此用这些权重重新拟合的模型让每个评分段占有其在申请人总体中的份额。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>score</strong><span class="classifier">array_like</span></dt><dd><p>获批申请人的有限数值评分，例如其在仅用通过样本拟合的模型下的 PD。方向无关紧要。</p>
+</dd>
+<dt><strong>reject_score</strong><span class="classifier">array_like</span></dt><dd><p>拒绝申请人的有限数值评分，与 <cite>score</cite> 的尺度相同。</p>
+</dd>
+<dt><strong>bins</strong><span class="classifier">int 或 array_like，默认 10</span></dt><dd><p>分位数评分段的个数，由 <cite>kivi.binning.bin_edges</cite> 在获批和拒绝申请人的评分合并后拟合，因此评分并列时评分段可能更少；或者递增的右闭评分段边界，须包含所有评分。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.Series 或 numpy.ndarray</dt><dd><p>每个获批申请人的权重，至少为 1。 <cite>score</cite> 是 Series 时返回名为 <code class="docutils literal notranslate"><span class="pre">weight</span></code> 、索引与 <cite>score</cite> 相同的 Series，否则返回数组。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果 <cite>score</cite> 或 <cite>reject_score</cite> 为空、不是一维或不是数值，或含有缺失值或无穷值；如果 <cite>bins</cite> 既不是正整数，也不是至少两个递增的边界，或者有评分落在边界之外；或者某个评分段有拒绝申请人却没有获批申请人。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">警告<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>UserWarning</dt><dd><p>如果评分并列使分位数评分段少于 <cite>bins</cite> 。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.reject_inference.fuzzy_augmentation" title="kivi.reject_inference.fuzzy_augmentation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fuzzy_augmentation</span></code></a></dt><dd><p>改为推断拒绝样本的结果。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.reject_inference.parceling" title="kivi.reject_inference.parceling"><code class="xref py py-obj docutils literal notranslate"><span class="pre">parceling</span></code></a></dt><dd><p>按各评分段的坏账率标记其中的拒绝样本。</p>
+</dd>
+<dt><a class="reference internal" href="selection.html#kivi.selection.logistic_regression" title="kivi.selection.logistic_regression"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.selection.logistic_regression</span></code></a></dt><dd><p>用 <code class="docutils literal notranslate"><span class="pre">weights</span></code> 重新拟合模型。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>若一个评分段有 <span class="math notranslate nohighlight">\(a\)</span> 个获批申请人和 <span class="math notranslate nohighlight">\(n\)</span> 个拒绝申请人，该评分段的每个获批申请人得到权重</p>
+<div class="math notranslate nohighlight">
+\[w = \frac{a + n}{a}.\]</div>
+<p>重新加权假定在一个评分段内，拒绝样本与获批申请人的违约情况相同。它改变各评分段在拟合中的分量，但不增加任何结果，因此拒绝样本被预测为与评分相同的获批申请人风险相当。它无法代表与任何获批申请人都不相似的申请人：只有拒绝样本而没有获批申请人的评分段会引发错误。若某个评分以硬截断决定审批，按它划分的评分段在截断点以外没有获批申请人，因此应使用获批与拒绝申请人有重叠的评分，例如仅用通过样本拟合的模型的 PD。</p>
+<p>这些权重之和大于获批申请人的个数，因此用它们拟合得到的标准误偏小，就好像所有申请人的结果都被观测到了一样。</p>
+<p class="rubric">参考文献</p>
+<div role="list" class="citation-list">
+<div class="citation" id="r0bbcb3cec2a1-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<p>N. Siddiqi, &quot;Credit Risk Scorecards: Developing and Implementing
+Intelligent Credit Scoring&quot;, Wiley, 2006.</p>
+</div>
+</div>
+<p class="rubric">示例</p>
+<p>低评分段有 4 个获批申请人和 1 个拒绝申请人，高评分段分别为 2 个和 4 个：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.reject_inference</span><span class="w"> </span><span class="kn">import</span> <span class="n">reweighting</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">score</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">reweighting</span><span class="p">(</span><span class="n">score</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.65</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">,</span> <span class="mf">0.85</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="go">array([1.25, 1.25, 1.25, 1.25, 3.  , 3.  ])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="selection.html"
+       title="上一页">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">上一页</p>
+        <p class="prev-next-title">变量筛选</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="scorecard.html"
+       title="下一页">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">下一页</p>
+        <p class="prev-next-title">评分卡</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 当前页面
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.reject_inference.fuzzy_augmentation"><code class="docutils literal notranslate"><span class="pre">fuzzy_augmentation()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.reject_inference.parceling"><code class="docutils literal notranslate"><span class="pre">parceling()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.reject_inference.reweighting"><code class="docutils literal notranslate"><span class="pre">reweighting()</span></code></a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    由 <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1创建。
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

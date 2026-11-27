@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>版本说明 &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=d005c095" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=14f9d491"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script src="../_static/translations.js?v=540d3cec"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'release/index';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="next" title="迁移指南" href="migration.html" />
+    <link rel="prev" title="示例数据" href="../api/datasets.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+  <meta name="docsearch:version" content="1.9.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">跳转至主要内容</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>回到顶部</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="版本警告"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="网页导航" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 1.9.0">1.9.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    教程
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#" aria-current="page">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../../en/release/index.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="当前页面" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    教程
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#" aria-current="page">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../../en/release/index.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="章节导航">
+  <p class="bd-links__title" role="heading" aria-level="1">章节导航</p>
+  <div class="bd-toc-item navbar-nav"><ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="migration.html">迁移指南</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="初始页面">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">版本说明</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="release-notes">
+<h1>版本说明<a class="headerlink" href="#release-notes" title="链接到此标题。">#</a></h1>
+<section id="unreleased">
+<h2>未发布<a class="headerlink" href="#unreleased" title="链接到此标题。">#</a></h2>
+<p>上次发布以来合并的改动。</p>
+<section id="new">
+<h3>新增<a class="headerlink" href="#new" title="链接到此标题。">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.lifetime.conditional_matrix</span></code> 在 Belkin、Suchower 和 Forest（1998）的单因子模型中把转移矩阵移到给定的经济状况：违约、降级和升级都随一个系统因子变化，违约列就是 <code class="docutils literal notranslate"><span class="pre">kivi.capital.conditional_pd</span></code> 的条件 PD。违约状态保持为吸收态，因此一个情景的各期平移矩阵相乘即得到其累计 PD。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.lifetime.matrix_factor</span></code> 用极大似然由一期的计数矩阵估计该期的因子， <code class="docutils literal notranslate"><span class="pre">kivi.lifetime.matrix_correlation</span></code> 估计使多期因子的样本方差为 1 的相关系数。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.datasets.make_loan_panel</span></code> 新增 <code class="docutils literal notranslate"><span class="pre">correlation</span></code> 和 <code class="docutils literal notranslate"><span class="pre">factors</span></code> ，用每月的系统因子使所有贷款的还款一起变化。默认的相关系数为 0，得到与以前版本相同的面板。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.scorecard.ScorecardSpec</span></code> 为生产环境保存完整的评分卡：其各特征的 <code class="docutils literal notranslate"><span class="pre">BinningSpec</span></code> 、每个分组的分值（可以取整或手工调整）、刻度、开发样本中没有的分组的分值，以及可选的 PD 校准和主标尺。校准可以是对数几率的平移或 Platt 缩放，也可以是评分的保序校准。 <code class="docutils literal notranslate"><span class="pre">points</span></code> 、 <code class="docutils literal notranslate"><span class="pre">score</span></code> 、 <code class="docutils literal notranslate"><span class="pre">probability</span></code> 、 <code class="docutils literal notranslate"><span class="pre">grade</span></code> 和 <code class="docutils literal notranslate"><span class="pre">reason_codes</span></code> 把评分卡应用于任意样本； <code class="docutils literal notranslate"><span class="pre">score</span></code> 逐列相加分值，因此分组相同的申请人在任何计算机上都得到完全相同的评分。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ScorecardSpec.from_model</span></code> 由基于 WOE 值的逻辑回归的系数构建方案， <code class="docutils literal notranslate"><span class="pre">to_json</span></code> 和 <code class="docutils literal notranslate"><span class="pre">from_json</span></code> 把它保存和加载为带版本号的 JSON（格式版本 1）。读取时拒绝重复的键以及文本中的 <code class="docutils literal notranslate"><span class="pre">NaN</span></code> 或 <code class="docutils literal notranslate"><span class="pre">Infinity</span></code> 。</p></li>
+</ul>
+</section>
+<section id="changed">
+<h3>变更<a class="headerlink" href="#changed" title="链接到此标题。">#</a></h3>
+<ul class="simple">
+<li><p>行数远多于列数时， <code class="docutils literal notranslate"><span class="pre">kivi.selection.vif_filter</span></code> 快得多：它只对标准化后的列分解一次，此后每一轮的 VIF 都由一个小方阵算出；50,000 行、40 列时约快 20 倍。保留的变量不变，因为它比较的 VIF 与 <code class="docutils literal notranslate"><span class="pre">kivi.selection.vif</span></code> 的结果只差舍入误差。</p></li>
+</ul>
+</section>
+<section id="fixed">
+<h3>修复<a class="headerlink" href="#fixed" title="链接到此标题。">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.scorecard.score_scaling</span></code> 、 <code class="docutils literal notranslate"><span class="pre">pd_to_score</span></code> 、 <code class="docutils literal notranslate"><span class="pre">score_to_pd</span></code> 、 <code class="docutils literal notranslate"><span class="pre">points_table</span></code> 、 <code class="docutils literal notranslate"><span class="pre">woe_to_points</span></code> 和 <code class="docutils literal notranslate"><span class="pre">reason_codes</span></code> 遇到浮点数无法表示的过大整数参数（例如 <code class="docutils literal notranslate"><span class="pre">pdo=10**400</span></code> ）时，引发 <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> 而不是 <code class="docutils literal notranslate"><span class="pre">OverflowError</span></code> 。</p></li>
+</ul>
+</section>
+</section>
+<section id="id1">
+<h2>1.9.0（2026-11-26）<a class="headerlink" href="#id1" title="链接到此标题。">#</a></h2>
+<section id="id2">
+<h3>变更<a class="headerlink" href="#id2" title="链接到此标题。">#</a></h3>
+<ul class="simple">
+<li><p>按 1.8 发布说明的预告，kivi 现在要求 Python 3.11 或更高版本，因为 Python 3.10 已于 2026 年 10 月停止支持。NumPy 1.24 和 pandas 2.0 仍是支持的最低版本。</p></li>
+</ul>
+</section>
+</section>
+<section id="id3">
+<h2>1.8.0（2026-11-25）<a class="headerlink" href="#id3" title="链接到此标题。">#</a></h2>
+<section id="id4">
+<h3>新增<a class="headerlink" href="#id4" title="链接到此标题。">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.vintage.default_rate_table</span></code> 按 EBA 的 PD 估计指引中的队列法，给出每个等级的一年违约率，默认以季末为起点月。起点月处于违约的贷款不属于任何队列，等级取起点月的等级，一年内违约两次的贷款只计一次，一年内未违约就离开面板的贷款仍留在队列中，并计入 <code class="docutils literal notranslate"><span class="pre">exited</span></code> 。 <code class="docutils literal notranslate"><span class="pre">probability</span></code> 增加每个队列的平均 PD。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.calibration.central_tendency_shift</span></code> 返回 log odds 的平移量，使校准样本的平均 PD 等于中心趋势（例如长期平均违约率），且不改变 PD 的顺序，即 Tasche（2013）的缩放似然比。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.calibration.quasi_moment_fit</span></code> 按中心趋势和准确性比率拟合 logistic PD 曲线，即 Tasche（2009）的 quasi moment matching，返回由 <code class="docutils literal notranslate"><span class="pre">kivi.calibration.platt_predict</span></code> 应用的斜率和截距。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.binning.optimal_edges</span></code> 在等频细分箱的所有合并方式中，用动态规划精确找出信息值最大的分箱边界，约束包括最大箱数、每箱的最小占比（ <code class="docutils literal notranslate"><span class="pre">min_bin_share</span></code> ）、每箱事件数和非事件数的最小值（ <code class="docutils literal notranslate"><span class="pre">min_bin_events</span></code> ），以及 WOE 的趋势 <code class="docutils literal notranslate"><span class="pre">trend</span></code> ： <code class="docutils literal notranslate"><span class="pre">&quot;increasing&quot;</span></code> 、 <code class="docutils literal notranslate"><span class="pre">&quot;decreasing&quot;</span></code> 、 <code class="docutils literal notranslate"><span class="pre">&quot;u_shaped&quot;</span></code> 、 <code class="docutils literal notranslate"><span class="pre">&quot;inverted_u&quot;</span></code> 、 <code class="docutils literal notranslate"><span class="pre">&quot;any&quot;</span></code> ，或默认的 <code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code> ，即两种单调趋势中较好的一种。 <code class="docutils literal notranslate"><span class="pre">kivi.spec.fit_spec</span></code> 用 <code class="docutils literal notranslate"><span class="pre">method=&quot;optimal&quot;</span></code> 调用它。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.binning.chimerge_edges</span></code> 和 <code class="docutils literal notranslate"><span class="pre">kivi.binning.monotonic_edges</span></code> 新增 <code class="docutils literal notranslate"><span class="pre">min_bin_share</span></code> ：在其他合并之前，占比低于拟合取值该比例的箱，会与卡方统计量较小的相邻箱合并。默认值 0 保持以前版本的结果。</p></li>
+<li><p>WOE 与 IV 指南说明了为什么有监督分箱在其开发样本上的信息值偏乐观，以及如何在验证样本上或用置换检验衡量它。</p></li>
+<li><p><a class="reference internal" href="../api/plotting.html#module-kivi.plotting" title="kivi.plotting"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kivi.plotting</span></code></a> 新增五种结果表的图： <a class="reference internal" href="../api/plotting.html#kivi.plotting.survival_chart" title="kivi.plotting.survival_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">survival_chart()</span></code></a> （按期的 <code class="docutils literal notranslate"><span class="pre">cumulative_pd</span></code> 或 <code class="docutils literal notranslate"><span class="pre">survival</span></code> 阶梯线；对 <code class="docutils literal notranslate"><span class="pre">cumulative_pd</span></code> 有竞争风险时画出两类）、 <a class="reference internal" href="../api/plotting.html#kivi.plotting.transition_chart" title="kivi.plotting.transition_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">transition_chart()</span></code></a> （把迁移矩阵画成热力图，对角线描边）、 <a class="reference internal" href="../api/plotting.html#kivi.plotting.rule_set_chart" title="kivi.plotting.rule_set_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">rule_set_chart()</span></code></a> （每条规则的 <code class="docutils literal notranslate"><span class="pre">new_hits</span></code> 及 <code class="docutils literal notranslate"><span class="pre">approval_rate</span></code> ）、 <a class="reference internal" href="../api/plotting.html#kivi.plotting.profit_chart" title="kivi.plotting.profit_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">profit_chart()</span></code></a> （ <code class="docutils literal notranslate"><span class="pre">profit</span></code> 对 <code class="docutils literal notranslate"><span class="pre">approval_rate</span></code> 的曲线，标出最优截断点）和 <a class="reference internal" href="../api/plotting.html#kivi.plotting.lgd_chart" title="kivi.plotting.lgd_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">lgd_chart()</span></code></a> （各组的 <code class="docutils literal notranslate"><span class="pre">mean</span></code> 、 <code class="docutils literal notranslate"><span class="pre">zero_share</span></code> 和 <code class="docutils literal notranslate"><span class="pre">full_share</span></code> ）。</p></li>
+<li><p><a class="reference internal" href="../api/rules.html#kivi.rules.rule_candidates" title="kivi.rules.rule_candidates"><code class="xref py py-func docutils literal notranslate"><span class="pre">kivi.rules.rule_candidates()</span></code></a> 在数据框的数值列中搜索单阈值政策规则：用 <a class="reference internal" href="../api/binning.html#kivi.binning.tree_edges" title="kivi.binning.tree_edges"><code class="xref py py-func docutils literal notranslate"><span class="pre">kivi.binning.tree_edges()</span></code></a> 或 <a class="reference internal" href="../api/binning.html#kivi.binning.ks_edges" title="kivi.binning.ks_edges"><code class="xref py py-func docutils literal notranslate"><span class="pre">kivi.binning.ks_edges()</span></code></a> 拟合切点，每个阈值保留事件率较高的一侧，并按提升度从高到低列出满足 <code class="docutils literal notranslate"><span class="pre">min_hit_rate</span></code> 和 <code class="docutils literal notranslate"><span class="pre">min_lift</span></code> 的规则。其计数与 <a class="reference internal" href="../api/rules.html#kivi.rules.rule_table" title="kivi.rules.rule_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">kivi.rules.rule_table()</span></code></a> 对同一规则的结果相同，缺失值和特殊值不命中任何规则。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.binning.variance_edges</span></code> 把驱动因素的分箱边界拟合到连续型响应上，例如实际 LGD 或 CCF：它在等频细分箱的所有合并方式中，用 <code class="docutils literal notranslate"><span class="pre">optimal_edges</span></code> 的动态规划精确找出箱内响应平方和最小的分箱，约束包括最大箱数、每箱取值的最小占比，以及各箱均值的趋势 <code class="docutils literal notranslate"><span class="pre">trend</span></code> 。响应可以落在 [0, 1] 之外，但不能缺失； <code class="docutils literal notranslate"><span class="pre">weights</span></code> 为频数权重。请用 <code class="docutils literal notranslate"><span class="pre">kivi.binning.cut</span></code> 对取值分组，再用 <code class="docutils literal notranslate"><span class="pre">kivi.lgd.lgd_table</span></code> 汇总；LGD 与 EAD 指南就是这样为有抵押贷款的贷款价值比拟合分段的。</p></li>
+</ul>
+</section>
+<section id="id5">
+<h3>变更<a class="headerlink" href="#id5" title="链接到此标题。">#</a></h3>
+<ul class="simple">
+<li><p>首页、用户指南索引和两份 README 介绍了 <code class="docutils literal notranslate"><span class="pre">optimal_edges</span></code> 、 <code class="docutils literal notranslate"><span class="pre">variance_edges</span></code> 以及 ChiMerge 和单调分箱的 <code class="docutils literal notranslate"><span class="pre">min_bin_share</span></code> 、 <code class="docutils literal notranslate"><span class="pre">rule_candidates</span></code> 、 <code class="docutils literal notranslate"><span class="pre">default_rate_table</span></code> 、 <code class="docutils literal notranslate"><span class="pre">central_tendency_shift</span></code> 、 <code class="docutils literal notranslate"><span class="pre">quasi_moment_fit</span></code> 和五个新图表。分箱指南用一张示意图说明 <code class="docutils literal notranslate"><span class="pre">optimal_edges</span></code> 如何在候选箱中找出最优路径，Vintage 分析指南画出各起点月的一年违约率及其平均值（观察平均违约率）和合并计算的比率；模型验证指南用 <code class="docutils literal notranslate"><span class="pre">default_rate_table</span></code> 统计各等级 Jeffreys 检验所需的 N、D 和 PD；风控建模流程指南指向 <code class="docutils literal notranslate"><span class="pre">optimal_edges</span></code> 的约束，并提醒开发样本上的信息值偏乐观。</p></li>
+<li><p>约定页在二元的 <code class="docutils literal notranslate"><span class="pre">target</span></code> 旁补充了 <code class="docutils literal notranslate"><span class="pre">variance_edges</span></code> 和 <code class="docutils literal notranslate"><span class="pre">fractional_regression</span></code> 的 <code class="docutils literal notranslate"><span class="pre">response</span></code> ，还补充了新函数的选项和缺失值规则、 <code class="docutils literal notranslate"><span class="pre">default_rate_table</span></code> 的起点月，并把 <code class="docutils literal notranslate"><span class="pre">quasi_moment_fit</span></code> 的斜率和截距列入供另一个函数使用的参数。兼容性页列出了 <code class="docutils literal notranslate"><span class="pre">rule_candidates</span></code> 和 <code class="docutils literal notranslate"><span class="pre">default_rate_table</span></code> 的表、 <code class="docutils literal notranslate"><span class="pre">quasi_moment_fit</span></code> 返回的二元组、 <code class="docutils literal notranslate"><span class="pre">central_tendency_shift</span></code> 返回的浮点数和五个新图表所画的内容，并说明 <code class="docutils literal notranslate"><span class="pre">response</span></code> 参数以及 <code class="docutils literal notranslate"><span class="pre">fit_spec</span></code> 的 <code class="docutils literal notranslate"><span class="pre">method=&quot;optimal&quot;</span></code> 等取值属于公开 API。术语表定义了准确性比率、校准样本和校准分段、中心趋势、队列法、起点月、一年违约率、观察平均违约率和长期平均违约率、最优分箱、置换检验、准矩匹配和缩放似然比，候选规则一条现在也涵盖 <code class="docutils literal notranslate"><span class="pre">rule_candidates</span></code> 找到的阈值。</p></li>
+<li><p>kivi 1.9 将要求 Python 3.11 或更高版本，因为 Python 3.10 已于 2026 年 10 月停止支持。NumPy 1.24 和 pandas 2.0 仍是支持的最低版本。</p></li>
+</ul>
+</section>
+</section>
+<section id="id6">
+<h2>1.7.0（2026-11-25）<a class="headerlink" href="#id6" title="链接到此标题。">#</a></h2>
+<section id="id7">
+<h3>新增<a class="headerlink" href="#id7" title="链接到此标题。">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.strategy.cutoff_table</span></code> 新增参数 <code class="docutils literal notranslate"><span class="pre">revenue</span></code> ，即每个观测的非负收益，例如一笔贷款的利差；传入后表中增加 <code class="docutils literal notranslate"><span class="pre">approved_revenue</span></code> 列，即通过客群的收益，同时传入 <code class="docutils literal notranslate"><span class="pre">loss</span></code> 时还增加 <code class="docutils literal notranslate"><span class="pre">profit</span></code> 列，即收益减去损失。 <code class="docutils literal notranslate"><span class="pre">table[&quot;profit&quot;].idxmax()</span></code> 给出各截断点中利润最高的一个。不传入 <code class="docutils literal notranslate"><span class="pre">revenue</span></code> 时，表保持不变。</p></li>
+<li><p>新增 <code class="docutils literal notranslate"><span class="pre">kivi.metrics.expected_maximum_profit</span></code> ，给出 Verbraken、Bravo、Weber 和 Baesens（2014）提出的信用评分期望最大利润（EMP）：最优截断点下每位申请人的利润，以贷款金额的比例表示，并对违约损失取平均，损失以概率 <code class="docutils literal notranslate"><span class="pre">no_loss_share</span></code> 为 0、以概率 <code class="docutils literal notranslate"><span class="pre">full_loss_share</span></code> 为全部贷款，其余均匀分布在两者之间；同时给出最优截断点拒绝的申请人比例。默认值和结果与 R 包 EMP 和 Python 包 empulse 一致， <code class="docutils literal notranslate"><span class="pre">weights</span></code> 为频数权重。</p></li>
+<li><p>新模块 <code class="docutils literal notranslate"><span class="pre">kivi.rules</span></code> 衡量信贷策略中的政策规则，规则以 DataFrame 传入，每条规则一列布尔值，或 0 与 1。 <code class="docutils literal notranslate"><span class="pre">rule_table</span></code> 给出每条规则的命中数、命中率和独有命中，即规则集中其他规则都没有命中的样本；给出目标时，还给出结果已知的命中、事件数、事件率、提升度、召回率和独有命中中的事件数。 <code class="docutils literal notranslate"><span class="pre">rule_set_table</span></code> 按顺序执行规则，即决策瀑布表：每一行给出一条规则的新增命中及其中的事件，以及到这条规则为止仍然通过的客群，各列与 <code class="docutils literal notranslate"><span class="pre">kivi.strategy.cutoff_table</span></code> 相同。与 <code class="docutils literal notranslate"><span class="pre">kivi.strategy.swap_set</span></code> 一样，目标中的缺失标签表示未知结果；规则中的缺失值会报错； <code class="docutils literal notranslate"><span class="pre">weights</span></code> 是频数权重。</p></li>
+<li><p>新增的政策规则指南基于模拟的申请数据，衡量两条政策规则和两条候选规则：它们的命中和事件率、规则的重叠矩阵、以评分截断点为最后一条规则并重现审批决策的瀑布表、规则顺序改变了什么，以及只靠已通过申请人的结果能说明什么、不能说明什么。</p></li>
+</ul>
+</section>
+<section id="id8">
+<h3>变更<a class="headerlink" href="#id8" title="链接到此标题。">#</a></h3>
+<ul class="simple">
+<li><p>政策规则指南排在信贷策略之后（信贷策略设定截断点，规则对其加以补充）、分箱方案之前。首页、用户指南索引和两份 README 都介绍了 <code class="docutils literal notranslate"><span class="pre">kivi.rules</span></code> 、 <code class="docutils literal notranslate"><span class="pre">cutoff_table</span></code> 的收益与利润以及 <code class="docutils literal notranslate"><span class="pre">expected_maximum_profit</span></code> ，并配有模拟申请数据的决策瀑布表图，以及各截断点的收益、预期损失和利润图。一张示意图用计算示例说明 <code class="docutils literal notranslate"><span class="pre">rule_set_table</span></code> 如何把每次拒绝记在第一条命中它的规则名下。</p></li>
+<li><p>约定页介绍了 <code class="docutils literal notranslate"><span class="pre">rules</span></code> 参数、 <code class="docutils literal notranslate"><span class="pre">cutoff_table</span></code> 的 <code class="docutils literal notranslate"><span class="pre">loss</span></code> 和 <code class="docutils literal notranslate"><span class="pre">revenue</span></code> 以及 <code class="docutils literal notranslate"><span class="pre">expected_maximum_profit</span></code> 的参数，并把规则表加入把缺失标签视为未知结果的函数之列。兼容性页列出了 <code class="docutils literal notranslate"><span class="pre">rule_table</span></code> 和 <code class="docutils literal notranslate"><span class="pre">rule_set_table</span></code> 的表、 <code class="docutils literal notranslate"><span class="pre">cutoff_table</span></code> 的新列以及 <code class="docutils literal notranslate"><span class="pre">expected_maximum_profit</span></code> 的统计量；术语表定义了政策规则、候选规则、命中率、独有命中、新增命中、决策瀑布表、重叠矩阵、测试组、收益与利润、期望最大利润、投资回报率和 ROC 凸包。</p></li>
+</ul>
+</section>
+</section>
+<section id="id9">
+<h2>1.6.0（2026-11-25）<a class="headerlink" href="#id9" title="链接到此标题。">#</a></h2>
+<section id="id10">
+<h3>新增<a class="headerlink" href="#id10" title="链接到此标题。">#</a></h3>
+<ul class="simple">
+<li><p>新模块 <code class="docutils literal notranslate"><span class="pre">kivi.lgd</span></code> 度量违约贷款的违约损失率和信用转换系数并为其建模。 <code class="docutils literal notranslate"><span class="pre">workout_lgd</span></code> 按年利率（所有贷款一个或每笔贷款一个，天数按 ACT/365 计算）把每笔清收的回收和费用折现到违约日，给出每笔贷款的敞口、回收现值、费用现值和实际 LGD，不截断到 [0, 1]。违约日之前的费用按 EBA LGD 估计指引第 144 段的要求复利计算到违约日。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.lgd.conversion_factor</span></code> 由违约时的提用金额以及参考日的额度和提用金额给出每个授信额度的实际 CCF，参考日已满额或超额使用的额度为 NaN； <code class="docutils literal notranslate"><span class="pre">kivi.lgd.lgd_table</span></code> 按分组汇总实际 LGD：违约数、平均值、标准差、取值范围以及无损失违约和全额损失违约的份额，并按监管对长期平均的要求先把负的 LGD 记为 0。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.lgd.fractional_regression</span></code> 对取值在 0 到 1 之间的响应（例如实际 LGD）拟合 Papke 和 Wooldridge 的分数 logit，返回与 <code class="docutils literal notranslate"><span class="pre">logistic_regression</span></code> 相同的系数表，标准误为稳健（HC0）标准误。只含 0 和 1 的响应得到 <code class="docutils literal notranslate"><span class="pre">logistic_regression</span></code> 的系数。</p></li>
+<li><p>新增的 LGD 与 EAD 指南把巴塞尔框架、EBA 和中国 2023 年资本管理办法对实际 LGD 和 CCF 的规则并列，并注明段落和条款：折现率、违约前的费用、追加提款、核销、治愈、未结案的清收、长期平均、负值、LGD 和 EAD 下限、参考日、满额使用的额度以及初级法的 CCF。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.datasets.make_defaults</span></code> 为 LGD 和 EAD 模型模拟违约贷款：2018 年至 2024 年间违约的有抵押贷款、无抵押贷款和循环额度，带违约风险敞口、抵押品价值、循环额度在违约前 12 个月的额度和已提用金额、在违约日确定的折现率以及清收结束的日期；在数据截止日 2025 年 6 月 30 日仍未结案的清收，结束日期为缺失值。 <code class="docutils literal notranslate"><span class="pre">kivi.datasets.make_recoveries</span></code> 模拟其清收过程的现金流，每笔回收、费用或治愈一行，使实际 LGD 呈双峰分布：多数有抵押贷款和已治愈贷款接近 0，其他无抵押贷款和循环额度接近 1，另有少数负的 LGD、少数高于 1 的 LGD 和少数违约前的法律费用。循环额度的实际 CCF 大多在 0 到 1 之间。同一个 <code class="docutils literal notranslate"><span class="pre">rng</span></code> 种子总是给出同样的贷款和现金流。</p></li>
+</ul>
+</section>
+<section id="id11">
+<h3>变更<a class="headerlink" href="#id11" title="链接到此标题。">#</a></h3>
+<ul class="simple">
+<li><p>LGD 与 EAD 指南排在校准指南之后、信贷策略之前，后者的预期损失要用到 LGD 和 EAD。首页、用户指南索引和两份 README 都介绍了 <code class="docutils literal notranslate"><span class="pre">kivi.lgd</span></code> 以及模拟的违约与回收数据，并配有各分段实际 LGD 的图和有抵押贷款按贷款价值比分段的平均 LGD 图。</p></li>
+<li><p>约定页介绍了 <code class="docutils literal notranslate"><span class="pre">workout_lgd</span></code> 的现金流和 <code class="docutils literal notranslate"><span class="pre">rate</span></code> 、 <code class="docutils literal notranslate"><span class="pre">fractional_regression</span></code> 的 <code class="docutils literal notranslate"><span class="pre">response</span></code> ，以及 <code class="docutils literal notranslate"><span class="pre">kivi.lgd</span></code> 的函数如何处理日期、缺失值、布尔值和权重。兼容性页列出了 <code class="docutils literal notranslate"><span class="pre">workout_lgd</span></code> 、 <code class="docutils literal notranslate"><span class="pre">lgd_table</span></code> 和 <code class="docutils literal notranslate"><span class="pre">fractional_regression</span></code> 的表以及 <code class="docutils literal notranslate"><span class="pre">make_defaults</span></code> 和 <code class="docutils literal notranslate"><span class="pre">make_recoveries</span></code> 的列；术语表定义了清收、已结案的清收、治愈、经济损失、实际 LGD、长期平均 LGD、CCF 的参考日、分数 logit 和稳健标准误。</p></li>
+</ul>
+</section>
+</section>
+<section id="id12">
+<h2>1.5.0（2026-11-24）<a class="headerlink" href="#id12" title="链接到此标题。">#</a></h2>
+<section id="id13">
+<h3>新增<a class="headerlink" href="#id13" title="链接到此标题。">#</a></h3>
+<ul class="simple">
+<li><p>新模块 <code class="docutils literal notranslate"><span class="pre">kivi.capital</span></code> 按内部评级法计算监管资本。 <code class="docutils literal notranslate"><span class="pre">asset_correlation</span></code> 和 <code class="docutils literal notranslate"><span class="pre">capital_requirement</span></code> 计算巴塞尔框架（CRE31）和中国 2023 年资本规则中公司敞口、高波动商业房地产、个人住房抵押贷款、合格循环零售敞口和其他零售敞口的风险权重函数，包括按 <code class="docutils literal notranslate"><span class="pre">turnover</span></code> 和 <code class="docutils literal notranslate"><span class="pre">turnover_range</span></code> （可取任一辖区的界限）所做的中小企业调整、对 <code class="docutils literal notranslate"><span class="pre">financial</span></code> 金融机构乘以 1.25，以及期限调整。它们复现了巴塞尔 II 附件 5 的 152 个风险权重。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.capital.conditional_pd</span></code> 给出 Vasicek 单因子模型在某个经济情景下的 PD， <code class="docutils literal notranslate"><span class="pre">systematic_factor</span></code> 给出观察到的违约率所对应的因子， <code class="docutils literal notranslate"><span class="pre">vasicek_fit</span></code> 用矩估计由违约率序列估计长期 PD 和资产相关系数，允许出现没有违约的年份。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.capital.most_prudent_pd</span></code> 给出 Pluto 和 Tasche 对违约很少或没有违约的组合的 PD 的最审慎上界，可假设违约独立或相关，并复现了其论文中的表格。</p></li>
+<li><p>新的监管资本指南并列给出巴塞尔框架和中国规则的参数及其条款：中小企业的区间和单位、金融机构乘数、PD 和 LGD 下限、初级法的 LGD、期限、高级法的适用范围以及输出下限。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.lifetime.survival_table</span></code> 由每笔贷款直到违约、因其他原因退出或最后一次被观测的持续期估计累计 PD 期限结构。它给出每期处于风险中的贷款、违约的贷款、其他原因退出的贷款和删失的贷款，以及风险率、仍在账上的概率和累计 PD：Kaplan–Meier 估计；或在给出 <code class="docutils literal notranslate"><span class="pre">competing</span></code> （例如提前还款）时，违约累计发生率的 Aalen–Johansen 估计，它不会像把已还清贷款计为删失的 1 − Kaplan–Meier 那样高估 PD。 <code class="docutils literal notranslate"><span class="pre">entry</span></code> 处理左截断，例如在贷款发放之后才开始的面板； <code class="docutils literal notranslate"><span class="pre">weights</span></code> 为频数权重。其 <code class="docutils literal notranslate"><span class="pre">cumulative_pd</span></code> 可以像 vintage 曲线一样用 <code class="docutils literal notranslate"><span class="pre">convert_pd</span></code> 转换。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.datasets.make_loan_panel</span></code> 新增 <code class="docutils literal notranslate"><span class="pre">prepayment</span></code> ，即正常贷款提前一次还清全部余额的月度概率。提前还款的贷款当月余额为 0，此后不再有记录，因此各列保持不变。默认值 0 对每个 <code class="docutils literal notranslate"><span class="pre">rng</span></code> 都给出与以前相同的面板。</p></li>
+<li><p>存续期 PD 指南展示如何从月度贷款面板得到持续期、违约和还款，为什么贷款会提前还款时存续期 PD 是累计发生率而不是 1 − Kaplan–Meier， <code class="docutils literal notranslate"><span class="pre">entry</span></code> 如何校正开始较晚的面板，以及用 <code class="docutils literal notranslate"><span class="pre">logistic_regression</span></code> 在“人-期”表上拟合的离散时间风险模型。</p></li>
+</ul>
+</section>
+<section id="id14">
+<h3>变更<a class="headerlink" href="#id14" title="链接到此标题。">#</a></h3>
+<ul class="simple">
+<li><p>监管资本指南排在模型验证指南之后。首页、用户指南索引和两份 README 都介绍了 <code class="docutils literal notranslate"><span class="pre">kivi.capital</span></code> 和 <code class="docutils literal notranslate"><span class="pre">survival_table</span></code> ，并配有各资产类别的风险权重随 PD 变化的图，以及把提前还款作为竞争风险或作为删失时的累计 PD 图。</p></li>
+<li><p>存续期指南按经济情景对预期信用损失加权： <code class="docutils literal notranslate"><span class="pre">conditional_pd</span></code> 把每个逾期状态的 PD 移到上行、基准和下行情景下，按概率加权的 ECL 高于基准情景的 ECL。</p></li>
+<li><p>约定页介绍了 <code class="docutils literal notranslate"><span class="pre">asset_class</span></code> 、资本函数的 <code class="docutils literal notranslate"><span class="pre">level</span></code> 以及 <code class="docutils literal notranslate"><span class="pre">survival_table</span></code> 的 <code class="docutils literal notranslate"><span class="pre">event</span></code> 、 <code class="docutils literal notranslate"><span class="pre">duration</span></code> 和 <code class="docutils literal notranslate"><span class="pre">entry</span></code> 。兼容性页列出了 <code class="docutils literal notranslate"><span class="pre">survival_table</span></code> 的表、 <code class="docutils literal notranslate"><span class="pre">most_prudent_pd</span></code> 的结果和 <code class="docutils literal notranslate"><span class="pre">vasicek_fit</span></code> 的元组；术语表定义了内部评级法、资产类别与资产相关系数、资本要求、风险权重、期限调整与中小企业调整、HVCRE 与 QRRE、单因子模型、系统因子、压力 PD 与跨周期 PD、低违约组合的最审慎估计、输出下限、删失、左截断、风险集、竞争风险、提前还款、累计发生率、Kaplan–Meier 与 Aalen–Johansen 估计、离散时间风险模型以及经济情景。</p></li>
+</ul>
+</section>
+</section>
+<section id="id15">
+<h2>1.4.0（2026-11-24）<a class="headerlink" href="#id15" title="链接到此标题。">#</a></h2>
+<section id="id16">
+<h3>新增<a class="headerlink" href="#id16" title="链接到此标题。">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.plotting.distribution_chart</span></code> 用并排的柱形绘制增益表或 WOE 表每一行占全部非事件和占全部事件的比例，由原始的 <code class="docutils literal notranslate"><span class="pre">non_event</span></code> 和 <code class="docutils literal notranslate"><span class="pre">event</span></code> 计数算出，保持表的行顺序并保留空行。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.plotting.precision_recall_chart</span></code> 以阶梯的形式绘制 ROC 表每个阈值下的精确率相对于真正例率（即召回率）的变化，阶梯下的面积就是平均精确率，并用一条虚线标出样本的事件率，即随机排序评分的精确率。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.selection.vif_filter</span></code> 剔除 VIF 最大的变量，重新计算其余变量的 VIF，如此反复，直到没有 VIF 超过 <code class="docutils literal notranslate"><span class="pre">threshold</span></code> （默认 5）。VIF 为无穷大的变量先被剔除， <code class="docutils literal notranslate"><span class="pre">priority</span></code> （例如信息值）在 VIF 并列时决定剔除哪一个。它与 <code class="docutils literal notranslate"><span class="pre">correlation_filter</span></code> 一样返回保留的列。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.selection.selection_path</span></code> 依次用某个顺序（例如按信息值排序）的前 1 个、前 2 个、前 3 个……变量拟合逻辑回归，每步返回一行：加入的变量、模型的 AUC、Gini 和 KS、最大的 Wald p 值以及最小的系数。可选的验证样本会增加该样本上的同样指标，用开发样本上的模型打分。每一行都与在相同列上使用 <code class="docutils literal notranslate"><span class="pre">logistic_regression</span></code> 和 <code class="docutils literal notranslate"><span class="pre">kivi.metrics</span></code> 的结果相同。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.vintage.migration_bandwidth</span></code> 和 <code class="docutils literal notranslate"><span class="pre">kivi.vintage.migration_test</span></code> 概括并检验客户在评级等级之间的迁移，满足欧洲央行内部模型验证结果报告说明第 2.5.5.1 和 2.5.5.2 节的要求。前者给出迁往较差等级和较好等级的上、下矩阵加权带宽（MWB）。后者对迁移矩阵的每个非对角单元格做 z 检验，检验它的客户是否多于其靠近对角线的相邻单元格。两者都像 <code class="docutils literal notranslate"><span class="pre">transition_matrix</span></code> 一样接受每个客户在期初和期末的等级， <code class="docutils literal notranslate"><span class="pre">grades</span></code> 从最好到最差排列；期末状态不是等级的客户（例如 <code class="docutils literal notranslate"><span class="pre">&quot;default&quot;</span></code> 或 <code class="docutils literal notranslate"><span class="pre">&quot;closed&quot;</span></code> ）计入其期初等级的客户数。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.calibration.concentration_test</span></code> 给出评级标尺各等级占比的 HI 和变异系数，并按欧洲央行说明第 2.5.5.3 节的要求检验它们是否比初始验证时更集中。对 <code class="docutils literal notranslate"><span class="pre">herfindahl_index</span></code> 的赫芬达尔-赫希曼指数和 <code class="docutils literal notranslate"><span class="pre">K</span></code> 个等级，HI 为 <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">+</span> <span class="pre">ln(HHI)</span> <span class="pre">/</span> <span class="pre">ln(K)</span></code> 。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.calibration.backtest_table</span></code> 用实际值回测 LGD、ELBE 和 CCF 等连续型估计值：对每一组给出估计值和实际值的均值、二者之差的方差，以及欧洲央行说明中的 t 检验。其 p 值是单侧的，符合第 2.6.2.1、2.8.2.1 和 2.9.3.1 节对 LGD、违约后 LGD 和 CCF 的要求，p 值较小说明估计值偏低；第 2.7.2.1 节对 ELBE 的检验是双侧的，p 值为 <code class="docutils literal notranslate"><span class="pre">2</span> <span class="pre">*</span> <span class="pre">min(p_value,</span> <span class="pre">1</span> <span class="pre">-</span> <span class="pre">p_value)</span></code> 。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.calibration.spiegelhalter_test</span></code> 用 Spiegelhalter 的 z 统计量检验单个观测的概率，它把这些概率的 Brier 分数与假如它们就是真实概率时应有的分数相比较。 <code class="docutils literal notranslate"><span class="pre">kivi.calibration.brier_decomposition</span></code> 按分组把 Brier 分数分解为可靠性、分辨力和不确定性，外加两个针对组内取值不同的概率的项；在每个等级只有一个 PD 的主标尺上，这两项为 0。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.metrics.generalized_auc</span></code> 给出欧洲央行说明（第 2.6.3.1 节和附件 3.2）中的广义 AUC 以及 Somers' D，并像 <code class="docutils literal notranslate"><span class="pre">roc_auc_interval</span></code> 一样给出标准误和置信区间。它衡量估计分段（例如 LGD 模型的债项等级）对实际分段（例如切分成分段的实际 LGD）的排序能力。</p></li>
+<li><p>新的模型验证指南把欧洲央行验证报告中的定量工具对应到 kivi 的函数，并在模拟数据上展示各项回测、当前 AUC 和 gAUC 与初始验证时的比较，以及欧洲央行的十二个 LGD 分段。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.woe.woe_trend</span></code> 根据 <code class="docutils literal notranslate"><span class="pre">woe_table</span></code> 的结果或 <code class="docutils literal notranslate"><span class="pre">BinningSpec</span></code> 中的一张表，给出数值变量各箱 WOE 的趋势形状： <code class="docutils literal notranslate"><span class="pre">&quot;increasing&quot;</span></code> 、 <code class="docutils literal notranslate"><span class="pre">&quot;decreasing&quot;</span></code> 、 <code class="docutils literal notranslate"><span class="pre">&quot;u_shaped&quot;</span></code> 、 <code class="docutils literal notranslate"><span class="pre">&quot;inverted_u&quot;</span></code> 、 <code class="docutils literal notranslate"><span class="pre">&quot;irregular&quot;</span></code> 或 <code class="docutils literal notranslate"><span class="pre">&quot;flat&quot;</span></code> 。它按表的行顺序读取标签为区间的行，不考虑特殊值和缺失值的行，并且相邻两箱 WOE 相等时既不算上升也不算下降。</p></li>
+</ul>
+</section>
+<section id="id17">
+<h3>变更<a class="headerlink" href="#id17" title="链接到此标题。">#</a></h3>
+<ul class="simple">
+<li><p>Vintage 与滚动率分析指南新增一张示意图，展示 <code class="docutils literal notranslate"><span class="pre">delinquency_panel</span></code> 如何把一笔贷款的期款和还款转换为它在每个月末的行。分箱指南新增一张 <code class="docutils literal notranslate"><span class="pre">ks_edges</span></code> 第二步的示意图，比较第一次切分所得两个箱的最佳切分点，并说明为何各方法的对比中没有 <code class="docutils literal notranslate"><span class="pre">ks_edges</span></code> 。</p></li>
+<li><p>专家评分卡指南中 <code class="docutils literal notranslate"><span class="pre">ahp_weights</span></code> 的示意图，把 <code class="docutils literal notranslate"><span class="pre">ahp_consistency</span></code> 的统计量显示为该函数返回的未命名 Series，不再带列名 <code class="docutils literal notranslate"><span class="pre">value</span></code> 。</p></li>
+<li><p>术语表新增 ChiMerge、Best-KS 分箱和单调分箱、逾期档位、坏的定义、 <code class="docutils literal notranslate"><span class="pre">delinquency_panel</span></code> 的逾期金额与未偿金额、 <code class="docutils literal notranslate"><span class="pre">delinquency_panel</span></code> 与 AHP 函数的容差，以及子因子的全局权重，并区分了 <code class="docutils literal notranslate"><span class="pre">kivi.features</span></code> 中的事件与目标变量的事件。</p></li>
+<li><p>迁移指南更正了 0.2.x 的对应关系： <code class="docutils literal notranslate"><span class="pre">StepWise</span></code> 比较的是固定顺序下的各个模型，对应 <code class="docutils literal notranslate"><span class="pre">selection_path</span></code> ，而 <code class="docutils literal notranslate"><span class="pre">stepwise</span></code> 按 p 值选择变量； <code class="docutils literal notranslate"><span class="pre">VIF.LowVIFFeatures</span></code> 对应 <code class="docutils literal notranslate"><span class="pre">vif_filter</span></code> ， <code class="docutils literal notranslate"><span class="pre">woe/utils.monotony</span></code> 对应 <code class="docutils literal notranslate"><span class="pre">woe_trend</span></code> ， <code class="docutils literal notranslate"><span class="pre">BinaryMetrics.plot_ks</span></code> 、 <code class="docutils literal notranslate"><span class="pre">plot_score</span></code> 和 <code class="docutils literal notranslate"><span class="pre">plot_pr</span></code> 分别对应 <code class="docutils literal notranslate"><span class="pre">gains_chart</span></code> 、 <code class="docutils literal notranslate"><span class="pre">distribution_chart</span></code> 和 <code class="docutils literal notranslate"><span class="pre">precision_recall_chart</span></code> 。指南说明了每一项与旧版代码的差别，并为不迁移的 <code class="docutils literal notranslate"><span class="pre">int_score</span></code> 和 <code class="docutils literal notranslate"><span class="pre">StepWise.top_n_features</span></code> 给出 pandas 写法。</p></li>
+<li><p>约定页介绍了参数 <code class="docutils literal notranslate"><span class="pre">realized</span></code> 、 <code class="docutils literal notranslate"><span class="pre">estimated</span></code> 和 <code class="docutils literal notranslate"><span class="pre">grades</span></code> ，兼容性页列出了 <code class="docutils literal notranslate"><span class="pre">selection_path</span></code> 和各项验证检验的表以及 <code class="docutils literal notranslate"><span class="pre">woe_trend</span></code> 的标签，术语表新增回测、Brier 分数分解、广义 AUC 与 Somers' D、HHI 与 HI、迁移矩阵及其带宽、初始验证、ELBE 与 CCF、精确率-召回率曲线、平均精确率与召回率、变量选择路径、VIF 及按 VIF 逐步剔除，以及 WOE 趋势。</p></li>
+<li><p>模型验证指南排在模型监控指南之后，首页和用户指南索引也介绍了它。各指南新增了 <code class="docutils literal notranslate"><span class="pre">generalized_auc</span></code> 、 <code class="docutils literal notranslate"><span class="pre">migration_bandwidth</span></code> 和 <code class="docutils literal notranslate"><span class="pre">migration_test</span></code> 如何计算结果的示意图，以及变量选择路径、Brier 分数分解、等级集中度和 LGD 等级回测的图表。</p></li>
+<li><p>README 的图表示例以一张时间窗特征图开头：最近三个月与此前三个月取现次数各区间的申请人占比与事件率，由 <code class="docutils literal notranslate"><span class="pre">FeatureSpec</span></code> 从合成交易流水计算得出。时间窗特征指南在筛选这些特征之后展示同一张图。</p></li>
+<li><p>README 的工作流程图新增第一步：用 <code class="docutils literal notranslate"><span class="pre">FeatureSpec</span></code> 一次定义特征并为每个样本计算，之后才是拟合一次分箱边界并用它对每个样本分箱。</p></li>
+<li><p>教程新增一章交易流水特征，位于“数据与样本”之后，教程因此共有十一章。贷款机构为申请标注日期，用 <code class="docutils literal notranslate"><span class="pre">make_transactions</span></code> 模拟申请人账户上的交易，用 <code class="docutils literal notranslate"><span class="pre">FeatureSpec</span></code> 按每笔申请的日期计算取现、还款和消费特征，检查申请之后的交易不计入任何特征，用 <code class="docutils literal notranslate"><span class="pre">profile_table</span></code> 将这些特征与申请数据一起分析，并把特征方案保存为 JSON。后续各章的评分卡仍只使用申请数据，其结果不变。</p></li>
+<li><p>关于 IFRS 9 下贷款组合的一章用 <code class="docutils literal notranslate"><span class="pre">panel_features</span></code> 读取每笔贷款的还款历史，并展示对回到正常的贷款设置六个月的观察期会如何改变阶段划分和损失准备。</p></li>
+</ul>
+</section>
+</section>
+<section id="id18">
+<h2>1.3.0（2026-11-23）<a class="headerlink" href="#id18" title="链接到此标题。">#</a></h2>
+<section id="id19">
+<h3>新增<a class="headerlink" href="#id19" title="链接到此标题。">#</a></h3>
+<ul class="simple">
+<li><p>新模块 <code class="docutils literal notranslate"><span class="pre">kivi.features</span></code> 以时点正确的方式计算事件数据（如交易）的时间窗特征。 <code class="docutils literal notranslate"><span class="pre">window_features</span></code> 在截止于观察表每一行的观察时间（如申请日期）的窗口内聚合每个主体的事件，从不使用该时间当时及之后的事件。窗口可以按自然月计，如 <code class="docutils literal notranslate"><span class="pre">&quot;3M&quot;</span></code> ，也可以按天计，如 <code class="docutils literal notranslate"><span class="pre">&quot;90D&quot;</span></code> ； <code class="docutils literal notranslate"><span class="pre">(&quot;6M&quot;,</span> <span class="pre">&quot;3M&quot;)</span></code> 这样的一对表示最近一期之前的那一期； <code class="docutils literal notranslate"><span class="pre">closed=&quot;right&quot;</span></code> 则把观察时间当时的事件计入。聚合有 <code class="docutils literal notranslate"><span class="pre">count</span></code> 、 <code class="docutils literal notranslate"><span class="pre">sum</span></code> 、 <code class="docutils literal notranslate"><span class="pre">mean</span></code> 、 <code class="docutils literal notranslate"><span class="pre">min</span></code> 、 <code class="docutils literal notranslate"><span class="pre">max</span></code> 、 <code class="docutils literal notranslate"><span class="pre">std</span></code> 、 <code class="docutils literal notranslate"><span class="pre">nunique</span></code> 、 <code class="docutils literal notranslate"><span class="pre">first</span></code> 、 <code class="docutils literal notranslate"><span class="pre">last</span></code> 和 <code class="docutils literal notranslate"><span class="pre">days_since_last</span></code> ， <code class="docutils literal notranslate"><span class="pre">ratios</span></code> 计算两个特征之比， <code class="docutils literal notranslate"><span class="pre">prefix</span></code> 为筛选后事件的特征命名。列名为 <code class="docutils literal notranslate"><span class="pre">{prefix}{column}_{aggregation}_{window}</span></code> ，另有每个窗口的事件数 <code class="docutils literal notranslate"><span class="pre">{prefix}events_{window}</span></code> 。事件只排序一次，每个窗口的边界用二分查找确定，因此计数、和、均值以及第一个和最后一个值的耗时随行数增长，而 <code class="docutils literal notranslate"><span class="pre">min</span></code> 、 <code class="docutils literal notranslate"><span class="pre">max</span></code> 、 <code class="docutils literal notranslate"><span class="pre">std</span></code> 和 <code class="docutils literal notranslate"><span class="pre">nunique</span></code> 要查看每个窗口中的每个事件。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.features.FeatureSpec</span></code> 保存一组或多组时间窗特征及其比率的定义，用 <code class="docutils literal notranslate"><span class="pre">compute</span></code> 在任何样本上计算这些特征，并用 <code class="docutils literal notranslate"><span class="pre">to_json</span></code> 和 <code class="docutils literal notranslate"><span class="pre">from_json</span></code> 保存和加载带版本号的 JSON，使开发和生产计算出相同的特征。它不从数据拟合任何东西。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.datasets.make_transactions</span></code> 模拟 <code class="docutils literal notranslate"><span class="pre">make_applications</span></code> 申请之前的账户交易流水：每个申请日期之前十二个月（或 <code class="docutils literal notranslate"><span class="pre">n_months</span></code> 个月）内的银行卡消费、取现和分期还款，返回长格式表，含申请人 ID、时间戳、金额、交易类型和商户类别。交易取决于隐藏风险因子和收入，而不取决于结果：处于风险中的申请人会累积压力，在临近申请时取现更多、还款更少，因此时间窗特征对 <code class="docutils literal notranslate"><span class="pre">target</span></code> 有清晰但不完美的信号，在 <code class="docutils literal notranslate"><span class="pre">incumbent_pd</span></code> 的各个分段内也是如此。申请日期是必需的，可取自某一列、可为单个日期，也可为 Series。同一个 <code class="docutils literal notranslate"><span class="pre">rng</span></code> 种子总是给出同样的交易流水。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.datasets.make_applications</span></code> 新增参数 <code class="docutils literal notranslate"><span class="pre">include_risk=True</span></code> ，把隐藏风险因子作为最后一列 <code class="docutils literal notranslate"><span class="pre">risk</span></code> 附加到结果中。默认输出不变。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.features.panel_features</span></code> 汇总每个观察时间之前的月度还款状态面板，例如 <code class="docutils literal notranslate"><span class="pre">kivi.vintage.delinquency_panel</span></code> 或 <code class="docutils literal notranslate"><span class="pre">kivi.datasets.make_loan_panel</span></code> 的结果。对每个按月的窗口，它给出有状态的月数、坏月数、连续坏月和连续好月的最长月数以及最差状态，另给出距最近一个坏月的月数。按有序分类状态列的顺序，从 <code class="docutils literal notranslate"><span class="pre">bad</span></code> （默认 <code class="docutils literal notranslate"><span class="pre">&quot;30-59&quot;</span></code> ）开始的状态都算坏。只使用观察时间所在月之前的月末状态，有多笔贷款的主体每月取最差的状态，没有状态的月份不计入任何窗口，并会中断连续月数。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.features.FeatureSpec</span></code> 在 <code class="docutils literal notranslate"><span class="pre">panel</span></code> 中保存面板特征组，与 <code class="docutils literal notranslate"><span class="pre">events</span></code> 中的时间窗特征组并列， <code class="docutils literal notranslate"><span class="pre">compute</span></code> 以 <code class="docutils literal notranslate"><span class="pre">panel</span></code> 接受面板。比率可以用到两类特征。其 JSON 格式的版本 1 已经定稿。</p></li>
+</ul>
+</section>
+<section id="id20">
+<h3>变更<a class="headerlink" href="#id20" title="链接到此标题。">#</a></h3>
+<ul class="simple">
+<li><p>迁移指南把 0.2.x 的 <code class="docutils literal notranslate"><span class="pre">FeatureTools</span></code> 、 <code class="docutils literal notranslate"><span class="pre">FeatureToolsV2</span></code> 和 <code class="docutils literal notranslate"><span class="pre">index/collect.py</span></code> 对应到 <code class="docutils literal notranslate"><span class="pre">kivi.features</span></code> 的 <code class="docutils literal notranslate"><span class="pre">window_features</span></code> 、 <code class="docutils literal notranslate"><span class="pre">panel_features</span></code> 和 <code class="docutils literal notranslate"><span class="pre">FeatureSpec</span></code> ，并说明它们的窗口、聚合、比率和连续月数与旧版代码有何不同。它不再把 <code class="docutils literal notranslate"><span class="pre">FeatureTools</span></code> 的比率列为没有替代的工具，并在 0.2.x 的合成数据旁提到 <code class="docutils literal notranslate"><span class="pre">make_transactions</span></code> 。</p></li>
+<li><p>约定页说明 <code class="docutils literal notranslate"><span class="pre">kivi.features</span></code> 的表、时间列、列名和窗口，兼容性页列出其函数和 <code class="docutils literal notranslate"><span class="pre">make_transactions</span></code> 的列以及 <code class="docutils literal notranslate"><span class="pre">FeatureSpec</span></code> 的 JSON 格式，术语表定义时点正确、观察、窗口和窗口对，以及还款行为中的坏月、连续月数和月度状态面板。</p></li>
+<li><p>时间窗特征指南排在各主题指南的最前面，位于单变量概况之前。它新增两张示意图，分别展示 <code class="docutils literal notranslate"><span class="pre">window_features</span></code> 的窗口和 <code class="docutils literal notranslate"><span class="pre">panel_features</span></code> 的月份，并新增一节：用 <code class="docutils literal notranslate"><span class="pre">FeatureSpec</span></code> 计算 <code class="docutils literal notranslate"><span class="pre">make_transactions</span></code> 交易流水的特征，再用 <code class="docutils literal notranslate"><span class="pre">profile_table</span></code> 筛选。</p></li>
+</ul>
+</section>
+</section>
+<section id="id21">
+<h2>1.2.0（2026-11-22）<a class="headerlink" href="#id21" title="链接到此标题。">#</a></h2>
+<section id="id22">
+<h3>新增<a class="headerlink" href="#id22" title="链接到此标题。">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.vintage.delinquency_panel</span></code> 根据贷款的还款计划和还款记录，构建 <code class="docutils literal notranslate"><span class="pre">vintage_table</span></code> 、 <code class="docutils literal notranslate"><span class="pre">transition_matrix</span></code> 和 <code class="docutils literal notranslate"><span class="pre">roll_rates</span></code> 所用的月度贷款面板。它把每笔贷款的还款先分配给最早一期未还清的期款，因此提前支付的金额计入下一期；在截至 <code class="docutils literal notranslate"><span class="pre">end</span></code> 的每个月末，只计入当时已经支付的还款。每一行包含 <code class="docutils literal notranslate"><span class="pre">make_loan_panel</span></code> 中还款计划能够给出的各列，名称和顺序都相同： <code class="docutils literal notranslate"><span class="pre">loan_id</span></code> 、 <code class="docutils literal notranslate"><span class="pre">cohort</span></code> 、 <code class="docutils literal notranslate"><span class="pre">month</span></code> 、 <code class="docutils literal notranslate"><span class="pre">month_on_book</span></code> ，给出 <code class="docutils literal notranslate"><span class="pre">principal</span></code> 时还有作为 <code class="docutils literal notranslate"><span class="pre">balance</span></code> 的未还本金，以及按 <code class="docutils literal notranslate"><span class="pre">make_loan_panel</span></code> 的档位划分的 <code class="docutils literal notranslate"><span class="pre">status</span></code> 。此外还有自最早一期未还清期款到期以来的逾期天数、逾期金额和未还金额。批次是首个到期日的前一个月，给出 <code class="docutils literal notranslate"><span class="pre">origination</span></code> 时则是每笔贷款的放款月份。借助 <code class="docutils literal notranslate"><span class="pre">tolerance</span></code> ，未还金额很小的期款也可以算作已还清。贷款一旦还清就离开面板；未还清时，在最后一个到期日之后会继续滚动。</p></li>
+<li><p>新模块 <code class="docutils literal notranslate"><span class="pre">kivi.expert</span></code> 用层次分析法为专家评分卡确定各因子的权重。专家评分卡是违约样本太少、无法拟合模型时由信贷分析师凭判断设定的评分卡。 <code class="docutils literal notranslate"><span class="pre">ahp_weights</span></code> 把两两比较矩阵转换为总和为 1 的权重，可用 Saaty 的主特征向量法或各行几何平均数法； <code class="docutils literal notranslate"><span class="pre">ahp_consistency</span></code> 返回主特征值、一致性指标、Saaty 随机一致性指标和一致性比率，使一致性比率高于 0.1 经验法则的判断可以得到复核。 <code class="docutils literal notranslate"><span class="pre">combine_weights</span></code> 把因子及其子因子的权重相乘，得到全局权重。矩阵可以是用索引和列标注因子名称的 DataFrame，也可以是数组，必须满足对角线为 1、元素互为倒数，函数会检查这些条件。它们取代了 0.2.x 系列 <code class="docutils literal notranslate"><span class="pre">AHP</span></code> 类中的几何平均权重和一致性检验，而该类不属于 kivi 1。</p></li>
+<li><p><a class="reference internal" href="../api/binning.html#kivi.binning.ks_edges" title="kivi.binning.ks_edges"><code class="xref py py-func docutils literal notranslate"><span class="pre">ks_edges()</span></code></a> 用 Best-KS 分箱拟合边界。它在每个箱中事件累计占比与非事件累计占比相差最大的位置切分，这一差距就是该箱的 KS，且只考虑两侧都保留 <code class="docutils literal notranslate"><span class="pre">min_bin_share</span></code> 观测的切分点；各箱按最优优先的顺序切分，依据是切分点区分开的事件与非事件对的数目，即 KS 乘以箱内的事件数和非事件数。它与 <code class="docutils literal notranslate"><span class="pre">tree_edges</span></code> 一样接受 <code class="docutils literal notranslate"><span class="pre">max_bins</span></code> 、 <code class="docutils literal notranslate"><span class="pre">special</span></code> 和 <code class="docutils literal notranslate"><span class="pre">weights</span></code> ，返回同样形式的边界，内部边界都是观测值。</p></li>
+<li><p>当 <code class="docutils literal notranslate"><span class="pre">method</span></code> 为 <code class="docutils literal notranslate"><span class="pre">&quot;ks&quot;</span></code> 时， <a class="reference internal" href="../api/spec.html#kivi.spec.fit_spec" title="kivi.spec.fit_spec"><code class="xref py py-func docutils literal notranslate"><span class="pre">fit_spec()</span></code></a> 用 <code class="docutils literal notranslate"><span class="pre">ks_edges</span></code> 拟合该列。保存的分箱方案存储的是边界，因此其格式版本不变。</p></li>
+</ul>
+</section>
+<section id="id23">
+<h3>变更<a class="headerlink" href="#id23" title="链接到此标题。">#</a></h3>
+<ul class="simple">
+<li><p>迁移指南把 0.2.x 的 <code class="docutils literal notranslate"><span class="pre">KSBins</span></code> 、 <code class="docutils literal notranslate"><span class="pre">PortfolioAnalysis.Vintage</span></code> 和 <code class="docutils literal notranslate"><span class="pre">AHP</span></code> 类分别对应到 <code class="docutils literal notranslate"><span class="pre">ks_edges</span></code> 、 <code class="docutils literal notranslate"><span class="pre">delinquency_panel</span></code> 和 <code class="docutils literal notranslate"><span class="pre">kivi.expert</span></code> 的函数，并说明各自与旧版代码的差异。层次分析法和还款计划计算不再列在没有替代的工具之中。</p></li>
+<li><p>约定页面说明了 <code class="docutils literal notranslate"><span class="pre">kivi.expert</span></code> 的比较矩阵和 <code class="docutils literal notranslate"><span class="pre">delinquency_panel</span></code> 的日期，兼容性页面列出了新函数的结果并保持 <code class="docutils literal notranslate"><span class="pre">ahp_consistency</span></code> 的随机一致性指标不变，术语表则定义了层次分析法、宽限期和还款计划等术语。</p></li>
+<li><p>分箱指南新增一张 Best-KS 切分点的图表，专家评分卡指南新增两张示意图：权重和一致性比率如何由比较矩阵得出，以及不一致的矩阵中应首先讨论哪些判断。</p></li>
+</ul>
+</section>
+</section>
+<section id="id24">
+<h2>1.1.0（2026-11-22）<a class="headerlink" href="#id24" title="链接到此标题。">#</a></h2>
+<section id="id25">
+<h3>新增<a class="headerlink" href="#id25" title="链接到此标题。">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.strategy.confusion_table</span></code> 统计评分在每个截断点上被拒绝的事件和非事件以及被通过的事件和非事件，并给出该决策的精确率、召回率、F1 分数和准确率。评分高于截断点即被拒绝，与 <code class="docutils literal notranslate"><span class="pre">cutoff_table</span></code> 相同，并视为对事件的预测。该函数与 <code class="docutils literal notranslate"><span class="pre">cutoff_table</span></code> 一样接受 <code class="docutils literal notranslate"><span class="pre">cutoffs</span></code> 和 <code class="docutils literal notranslate"><span class="pre">weights</span></code> ，因此各行一一对应，其 <code class="docutils literal notranslate"><span class="pre">recall</span></code> 就是那张表的 <code class="docutils literal notranslate"><span class="pre">rejected_event_share</span></code> 。截断点不拒绝任何观测时 <code class="docutils literal notranslate"><span class="pre">precision</span></code> 为 NaN。</p></li>
+<li><p>新增模块 <code class="docutils literal notranslate"><span class="pre">kivi.plotting</span></code> ，用 matplotlib 绘制其他模块的结果表；matplotlib 是可选依赖，用 <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">&quot;kivi[plot]&quot;</span></code> 安装。 <code class="docutils literal notranslate"><span class="pre">woe_chart</span></code> 绘制 WOE 表中每个分组的占比以及事件率或 WOE， <code class="docutils literal notranslate"><span class="pre">correlation_chart</span></code> 绘制相关系数矩阵， <code class="docutils literal notranslate"><span class="pre">roc_chart</span></code> 绘制 ROC 曲线及其 KS， <code class="docutils literal notranslate"><span class="pre">gains_chart</span></code> 绘制增益表的累计占比， <code class="docutils literal notranslate"><span class="pre">calibration_chart</span></code> 绘制每个分组的观测事件率与预测事件率， <code class="docutils literal notranslate"><span class="pre">cutoff_chart</span></code> 绘制通过客群的事件率随通过率的变化， <code class="docutils literal notranslate"><span class="pre">psi_chart</span></code> 绘制 PSI 表的基准占比与当前占比， <code class="docutils literal notranslate"><span class="pre">monitoring_chart</span></code> 以折线或柱形逐期绘制监控表或稳定性表中的一列， <code class="docutils literal notranslate"><span class="pre">vintage_chart</span></code> 绘制 Vintage 表中每个批次的曲线。</p></li>
+<li><p>每个图表函数在 <code class="docutils literal notranslate"><span class="pre">ax</span></code> 传入的 matplotlib Axes 上作图，未传入时新建一个图形，并返回所用的 Axes。它不会显示图形，不会修改 <code class="docutils literal notranslate"><span class="pre">matplotlib.rcParams</span></code> ，也不会修改传入的表；图中的文字只有列名和数据值。</p></li>
+<li><p><a class="reference internal" href="../api/univariate.html#kivi.univariate.profile_table" title="kivi.univariate.profile_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">profile_table()</span></code></a> 在末尾新增五列。数值列新增 <code class="docutils literal notranslate"><span class="pre">skewness</span></code> 和 <code class="docutils literal notranslate"><span class="pre">kurtosis</span></code> ，即 <code class="docutils literal notranslate"><span class="pre">pandas.Series.skew</span></code> 和 <code class="docutils literal notranslate"><span class="pre">pandas.Series.kurt</span></code> 计算的偏差校正样本偏度和超额峰度，以及变异系数 <code class="docutils literal notranslate"><span class="pre">cv</span></code> ；它们都基于不含缺失值和特殊值编码的取值计算，并按 <code class="docutils literal notranslate"><span class="pre">weights</span></code> 加权。有目标时，数值列新增其取值的 KS 统计量 <code class="docutils literal notranslate"><span class="pre">ks</span></code> ，每一列新增 <code class="docutils literal notranslate"><span class="pre">chi2_p_value</span></code> ，即目标与给出 <code class="docutils literal notranslate"><span class="pre">iv</span></code> 的快速分箱各组之间卡方独立性检验的 p 值。</p></li>
+<li><p><a class="reference internal" href="../api/selection.html#kivi.selection.correlation_filter" title="kivi.selection.correlation_filter"><code class="xref py py-func docutils literal notranslate"><span class="pre">correlation_filter()</span></code></a> 接受 <code class="docutils literal notranslate"><span class="pre">method=&quot;spearman&quot;</span></code> ，使用与 <code class="docutils literal notranslate"><span class="pre">pandas.DataFrame.corr</span></code> 计算相同的 Spearman 秩相关系数，适合关系单调但非线性、尾部很长的原始变量。默认的 <code class="docutils literal notranslate"><span class="pre">&quot;pearson&quot;</span></code> 保持以前的结果，仍是 WOE 编码变量的首选。</p></li>
+</ul>
+</section>
+<section id="id26">
+<h3>变更<a class="headerlink" href="#id26" title="链接到此标题。">#</a></h3>
+<ul class="simple">
+<li><p>十四篇主题指南新增示意图，用指南示例中的数值展示函数如何计算结果： <code class="docutils literal notranslate"><span class="pre">profile_table</span></code> 的各行、边界与 <code class="docutils literal notranslate"><span class="pre">pandas.cut</span></code> 、 <code class="docutils literal notranslate"><span class="pre">woe_table</span></code> 与 <code class="docutils literal notranslate"><span class="pre">woe_transform</span></code> 、 <code class="docutils literal notranslate"><span class="pre">correlation_filter</span></code> 与 <code class="docutils literal notranslate"><span class="pre">stepwise</span></code> 的各步、模糊扩充以及打包法和重新加权的评分段、评分卡的分值、ROC 表、保序回归、截断点的混淆矩阵与交换集、分箱方案从拟合到 JSON 的过程、 <code class="docutils literal notranslate"><span class="pre">psi_table</span></code> 、监控表、转移矩阵，以及预期信用损失和阶段划分的逾期天数兜底标准。校准指南新增一个保序回归的小示例，与其示意图配套。</p></li>
+<li><p>迁移指南把 0.2.x 的图表、混淆矩阵与 F1 分数、偏度、峰度与变异系数以及 Spearman 相关系数对应到 1.1 中的替代功能，并列出没有替代的 0.2.x 工具，如 <code class="docutils literal notranslate"><span class="pre">KSBins</span></code> 、 <code class="docutils literal notranslate"><span class="pre">KmeansBins</span></code> 、 <code class="docutils literal notranslate"><span class="pre">PearsonBins</span></code> 和 <code class="docutils literal notranslate"><span class="pre">Dataset.crime_data()</span></code> 。</p></li>
+<li><p>安装页面说明了 <code class="docutils literal notranslate"><span class="pre">plot</span></code> 附加依赖，约定页和兼容性页给出了图表的规则和承诺。</p></li>
+<li><p>风控建模流程示例先用 <code class="docutils literal notranslate"><span class="pre">chimerge_groups</span></code> 把十二种职业合并为三组，再计算其 WOE；用 <code class="docutils literal notranslate"><span class="pre">unseen</span></code> 让新职业并入 <code class="docutils literal notranslate"><span class="pre">unknown</span></code> 所在的组；并用 <code class="docutils literal notranslate"><span class="pre">method={&quot;job&quot;:</span> <span class="pre">&quot;chimerge&quot;}</span></code> 把这一分组保存在其 <code class="docutils literal notranslate"><span class="pre">BinningSpec</span></code> 中。示例中的模型、评分卡、评估、校准、截断点和稳定性报告都基于分组后的变量重新计算。</p></li>
+<li><p>文档新增教程部分：一个分十章展开的信用评分卡项目，从一年的贷款申请一直到贷款的 IFRS 9 损失准备。项目依次分析并分箱候选变量、筛选变量、推断拒绝申请人的结果、将模型转换为评分卡并与现行评分卡的 PD 对比评估、在主标尺上校准、选择截断点、在申请人结构发生变化的一年中监控投产后的模型，并将贷款组合划分到各个阶段。标为“模拟核对”的方框把每个估计值与只有模拟数据才能揭示的真实结果相比较。</p></li>
+<li><p>对于结果随输入类型而定的函数，类型检查器现在能推断出准确的结果类型，因为这些函数用重载声明了结果类型：输入 Series 时得到 <code class="docutils literal notranslate"><span class="pre">pandas.Series</span></code> ，输入数值时得到 <code class="docutils literal notranslate"><span class="pre">float</span></code> ，输入列表或一维 NumPy 数组时得到数组，而 <code class="docutils literal notranslate"><span class="pre">cut</span></code> 、 <code class="docutils literal notranslate"><span class="pre">group_categories</span></code> 和 <code class="docutils literal notranslate"><span class="pre">assign_grades</span></code> 得到 <code class="docutils literal notranslate"><span class="pre">pandas.Categorical</span></code> 。因此，像 <code class="docutils literal notranslate"><span class="pre">pd_to_score(series,</span> <span class="pre">...).round(2).index</span></code> 这样的代码在 mypy 或 Pylance 中不再误报错误。涉及的函数有： <code class="docutils literal notranslate"><span class="pre">kivi.scorecard</span></code> 的 <code class="docutils literal notranslate"><span class="pre">pd_to_score</span></code> 和 <code class="docutils literal notranslate"><span class="pre">score_to_pd</span></code> ； <code class="docutils literal notranslate"><span class="pre">kivi.calibration</span></code> 的 <code class="docutils literal notranslate"><span class="pre">prior_correction</span></code> 、 <code class="docutils literal notranslate"><span class="pre">platt_predict</span></code> 、 <code class="docutils literal notranslate"><span class="pre">isotonic_predict</span></code> 、 <code class="docutils literal notranslate"><span class="pre">binomial_test</span></code> 、 <code class="docutils literal notranslate"><span class="pre">jeffreys_test</span></code> 、 <code class="docutils literal notranslate"><span class="pre">fit_grade_pd</span></code> 和 <code class="docutils literal notranslate"><span class="pre">assign_grades</span></code> ； <code class="docutils literal notranslate"><span class="pre">kivi.strategy.expected_loss</span></code> ； <code class="docutils literal notranslate"><span class="pre">kivi.lifetime</span></code> 的 <code class="docutils literal notranslate"><span class="pre">convert_pd</span></code> 、 <code class="docutils literal notranslate"><span class="pre">expected_credit_loss</span></code> 、 <code class="docutils literal notranslate"><span class="pre">significant_increase</span></code> 和 <code class="docutils literal notranslate"><span class="pre">assign_stages</span></code> ； <code class="docutils literal notranslate"><span class="pre">kivi.reject_inference.reweighting</span></code> ； <code class="docutils literal notranslate"><span class="pre">kivi.woe</span></code> 的 <code class="docutils literal notranslate"><span class="pre">woe</span></code> 和 <code class="docutils literal notranslate"><span class="pre">woe_transform</span></code> ；以及 <code class="docutils literal notranslate"><span class="pre">kivi.binning</span></code> 的 <code class="docutils literal notranslate"><span class="pre">cut</span></code> 和 <code class="docutils literal notranslate"><span class="pre">group_categories</span></code> 。类型标注为 <code class="docutils literal notranslate"><span class="pre">numpy.typing.ArrayLike</span></code> 的参数仍得到各种可能结果的联合类型；对于 DataFrame 的列这类 <code class="docutils literal notranslate"><span class="pre">Series[Any]</span></code> ，mypy 推断为 <code class="docutils literal notranslate"><span class="pre">Any</span></code> ；运行时的行为没有任何变化。</p></li>
+</ul>
+</section>
+</section>
+<section id="id27">
+<h2>1.0.0（2026-11-22）<a class="headerlink" href="#id27" title="链接到此标题。">#</a></h2>
+<section id="id28">
+<h3>变更<a class="headerlink" href="#id28" title="链接到此标题。">#</a></h3>
+<ul class="simple">
+<li><p>当某个计数参数是 Series 时， <code class="docutils literal notranslate"><span class="pre">kivi.woe.woe</span></code> 返回具有计数索引、名为 <code class="docutils literal notranslate"><span class="pre">woe</span></code> 的 Series，与其他函数让结果形状与输入一致的做法相同。列表和数组仍返回数组。用 <code class="docutils literal notranslate"><span class="pre">.to_numpy()</span></code> 取得数组，用 <code class="docutils literal notranslate"><span class="pre">.iloc</span></code> 按位置选取。</p></li>
+<li><p>kivi 1.0 是第一个稳定版本。此后 kivi 遵循语义化版本，见 <a class="reference internal" href="../api/compatibility.html"><span class="doc">兼容性</span></a> ，其包元数据标注为 <code class="docutils literal notranslate"><span class="pre">Development</span> <span class="pre">Status</span> <span class="pre">::</span> <span class="pre">5</span> <span class="pre">-</span> <span class="pre">Production/Stable</span></code> 。</p></li>
+</ul>
+</section>
+<section id="removed">
+<h3>移除<a class="headerlink" href="#removed" title="链接到此标题。">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.woe.woe_table</span></code> 、 <code class="docutils literal notranslate"><span class="pre">kivi.woe.woe</span></code> 、 <code class="docutils literal notranslate"><span class="pre">kivi.woe.iv</span></code> 、 <code class="docutils literal notranslate"><span class="pre">kivi.stability.psi_table</span></code> 、 <code class="docutils literal notranslate"><span class="pre">kivi.stability.psi</span></code> 、 <code class="docutils literal notranslate"><span class="pre">kivi.binning.monotonic_edges</span></code> 、 <code class="docutils literal notranslate"><span class="pre">kivi.calibration.fit_grade_pd</span></code> 、 <code class="docutils literal notranslate"><span class="pre">kivi.monitoring.monitoring_table</span></code> 和 <code class="docutils literal notranslate"><span class="pre">kivi.monitoring.stability_table</span></code> 在 <code class="docutils literal notranslate"><span class="pre">smoothing=True</span></code> 时引发 <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> ，与 <code class="docutils literal notranslate"><span class="pre">kivi.spec.fit_spec</span></code> 和 <code class="docutils literal notranslate"><span class="pre">kivi.binning.chimerge_groups</span></code> 此前的行为一致。kivi 0.9 将其按 1 计算并发出 <code class="docutils literal notranslate"><span class="pre">FutureWarning</span></code> ；传入 <code class="docutils literal notranslate"><span class="pre">smoothing=1</span></code> 可得到当时的结果。</p></li>
+<li><p>当两组计数都是索引不同的 Series 时， <code class="docutils literal notranslate"><span class="pre">kivi.woe.woe</span></code> 、 <code class="docutils literal notranslate"><span class="pre">kivi.woe.iv</span></code> 和 <code class="docutils literal notranslate"><span class="pre">kivi.stability.psi</span></code> 引发 <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> ；kivi 0.9 会按位置匹配并发出 <code class="docutils literal notranslate"><span class="pre">FutureWarning</span></code> 。请先对齐计数，例如使用 <code class="docutils literal notranslate"><span class="pre">Series.align(other,</span> <span class="pre">fill_value=0)</span></code> ；只有当两者的分组顺序相同时才传入数组。</p></li>
+<li><p>移除 <code class="docutils literal notranslate"><span class="pre">kivi.datasets.Dataset</span></code> 及其方法 <code class="docutils literal notranslate"><span class="pre">bank_data()</span></code> 。 <code class="docutils literal notranslate"><span class="pre">kivi.datasets.load_bank()</span></code> 返回相同的数据框。</p></li>
+<li><p>移除 <code class="docutils literal notranslate"><span class="pre">kivi.calibration.isotonic_predict</span></code> 的 <code class="docutils literal notranslate"><span class="pre">probabilities</span></code> 参数；请传入 <code class="docutils literal notranslate"><span class="pre">probability</span></code> 。</p></li>
+</ul>
+</section>
+</section>
+<section id="id29">
+<h2>0.9.0（2026-11-22）<a class="headerlink" href="#id29" title="链接到此标题。">#</a></h2>
+<section id="id30">
+<h3>新增<a class="headerlink" href="#id30" title="链接到此标题。">#</a></h3>
+<ul class="simple">
+<li><p>新页面 <a class="reference internal" href="../api/compatibility.html"><span class="doc">兼容性</span></a> 说明 kivi 从 1.0 起的承诺：语义化版本，弃用在主版本的其余版本中发出 <code class="docutils literal notranslate"><span class="pre">FutureWarning</span></code> ，对错误结果的修复可以出现在任何版本中，最低支持版本为 Python 3.10、NumPy 1.24 和 pandas 2.0，并且只在由前一个版本预先公布的次版本中提高。它还列出了公共名称、每个表格的索引和列、异常和警告类型，以及以后的版本能从已保存的 <code class="docutils literal notranslate"><span class="pre">BinningSpec</span></code> 读取什么。</p></li>
+<li><p><a class="reference internal" href="../api/conventions.html"><span class="doc">约定</span></a> 说明了更多每个函数都遵循的规则：其他观测数据的顺序、数据框和相近选项的名称、默认的 <code class="docutils literal notranslate"><span class="pre">bins</span></code> 、Series 结果的命名方式、表格的索引名称、部分表格的固定行、分箱拟合中的缺失值，以及不接受 <code class="docutils literal notranslate"><span class="pre">weights</span></code> 的函数。</p></li>
+<li><p>测试保存了由 kivi 0.6.0 和 0.8.0 保存的分箱方案，并检查它们仍能加载、对样本的编码与当时的版本相同，并且在舍入误差范围内与重新拟合的结果一致。</p></li>
+<li><p>kivi 附带内联类型注解和 <code class="docutils literal notranslate"><span class="pre">py.typed</span></code> 标记，因此 mypy 等类型检查器可以检查调用 kivi 的代码。包中的每个函数都有注解，并经过 mypy 检查。</p></li>
+</ul>
+</section>
+<section id="id31">
+<h3>变更<a class="headerlink" href="#id31" title="链接到此标题。">#</a></h3>
+<ul class="simple">
+<li><p>当两组计数都是索引不同的 Series 时， <code class="docutils literal notranslate"><span class="pre">kivi.woe.woe</span></code> 、 <code class="docutils literal notranslate"><span class="pre">kivi.woe.iv</span></code> 和 <code class="docutils literal notranslate"><span class="pre">kivi.stability.psi</span></code> 会发出 <code class="docutils literal notranslate"><span class="pre">FutureWarning</span></code> 。它们仍按位置匹配计数；kivi 1.0 将引发 <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> ，与其他函数对描述同一组分组的 Series 的处理一致。请传入索引相同的 Series，或传入数组以继续按位置匹配。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.woe.woe_table</span></code> 、 <code class="docutils literal notranslate"><span class="pre">kivi.woe.woe</span></code> 、 <code class="docutils literal notranslate"><span class="pre">kivi.woe.iv</span></code> 、 <code class="docutils literal notranslate"><span class="pre">kivi.stability.psi_table</span></code> 、 <code class="docutils literal notranslate"><span class="pre">kivi.stability.psi</span></code> 、 <code class="docutils literal notranslate"><span class="pre">kivi.binning.monotonic_edges</span></code> 、 <code class="docutils literal notranslate"><span class="pre">kivi.calibration.fit_grade_pd</span></code> 、 <code class="docutils literal notranslate"><span class="pre">kivi.monitoring.monitoring_table</span></code> 和 <code class="docutils literal notranslate"><span class="pre">kivi.monitoring.stability_table</span></code> 在 <code class="docutils literal notranslate"><span class="pre">smoothing=True</span></code> 时会发出 <code class="docutils literal notranslate"><span class="pre">FutureWarning</span></code> 。它仍按 1 计算，而不是默认值 0.5；kivi 1.0 将引发 <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> ，与 <code class="docutils literal notranslate"><span class="pre">kivi.spec.fit_spec</span></code> 和 <code class="docutils literal notranslate"><span class="pre">kivi.binning.chimerge_groups</span></code> 现在的行为一致。传入 <code class="docutils literal notranslate"><span class="pre">smoothing=1</span></code> 可得到相同结果。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.datasets.Dataset.bank_data()</span></code> 会发出 <code class="docutils literal notranslate"><span class="pre">FutureWarning</span></code> ，并将在 kivi 1.0 中移除。 <code class="docutils literal notranslate"><span class="pre">kivi.datasets.load_bank()</span></code> 返回相同的数据框。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.calibration.isotonic_predict</span></code> 以 <code class="docutils literal notranslate"><span class="pre">probability</span></code> 接收每个分段的概率，与其他函数使用的名称一致； <code class="docutils literal notranslate"><span class="pre">kivi.calibration.isotonic_fit</span></code> 的文档也以这一名称描述其第二个返回值。 <code class="docutils literal notranslate"><span class="pre">probabilities=</span></code> 在 kivi 1.0 之前仍可使用，但会发出 <code class="docutils literal notranslate"><span class="pre">FutureWarning</span></code> 。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.strategy.expected_loss</span></code> 返回的 Series 名为 <code class="docutils literal notranslate"><span class="pre">expected_loss</span></code> 。此前它沿用输入中第一个 Series 的名称，例如 <code class="docutils literal notranslate"><span class="pre">pd</span></code> 或 <code class="docutils literal notranslate"><span class="pre">balance</span></code> 。</p></li>
+<li><p>未给出 <code class="docutils literal notranslate"><span class="pre">labels</span></code> 时， <code class="docutils literal notranslate"><span class="pre">kivi.calibration.master_scale</span></code> 以 Series <code class="docutils literal notranslate"><span class="pre">probability</span></code> 的索引作为等级标签，因此 <code class="docutils literal notranslate"><span class="pre">master_scale(fit_grade_pd(event,</span> <span class="pre">total))</span></code> 保留表中的等级。列表或数组仍从 1 开始为等级编号。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.lifetime.assign_stages</span></code> 也可以按位置接收 <code class="docutils literal notranslate"><span class="pre">days_past_due</span></code> 和 <code class="docutils literal notranslate"><span class="pre">defaulted</span></code> ，例如 <code class="docutils literal notranslate"><span class="pre">assign_stages(significant_increase,</span> <span class="pre">days_past_due,</span> <span class="pre">defaulted)</span></code> 。使用关键字的调用不受影响。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.selection.logistic_regression</span></code> 和 <code class="docutils literal notranslate"><span class="pre">kivi.selection.vif</span></code> 的索引名为 <code class="docutils literal notranslate"><span class="pre">variable</span></code> ，与 <code class="docutils literal notranslate"><span class="pre">kivi.scorecard.points_table</span></code> 相同，不论 <code class="docutils literal notranslate"><span class="pre">X</span></code> 的列名是什么。 <code class="docutils literal notranslate"><span class="pre">kivi.metrics.roc_auc_interval</span></code> 的索引名为 <code class="docutils literal notranslate"><span class="pre">statistic</span></code> 。因此 <code class="docutils literal notranslate"><span class="pre">reset_index()</span></code> 会得到同名的列，而用 <code class="docutils literal notranslate"><span class="pre">logistic_regression</span></code> 的系数调用 <code class="docutils literal notranslate"><span class="pre">kivi.scorecard.woe_to_points</span></code> 时，结果的列名为 <code class="docutils literal notranslate"><span class="pre">variable</span></code> 。</p></li>
+<li><p>错误信息在各处以同样的形式显示出错的值。NumPy 标量显示为普通数字，因此 <code class="docutils literal notranslate"><span class="pre">bins=numpy.int64(0)</span></code> 给出 <code class="docutils literal notranslate"><span class="pre">got</span> <span class="pre">0</span></code> 而不是 <code class="docutils literal notranslate"><span class="pre">got</span> <span class="pre">np.int64(0)</span></code> 。每个接受 target 的函数都会给出 <code class="docutils literal notranslate"><span class="pre">target</span> <span class="pre">must</span> <span class="pre">contain</span> <span class="pre">only</span> <span class="pre">0</span> <span class="pre">and</span> <span class="pre">1,</span> <span class="pre">got</span> <span class="pre">2</span></code> 或 <code class="docutils literal notranslate"><span class="pre">target</span> <span class="pre">must</span> <span class="pre">contain</span> <span class="pre">both</span> <span class="pre">0</span> <span class="pre">and</span> <span class="pre">1,</span> <span class="pre">got</span> <span class="pre">only</span> <span class="pre">0</span></code> ；权重的信息会显示第一个无效的权重或各类别的总权重；权重的索引与数据不同时，信息为 <code class="docutils literal notranslate"><span class="pre">score</span> <span class="pre">and</span> <span class="pre">weights</span> <span class="pre">must</span> <span class="pre">have</span> <span class="pre">identical</span> <span class="pre">indices</span></code> ，与其他参数一致。</p></li>
+<li><p>NumPy 和 pandas 针对 kivi 参数给出的错误信息现在会指明这些参数： <code class="docutils literal notranslate"><span class="pre">kivi.binning.cut</span></code> 会说 <code class="docutils literal notranslate"><span class="pre">edges</span> <span class="pre">must</span> <span class="pre">be</span> <span class="pre">increasing</span> <span class="pre">numbers,</span> <span class="pre">got</span> <span class="pre">[3,</span> <span class="pre">1]</span></code> ，而 pandas 说的是 <code class="docutils literal notranslate"><span class="pre">bins</span></code> ，还提到 <code class="docutils literal notranslate"><span class="pre">cut</span></code> 并没有的 <code class="docutils literal notranslate"><span class="pre">duplicates</span></code> 参数；各分箱函数会说 <code class="docutils literal notranslate"><span class="pre">values</span> <span class="pre">must</span> <span class="pre">be</span> <span class="pre">numbers</span> <span class="pre">or</span> <span class="pre">special</span> <span class="pre">values,</span> <span class="pre">got</span> <span class="pre">'a'</span></code> 。 <code class="docutils literal notranslate"><span class="pre">kivi.binning.bin_edges</span></code> 和各有监督分箱函数的信息改称 <code class="docutils literal notranslate"><span class="pre">values</span></code> ，不再称 <code class="docutils literal notranslate"><span class="pre">reference</span> <span class="pre">values</span></code> 。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.version</span></code> 和 <code class="docutils literal notranslate"><span class="pre">kivi.PackageNotFoundError</span></code> 是包意外从 <code class="docutils literal notranslate"><span class="pre">importlib.metadata</span></code> 导入的名称，现已不再存在；请使用 <code class="docutils literal notranslate"><span class="pre">kivi.__version__</span></code> 。各公共模块也不再绑定它们导入的辅助函数，例如 <code class="docutils literal notranslate"><span class="pre">kivi.binning.as_series</span></code> 或 <code class="docutils literal notranslate"><span class="pre">kivi.metrics.normal_quantile</span></code> 。这些名称都没有写入文档。</p></li>
+</ul>
+</section>
+<section id="id32">
+<h3>修复<a class="headerlink" href="#id32" title="链接到此标题。">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.woe.woe_transform</span></code> 会在 <code class="docutils literal notranslate"><span class="pre">pandas.cut</span></code> 表中查找包含某个数字的区间，因此原始数值以及表中没有的特殊值编码（例如 <code class="docutils literal notranslate"><span class="pre">kivi.binning.cut</span></code> 在 <code class="docutils literal notranslate"><span class="pre">special=[-1]</span></code> 下分出的 <code class="docutils literal notranslate"><span class="pre">-1</span></code> ）会悄无声息地得到某个区间的 WOE。现在标签按文档所述的相等关系匹配，这类分组属于未见分组：除非用 <code class="docutils literal notranslate"><span class="pre">unseen</span></code> 为其指定 WOE，否则会引发错误。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.binning.cut</span></code> 现在对不属于特殊值的无穷值引发错误。 <code class="docutils literal notranslate"><span class="pre">pandas.cut</span></code> 会让 <code class="docutils literal notranslate"><span class="pre">-inf</span></code> 不落入任何区间、从而被算作缺失值，而把 <code class="docutils literal notranslate"><span class="pre">inf</span></code> 放进最后一个区间。若要让无穷值编码单独成组，请把它们传入 <code class="docutils literal notranslate"><span class="pre">special</span></code> 。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.spec.BinningSpec.woe_transform</span></code> 会给 <code class="docutils literal notranslate"><span class="pre">inf</span></code> 赋予最后一个区间的 WOE，而 <code class="docutils literal notranslate"><span class="pre">-inf</span></code> 属于未见分组。现在两者都属于未见分组，与所有不属于该列特殊值的无穷值一样：除非该列指定了未见分组的 WOE，否则会引发错误。 <code class="docutils literal notranslate"><span class="pre">BinningSpec.cut</span></code> 把两者都留为缺失值。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.stability.csi_table</span></code> 只在变量位于名为 <code class="docutils literal notranslate"><span class="pre">variable</span></code> 的索引中时，才对包含多个变量的分值引发错误。 <code class="docutils literal notranslate"><span class="pre">points_table</span></code> 的结果经过 <code class="docutils literal notranslate"><span class="pre">reset_index()</span></code> 后，变量位于 <code class="docutils literal notranslate"><span class="pre">variable</span></code> 列中，会被当作一个变量读取，从而混淆各变量的分组。现在这种情况会引发同样的错误。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.spec.fit_spec</span></code> 会按实部对复数 dtype 的列分箱，并发出 NumPy 的 <code class="docutils literal notranslate"><span class="pre">ComplexWarning</span></code> 。现在它会引发错误；对于按数值列拟合的复数列， <code class="docutils literal notranslate"><span class="pre">BinningSpec.cut</span></code> 和 <code class="docutils literal notranslate"><span class="pre">BinningSpec.woe_transform</span></code> 也会引发错误。</p></li>
+<li><p>当 <code class="docutils literal notranslate"><span class="pre">pandas.cut</span></code> 在标签中对边界做了舍入时（例如边界 0.6428571428571428 显示为 0.643）， <code class="docutils literal notranslate"><span class="pre">kivi.spec.BinningSpec</span></code> 和 <code class="docutils literal notranslate"><span class="pre">dataclasses.replace</span></code> 会拒绝区间由精确边界构成的数值表。现在这样的区间会被接受，并像 <code class="docutils literal notranslate"><span class="pre">BinningSpec.from_dict</span></code> 一直以来那样，以 <code class="docutils literal notranslate"><span class="pre">kivi.binning.cut</span></code> 的标签保存。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.woe.woe_transform</span></code> 曾接受 <code class="docutils literal notranslate"><span class="pre">unseen=numpy.nan</span></code> （使未见分组的 WOE 为缺失值）以及无穷值。现在 <code class="docutils literal notranslate"><span class="pre">unseen</span></code> 必须是 <code class="docutils literal notranslate"><span class="pre">&quot;raise&quot;</span></code> 或有限数值，与 <code class="docutils literal notranslate"><span class="pre">kivi.spec.fit_spec</span></code> 和 <code class="docutils literal notranslate"><span class="pre">kivi.stability.csi_table</span></code> 一致。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.calibration.prior_correction</span></code> 、 <code class="docutils literal notranslate"><span class="pre">calibration_table</span></code> 的 <code class="docutils literal notranslate"><span class="pre">probability</span></code> 、 <code class="docutils literal notranslate"><span class="pre">binomial_test</span></code> 、 <code class="docutils literal notranslate"><span class="pre">jeffreys_test</span></code> 、 <code class="docutils literal notranslate"><span class="pre">hosmer_lemeshow</span></code> 和 <code class="docutils literal notranslate"><span class="pre">herfindahl_index</span></code> 过去会读取以字符串给出的数字，因此 <code class="docutils literal notranslate"><span class="pre">herfindahl_index([&quot;50&quot;,</span> <span class="pre">&quot;30&quot;])</span></code> 返回 0.53125。现在它们会引发指明参数的错误，例如 &quot;counts must be real and numeric, got dtype object with the value '50'&quot;，与该模块的其他函数一致。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.calibration</span></code> 的计数参数过去把 True 和 False 读作 1 和 0，因此 <code class="docutils literal notranslate"><span class="pre">binomial_test([True],</span> <span class="pre">[True],</span> <span class="pre">0.5)</span></code> 返回 0.5。现在 <code class="docutils literal notranslate"><span class="pre">binomial_test</span></code> 、 <code class="docutils literal notranslate"><span class="pre">jeffreys_test</span></code> 、 <code class="docutils literal notranslate"><span class="pre">hosmer_lemeshow</span></code> 和 <code class="docutils literal notranslate"><span class="pre">fit_grade_pd</span></code> 的 <code class="docutils literal notranslate"><span class="pre">event</span></code> 与 <code class="docutils literal notranslate"><span class="pre">total</span></code> ，以及 <code class="docutils literal notranslate"><span class="pre">herfindahl_index</span></code> 的 <code class="docutils literal notranslate"><span class="pre">counts</span></code> 都拒绝布尔值，与权重一致。概率和评分仍把布尔值算作 1 和 0。</p></li>
+<li><p>当 <code class="docutils literal notranslate"><span class="pre">smoothing</span></code> 不小于某个没有违约的等级的总数时（例如权重之和为 1 的 <code class="docutils literal notranslate"><span class="pre">calibration_table</span></code> 中的计数）， <code class="docutils literal notranslate"><span class="pre">kivi.calibration.fit_grade_pd</span></code> 过去会对顺序正确的等级引发 &quot;the fitted PDs must rise with the grade&quot;。现在它会指出真正的问题，例如 &quot;smoothing must be smaller than the total of each grade without defaults, got 0.5 for grade 1 with a total of 0.4&quot;，文档也说明了加权计数必须与观测数处于同一量级。</p></li>
+<li><p>NumPy 或 pandas 以前用 <code class="docutils literal notranslate"><span class="pre">TypeError</span></code> 拒绝的无效参数，现在会按约定引发指明参数的 <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> ：字符串、 <code class="docutils literal notranslate"><span class="pre">None</span></code> 或数组形式的 <code class="docutils literal notranslate"><span class="pre">smoothing</span></code> ； <code class="docutils literal notranslate"><span class="pre">kivi.reject_inference.parceling</span></code> 、 <code class="docutils literal notranslate"><span class="pre">kivi.datasets.make_applications</span></code> 和 <code class="docutils literal notranslate"><span class="pre">kivi.datasets.make_loan_panel</span></code> 中 <code class="docutils literal notranslate"><span class="pre">numpy.random.default_rng</span></code> 不接受的 <code class="docutils literal notranslate"><span class="pre">rng</span></code> ； <code class="docutils literal notranslate"><span class="pre">kivi.binning.cut</span></code> 中不是数字的 <code class="docutils literal notranslate"><span class="pre">edges</span></code> ；以及 <code class="docutils literal notranslate"><span class="pre">kivi.woe.woe_transform</span></code> 或 <code class="docutils literal notranslate"><span class="pre">kivi.scorecard.points_table</span></code> 的 WOE 表中不是数字的值。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.lifetime.significant_increase</span></code> 过去由浮点舍入决定恰好等于阈值的情况：PD 0.04 相对 0.03 被算作升高超过一个百分点，0.45 被算作超过 0.30 的 1.5 倍。现在，与阈值只差末位几个单位的 PD 视为恰好等于阈值，不会被标记，与严格的阈值比较一致。在相差 0.01 的 89 对两位小数 PD 中，过去有 71 对被标记，现在一对也没有。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.lifetime.transition_pd</span></code> 过去接受 <code class="docutils literal notranslate"><span class="pre">horizons=3.0</span></code> 这样的浮点数。现在单个期数必须是整数，与 <code class="docutils literal notranslate"><span class="pre">expected_credit_loss</span></code> 的 <code class="docutils literal notranslate"><span class="pre">horizon</span></code> 一致；期限序列仍可以用浮点数表示整数。</p></li>
+<li><p>含有 <code class="docutils literal notranslate"><span class="pre">pd.NA</span></code> 的数字列表或 object 数组（例如 <code class="docutils literal notranslate"><span class="pre">[0.5,</span> <span class="pre">pd.NA]</span></code> ）过去在 <code class="docutils literal notranslate"><span class="pre">kivi.calibration</span></code> 、 <code class="docutils literal notranslate"><span class="pre">kivi.scorecard</span></code> 、 <code class="docutils literal notranslate"><span class="pre">kivi.strategy</span></code> 和 <code class="docutils literal notranslate"><span class="pre">kivi.lifetime</span></code> 中会引发 <code class="docutils literal notranslate"><span class="pre">TypeError</span></code> 或 &quot;must be real and numeric, got dtype object&quot;，而 <code class="docutils literal notranslate"><span class="pre">kivi.calibration.platt_predict([0.5,</span> <span class="pre">pd.NA],</span> <span class="pre">1,</span> <span class="pre">0)</span></code> 的错误信息给出的是有效值 0.5。现在这些函数把 <code class="docutils literal notranslate"><span class="pre">pd.NA</span></code> 读作缺失值，与 None 和 NaN 相同，错误信息给出第一个不是数字的值。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.scorecard.pd_to_score</span></code> 和 <code class="docutils literal notranslate"><span class="pre">score_to_pd</span></code> 过去把任何输入都读作浮点数：对日期调用 <code class="docutils literal notranslate"><span class="pre">score_to_pd</span></code> 得到 PD 0，而 <code class="docutils literal notranslate"><span class="pre">pd_to_score([&quot;0.1&quot;,</span> <span class="pre">&quot;0.2&quot;],</span> <span class="pre">...)</span></code> 会给出分数。现在字符串、日期和复数会引发 &quot;must be real and numeric&quot;，与 <code class="docutils literal notranslate"><span class="pre">kivi.metrics</span></code> 一致；布尔值仍算作 1 和 0。</p></li>
+<li><p>当 <code class="docutils literal notranslate"><span class="pre">points</span></code> 有重复的列时， <code class="docutils literal notranslate"><span class="pre">kivi.scorecard.reason_codes</span></code> 过去会把同一个变量列出两次，例如 <code class="docutils literal notranslate"><span class="pre">housing,</span> <span class="pre">housing,</span> <span class="pre">contact</span></code> 。现在它会引发错误，与 <code class="docutils literal notranslate"><span class="pre">woe_to_points</span></code> 一致。</p></li>
+<li><p>当 <code class="docutils literal notranslate"><span class="pre">table</span></code> 中某个分组的分值缺失时（例如手工编辑过该表）， <code class="docutils literal notranslate"><span class="pre">kivi.scorecard.reason_codes</span></code> 过去会在两个原因之间给出 None。现在， <code class="docutils literal notranslate"><span class="pre">points</span></code> 中某个变量在 <code class="docutils literal notranslate"><span class="pre">table</span></code> 中的分值缺失或为无穷大时会引发错误。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.scorecard.woe_to_points</span></code> 过去按索引标签对齐映射中的各个 Series，因此一行可能混合不同申请人的 WOE 值。现在映射中的 Series 必须具有相同的索引，与 kivi 中所有描述相同观测的 Series 一致；其他值仍按位置匹配。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.scorecard.score_scaling</span></code> 过去对 NumPy 参数返回 NumPy 标量，因此 <code class="docutils literal notranslate"><span class="pre">float32</span></code> 的 <code class="docutils literal notranslate"><span class="pre">pdo</span></code> 会把 <code class="docutils literal notranslate"><span class="pre">pd_to_score</span></code> 的分数和 <code class="docutils literal notranslate"><span class="pre">points_table</span></code> 的分值舍入到单精度。现在它返回 Python 浮点数。</p></li>
+<li><p>对于包含截距的 <code class="docutils literal notranslate"><span class="pre">kivi.selection.logistic_regression</span></code> 的 <code class="docutils literal notranslate"><span class="pre">coef</span></code> 列， <code class="docutils literal notranslate"><span class="pre">kivi.scorecard.points_table</span></code> 和 <code class="docutils literal notranslate"><span class="pre">woe_to_points</span></code> 过去报告 &quot;tables has no entry for 1 variable(s): 'intercept'&quot;。现在它们报告 &quot;coefficients has an 'intercept' entry; drop it and pass it as intercept&quot;。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.selection.vif</span></code> 过去对某些精确的线性组合给出有限的 VIF：当 <code class="docutils literal notranslate"><span class="pre">c</span></code> 为 <code class="docutils literal notranslate"><span class="pre">b</span> <span class="pre">+</span> <span class="pre">1e-5</span> <span class="pre">*</span> <span class="pre">a</span></code> 时， <code class="docutils literal notranslate"><span class="pre">a</span></code> 的 VIF 为 1.003；只有两行的数据框中，两列的 VIF 为 5.6e29。现在，某列在舍入误差范围内是其他列的线性组合时，其 VIF 为无穷大，与文档一致；其他列的 VIF 不变。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.vintage.transition_matrix</span></code> 过去把 Python 中为真的任何 <code class="docutils literal notranslate"><span class="pre">normalize</span></code> 都当作 True，因此按 <code class="docutils literal notranslate"><span class="pre">pandas.crosstab</span></code> 的用法传入 <code class="docutils literal notranslate"><span class="pre">normalize=&quot;columns&quot;</span></code> 时，得到的是每行的占比。现在除非 <code class="docutils literal notranslate"><span class="pre">normalize</span></code> 为 True 或 False，否则会引发错误，与 <code class="docutils literal notranslate"><span class="pre">kivi.calibration.herfindahl_index</span></code> 一致。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.vintage.transition_matrix</span></code> 和 <code class="docutils literal notranslate"><span class="pre">roll_rates</span></code> 过去会为 <code class="docutils literal notranslate"><span class="pre">states</span></code> 中的缺失值单独生成一行一列，而 <code class="docutils literal notranslate"><span class="pre">before</span></code> 和 <code class="docutils literal notranslate"><span class="pre">after</span></code> 中的缺失值会引发错误。现在缺失的状态会引发错误。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.vintage.vintage_table</span></code> 过去会为负的 <code class="docutils literal notranslate"><span class="pre">month_on_book</span></code> 生成一列。现在会引发错误，因为账龄从放款时开始计算。</p></li>
+</ul>
+</section>
+</section>
+<section id="id33">
+<h2>0.8.0（2026-11-21）<a class="headerlink" href="#id33" title="链接到此标题。">#</a></h2>
+<section id="id34">
+<h3>新增<a class="headerlink" href="#id34" title="链接到此标题。">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.binning</span></code> 以与数值分箱相同的两步对类别变量的类别分组。 <code class="docutils literal notranslate"><span class="pre">category_groups</span></code> 把低于 <code class="docutils literal notranslate"><span class="pre">min_share</span></code> 或 <code class="docutils literal notranslate"><span class="pre">min_count</span></code> 的类别归为一组， <code class="docutils literal notranslate"><span class="pre">chimerge_groups</span></code> 按平滑后的 WOE 对类别排序，并在 <code class="docutils literal notranslate"><span class="pre">max_groups</span></code> 、 <code class="docutils literal notranslate"><span class="pre">alpha</span></code> 和 <code class="docutils literal notranslate"><span class="pre">min_group_share</span></code> 的约束下用 ChiMerge 合并相邻类别。两者都返回从类别到组的 dict，接受 <code class="docutils literal notranslate"><span class="pre">special</span></code> 和 <code class="docutils literal notranslate"><span class="pre">weights</span></code> ，并排除缺失值。 <code class="docutils literal notranslate"><span class="pre">group_categories</span></code> 把该 dict 应用到任意样本；分组映射中没有的类别会引发错误，除非 <code class="docutils literal notranslate"><span class="pre">unseen</span></code> 指定了它应归入的组。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fit_spec</span></code> 对 <code class="docutils literal notranslate"><span class="pre">method</span></code> 中以 <code class="docutils literal notranslate"><span class="pre">&quot;rare&quot;</span></code> 或 <code class="docutils literal notranslate"><span class="pre">&quot;chimerge&quot;</span></code> 指定的类别列分组，此时 <code class="docutils literal notranslate"><span class="pre">special</span></code> 和 <code class="docutils literal notranslate"><span class="pre">options</span></code> 也适用于该列， <code class="docutils literal notranslate"><span class="pre">&quot;chimerge&quot;</span></code> 列还适用 <code class="docutils literal notranslate"><span class="pre">bins</span></code> 。 <code class="docutils literal notranslate"><span class="pre">BinningSpec</span></code> 把分组映射保存在新字段 <code class="docutils literal notranslate"><span class="pre">groups</span></code> 中，并在 <code class="docutils literal notranslate"><span class="pre">cut</span></code> 和 <code class="docutils literal notranslate"><span class="pre">woe_transform</span></code> 中应用。没有分组的列与以前的拟合结果相同。</p></li>
+<li><p>已分组列的未见分组策略可以用 <code class="docutils literal notranslate"><span class="pre">{&quot;group&quot;:</span> <span class="pre">label}</span></code> 指定其中一个组：此时 <code class="docutils literal notranslate"><span class="pre">cut</span></code> 把新类别分配到该组， <code class="docutils literal notranslate"><span class="pre">woe_transform</span></code> 让它们使用该组的 WOE。</p></li>
+<li><p>含已分组列的 <code class="docutils literal notranslate"><span class="pre">BinningSpec</span></code> 以 <code class="docutils literal notranslate"><span class="pre">format_version</span></code> 2 保存，该版本增加了分组映射和未见分组；其他分箱方案仍以版本 1 保存，因此早期版本的 kivi 也能读取。 <code class="docutils literal notranslate"><span class="pre">from_json</span></code> 能读取这两个版本。</p></li>
+<li><p>新模块 <code class="docutils literal notranslate"><span class="pre">kivi.lifetime</span></code> 提供存续期 PD 和 IFRS 9 的预期信用损失。 <code class="docutils literal notranslate"><span class="pre">convert_pd</span></code> 在累计、边际和条件 PD 之间转换 PD 期限结构（例如 vintage 表的累计坏账率），批次尚未达到的账龄保持缺失。 <code class="docutils literal notranslate"><span class="pre">transition_pd</span></code> 在违约状态设为吸收态的情况下，推算转移矩阵每个状态在任意期数下的累计 PD。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">expected_credit_loss</span></code> 把报告日之后每一期的边际 PD、LGD 和 EAD 按实际利率折现求和，得到每个账户的 12 个月或整个存续期预期信用损失。LGD 和 EAD 可以是常数、每个账户一个值，或每个账户每期一个值的计划表。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">significant_increase</span></code> 按相对和绝对 PD 阈值标记信用风险显著增加；这两个阈值是主体的政策，因此没有默认值。 <code class="docutils literal notranslate"><span class="pre">assign_stages</span></code> 根据这些标记、逾期天数兜底标准（默认按 IFRS 9 的假设，第二阶段为逾期超过 30 天，第三阶段为逾期 90 天及以上）以及违约标记确定第一到第三阶段， <code class="docutils literal notranslate"><span class="pre">stage_table</span></code> 汇总每个阶段的敞口和损失准备，并给出覆盖率。</p></li>
+<li><p>新模块 <code class="docutils literal notranslate"><span class="pre">kivi.monitoring</span></code> 按期跟踪评分。 <code class="docutils literal notranslate"><span class="pre">monitoring_table</span></code> 每期一行（例如每月），给出观测数、已知结果数和事件数、已知结果上的 AUC、Gini 和 KS，以及评分相对基准期或基准样本的 PSI，评分段只在基准上拟合一次。缺失的目标值表示结果尚未得知：它计入 <code class="docutils literal notranslate"><span class="pre">total</span></code> ，但不计入事件相关的列；两类结果不全的期，其区分能力为 NaN 而不是报错。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">stability_table</span></code> 给出每个已分组变量在每一期相对同一基准的 PSI，用于稳定性报告的变量部分。两个函数都接受 <code class="docutils literal notranslate"><span class="pre">weights</span></code> ，整数权重与重复相应行得到的表相同；对 <code class="docutils literal notranslate"><span class="pre">monitoring_table</span></code> 而言，这要求评分段边界相同。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.metrics.roc_table</span></code> 列出 ROC 曲线上的点，从高到低每个不同的评分一行，包含累计事件数和非事件数、真正例率和假正例率以及精确率。曲线下各梯形的面积之和等于 <code class="docutils literal notranslate"><span class="pre">roc_auc</span></code> ，两个比率之间的最大差距等于 <code class="docutils literal notranslate"><span class="pre">ks</span></code> 。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.metrics.roc_auc_interval</span></code> 用 DeLong 方法及 Sun 和 Xu 的快速中秩算法，给出 AUC 和 Gini 系数的标准误以及置信水平为 <code class="docutils literal notranslate"><span class="pre">level</span></code> 的置信区间。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.metrics.delong_test</span></code> 检验同一批观测的两个评分的 AUC 是否相同，返回两个 AUC、它们的差值及其标准误和区间、z 统计量和双侧 p 值。</p></li>
+<li><p>标准误把 <code class="docutils literal notranslate"><span class="pre">weights</span></code> 视为频数权重，因此整数权重与重复相应行的结果相同。对于 Hanley 和 McNeil（1982）以及 DeLong 等人（1988）的数据，它们重现了 Stata 和 SAS 手册公布的 DeLong 结果。</p></li>
+</ul>
+</section>
+<section id="id35">
+<h3>变更<a class="headerlink" href="#id35" title="链接到此标题。">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">BinningSpec.format_version</span></code> 现在是每个分箱方案写出的 JSON 格式版本，为 1 或 2，而不再是等于 1 的类属性。新的类常量 <code class="docutils literal notranslate"><span class="pre">BinningSpec.FORMAT_VERSION</span></code> 是 kivi 能读取的最新版本，目前为 2。</p></li>
+<li><p>各篇主题指南采用同一结构和相同的小节标题，例如 <code class="docutils literal notranslate"><span class="pre">Special</span> <span class="pre">values</span></code> （特殊值）、 <code class="docutils literal notranslate"><span class="pre">Sample</span> <span class="pre">weights</span></code> （样本权重）和 <code class="docutils literal notranslate"><span class="pre">Errors</span> <span class="pre">and</span> <span class="pre">warnings</span></code> （错误与警告），开篇链接到前后两个步骤。分箱指南把特殊值的内容集中到一节，单变量概况在按 IV 筛选之后再介绍特殊值编码。kivi 函数在每一节第一次出现时都链接到其 API 条目。</p></li>
+<li><p>API 参考新增两页并排在最前面：一页是所有函数共同遵守的约定，包括参数顺序、仅限关键字的选项、输入与结果、样本权重和错误信息；另一页是信用风险术语表。模块页面按用户指南的顺序排列，每页都有简介和指向对应指南的链接， <code class="docutils literal notranslate"><span class="pre">:mod:</span></code> 链接现在也能跳转到这些页面。</p></li>
+<li><p>迁移指南把 <code class="docutils literal notranslate"><span class="pre">BinaryMetrics</span></code> 的 ROC 曲线和精确率-召回率曲线、精确率、召回率、F1 分数和混淆矩阵，以及 <code class="docutils literal notranslate"><span class="pre">evaluate/Heatmap.py</span></code> 的相关性热力图列为未移植，并给出替代做法。</p></li>
+<li><p>用户指南新增“模型监控”和“存续期 PD 与预期信用损失”两篇指南，并按项目顺序放在相应位置。术语表和约定页涵盖新函数的术语和规则。风控建模流程示例给出 Gini 的 DeLong 区间，并引向监控和预期信用损失。各指南新增类别分组、ROC 曲线、监控报告、各期变量稳定性和 PD 期限结构图，README 展示监控图和存续期 PD 图。</p></li>
+</ul>
+</section>
+<section id="id36">
+<h3>修复<a class="headerlink" href="#id36" title="链接到此标题。">#</a></h3>
+<ul class="simple">
+<li><p>使用非整数 <code class="docutils literal notranslate"><span class="pre">weights</span></code> 时， <code class="docutils literal notranslate"><span class="pre">kivi.metrics.roc_auc</span></code> 和 <code class="docutils literal notranslate"><span class="pre">kivi.metrics.gini</span></code> 可能因舍入而返回略大于 1 的值。现在二者都不超过 1，与文档一致；其他取值不变。</p></li>
+<li><p>当两个样本都是无序分类且类别相同但排列顺序不同时（例如 <code class="docutils literal notranslate"><span class="pre">[&quot;a&quot;,</span> <span class="pre">&quot;b&quot;]</span></code> 和 <code class="docutils literal notranslate"><span class="pre">[&quot;b&quot;,</span> <span class="pre">&quot;a&quot;]</span></code> ）， <code class="docutils literal notranslate"><span class="pre">kivi.stability.psi_table</span></code> 、 <code class="docutils literal notranslate"><span class="pre">kivi.stability.csi_table</span></code> 和 <code class="docutils literal notranslate"><span class="pre">kivi.monitoring.stability_table</span></code> 会把当前样本的分组计入错误的标签。现在分组按标签匹配。</p></li>
+<li><p>两个样本是按不同整数边界划分的 <code class="docutils literal notranslate"><span class="pre">pandas.cut</span></code> 分箱、且其中一个含有缺失值时， <code class="docutils literal notranslate"><span class="pre">kivi.stability.psi_table</span></code> 和 <code class="docutils literal notranslate"><span class="pre">kivi.stability.csi_table</span></code> 会引发 pandas 的 <code class="docutils literal notranslate"><span class="pre">IntCastingNaNError</span></code> 。现在这类分箱以浮点数区间合并，它们与对应的整数区间相等。</p></li>
+<li><p>当一个样本是含无穷边界的 <code class="docutils literal notranslate"><span class="pre">pandas.cut</span></code> 分箱、而另一个样本是其他分组（按其他边界划分的分箱、移除了未使用类别的分箱、非分类型的区间或其他标签）时， <code class="docutils literal notranslate"><span class="pre">kivi.stability.psi_table</span></code> 和 <code class="docutils literal notranslate"><span class="pre">kivi.stability.csi_table</span></code> 在低于 2.2 版的 NumPy 上不再发出 <code class="docutils literal notranslate"><span class="pre">RuntimeWarning</span></code> （&quot;invalid value encountered in cast&quot;）。表格结果不变。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">weights</span></code> Series 过去只与数据的索引比较，因此当评分、取值或分组是数组时，它会与另一个索引的 <code class="docutils literal notranslate"><span class="pre">target</span></code> Series 按位置匹配。 <code class="docutils literal notranslate"><span class="pre">kivi.metrics</span></code> 的函数、 <code class="docutils literal notranslate"><span class="pre">kivi.woe.woe_table</span></code> 、 <code class="docutils literal notranslate"><span class="pre">kivi.calibration.calibration_table</span></code> 、 <code class="docutils literal notranslate"><span class="pre">platt_fit</span></code> 和 <code class="docutils literal notranslate"><span class="pre">isotonic_fit</span></code> 、 <code class="docutils literal notranslate"><span class="pre">kivi.binning</span></code> 的有监督函数，以及 <code class="docutils literal notranslate"><span class="pre">kivi.selection.logistic_regression</span></code> 和 <code class="docutils literal notranslate"><span class="pre">stepwise</span></code> 现在会在这种情况下引发错误，例如 &quot;target and weights must have identical indices&quot;，与描述相同观测的任意其他两个 Series 的处理方式一致。</p></li>
+</ul>
+</section>
+</section>
+<section id="id37">
+<h2>0.7.0（2026-11-20）<a class="headerlink" href="#id37" title="链接到此标题。">#</a></h2>
+<section id="id38">
+<h3>新增<a class="headerlink" href="#id38" title="链接到此标题。">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.datasets.make_applications</span></code> 按种子模拟贷款申请数据，每个申请人都有数值型和类别型特征、现行评分卡的 PD、政策拒绝、审批决策和真实的违约标记，可用来试验拒绝推断。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.calibration.master_scale</span></code> 根据每个等级的 PD 构建主标尺，例如由 <code class="docutils literal notranslate"><span class="pre">numpy.geomspace</span></code> 生成的几何网格：每个等级一行，包含其下界、PD 和上界，覆盖 0 到 1。界限默认取相邻 PD 的几何平均数，设置 <code class="docutils literal notranslate"><span class="pre">boundary=&quot;arithmetic&quot;</span></code> 时取其算术平均数，与 0.2 版本相同。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fit_grade_pd</span></code> 按观测违约率拟合每个等级的 PD：把违约率的对数拟合为等级编号的直线，使用以观测数为权重的最小二乘法。没有违约的等级以 <code class="docutils literal notranslate"><span class="pre">smoothing</span></code> 次违约参与拟合，没有观测的等级从这条直线得到 PD。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">assign_grades</span></code> 以有序分类变量的形式为每个预测 PD 指定标尺上的等级， <code class="docutils literal notranslate"><span class="pre">calibration_table</span></code> 可以直接按标尺的顺序统计这些等级。恰好落在界限上的 PD 归入较低的等级，与 <code class="docutils literal notranslate"><span class="pre">pandas.cut</span></code> 相同。</p></li>
+<li><p>新模块 <code class="docutils literal notranslate"><span class="pre">kivi.reject_inference</span></code> 推断拒绝申请人的结果，使在获批申请人上开发的评分卡能在全部申请人上重新拟合。 <code class="docutils literal notranslate"><span class="pre">fuzzy_augmentation</span></code> 把每个拒绝申请人拆成按其 PD 加权的一行坏样本和一行好样本； <code class="docutils literal notranslate"><span class="pre">parceling</span></code> 用带种子的生成器按各评分段的坏账率标记其中的拒绝申请人，或者返回期望权重； <code class="docutils literal notranslate"><span class="pre">reweighting</span></code> 以各评分段通过率的倒数为该段获批申请人加权。大于 1 的 <code class="docutils literal notranslate"><span class="pre">factor</span></code> 会提高推断的坏账率，没有获批申请人的评分段会引发错误。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">logistic_regression</span></code> 和 <code class="docutils literal notranslate"><span class="pre">stepwise</span></code> 接受 <code class="docutils literal notranslate"><span class="pre">weights</span></code> ，即与 statsmodels 的 <code class="docutils literal notranslate"><span class="pre">GLM(freq_weights=...)</span></code> 相同的频数权重。整数权重与重复行得到相同的系数、标准误和变量选择；不表示观测个数的权重（例如拒绝推断的权重）会使标准误和 p 值偏小。</p></li>
+<li><p>新模块 <code class="docutils literal notranslate"><span class="pre">kivi.strategy</span></code> 支撑评分卡之后的信贷决策。<code class="docutils literal notranslate"><span class="pre">cutoff_table</span></code> 针对 PD 或取负分数的每个候选截断点，给出通过率、通过客群的坏账率、被拒绝的坏客户和好客户所占比例，传入 <code class="docutils literal notranslate"><span class="pre">loss</span></code> 时还给出通过客群的预期损失。评分不高于截断点即予以通过，因此相同评分总是得到相同的决策。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">swap_set</span></code> 在各自的截断点上比较现行评分与新评分的决策：两者都通过的申请人、换入和换出，以及两者都拒绝的申请人，并在结果已知时给出事件率。缺失的目标值表示结果未知，例如被现行评分拒绝的申请人。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">expected_loss</span></code> 将 PD、LGD 与 EAD 相乘，<code class="docutils literal notranslate"><span class="pre">expected_loss_table</span></code> 汇总每个等级的敞口和预期损失，并给出预期损失率和按敞口加权的 PD。</p></li>
+<li><p>新模块 <code class="docutils literal notranslate"><span class="pre">kivi.univariate</span></code> 对模型的候选变量进行概况分析。 <code class="docutils literal notranslate"><span class="pre">profile_table</span></code> 用一行概括数据框的每一列：类型、缺失值、不同取值个数和最常见的取值；数值列还给出取值范围、分位数、均值和标准差。有目标变量时，还会加入缺失行与非缺失行的事件率和提升度、快速分箱的 IV 以及数值取值的 Gini 系数。分位数重合会记录在 <code class="docutils literal notranslate"><span class="pre">tied_bins</span></code> 列中，而不会对每一列发出警告； <code class="docutils literal notranslate"><span class="pre">special</span></code> 编码和 <code class="docutils literal notranslate"><span class="pre">weights</span></code> 的用法与 <code class="docutils literal notranslate"><span class="pre">fit_spec</span></code> 相同。</p></li>
+</ul>
+</section>
+<section id="id39">
+<h3>变更<a class="headerlink" href="#id39" title="链接到此标题。">#</a></h3>
+<ul class="simple">
+<li><p>风控建模流程示例改用 <code class="docutils literal notranslate"><span class="pre">profile_table</span></code> 筛选候选变量，用 <code class="docutils literal notranslate"><span class="pre">master_scale</span></code> 和 <code class="docutils literal notranslate"><span class="pre">assign_grades</span></code> 在主标尺上校准 PD，并用 <code class="docutils literal notranslate"><span class="pre">cutoff_table</span></code> 和 <code class="docutils literal notranslate"><span class="pre">expected_loss_table</span></code> 设定截断点。用户指南新增截断点曲线、拒绝推断、等级 PD 和缺失值图，README 也展示了截断点图和拒绝推断图。</p></li>
+</ul>
+</section>
+<section id="id40">
+<h3>修复<a class="headerlink" href="#id40" title="链接到此标题。">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">gains_table</span></code> 在评分并列时发出的警告曾建议使用 <code class="docutils literal notranslate"><span class="pre">bin_edges</span></code> 的 <code class="docutils literal notranslate"><span class="pre">special</span></code> 参数，而 <code class="docutils literal notranslate"><span class="pre">gains_table</span></code> 并没有这个参数。现在它与 <code class="docutils literal notranslate"><span class="pre">cutoff_table</span></code> 一样，建议减少箱数或给出明确的边界，并且警告指向调用它的那一行。</p></li>
+</ul>
+</section>
+</section>
+<section id="id41">
+<h2>0.6.0（2026-11-20）<a class="headerlink" href="#id41" title="链接到此标题。">#</a></h2>
+<section id="id42">
+<h3>新增<a class="headerlink" href="#id42" title="链接到此标题。">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.calibration.platt_fit</span></code> 和 <code class="docutils literal notranslate"><span class="pre">platt_predict</span></code> 用逻辑曲线校准评分， <code class="docutils literal notranslate"><span class="pre">isotonic_fit</span></code> 和 <code class="docutils literal notranslate"><span class="pre">isotonic_predict</span></code> 则用随评分上升的阶梯函数进行校准。拟合结果是普通的数值（斜率和截距，或分段边界及其概率），可以应用到之后任何样本的评分上。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.stability.csi_table</span></code> 计算评分卡变量的特征稳定性指标：每组占比从基准样本到当前样本的变化乘以该组的分值。其总和是该变量平均分值的变化，对所有变量求和则是平均分数的变化。占比不做平滑；没有分值的分组会引发错误，除非用 <code class="docutils literal notranslate"><span class="pre">unseen_points</span></code> 给出其分值。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.datasets.load_bank</span></code> 读取银行营销数据。 <code class="docutils literal notranslate"><span class="pre">Dataset.bank_data</span></code> 返回相同的数据，并且可以继续使用，不会发出警告。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.datasets.make_loan_panel</span></code> 按给定种子模拟分期贷款的月度面板数据，其中逾期会向前滚动，也会回到正常，可用来试用 Vintage 和滚动率相关函数。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">reason_codes</span></code> 新增 <code class="docutils literal notranslate"><span class="pre">unseen_points</span></code> 参数，即 <code class="docutils literal notranslate"><span class="pre">woe_transform</span></code> 用 <code class="docutils literal notranslate"><span class="pre">unseen</span></code> 编码的分组中申请人的分值，可以是一个值，也可以按变量给出。与任何分组都不匹配、但与 <code class="docutils literal notranslate"><span class="pre">unseen_points</span></code> 相差不超过 <code class="docutils literal notranslate"><span class="pre">atol</span></code> 的分值视为没有造成损失，因此该变量不会成为这些申请人的原因。其他任何不匹配仍会引发错误，错误信息现在会先提示检查 <code class="docutils literal notranslate"><span class="pre">atol</span></code> 以及模型和刻度。</p></li>
+<li><p>新模块 <code class="docutils literal notranslate"><span class="pre">kivi.spec</span></code> 一次对数据框的所有列分箱。 <code class="docutils literal notranslate"><span class="pre">fit_spec</span></code> 用 <code class="docutils literal notranslate"><span class="pre">bin_edges</span></code> 、按列选定的有监督方法或给定的边界拟合每个数值列，并计算每个分组的 WOE；其他列保留其标签。分箱从不自动更改。</p></li>
+<li><p>得到的 <code class="docutils literal notranslate"><span class="pre">BinningSpec</span></code> 用 <code class="docutils literal notranslate"><span class="pre">cut</span></code> 对样本分组，用 <code class="docutils literal notranslate"><span class="pre">woe_transform</span></code> 按列的未见分组策略编码，并保留每一列的 <code class="docutils literal notranslate"><span class="pre">woe_table</span></code> 供审阅。 <code class="docutils literal notranslate"><span class="pre">to_json</span></code> 和 <code class="docutils literal notranslate"><span class="pre">from_json</span></code> 保存并加载它，分组和 WOE 编码都不会改变，因此生产环境可以完全复现开发时的结果。</p></li>
+<li><p>新模块 <code class="docutils literal notranslate"><span class="pre">kivi.vintage</span></code> 用于分析贷款资产组合。 <code class="docutils literal notranslate"><span class="pre">vintage_table</span></code> 按账龄给出每个放款批次的累计坏账率，可以按笔数或按放款金额计算，并把批次尚未达到的账龄留为 NaN。 <code class="docutils literal notranslate"><span class="pre">transition_matrix</span></code> 统计贷款在逾期档位之间、或债务人在评级之间的迁移，结果可以是计数、行内比例或余额之和； <code class="docutils literal notranslate"><span class="pre">roll_rates</span></code> 给出每个档位滚动到下一个更差档位的比例。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">roc_auc</span></code> 、 <code class="docutils literal notranslate"><span class="pre">gini</span></code> 、 <code class="docutils literal notranslate"><span class="pre">ks</span></code> 、 <code class="docutils literal notranslate"><span class="pre">gains_table</span></code> 、 <code class="docutils literal notranslate"><span class="pre">brier_score</span></code> 和 <code class="docutils literal notranslate"><span class="pre">calibration_table</span></code> 与 <code class="docutils literal notranslate"><span class="pre">woe_table</span></code> 一样接受 <code class="docutils literal notranslate"><span class="pre">weights</span></code> 。计数变为权重之和，整数权重与重复相应行的结果相同（ <code class="docutils literal notranslate"><span class="pre">gains_table</span></code> 须使用固定边界）。</p></li>
+</ul>
+</section>
+<section id="id43">
+<h3>变更<a class="headerlink" href="#id43" title="链接到此标题。">#</a></h3>
+<ul class="simple">
+<li><p>风控建模流程示例用 <code class="docutils literal notranslate"><span class="pre">fit_spec</span></code> 保存入选变量的分箱，并在稳定性报告中加入每个评分卡变量的特征稳定性指数（CSI）。用户指南新增增益、校准和 vintage 曲线图，README 也展示了增益图和 vintage 曲线图。</p></li>
+</ul>
+</section>
+<section id="id44">
+<h3>修复<a class="headerlink" href="#id44" title="链接到此标题。">#</a></h3>
+<ul class="simple">
+<li><p>在 pandas 2.0 上，目标为可空整数类型时， <code class="docutils literal notranslate"><span class="pre">calibration_table</span></code> 不再报错。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cut</span></code> 、 <code class="docutils literal notranslate"><span class="pre">bin_edges</span></code> 和有监督分箱函数会在转换数字字符串之后再匹配特殊编码，因此按文本读入的列（例如 <code class="docutils literal notranslate"><span class="pre">pdays</span></code> 中的 <code class="docutils literal notranslate"><span class="pre">&quot;-1&quot;</span></code> ）会让编码 <code class="docutils literal notranslate"><span class="pre">-1</span></code> 单独成组，而不是落入某个区间。布尔型特殊编码会报错：由于 <code class="docutils literal notranslate"><span class="pre">True</span> <span class="pre">==</span> <span class="pre">1</span></code> ，它们原先会匹配取值 1。</p></li>
+</ul>
+</section>
+<section id="id45">
+<h3>移除<a class="headerlink" href="#id45" title="链接到此标题。">#</a></h3>
+<ul class="simple">
+<li><p>移除 <code class="docutils literal notranslate"><span class="pre">kivi.evaluate</span></code> ；请从 <code class="docutils literal notranslate"><span class="pre">kivi.stability</span></code> 导入 <code class="docutils literal notranslate"><span class="pre">psi_table</span></code> 等稳定性函数。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bin_edges</span></code> 不再接受按位置传入的 <code class="docutils literal notranslate"><span class="pre">method</span></code> ；请用关键字传入，例如 <code class="docutils literal notranslate"><span class="pre">method=&quot;uniform&quot;</span></code> 。</p></li>
+</ul>
+</section>
+</section>
+<section id="id46">
+<h2>0.5.0（2026-11-20）<a class="headerlink" href="#id46" title="链接到此标题。">#</a></h2>
+<section id="id47">
+<h3>新增<a class="headerlink" href="#id47" title="链接到此标题。">#</a></h3>
+<ul class="simple">
+<li><p>新模块 <code class="docutils literal notranslate"><span class="pre">kivi.calibration</span></code> 用于检查 PD 的校准情况。 <code class="docutils literal notranslate"><span class="pre">prior_correction</span></code> 和 <code class="docutils literal notranslate"><span class="pre">corrected_intercept</span></code> 在开发样本的事件率与总体不同时校正模型。 <code class="docutils literal notranslate"><span class="pre">calibration_table</span></code> 比较主标尺等级或其他分组的观测违约率与预测违约率，再由 <code class="docutils literal notranslate"><span class="pre">binomial_test</span></code> 、 <code class="docutils literal notranslate"><span class="pre">jeffreys_test</span></code> 和 <code class="docutils literal notranslate"><span class="pre">hosmer_lemeshow</span></code> 进行检验。 <code class="docutils literal notranslate"><span class="pre">herfindahl_index</span></code> 衡量各等级的集中程度。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.woe.woe</span></code> 、 <code class="docutils literal notranslate"><span class="pre">kivi.woe.iv</span></code> 和 <code class="docutils literal notranslate"><span class="pre">kivi.stability.psi</span></code> 可直接根据已汇总的计数（包括加权计数）计算 WOE、IV 和 PSI。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.stability</span></code> 模块包含 <code class="docutils literal notranslate"><span class="pre">psi_table</span></code> 和 <code class="docutils literal notranslate"><span class="pre">psi</span></code> 。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.metrics</span></code> 根据二分类目标评估评分。<code class="docutils literal notranslate"><span class="pre">roc_auc</span></code>、<code class="docutils literal notranslate"><span class="pre">gini</span></code> 和 <code class="docutils literal notranslate"><span class="pre">ks</span></code> 衡量评分把事件排在非事件之前的能力，<code class="docutils literal notranslate"><span class="pre">gains_table</span></code> 按评分段报告事件率、捕获的事件、KS 和提升度，<code class="docutils literal notranslate"><span class="pre">brier_score</span></code> 将预测概率与实际结果进行比较。与 <code class="docutils literal notranslate"><span class="pre">woe_table</span></code> 一样，这些函数都是评分在前、目标在后，与 scikit-learn 的顺序相反。评分越高必须表示事件概率越高，因此评分卡分数须取负后再传入。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bin_edges</span></code> 、 <code class="docutils literal notranslate"><span class="pre">chimerge_edges</span></code> 、 <code class="docutils literal notranslate"><span class="pre">tree_edges</span></code> 、 <code class="docutils literal notranslate"><span class="pre">monotonic_edges</span></code> 和 <code class="docutils literal notranslate"><span class="pre">woe_table</span></code> 新增 <code class="docutils literal notranslate"><span class="pre">weights</span></code> 参数， <code class="docutils literal notranslate"><span class="pre">psi_table</span></code> 新增 <code class="docutils literal notranslate"><span class="pre">reference_weights</span></code> 和 <code class="docutils literal notranslate"><span class="pre">current_weights</span></code> 参数。计数变为权重之和，等频边界变为逆累积分布意义下的加权分位数，权重为零的观测或分组会被排除。</p></li>
+<li><p>新模块 <code class="docutils literal notranslate"><span class="pre">kivi.scorecard</span></code> 把基于 WOE 的逻辑回归转换为评分卡分值。 <code class="docutils literal notranslate"><span class="pre">score_scaling</span></code> 、 <code class="docutils literal notranslate"><span class="pre">pd_to_score</span></code> 和 <code class="docutils literal notranslate"><span class="pre">score_to_pd</span></code> 依据 PDO（几率翻倍所需分数）、基准分数和基准几率，在概率与分数之间相互转换。 <code class="docutils literal notranslate"><span class="pre">points_table</span></code> 给出每个分组的分值， <code class="docutils literal notranslate"><span class="pre">woe_to_points</span></code> 给出每个申请人的分值， <code class="docutils literal notranslate"><span class="pre">reason_codes</span></code> 列出让申请人失分最多的变量。</p></li>
+<li><p>新增 <code class="docutils literal notranslate"><span class="pre">kivi.selection</span></code> 模块，用于从 WOE 编码的候选变量中筛选评分卡变量。 <code class="docutils literal notranslate"><span class="pre">correlation_filter</span></code> 对每一对强相关的变量剔除其中一个，保留优先级（例如 IV）较高的那个。 <code class="docutils literal notranslate"><span class="pre">vif</span></code> 计算方差膨胀因子。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">logistic_regression</span></code> 用 NumPy 拟合逻辑回归，并报告每个系数及其标准误、Wald z 统计量和 p 值。当变量把两类完全分开、以致估计值不存在时，它会抛出 <code class="docutils literal notranslate"><span class="pre">SeparationError</span></code> 。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">stepwise</span></code> 按 p 值进行向前、向后或双向的变量筛选。默认情况下，它使每个系数都为正，这正是 kivi 的 WOE 所预期的。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">woe_transform</span></code> 用 <code class="docutils literal notranslate"><span class="pre">woe_table</span></code> 结果中的 WOE 替换每个分组，这正是评分卡模型使用的编码。不在表中的分组会引发错误，除非用 <code class="docutils literal notranslate"><span class="pre">unseen</span></code> 指定其 WOE。</p></li>
+</ul>
+</section>
+<section id="id48">
+<h3>变更<a class="headerlink" href="#id48" title="链接到此标题。">#</a></h3>
+<ul class="simple">
+<li><p>API 参考改为每个模块一页。原来指向单页中某个函数的链接，现在改为指向该函数所在模块的页面。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bin_edges</span></code> 的 <code class="docutils literal notranslate"><span class="pre">method</span></code> 参数改为仅限关键字。按位置传入会发出 <code class="docutils literal notranslate"><span class="pre">FutureWarning</span></code> ，并将在 0.6.0 中失效。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.evaluate</span></code> 已弃用，请改用 <code class="docutils literal notranslate"><span class="pre">kivi.stability</span></code> 。从中导入 <code class="docutils literal notranslate"><span class="pre">psi_table</span></code> 会发出 <code class="docutils literal notranslate"><span class="pre">FutureWarning</span></code> ，该模块将在 0.6.0 中移除。</p></li>
+<li><p>风控建模流程现在完整串联：变量筛选、逻辑回归拟合、评分卡分值、模型评估、校准以及分数稳定性。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">woe_table</span></code> 为每组新增 <code class="docutils literal notranslate"><span class="pre">total</span></code> 、 <code class="docutils literal notranslate"><span class="pre">total_share</span></code> 和 <code class="docutils literal notranslate"><span class="pre">event_rate</span></code> 三列，即分箱报表中常用的列。它们使用实际观测到的计数；只有 <code class="docutils literal notranslate"><span class="pre">non_event_share</span></code> 和 <code class="docutils literal notranslate"><span class="pre">event_share</span></code> 经过平滑。</p></li>
+</ul>
+</section>
+<section id="id49">
+<h3>修复<a class="headerlink" href="#id49" title="链接到此标题。">#</a></h3>
+<ul class="simple">
+<li><p>分组来自带无穷端点的 <code class="docutils literal notranslate"><span class="pre">pandas.cut</span></code> 时， <code class="docutils literal notranslate"><span class="pre">woe_table</span></code> 和 <code class="docutils literal notranslate"><span class="pre">psi_table</span></code> 在 NumPy 2.2 以下的版本上不再引发 pandas 的 <code class="docutils literal notranslate"><span class="pre">RuntimeWarning:</span> <span class="pre">invalid</span> <span class="pre">value</span> <span class="pre">encountered</span> <span class="pre">in</span> <span class="pre">cast</span></code> 。</p></li>
+<li><p>在 pandas 2.0 上，可空整数或浮点数与 <code class="docutils literal notranslate"><span class="pre">special</span></code> 一起使用时， <code class="docutils literal notranslate"><span class="pre">cut</span></code> 和监督分箱函数不再报错。</p></li>
+</ul>
+</section>
+</section>
+<section id="id50">
+<h2>0.4.0（2026-11-19）<a class="headerlink" href="#id50" title="链接到此标题。">#</a></h2>
+<section id="id51">
+<h3>新增<a class="headerlink" href="#id51" title="链接到此标题。">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">bin_edges</span></code> 新增 <code class="docutils literal notranslate"><span class="pre">special</span></code> 参数。 <code class="docutils literal notranslate"><span class="pre">-1</span></code> 、 <code class="docutils literal notranslate"><span class="pre">-999</span></code> 等编码在拟合边界时会被排除。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kivi.binning.cut</span></code> 把取值分配到拟合好的各箱，并让每个特殊值单独成组。不传特殊值时，结果与 <code class="docutils literal notranslate"><span class="pre">pandas.cut</span></code> 相同。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">chimerge_edges</span></code>、<code class="docutils literal notranslate"><span class="pre">tree_edges</span></code> 和 <code class="docutils literal notranslate"><span class="pre">monotonic_edges</span></code> 依据二分类目标拟合边界：分别是对等频细分箱做 ChiMerge 合并、按熵或基尼指数做决策树切分（可设定最小箱占比），以及合并到 WOE 单调为止。它们接受与 <code class="docutils literal notranslate"><span class="pre">woe_table</span></code> 相同的类数组输入，与 <code class="docutils literal notranslate"><span class="pre">bin_edges</span></code> 一样返回两端为无穷的边界，只依赖 NumPy 和 pandas。</p></li>
+<li><p>分箱指南在银行数据上对比了这三种方法，并为每种方法配有图表。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">chimerge_edges</span></code>、<code class="docutils literal notranslate"><span class="pre">tree_edges</span></code> 和 <code class="docutils literal notranslate"><span class="pre">monotonic_edges</span></code> 与 <code class="docutils literal notranslate"><span class="pre">bin_edges</span></code> 一样接受 <code class="docutils literal notranslate"><span class="pre">special</span></code> 参数。这些编码连同其标签不参与拟合；再把相同的编码传给 <code class="docutils literal notranslate"><span class="pre">kivi.binning.cut</span></code> ，即可让每个编码单独成组。</p></li>
+</ul>
+</section>
+<section id="id52">
+<h3>变更<a class="headerlink" href="#id52" title="链接到此标题。">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">bin_edges</span></code> 、 <code class="docutils literal notranslate"><span class="pre">woe_table</span></code> 和 <code class="docutils literal notranslate"><span class="pre">psi_table</span></code> 接受任意一维类数组输入，例如列表或 NumPy 数组。传给 <code class="docutils literal notranslate"><span class="pre">woe_table</span></code> 的分组与标签序列仍须共享同一索引；数组和列表按位置对应。</p></li>
+<li><p>边界重合导致实际箱数少于期望箱数时， <code class="docutils literal notranslate"><span class="pre">bin_edges</span></code> 会发出 <code class="docutils literal notranslate"><span class="pre">UserWarning</span></code> 。提示信息会写出出现次数最多的取值，便于将其传给 <code class="docutils literal notranslate"><span class="pre">special</span></code> 。</p></li>
+<li><p>错误信息会写明参数名以及收到的值。</p></li>
+<li><p>从未安装的源码目录导入 kivi 时， <code class="docutils literal notranslate"><span class="pre">kivi.__version__</span></code> 为 <code class="docutils literal notranslate"><span class="pre">&quot;0+unknown&quot;</span></code> ，不再抛出错误。</p></li>
+<li><p>分组计数改用 <code class="docutils literal notranslate"><span class="pre">numpy.bincount</span></code> ，在大样本上更快。</p></li>
+<li><p>API 参考补充了异常、警告、公式和相关函数的说明。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">woe_table</span></code> 和 <code class="docutils literal notranslate"><span class="pre">psi_table</span></code> 对分类型分组（包括 <code class="docutils literal notranslate"><span class="pre">pandas.cut</span></code> 的结果）按类别顺序排列，缺失值排在最后。其他标签仍按首次出现的次序排列。此前所有分组都按首次出现的次序排列，需要用 <code class="docutils literal notranslate"><span class="pre">sort_index</span></code> 才能让区间有序。</p></li>
+</ul>
+</section>
+</section>
+<section id="id53">
+<h2>0.3.0（2026-11-19）<a class="headerlink" href="#id53" title="链接到此标题。">#</a></h2>
+<p>围绕精简的 pandas 核心重写。升级为 0.2.x 编写的代码前，请先阅读 <a class="reference internal" href="migration.html"><span class="doc">迁移指南</span></a>。</p>
+<section id="id54">
+<h3>新增<a class="headerlink" href="#id54" title="链接到此标题。">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">bin_edges</span></code> 在基准样本上拟合等频或等距边界。最外侧边界为无穷，因此结果可以传给 <code class="docutils literal notranslate"><span class="pre">pandas.cut</span></code>，用于之后的任意样本。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">woe_table</span></code> 和 <code class="docutils literal notranslate"><span class="pre">psi_table</span></code> 返回每组的原始计数、平滑后的占比和单组贡献，缺失值也单独成组。</p></li>
+<li><p>提供英文和简体中文文档。</p></li>
+</ul>
+</section>
+<section id="id55">
+<h3>变更<a class="headerlink" href="#id55" title="链接到此标题。">#</a></h3>
+<ul class="simple">
+<li><p>NumPy 和 pandas 成为必需依赖。0.2.8 的 wheel 曾将它们放在 <code class="docutils literal notranslate"><span class="pre">all</span></code> 可选依赖中。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">psi</span></code> 列给出每箱的贡献，此前该列逐行重复总值。</p></li>
+<li><p>先替换零计数，再分别对各分布归一化；结果中的计数不再被修改。</p></li>
+</ul>
+</section>
+<section id="id56">
+<h3>移除<a class="headerlink" href="#id56" title="链接到此标题。">#</a></h3>
+<ul class="simple">
+<li><p>Spark、SQL、AHP、特征选择、模型封装、加权与监督分箱以及评分卡。这些代码仍保留在仓库历史中。</p></li>
+</ul>
+<div class="toctree-wrapper compound">
+</div>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../api/datasets.html"
+       title="上一页">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">上一页</p>
+        <p class="prev-next-title">示例数据</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="migration.html"
+       title="下一页">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">下一页</p>
+        <p class="prev-next-title">迁移指南</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 当前页面
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#unreleased">未发布</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#new">新增</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#changed">变更</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fixed">修复</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">1.9.0（2026-11-26）</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">变更</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">1.8.0（2026-11-25）</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">新增</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">变更</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">1.7.0（2026-11-25）</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">新增</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id8">变更</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id9">1.6.0（2026-11-25）</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id10">新增</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id11">变更</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id12">1.5.0（2026-11-24）</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id13">新增</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id14">变更</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id15">1.4.0（2026-11-24）</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id16">新增</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id17">变更</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id18">1.3.0（2026-11-23）</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id19">新增</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id20">变更</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id21">1.2.0（2026-11-22）</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id22">新增</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id23">变更</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id24">1.1.0（2026-11-22）</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id25">新增</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id26">变更</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id27">1.0.0（2026-11-22）</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id28">变更</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#removed">移除</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id29">0.9.0（2026-11-22）</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id30">新增</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id31">变更</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id32">修复</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id33">0.8.0（2026-11-21）</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id34">新增</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id35">变更</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id36">修复</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id37">0.7.0（2026-11-20）</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id38">新增</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id39">变更</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id40">修复</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id41">0.6.0（2026-11-20）</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id42">新增</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id43">变更</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id44">修复</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id45">移除</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id46">0.5.0（2026-11-20）</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id47">新增</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id48">变更</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id49">修复</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id50">0.4.0（2026-11-19）</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id51">新增</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id52">变更</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id53">0.3.0（2026-11-19）</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id54">新增</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id55">变更</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id56">移除</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    由 <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1创建。
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

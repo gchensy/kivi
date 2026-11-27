@@ -1,0 +1,1413 @@
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Time-window features &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=d005c095" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=25d9e9fd"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/features';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Univariate profile" href="univariate.html" />
+    <link rel="prev" title="Glossary" href="glossary.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="1.9.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 1.9.0">1.9.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    Tutorial
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/api/features.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    Tutorial
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    Release notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="zh-CN"
+   hreflang="zh-CN"
+   href="../../zh/api/features.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>中文</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="conventions.html">Conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compatibility.html">Compatibility</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">Time-window features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="univariate.html">Univariate profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="binning.html">Binning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="woe.html">Weight of evidence and information value</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selection.html">Variable selection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reject_inference.html">Reject inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scorecard.html">Scorecard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="expert.html">Expert scorecards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">Model performance</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lgd.html">LGD and EAD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">Credit strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rules.html">Policy rules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spec.html">Binning specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stability.html">Population stability index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">Model monitoring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="capital.html">Regulatory capital</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vintage.html">Vintage and roll-rate analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lifetime.html">Lifetime PD and expected credit loss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html">Charts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">Example data</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../api.html" class="nav-link">API reference</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Time-window features</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="module-kivi.features">
+<span id="time-window-features"></span><h1>Time-window features<a class="headerlink" href="#module-kivi.features" title="Link to this heading">#</a></h1>
+<p>Aggregate event data, such as transactions, and monthly repayment statuses over windows that end at an observation time, using only what is known then. <a class="reference internal" href="#kivi.features.window_features" title="kivi.features.window_features"><code class="xref py py-func docutils literal notranslate"><span class="pre">window_features()</span></code></a> computes the number of events, sums, means, extremes and other aggregations of each window, <a class="reference internal" href="#kivi.features.panel_features" title="kivi.features.panel_features"><code class="xref py py-func docutils literal notranslate"><span class="pre">panel_features()</span></code></a> the bad months, the longest runs of bad and good months and the worst status of a monthly panel, and <a class="reference internal" href="#kivi.features.FeatureSpec" title="kivi.features.FeatureSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">FeatureSpec</span></code></a> keeps the definitions of both, computes them again on any sample and saves them as versioned JSON.</p>
+<p>See <a class="reference internal" href="../user_guide/features.html"><span class="doc">Time-window features</span></a> for examples and the rules of the windows.</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.features.window_features" title="kivi.features.window_features"><code class="xref py py-obj docutils literal notranslate"><span class="pre">window_features</span></code></a>(events, observations, *, id, ...)</p></td>
+<td><p>Aggregate the events of each entity over windows before an observation time.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.features.panel_features" title="kivi.features.panel_features"><code class="xref py py-obj docutils literal notranslate"><span class="pre">panel_features</span></code></a>(panel, observations, *, id, ...)</p></td>
+<td><p>Summarize the monthly repayment status of each entity before an observation time.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.features.FeatureSpec" title="kivi.features.FeatureSpec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FeatureSpec</span></code></a>(id, observation_time[, events, ...])</p></td>
+<td><p>Definitions of time-window features, to compute them the same way again.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.features.window_features">
+<span class="sig-prename descclassname"><span class="pre">kivi.features.</span></span><span class="sig-name descname"><span class="pre">window_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">events</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observations</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observation_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">windows</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('3M',</span> <span class="pre">'6M',</span> <span class="pre">'12M')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggregations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ratios</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">closed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'left'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.features.window_features" title="Link to this definition">#</a></dt>
+<dd><p>Aggregate the events of each entity over windows before an observation time.</p>
+<p>For each row of <cite>observations</cite>, an entity and a time <span class="math notranslate nohighlight">\(t\)</span>, every
+window collects the events of that entity in an interval that ends at
+or before <span class="math notranslate nohighlight">\(t\)</span>, such as the last three months <span class="math notranslate nohighlight">\([t - 3M, t)\)</span>,
+and aggregates the values of the chosen columns: their number, sum,
+mean, extremes and so on. Events at or after <span class="math notranslate nohighlight">\(t\)</span> are never used,
+so the features are known at the observation time.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>events</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>One row per event, such as a transaction, in any order, with the
+columns <cite>id</cite> and <cite>time</cite> and the columns to aggregate. Several events
+of an entity may share one time.</p>
+</dd>
+<dt><strong>observations</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>One row per entity and observation time, with the columns <cite>id</cite> and
+<cite>observation_time</cite>, such as the applicants and their application
+dates. An entity may appear in several rows, for example once a
+month to compute its features over time, and two rows may be equal.</p>
+</dd>
+<dt><strong>id</strong><span class="classifier">str</span></dt><dd><p>Column of both tables that names the entity, such as a customer
+number. Values are matched by equality, so <code class="docutils literal notranslate"><span class="pre">1</span></code> and <code class="docutils literal notranslate"><span class="pre">&quot;1&quot;</span></code> are
+different entities.</p>
+</dd>
+<dt><strong>time</strong><span class="classifier">str</span></dt><dd><p>Column of <cite>events</cite> with the time of each event, of a datetime dtype.</p>
+</dd>
+<dt><strong>observation_time</strong><span class="classifier">str</span></dt><dd><p>Column of <cite>observations</cite> with the time of each observation, of a
+datetime dtype, tz-naive or in the time zone of <cite>time</cite>.</p>
+</dd>
+<dt><strong>windows</strong><span class="classifier">sequence, default (“3M”, “6M”, “12M”)</span></dt><dd><p>Windows before the observation time. <code class="docutils literal notranslate"><span class="pre">&quot;3M&quot;</span></code> is the last three
+calendar months and <code class="docutils literal notranslate"><span class="pre">&quot;90D&quot;</span></code> the last 90 days. A pair such as
+<code class="docutils literal notranslate"><span class="pre">(&quot;6M&quot;,</span> <span class="pre">&quot;3M&quot;)</span></code> is the earlier period from six to three months
+before the observation time; its two bounds must have the same unit
+and the first must be further back. A pair is one window only as an
+item of the list, as in <code class="docutils literal notranslate"><span class="pre">windows=[(&quot;6M&quot;,</span> <span class="pre">&quot;3M&quot;)]</span></code>:
+<code class="docutils literal notranslate"><span class="pre">windows=(&quot;6M&quot;,</span> <span class="pre">&quot;3M&quot;)</span></code> is the two windows <code class="docutils literal notranslate"><span class="pre">&quot;6M&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">&quot;3M&quot;</span></code>.</p>
+</dd>
+<dt><strong>aggregations</strong><span class="classifier">dict, optional</span></dt><dd><p>The aggregations of each column of <cite>events</cite>, such as
+<code class="docutils literal notranslate"><span class="pre">{&quot;amount&quot;:</span> <span class="pre">[&quot;count&quot;,</span> <span class="pre">&quot;sum&quot;,</span> <span class="pre">&quot;max&quot;]}</span></code>, among <code class="docutils literal notranslate"><span class="pre">&quot;count&quot;</span></code>,
+<code class="docutils literal notranslate"><span class="pre">&quot;sum&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;mean&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;min&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;max&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;std&quot;</span></code>,
+<code class="docutils literal notranslate"><span class="pre">&quot;nunique&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;first&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;last&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">&quot;days_since_last&quot;</span></code>;
+see the Notes. By default, only the number of events of each window
+is computed.</p>
+</dd>
+<dt><strong>ratios</strong><span class="classifier">sequence of pairs of str, optional</span></dt><dd><p>Ratios of two features, each a pair of column names of the result
+such as <code class="docutils literal notranslate"><span class="pre">(&quot;amount_sum_3m&quot;,</span> <span class="pre">&quot;amount_sum_12m&quot;)</span></code>. A ratio of a recent
+window to an earlier one, such as <code class="docutils literal notranslate"><span class="pre">(&quot;amount_sum_3m&quot;,</span>
+<span class="pre">&quot;amount_sum_6m_3m&quot;)</span></code>, measures the change from one period to the
+next.</p>
+</dd>
+<dt><strong>closed</strong><span class="classifier">{“left”, “right”}, default “left”</span></dt><dd><p><code class="docutils literal notranslate"><span class="pre">&quot;left&quot;</span></code> takes the windows as <span class="math notranslate nohighlight">\([t - k, t)\)</span>, without the
+events at the observation time. <code class="docutils literal notranslate"><span class="pre">&quot;right&quot;</span></code> takes them as
+<span class="math notranslate nohighlight">\((t - k, t]\)</span>, for events that are known at their own time,
+such as balances at the end of a day; whether they are known at the
+observation time is the caller’s judgment. A pair of windows is
+closed on the same side.</p>
+</dd>
+<dt><strong>prefix</strong><span class="classifier">str, default “”</span></dt><dd><p>Text put in front of every column name, as given, such as
+<code class="docutils literal notranslate"><span class="pre">&quot;cash_&quot;</span></code> for the features of cash withdrawals. Ratios name columns
+with the prefix.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.DataFrame</dt><dd><p>One row per row of <cite>observations</cite>, on its index and in its order.
+For each window in turn, the column <code class="docutils literal notranslate"><span class="pre">{prefix}events_{window}</span></code> and
+then, column by column and aggregation by aggregation, the columns
+<code class="docutils literal notranslate"><span class="pre">{prefix}{column}_{aggregation}_{window}</span></code>, such as
+<code class="docutils literal notranslate"><span class="pre">amount_sum_3m</span></code> or <code class="docutils literal notranslate"><span class="pre">amount_sum_6m_3m</span></code>. The prefix and the column
+names are kept as given, and only kivi’s own parts, the aggregations
+and the windows, are in lower case, so <code class="docutils literal notranslate"><span class="pre">Amount</span></code> and <code class="docutils literal notranslate"><span class="pre">amount</span></code> give
+different columns. The ratios
+follow, named <code class="docutils literal notranslate"><span class="pre">{numerator}_over_{window}</span></code> when the numerator and
+the denominator differ only in their windows, such as
+<code class="docutils literal notranslate"><span class="pre">amount_sum_3m_over_12m</span></code>, and <code class="docutils literal notranslate"><span class="pre">{numerator}_over_{denominator}</span></code>
+otherwise. <code class="docutils literal notranslate"><span class="pre">events</span></code>, <code class="docutils literal notranslate"><span class="pre">count</span></code> and <code class="docutils literal notranslate"><span class="pre">nunique</span></code> are integers and
+all other columns floats.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If <cite>events</cite> or <cite>observations</cite> is not a DataFrame, if <cite>id</cite>, <cite>time</cite> or
+<cite>observation_time</cite> is not the name of a single column of its table,
+if an id or a time is missing, if a time column does not hold
+datetimes, or if the two time columns are not both tz-naive or in
+one time zone. Also if a window, an aggregation, a ratio, <cite>closed</cite>
+or <cite>prefix</cite> is invalid or repeated, if <cite>aggregations</cite> names a column
+that <cite>events</cite> lacks, if a column with an aggregation other than
+<code class="docutils literal notranslate"><span class="pre">count</span></code>, <code class="docutils literal notranslate"><span class="pre">nunique</span></code> and <code class="docutils literal notranslate"><span class="pre">days_since_last</span></code> holds values that are
+not numbers or are infinite, or if two columns of the result would
+have one name.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.features.FeatureSpec" title="kivi.features.FeatureSpec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FeatureSpec</span></code></a></dt><dd><p>Keep the definitions and compute them again.</p>
+</dd>
+<dt><a class="reference internal" href="univariate.html#kivi.univariate.profile_table" title="kivi.univariate.profile_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.univariate.profile_table</span></code></a></dt><dd><p>Screen the features against a target.</p>
+</dd>
+<dt><a class="reference internal" href="datasets.html#kivi.datasets.make_applications" title="kivi.datasets.make_applications"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.datasets.make_applications</span></code></a></dt><dd><p>Applications with dates to observe.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>A window of <span class="math notranslate nohighlight">\(k\)</span> months starts <span class="math notranslate nohighlight">\(k\)</span> calendar months before
+the observation time, as <code class="docutils literal notranslate"><span class="pre">pandas.DateOffset(months=k)</span></code> counts them:
+one month before 31 March is 29 February in a leap year, and the time
+of day is kept. A window of <span class="math notranslate nohighlight">\(k\)</span> days starts <span class="math notranslate nohighlight">\(k\)</span> days before.
+With time zones, the bounds are computed on the local calendar and the
+events compared as instants. A bound that falls into the hour skipped
+when clocks go forward moves to the end of that hour, and one in the
+hour repeated when they go back takes its first occurrence.</p>
+<p>The aggregations leave out the missing values of their column; the
+<code class="docutils literal notranslate"><span class="pre">events</span></code> columns count every event of the window. In a window
+without values, <code class="docutils literal notranslate"><span class="pre">count</span></code>, <code class="docutils literal notranslate"><span class="pre">sum</span></code> and <code class="docutils literal notranslate"><span class="pre">nunique</span></code> are 0 and the other
+aggregations NaN:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">count</span></code>: the number of values;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sum</span></code> and <code class="docutils literal notranslate"><span class="pre">mean</span></code>: their sum and mean;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">min</span></code> and <code class="docutils literal notranslate"><span class="pre">max</span></code>: the smallest and the largest value;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">std</span></code>: the sample standard deviation, as <code class="docutils literal notranslate"><span class="pre">pandas.Series.std</span></code>
+gives it;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nunique</span></code>: the number of distinct values;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">first</span></code> and <code class="docutils literal notranslate"><span class="pre">last</span></code>: the value of the earliest and of the latest
+event;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">days_since_last</span></code>: the days from the latest event to the
+observation time.</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">std</span></code> is NaN for fewer than two values. <code class="docutils literal notranslate"><span class="pre">first</span></code> and <code class="docutils literal notranslate"><span class="pre">last</span></code> take
+events of one time in the order of the rows of <cite>events</cite>.
+<code class="docutils literal notranslate"><span class="pre">days_since_last</span></code> counts fractions of a day, so an event twelve hours
+before the observation is 0.5 days old; for a pair of windows it is
+still measured from the observation time. It is the time that has
+passed, so with a time zone it can differ by the hour that clocks change
+from the local calendar days that windows such as <code class="docutils literal notranslate"><span class="pre">&quot;90D&quot;</span></code> count.
+<code class="docutils literal notranslate"><span class="pre">count</span></code>, <code class="docutils literal notranslate"><span class="pre">nunique</span></code> and
+<code class="docutils literal notranslate"><span class="pre">days_since_last</span></code> take columns of any dtype, such as the type of a
+merchant; the other aggregations need numbers, and booleans count as 0
+and 1. A ratio is NaN where its denominator is 0 or NaN.</p>
+<p>Entities of <cite>observations</cite> without events get the values of empty
+windows, and events of entities that <cite>observations</cite> lacks are ignored.
+The events are sorted once, and the bounds of every window are found by
+binary search. Counts, sums, means, first and last values and
+<code class="docutils literal notranslate"><span class="pre">days_since_last</span></code> then take a time that grows with the number of rows
+of the two tables, and a sum adds only values inside its window, so a
+large earlier value does not round away the small ones in it.
+<code class="docutils literal notranslate"><span class="pre">min</span></code>, <code class="docutils literal notranslate"><span class="pre">max</span></code>, <code class="docutils literal notranslate"><span class="pre">std</span></code> and <code class="docutils literal notranslate"><span class="pre">nunique</span></code> visit each event once for every
+window that contains it, so their time grows with the events of all
+windows together; they are expanded a bounded number at a time, so
+memory does not.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.features</span><span class="w"> </span><span class="kn">import</span> <span class="n">window_features</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">events</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s2">"customer"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s2">"time"</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">([</span><span class="s2">"2024-01-15"</span><span class="p">,</span> <span class="s2">"2024-03-02"</span><span class="p">,</span> <span class="s2">"2024-03-31"</span><span class="p">,</span> <span class="s2">"2024-02-10"</span><span class="p">]),</span>
+<span class="gp">... </span>    <span class="s2">"amount"</span><span class="p">:</span> <span class="p">[</span><span class="mf">100.0</span><span class="p">,</span> <span class="mf">40.0</span><span class="p">,</span> <span class="mf">60.0</span><span class="p">,</span> <span class="mf">80.0</span><span class="p">],</span>
+<span class="gp">... </span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">observations</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s2">"customer"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s2">"date"</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">([</span><span class="s2">"2024-03-31"</span><span class="p">,</span> <span class="s2">"2024-03-31"</span><span class="p">,</span> <span class="s2">"2024-03-31"</span><span class="p">]),</span>
+<span class="gp">... </span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">window_features</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">events</span><span class="p">,</span> <span class="n">observations</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">"customer"</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="s2">"time"</span><span class="p">,</span> <span class="n">observation_time</span><span class="o">=</span><span class="s2">"date"</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">windows</span><span class="o">=</span><span class="p">[</span><span class="s2">"1M"</span><span class="p">,</span> <span class="s2">"3M"</span><span class="p">],</span> <span class="n">aggregations</span><span class="o">=</span><span class="p">{</span><span class="s2">"amount"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"sum"</span><span class="p">]},</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="go">   events_1m  amount_sum_1m  events_3m  amount_sum_3m</span>
+<span class="go">0          1           40.0          2          140.0</span>
+<span class="go">1          0            0.0          1           80.0</span>
+<span class="go">2          0            0.0          0            0.0</span>
+</pre></div>
+</div>
+<p>The event of 31 March is on the observation date, so no window uses
+it, and the month before 31 March starts on 29 February.</p>
+<p>A pair of bounds is one window only as an item of the list of windows;
+on its own, it is two windows:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pair</span> <span class="o">=</span> <span class="n">window_features</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">events</span><span class="p">,</span> <span class="n">observations</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">"customer"</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="s2">"time"</span><span class="p">,</span> <span class="n">observation_time</span><span class="o">=</span><span class="s2">"date"</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">windows</span><span class="o">=</span><span class="p">[(</span><span class="s2">"3M"</span><span class="p">,</span> <span class="s2">"1M"</span><span class="p">)],</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pair</span>
+<span class="go">   events_3m_1m</span>
+<span class="go">0             1</span>
+<span class="go">1             1</span>
+<span class="go">2             0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">two</span> <span class="o">=</span> <span class="n">window_features</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">events</span><span class="p">,</span> <span class="n">observations</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">"customer"</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="s2">"time"</span><span class="p">,</span> <span class="n">observation_time</span><span class="o">=</span><span class="s2">"date"</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">windows</span><span class="o">=</span><span class="p">(</span><span class="s2">"3M"</span><span class="p">,</span> <span class="s2">"1M"</span><span class="p">),</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">two</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+<span class="go">['events_3m', 'events_1m']</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.features.panel_features">
+<span class="sig-prename descclassname"><span class="pre">kivi.features.</span></span><span class="sig-name descname"><span class="pre">panel_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">panel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observations</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">month</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observation_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">windows</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('6M',</span> <span class="pre">'12M')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'30-59'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.features.panel_features" title="Link to this definition">#</a></dt>
+<dd><p>Summarize the monthly repayment status of each entity before an observation time.</p>
+<p>For each row of <cite>observations</cite>, an entity and a time <span class="math notranslate nohighlight">\(t\)</span>, every
+window collects the month-end statuses of that entity in the months
+before the month of <span class="math notranslate nohighlight">\(t\)</span>, such as the last six months, and
+counts how many were bad, the longest runs of bad and of good months
+and the worst status. A status is bad from <cite>bad</cite> on, in the order of
+the categories. The status at the end of the month of <span class="math notranslate nohighlight">\(t\)</span> is not
+known at <span class="math notranslate nohighlight">\(t\)</span>, so that month and the later ones are never used.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>panel</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>One row per loan and month, with the columns <cite>id</cite>, <cite>month</cite> and
+<cite>status</cite>, such as the result of <cite>kivi.vintage.delinquency_panel</cite> or
+<cite>kivi.datasets.make_loan_panel</cite>, in any order. An entity with
+several loans has several rows in a month, and its status in that
+month is the worst of them.</p>
+</dd>
+<dt><strong>observations</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>One row per entity and observation time, with the columns <cite>id</cite> and
+<cite>observation_time</cite>, as in <cite>window_features</cite>.</p>
+</dd>
+<dt><strong>id</strong><span class="classifier">str</span></dt><dd><p>Column of both tables that names the entity, such as a customer or
+a loan. Values are matched by equality.</p>
+</dd>
+<dt><strong>month</strong><span class="classifier">str</span></dt><dd><p>Column of <cite>panel</cite> with the month of each status: monthly periods,
+or datetimes, which stand for their month on their own calendar.
+Tz-aware datetimes must be in the time zone of <cite>observation_time</cite>
+if that has one too.</p>
+</dd>
+<dt><strong>status</strong><span class="classifier">str</span></dt><dd><p>Column of <cite>panel</cite> with the status at the end of each month, an
+ordered categorical from the best status to the worst, such as the
+<code class="docutils literal notranslate"><span class="pre">status</span></code> of <cite>kivi.vintage.delinquency_panel</cite>.</p>
+</dd>
+<dt><strong>observation_time</strong><span class="classifier">str</span></dt><dd><p>Column of <cite>observations</cite> with the time of each observation, of a
+datetime dtype. Its month is taken on its own calendar, also with a
+time zone.</p>
+</dd>
+<dt><strong>windows</strong><span class="classifier">sequence, default (“6M”, “12M”)</span></dt><dd><p>Windows of months before the month of the observation time:
+<code class="docutils literal notranslate"><span class="pre">&quot;6M&quot;</span></code> is the six months before it. A pair such as
+<code class="docutils literal notranslate"><span class="pre">(&quot;12M&quot;,</span> <span class="pre">&quot;6M&quot;)</span></code> is the earlier period from twelve to six months
+before it, and is one window only as an item of the list, as in
+<code class="docutils literal notranslate"><span class="pre">windows=[(&quot;12M&quot;,</span> <span class="pre">&quot;6M&quot;)]</span></code>. Windows of days are not allowed,
+because the statuses are monthly.</p>
+</dd>
+<dt><strong>bad</strong><span class="classifier">str or int, default “30-59”</span></dt><dd><p>The first bad status, one of the categories of <cite>status</cite>. It and
+every later category are bad, the earlier ones good. The default is
+30 days past due in the buckets of <cite>kivi.vintage.delinquency_panel</cite>.</p>
+</dd>
+<dt><strong>prefix</strong><span class="classifier">str, default “”</span></dt><dd><p>Text put in front of every column name, as given, such as
+<code class="docutils literal notranslate"><span class="pre">&quot;card_&quot;</span></code> for the panel of credit cards.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.DataFrame</dt><dd><p>One row per row of <cite>observations</cite>, on its index and in its order.
+For each window in turn, the columns <code class="docutils literal notranslate"><span class="pre">{prefix}months_{window}</span></code>,
+the number of months of the window with a status,
+<code class="docutils literal notranslate"><span class="pre">{prefix}bad_months_{window}</span></code>, the number of bad months,
+<code class="docutils literal notranslate"><span class="pre">{prefix}longest_bad_run_{window}</span></code> and
+<code class="docutils literal notranslate"><span class="pre">{prefix}longest_good_run_{window}</span></code>, the longest runs of
+consecutive bad and good months, and <code class="docutils literal notranslate"><span class="pre">{prefix}worst_status_{window}</span></code>,
+the worst status. Then <code class="docutils literal notranslate"><span class="pre">{prefix}months_since_bad</span></code>, the months from
+the latest bad month before the month of the observation time to
+that month, whatever the windows. The counts are integers, the worst
+status has the dtype of <cite>status</cite> and is missing for a window without
+months, and <code class="docutils literal notranslate"><span class="pre">months_since_bad</span></code> is a float, NaN for an entity that
+was never bad before. The prefix is kept as given, and the windows
+are in lower case, as in <cite>window_features</cite>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If <cite>panel</cite> or <cite>observations</cite> is not a DataFrame, if <cite>id</cite>, <cite>month</cite>,
+<cite>status</cite> or <cite>observation_time</cite> is not the name of a single column of
+its table, if an id, a month or a status is missing, if <cite>month</cite> does
+not hold monthly periods or datetimes, if <cite>status</cite> is not an ordered
+categorical or <cite>bad</cite> not one of its categories, if
+<cite>observation_time</cite> does not hold datetimes, or if the months and the
+observation times are tz-aware in two different time zones. Also if
+a window is not a number of months or is repeated, or if <cite>prefix</cite> is
+not a string.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.features.window_features" title="kivi.features.window_features"><code class="xref py py-obj docutils literal notranslate"><span class="pre">window_features</span></code></a></dt><dd><p>The features of event data.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.features.FeatureSpec" title="kivi.features.FeatureSpec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FeatureSpec</span></code></a></dt><dd><p>Keep the definitions and compute them again.</p>
+</dd>
+<dt><a class="reference internal" href="vintage.html#kivi.vintage.delinquency_panel" title="kivi.vintage.delinquency_panel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.vintage.delinquency_panel</span></code></a></dt><dd><p>The monthly panel of instalment loans.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>The month of an observation time is its calendar month, so an
+observation on 31 March uses the statuses up to the end of February.
+Months and observation times are each taken on their own calendar,
+which is why two time zones raise an error: 1 April in Tokyo is still
+31 March in New York, before the status at the end of March in New
+York exists.
+A window of <span class="math notranslate nohighlight">\(k\)</span> months holds the <span class="math notranslate nohighlight">\(k\)</span> months before it, so
+<code class="docutils literal notranslate"><span class="pre">&quot;6M&quot;</span></code> for an observation in March holds September to February.</p>
+<p>Only months with a status count: a window that holds months before the
+first month of an entity, after its last loan ended or in a gap between
+its loans has fewer than <span class="math notranslate nohighlight">\(k\)</span> months, which <code class="docutils literal notranslate"><span class="pre">months_{window}</span></code>
+shows. A month without a status ends a run, so a bad month, a missing
+month and a bad month are two runs of one. A run that started before a
+window counts only with its months inside the window.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.features</span><span class="w"> </span><span class="kn">import</span> <span class="n">panel_features</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">buckets</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"current"</span><span class="p">,</span> <span class="s2">"1-29"</span><span class="p">,</span> <span class="s2">"30-59"</span><span class="p">,</span> <span class="s2">"60-89"</span><span class="p">,</span> <span class="s2">"90+"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">panel</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s2">"customer"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"a"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">6</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"b"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s2">"month"</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">PeriodIndex</span><span class="p">(</span>
+<span class="gp">... </span>        <span class="p">[</span><span class="s2">"2023-10"</span><span class="p">,</span> <span class="s2">"2023-11"</span><span class="p">,</span> <span class="s2">"2023-12"</span><span class="p">,</span> <span class="s2">"2024-01"</span><span class="p">,</span> <span class="s2">"2024-02"</span><span class="p">,</span> <span class="s2">"2024-03"</span><span class="p">,</span>
+<span class="gp">... </span>         <span class="s2">"2024-02"</span><span class="p">,</span> <span class="s2">"2024-03"</span><span class="p">],</span> <span class="n">freq</span><span class="o">=</span><span class="s2">"M"</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="p">),</span>
+<span class="gp">... </span>    <span class="s2">"status"</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Categorical</span><span class="p">(</span>
+<span class="gp">... </span>        <span class="p">[</span><span class="s2">"current"</span><span class="p">,</span> <span class="s2">"1-29"</span><span class="p">,</span> <span class="s2">"30-59"</span><span class="p">,</span> <span class="s2">"60-89"</span><span class="p">,</span> <span class="s2">"current"</span><span class="p">,</span> <span class="s2">"current"</span><span class="p">,</span>
+<span class="gp">... </span>         <span class="s2">"current"</span><span class="p">,</span> <span class="s2">"30-59"</span><span class="p">],</span> <span class="n">categories</span><span class="o">=</span><span class="n">buckets</span><span class="p">,</span> <span class="n">ordered</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="p">),</span>
+<span class="gp">... </span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">observations</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s2">"customer"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"a"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"c"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s2">"date"</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">([</span><span class="s2">"2024-03-15"</span><span class="p">,</span> <span class="s2">"2024-03-15"</span><span class="p">,</span> <span class="s2">"2024-03-15"</span><span class="p">]),</span>
+<span class="gp">... </span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">panel_features</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">panel</span><span class="p">,</span> <span class="n">observations</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">"customer"</span><span class="p">,</span> <span class="n">month</span><span class="o">=</span><span class="s2">"month"</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="s2">"status"</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">observation_time</span><span class="o">=</span><span class="s2">"date"</span><span class="p">,</span> <span class="n">windows</span><span class="o">=</span><span class="p">[</span><span class="s2">"3M"</span><span class="p">],</span>
+<span class="gp">... </span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+<span class="go">                         0        1    2</span>
+<span class="go">months_3m                3        1    0</span>
+<span class="go">bad_months_3m            2        0    0</span>
+<span class="go">longest_bad_run_3m       2        0    0</span>
+<span class="go">longest_good_run_3m      1        1    0</span>
+<span class="go">worst_status_3m      60-89  current  NaN</span>
+<span class="go">months_since_bad       2.0      NaN  NaN</span>
+</pre></div>
+</div>
+<p>The three months before March are December to February. Customer <code class="docutils literal notranslate"><span class="pre">b</span></code>
+falls 30 days behind in March, the month of the observation, which is
+not used.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="kivi.features.FeatureSpec">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">kivi.features.</span></span><span class="sig-name descname"><span class="pre">FeatureSpec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observation_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">events</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ratios</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">panel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kivi_version</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.features.FeatureSpec" title="Link to this definition">#</a></dt>
+<dd><p>Definitions of time-window features, to compute them the same way again.</p>
+<p>A specification records the columns that identify the entities and the
+observation times, and groups of window features and of panel
+features. A group of window features holds the arguments of one call of
+<cite>window_features</cite>: the event table it reads, its time column, its
+windows, its aggregations, the side on which its windows are closed and
+the prefix of its column names. Groups that read filtered events, such
+as only the cash withdrawals, use their own table and prefix. A group
+of panel features holds the arguments of one call of <cite>panel_features</cite>
+in the same way. <cite>compute</cite> gives the features of any sample, and
+<cite>to_json</cite> and <cite>from_json</cite> save and load the definitions. Nothing is
+fitted to data, so a specification can be written by hand.</p>
+<p>A specification is immutable: its groups are read-only mappings with
+tuples for lists. To change a field, use <cite>dataclasses.replace</cite>, which
+validates the result again.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>id</strong><span class="classifier">str</span></dt><dd><p>Column of the observations and of every event table that names the
+entity; all groups share it.</p>
+</dd>
+<dt><strong>observation_time</strong><span class="classifier">str</span></dt><dd><p>Column of the observations with the observation times.</p>
+</dd>
+<dt><strong>events</strong><span class="classifier">sequence of dict, default ()</span></dt><dd><p>One dict per group of window features, with the keys <code class="docutils literal notranslate"><span class="pre">time</span></code>
+(required), <code class="docutils literal notranslate"><span class="pre">windows</span></code>, <code class="docutils literal notranslate"><span class="pre">aggregations</span></code>, <code class="docutils literal notranslate"><span class="pre">closed</span></code> and
+<code class="docutils literal notranslate"><span class="pre">prefix</span></code>, which mean and default to what the arguments of
+<cite>window_features</cite> do, and <code class="docutils literal notranslate"><span class="pre">table</span></code>, the name of the event table
+that the group reads, <code class="docutils literal notranslate"><span class="pre">&quot;events&quot;</span></code> by default.</p>
+</dd>
+<dt><strong>ratios</strong><span class="classifier">sequence of pairs of str, default ()</span></dt><dd><p>Ratios of two features of any groups, named by their columns, as in
+<cite>window_features</cite>.</p>
+</dd>
+<dt><strong>panel</strong><span class="classifier">sequence of dict, default ()</span></dt><dd><p>One dict per group of panel features, with the keys <code class="docutils literal notranslate"><span class="pre">month</span></code> and
+<code class="docutils literal notranslate"><span class="pre">status</span></code> (both required), <code class="docutils literal notranslate"><span class="pre">windows</span></code>, <code class="docutils literal notranslate"><span class="pre">bad</span></code> and <code class="docutils literal notranslate"><span class="pre">prefix</span></code>,
+which mean and default to what the arguments of <cite>panel_features</cite>
+do, and <code class="docutils literal notranslate"><span class="pre">table</span></code>, the name of the panel that the group reads,
+<code class="docutils literal notranslate"><span class="pre">&quot;panel&quot;</span></code> by default. The specification needs at least one
+group of either kind.</p>
+</dd>
+<dt><strong>kivi_version</strong><span class="classifier">str, optional</span></dt><dd><p>Version of kivi that wrote the specification. By default, or if
+None, the installed version.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Attributes<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>FORMAT_VERSION</strong><span class="classifier">int</span></dt><dd><p>Version of the JSON format that <cite>to_json</cite> writes and the newest
+that <cite>from_json</cite> reads.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If <cite>id</cite> or <cite>observation_time</cite> is not a string, if <cite>events</cite> or
+<cite>panel</cite> is not a list of dicts with valid entries or both are empty,
+if two features of the groups have one name, if a ratio is invalid
+or divides a status, or if <cite>kivi_version</cite> is not a string. The
+checks of each entry are those of the arguments of
+<cite>window_features</cite> and <cite>panel_features</cite>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.features.window_features" title="kivi.features.window_features"><code class="xref py py-obj docutils literal notranslate"><span class="pre">window_features</span></code></a></dt><dd><p>Compute the features of one group of events directly.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.features.panel_features" title="kivi.features.panel_features"><code class="xref py py-obj docutils literal notranslate"><span class="pre">panel_features</span></code></a></dt><dd><p>Compute the features of one group of a panel directly.</p>
+</dd>
+<dt><a class="reference internal" href="spec.html#kivi.spec.BinningSpec" title="kivi.spec.BinningSpec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.spec.BinningSpec</span></code></a></dt><dd><p>The binning of the features, saved the same way.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>Two specifications are equal when <cite>to_json</cite> gives the same text for
+both, which includes <cite>kivi_version</cite>.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.features</span><span class="w"> </span><span class="kn">import</span> <span class="n">FeatureSpec</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spec</span> <span class="o">=</span> <span class="n">FeatureSpec</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="nb">id</span><span class="o">=</span><span class="s2">"customer"</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">observation_time</span><span class="o">=</span><span class="s2">"date"</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">events</span><span class="o">=</span><span class="p">[{</span><span class="s2">"time"</span><span class="p">:</span> <span class="s2">"time"</span><span class="p">,</span> <span class="s2">"windows"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"1M"</span><span class="p">,</span> <span class="s2">"3M"</span><span class="p">],</span> <span class="s2">"aggregations"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"amount"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"sum"</span><span class="p">]}}],</span>
+<span class="gp">... </span>    <span class="n">ratios</span><span class="o">=</span><span class="p">[(</span><span class="s2">"amount_sum_1m"</span><span class="p">,</span> <span class="s2">"amount_sum_3m"</span><span class="p">)],</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spec</span>
+<span class="go">FeatureSpec(columns=['events_1m', 'amount_sum_1m', 'events_3m', 'amount_sum_3m',</span>
+<span class="go">                     'amount_sum_1m_over_3m'])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">events</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s2">"customer"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s2">"time"</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">([</span><span class="s2">"2024-01-15"</span><span class="p">,</span> <span class="s2">"2024-03-02"</span><span class="p">,</span> <span class="s2">"2024-02-10"</span><span class="p">]),</span>
+<span class="gp">... </span>    <span class="s2">"amount"</span><span class="p">:</span> <span class="p">[</span><span class="mf">100.0</span><span class="p">,</span> <span class="mf">40.0</span><span class="p">,</span> <span class="mf">80.0</span><span class="p">],</span>
+<span class="gp">... </span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">observations</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s2">"customer"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s2">"date"</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">([</span><span class="s2">"2024-03-31"</span><span class="p">,</span> <span class="s2">"2024-03-31"</span><span class="p">]),</span>
+<span class="gp">... </span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spec</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="n">observations</span><span class="p">,</span> <span class="n">events</span><span class="o">=</span><span class="n">events</span><span class="p">)</span>
+<span class="go">   events_1m  amount_sum_1m  events_3m  amount_sum_3m  amount_sum_1m_over_3m</span>
+<span class="go">0          1           40.0          2          140.0               0.285714</span>
+<span class="go">1          0            0.0          1           80.0               0.000000</span>
+</pre></div>
+</div>
+<dl class="py property">
+<dt class="sig sig-object py" id="kivi.features.FeatureSpec.columns">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">columns</span></span><a class="headerlink" href="#kivi.features.FeatureSpec.columns" title="Link to this definition">#</a></dt>
+<dd><p>Names of the columns that <cite>compute</cite> returns, in their order.</p>
+<p>The window features of each group come in the order of the groups,
+then the panel features, and the ratios last, so the names can select
+or check the columns of a result before any data is read.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.features.FeatureSpec.compute" title="kivi.features.FeatureSpec.compute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute</span></code></a></dt><dd><p>Compute the columns.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.features</span><span class="w"> </span><span class="kn">import</span> <span class="n">FeatureSpec</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spec</span> <span class="o">=</span> <span class="n">FeatureSpec</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="nb">id</span><span class="o">=</span><span class="s2">"customer"</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">observation_time</span><span class="o">=</span><span class="s2">"date"</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">events</span><span class="o">=</span><span class="p">[</span>
+<span class="gp">... </span>        <span class="p">{</span><span class="s2">"time"</span><span class="p">:</span> <span class="s2">"time"</span><span class="p">,</span> <span class="s2">"windows"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"3M"</span><span class="p">],</span> <span class="s2">"aggregations"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"amount"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"sum"</span><span class="p">]}},</span>
+<span class="gp">... </span>        <span class="p">{</span><span class="s2">"table"</span><span class="p">:</span> <span class="s2">"cash"</span><span class="p">,</span> <span class="s2">"time"</span><span class="p">:</span> <span class="s2">"time"</span><span class="p">,</span> <span class="s2">"windows"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"3M"</span><span class="p">],</span> <span class="s2">"prefix"</span><span class="p">:</span> <span class="s2">"cash_"</span><span class="p">},</span>
+<span class="gp">... </span>    <span class="p">],</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spec</span><span class="o">.</span><span class="n">columns</span>
+<span class="go">Index(['events_3m', 'amount_sum_3m', 'cash_events_3m'], dtype='object')</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kivi.features.FeatureSpec.compute">
+<span class="sig-name descname"><span class="pre">compute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observations</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">events</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">panel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.features.FeatureSpec.compute" title="Link to this definition">#</a></dt>
+<dd><p>Compute the features of every observation.</p>
+<p>Each group of window features gives the columns that
+<cite>window_features</cite> gives for its definitions and its event table,
+without ratios, and each group of panel features the columns that
+<cite>panel_features</cite> gives for its definitions and its panel. The ratios
+of the specification follow.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>observations</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>One row per entity and observation time, with the columns <cite>id</cite>
+and <cite>observation_time</cite> of the specification.</p>
+</dd>
+<dt><strong>events</strong><span class="classifier">pandas.DataFrame or dict of pandas.DataFrame, optional</span></dt><dd><p>The event table, or a dict from the <code class="docutils literal notranslate"><span class="pre">table</span></code> name of every
+group of window features to its event table. A single table is
+allowed when all these groups read the same table. Required when
+the specification has groups of window features, and otherwise
+None.</p>
+</dd>
+<dt><strong>panel</strong><span class="classifier">pandas.DataFrame or dict of pandas.DataFrame, optional</span></dt><dd><p>The monthly panel, or a dict from the <code class="docutils literal notranslate"><span class="pre">table</span></code> name of every
+group of panel features to its panel, in the same way.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.DataFrame</dt><dd><p>The columns of <cite>columns</cite>, one row per row of <cite>observations</cite>, on
+its index and in its order.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If <cite>events</cite> or <cite>panel</cite> is neither a DataFrame nor a dict of
+DataFrames with one entry per table of the groups, or is given
+without groups to read it, or for the reasons that
+<cite>window_features</cite> and <cite>panel_features</cite> give.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.features.window_features" title="kivi.features.window_features"><code class="xref py py-obj docutils literal notranslate"><span class="pre">window_features</span></code></a></dt><dd><p>The features of one group of events.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.features.panel_features" title="kivi.features.panel_features"><code class="xref py py-obj docutils literal notranslate"><span class="pre">panel_features</span></code></a></dt><dd><p>The features of one group of a panel.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.features.FeatureSpec.columns" title="kivi.features.FeatureSpec.columns"><code class="xref py py-obj docutils literal notranslate"><span class="pre">columns</span></code></a></dt><dd><p>The names of the columns.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.features</span><span class="w"> </span><span class="kn">import</span> <span class="n">FeatureSpec</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spec</span> <span class="o">=</span> <span class="n">FeatureSpec</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="nb">id</span><span class="o">=</span><span class="s2">"customer"</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">observation_time</span><span class="o">=</span><span class="s2">"date"</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">events</span><span class="o">=</span><span class="p">[</span>
+<span class="gp">... </span>        <span class="p">{</span><span class="s2">"time"</span><span class="p">:</span> <span class="s2">"time"</span><span class="p">,</span> <span class="s2">"windows"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"3M"</span><span class="p">],</span> <span class="s2">"aggregations"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"amount"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"sum"</span><span class="p">]}},</span>
+<span class="gp">... </span>        <span class="p">{</span><span class="s2">"table"</span><span class="p">:</span> <span class="s2">"cash"</span><span class="p">,</span> <span class="s2">"time"</span><span class="p">:</span> <span class="s2">"time"</span><span class="p">,</span> <span class="s2">"windows"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"3M"</span><span class="p">],</span>
+<span class="gp">... </span>         <span class="s2">"aggregations"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"amount"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"sum"</span><span class="p">]},</span> <span class="s2">"prefix"</span><span class="p">:</span> <span class="s2">"cash_"</span><span class="p">},</span>
+<span class="gp">... </span>    <span class="p">],</span>
+<span class="gp">... </span>    <span class="n">ratios</span><span class="o">=</span><span class="p">[(</span><span class="s2">"cash_amount_sum_3m"</span><span class="p">,</span> <span class="s2">"amount_sum_3m"</span><span class="p">)],</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">events</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s2">"customer"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s2">"time"</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">([</span><span class="s2">"2024-01-15"</span><span class="p">,</span> <span class="s2">"2024-02-03"</span><span class="p">,</span> <span class="s2">"2024-03-02"</span><span class="p">]),</span>
+<span class="gp">... </span>    <span class="s2">"kind"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"purchase"</span><span class="p">,</span> <span class="s2">"cash"</span><span class="p">,</span> <span class="s2">"purchase"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s2">"amount"</span><span class="p">:</span> <span class="p">[</span><span class="mf">100.0</span><span class="p">,</span> <span class="mf">60.0</span><span class="p">,</span> <span class="mf">40.0</span><span class="p">],</span>
+<span class="gp">... </span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">observations</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"customer"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="s2">"date"</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">([</span><span class="s2">"2024-03-31"</span><span class="p">])})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tables</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"events"</span><span class="p">:</span> <span class="n">events</span><span class="p">,</span> <span class="s2">"cash"</span><span class="p">:</span> <span class="n">events</span><span class="p">[</span><span class="n">events</span><span class="p">[</span><span class="s2">"kind"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"cash"</span><span class="p">]}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spec</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="n">observations</span><span class="p">,</span> <span class="n">events</span><span class="o">=</span><span class="n">tables</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+<span class="go">                                        0</span>
+<span class="go">events_3m                             3.0</span>
+<span class="go">amount_sum_3m                       200.0</span>
+<span class="go">cash_events_3m                        1.0</span>
+<span class="go">cash_amount_sum_3m                   60.0</span>
+<span class="go">cash_amount_sum_3m_over_amount_sum_3m 0.3</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kivi.features.FeatureSpec.to_dict">
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#kivi.features.FeatureSpec.to_dict" title="Link to this definition">#</a></dt>
+<dd><p>Return the feature specification as a dict of JSON types.</p>
+<p>The dict holds the arguments of the constructor as the constructor
+takes them, with lists for tuples, so they rebuild the specification.
+It holds only dicts, lists, strings and integers, so <code class="docutils literal notranslate"><span class="pre">json.dumps</span></code> can
+write it without further conversion, and its keys are always in the
+same order. <cite>to_json</cite> writes this dict.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>dict</dt><dd><p>The keys <code class="docutils literal notranslate"><span class="pre">format</span></code>, <code class="docutils literal notranslate"><span class="pre">format_version</span></code> and <code class="docutils literal notranslate"><span class="pre">kivi_version</span></code>,
+then the arguments <code class="docutils literal notranslate"><span class="pre">id</span></code>, <code class="docutils literal notranslate"><span class="pre">observation_time</span></code>, <code class="docutils literal notranslate"><span class="pre">events</span></code>,
+<code class="docutils literal notranslate"><span class="pre">ratios</span></code> and <code class="docutils literal notranslate"><span class="pre">panel</span></code>. Each group of <code class="docutils literal notranslate"><span class="pre">events</span></code> has all its
+keys: <code class="docutils literal notranslate"><span class="pre">table</span></code>, <code class="docutils literal notranslate"><span class="pre">time</span></code>, <code class="docutils literal notranslate"><span class="pre">windows</span></code>, <code class="docutils literal notranslate"><span class="pre">aggregations</span></code>, a dict
+from each column to the list of its aggregations in the order of
+the columns of the result, <code class="docutils literal notranslate"><span class="pre">closed</span></code> and <code class="docutils literal notranslate"><span class="pre">prefix</span></code>. Each group
+of <code class="docutils literal notranslate"><span class="pre">panel</span></code> has the keys <code class="docutils literal notranslate"><span class="pre">table</span></code>, <code class="docutils literal notranslate"><span class="pre">month</span></code>, <code class="docutils literal notranslate"><span class="pre">status</span></code>,
+<code class="docutils literal notranslate"><span class="pre">windows</span></code>, <code class="docutils literal notranslate"><span class="pre">bad</span></code> and <code class="docutils literal notranslate"><span class="pre">prefix</span></code>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.features.FeatureSpec.from_dict" title="kivi.features.FeatureSpec.from_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_dict</span></code></a></dt><dd><p>Rebuild the feature specification.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.features.FeatureSpec.to_json" title="kivi.features.FeatureSpec.to_json"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_json</span></code></a></dt><dd><p>Write the dict as JSON.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.features</span><span class="w"> </span><span class="kn">import</span> <span class="n">FeatureSpec</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spec</span> <span class="o">=</span> <span class="n">FeatureSpec</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="nb">id</span><span class="o">=</span><span class="s2">"customer"</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">observation_time</span><span class="o">=</span><span class="s2">"date"</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">events</span><span class="o">=</span><span class="p">[{</span><span class="s2">"time"</span><span class="p">:</span> <span class="s2">"time"</span><span class="p">,</span> <span class="s2">"windows"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"3M"</span><span class="p">,</span> <span class="p">(</span><span class="s2">"6M"</span><span class="p">,</span> <span class="s2">"3M"</span><span class="p">)]}],</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="go">['format', 'format_version', 'kivi_version', 'id', 'observation_time', 'events', 'ratios',</span>
+<span class="go"> 'panel']</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span><span class="p">[</span><span class="s2">"events"</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+<span class="go">{'table': 'events', 'time': 'time', 'windows': ['3M', ['6M', '3M']], 'aggregations': {},</span>
+<span class="go"> 'closed': 'left', 'prefix': ''}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"id"</span><span class="p">,</span> <span class="s2">"observation_time"</span><span class="p">,</span> <span class="s2">"events"</span><span class="p">,</span> <span class="s2">"ratios"</span><span class="p">,</span> <span class="s2">"panel"</span><span class="p">,</span> <span class="s2">"kivi_version"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">FeatureSpec</span><span class="p">(</span><span class="o">**</span><span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">data</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">arguments</span><span class="p">})</span> <span class="o">==</span> <span class="n">spec</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kivi.features.FeatureSpec.from_dict">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.features.FeatureSpec.from_dict" title="Link to this definition">#</a></dt>
+<dd><p>Rebuild a feature specification from the result of <cite>to_dict</cite>.</p>
+<p>The dict is checked before the specification is built, so that a
+damaged or hand-edited file fails with a message that names the
+problem.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>data</strong><span class="classifier">mapping</span></dt><dd><p>A dict in the format of <cite>to_dict</cite>, for example from
+<code class="docutils literal notranslate"><span class="pre">json.load</span></code>. Every key that <cite>to_dict</cite> writes must be present,
+also in each group.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>FeatureSpec</dt><dd><p>The feature specification, equal to the one that wrote <cite>data</cite>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If <cite>data</cite> is not a kivi feature specification, has a
+<code class="docutils literal notranslate"><span class="pre">format_version</span></code> newer than this version of kivi reads, lacks a
+key or has an unknown one, or holds an invalid value.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.features.FeatureSpec.to_dict" title="kivi.features.FeatureSpec.to_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_dict</span></code></a></dt><dd><p>The dict format.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.features.FeatureSpec.from_json" title="kivi.features.FeatureSpec.from_json"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_json</span></code></a></dt><dd><p>Read the feature specification from JSON text.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.features</span><span class="w"> </span><span class="kn">import</span> <span class="n">FeatureSpec</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spec</span> <span class="o">=</span> <span class="n">FeatureSpec</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">"customer"</span><span class="p">,</span> <span class="n">observation_time</span><span class="o">=</span><span class="s2">"date"</span><span class="p">,</span> <span class="n">events</span><span class="o">=</span><span class="p">[{</span><span class="s2">"time"</span><span class="p">:</span> <span class="s2">"time"</span><span class="p">}])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">FeatureSpec</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">to_dict</span><span class="p">())</span> <span class="o">==</span> <span class="n">spec</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kivi.features.FeatureSpec.to_json">
+<span class="sig-name descname"><span class="pre">to_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">indent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.features.FeatureSpec.to_json" title="Link to this definition">#</a></dt>
+<dd><p>Return the feature specification as JSON text.</p>
+<p>The text is the dict of <cite>to_dict</cite> written by <code class="docutils literal notranslate"><span class="pre">json.dumps</span></code>. The same
+specification always gives the same text, so saved specifications
+can be compared and kept under version control. Non-ASCII names are
+written as they are, so save the text as UTF-8.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>indent</strong><span class="classifier">int, optional</span></dt><dd><p>Indentation of nested values, as in <code class="docutils literal notranslate"><span class="pre">json.dumps</span></code>. By default
+the text is a single line.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>str</dt><dd><p>JSON text that <cite>from_json</cite> reads back into an equal
+feature specification.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.features.FeatureSpec.from_json" title="kivi.features.FeatureSpec.from_json"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_json</span></code></a></dt><dd><p>Read the feature specification back.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.features.FeatureSpec.to_dict" title="kivi.features.FeatureSpec.to_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_dict</span></code></a></dt><dd><p>The same content as a dict.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.features</span><span class="w"> </span><span class="kn">import</span> <span class="n">FeatureSpec</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spec</span> <span class="o">=</span> <span class="n">FeatureSpec</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="nb">id</span><span class="o">=</span><span class="s2">"customer"</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">observation_time</span><span class="o">=</span><span class="s2">"date"</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">events</span><span class="o">=</span><span class="p">[{</span><span class="s2">"time"</span><span class="p">:</span> <span class="s2">"time"</span><span class="p">,</span> <span class="s2">"windows"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"3M"</span><span class="p">],</span> <span class="s2">"aggregations"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"amount"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"sum"</span><span class="p">]}}],</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+<span class="go">{</span>
+<span class="go">  "format": "kivi.FeatureSpec",</span>
+<span class="go">  "format_version": 1,</span>
+<span class="go">  "kivi_version": "...",</span>
+<span class="go">  "id": "customer",</span>
+<span class="go">  "observation_time": "date",</span>
+<span class="go">  "events": [</span>
+<span class="go">    {</span>
+<span class="go">      "table": "events",</span>
+<span class="go">      "time": "time",</span>
+<span class="go">      "windows": [</span>
+<span class="go">        "3M"</span>
+<span class="go">      ],</span>
+<span class="go">      "aggregations": {</span>
+<span class="go">        "amount": [</span>
+<span class="go">          "sum"</span>
+<span class="go">        ]</span>
+<span class="go">      },</span>
+<span class="go">      "closed": "left",</span>
+<span class="go">      "prefix": ""</span>
+<span class="go">    }</span>
+<span class="go">  ],</span>
+<span class="go">  "ratios": [],</span>
+<span class="go">  "panel": []</span>
+<span class="go">}</span>
+</pre></div>
+</div>
+<p>Write the text to a file with
+<code class="docutils literal notranslate"><span class="pre">Path(&quot;features.json&quot;).write_text(text,</span> <span class="pre">encoding=&quot;utf-8&quot;)</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kivi.features.FeatureSpec.from_json">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.features.FeatureSpec.from_json" title="Link to this definition">#</a></dt>
+<dd><p>Read a feature specification from the JSON text of <cite>to_json</cite>.</p>
+<p>A file written by a newer version of the format is rejected rather
+than read in part, and so is a JSON object that repeats a key, which
+<code class="docutils literal notranslate"><span class="pre">json.loads</span></code> would otherwise read as its last value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>text</strong><span class="classifier">str or bytes</span></dt><dd><p>JSON text, for example from <code class="docutils literal notranslate"><span class="pre">Path(...).read_text(encoding=&quot;utf-8&quot;)</span></code>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>FeatureSpec</dt><dd><p>The feature specification, equal to the one that wrote <cite>text</cite>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If <cite>text</cite> is neither a str nor bytes, is not valid JSON, repeats
+a key of an object, or does not describe a valid specification;
+see <cite>from_dict</cite>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.features.FeatureSpec.to_json" title="kivi.features.FeatureSpec.to_json"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_json</span></code></a></dt><dd><p>Write the feature specification.</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.features.FeatureSpec.from_dict" title="kivi.features.FeatureSpec.from_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_dict</span></code></a></dt><dd><p>Rebuild the feature specification from a dict.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.features</span><span class="w"> </span><span class="kn">import</span> <span class="n">FeatureSpec</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spec</span> <span class="o">=</span> <span class="n">FeatureSpec</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">"customer"</span><span class="p">,</span> <span class="n">observation_time</span><span class="o">=</span><span class="s2">"date"</span><span class="p">,</span> <span class="n">events</span><span class="o">=</span><span class="p">[{</span><span class="s2">"time"</span><span class="p">:</span> <span class="s2">"time"</span><span class="p">}])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">FeatureSpec</span><span class="o">.</span><span class="n">from_json</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">to_json</span><span class="p">())</span> <span class="o">==</span> <span class="n">spec</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="glossary.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Glossary</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="univariate.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Univariate profile</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.features.window_features"><code class="docutils literal notranslate"><span class="pre">window_features()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.features.panel_features"><code class="docutils literal notranslate"><span class="pre">panel_features()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.features.FeatureSpec"><code class="docutils literal notranslate"><span class="pre">FeatureSpec</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.features.FeatureSpec.columns"><code class="docutils literal notranslate"><span class="pre">FeatureSpec.columns</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.features.FeatureSpec.compute"><code class="docutils literal notranslate"><span class="pre">FeatureSpec.compute()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.features.FeatureSpec.to_dict"><code class="docutils literal notranslate"><span class="pre">FeatureSpec.to_dict()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.features.FeatureSpec.from_dict"><code class="docutils literal notranslate"><span class="pre">FeatureSpec.from_dict()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.features.FeatureSpec.to_json"><code class="docutils literal notranslate"><span class="pre">FeatureSpec.to_json()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.features.FeatureSpec.from_json"><code class="docutils literal notranslate"><span class="pre">FeatureSpec.from_json()</span></code></a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1.
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

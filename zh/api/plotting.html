@@ -1,0 +1,1584 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>图表 &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=d005c095" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=14f9d491"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script src="../_static/translations.js?v=540d3cec"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/plotting';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="next" title="示例数据" href="datasets.html" />
+    <link rel="prev" title="存续期 PD 与预期信用损失" href="lifetime.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+  <meta name="docsearch:version" content="1.9.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">跳转至主要内容</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>回到顶部</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="版本警告"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="网页导航" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 1.9.0">1.9.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    教程
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../../en/api/plotting.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="当前页面" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    教程
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../../en/api/plotting.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="章节导航">
+  <p class="bd-links__title" role="heading" aria-level="1">章节导航</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="conventions.html">约定</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compatibility.html">兼容性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">术语表</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">时间窗特征</a></li>
+<li class="toctree-l1"><a class="reference internal" href="univariate.html">单变量概况</a></li>
+<li class="toctree-l1"><a class="reference internal" href="binning.html">分箱</a></li>
+<li class="toctree-l1"><a class="reference internal" href="woe.html">证据权重与信息值</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selection.html">变量筛选</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reject_inference.html">拒绝推断</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scorecard.html">评分卡</a></li>
+<li class="toctree-l1"><a class="reference internal" href="expert.html">专家评分卡</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">模型表现</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">校准</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lgd.html">LGD 与 EAD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">信贷策略</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rules.html">政策规则</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spec.html">分箱方案</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stability.html">群体稳定性指标</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">模型监控</a></li>
+<li class="toctree-l1"><a class="reference internal" href="capital.html">监管资本</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vintage.html">Vintage 与滚动率分析</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lifetime.html">存续期 PD 与预期信用损失</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">图表</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">示例数据</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="初始页面">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../api.html" class="nav-link">API 参考</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">图表</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="module-kivi.plotting">
+<span id="charts"></span><h1>图表<a class="headerlink" href="#module-kivi.plotting" title="链接到此标题。">#</a></h1>
+<p>用 matplotlib 绘制其他模块的结果表，每种表对应一个函数，例如 WOE 表用 <a class="reference internal" href="#kivi.plotting.woe_chart" title="kivi.plotting.woe_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">woe_chart()</span></code></a> ，ROC 表用 <a class="reference internal" href="#kivi.plotting.roc_chart" title="kivi.plotting.roc_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">roc_chart()</span></code></a> ，监控报告用 <a class="reference internal" href="#kivi.plotting.monitoring_chart" title="kivi.plotting.monitoring_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">monitoring_chart()</span></code></a> ，生存表用 <a class="reference internal" href="#kivi.plotting.survival_chart" title="kivi.plotting.survival_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">survival_chart()</span></code></a> ，含利润的截断点表用 <a class="reference internal" href="#kivi.plotting.profit_chart" title="kivi.plotting.profit_chart"><code class="xref py py-func docutils literal notranslate"><span class="pre">profit_chart()</span></code></a> 。每个函数在 <code class="docutils literal notranslate"><span class="pre">ax</span></code> 传入的 Axes 上作图，未传入时新建一个图形，并返回所用的 Axes。matplotlib 是可选依赖，用 <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">&quot;kivi[plot]&quot;</span></code> 安装。</p>
+<p>基于内置数据的示例见 <a class="reference internal" href="../user_guide/plotting.html"><span class="doc">图表</span></a> 。</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.plotting.woe_chart" title="kivi.plotting.woe_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">woe_chart</span></code></a>(table, *[, line, ax])</p></td>
+<td><p>绘制每个分组的样本占比，以及其事件率或 WOE。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.plotting.correlation_chart" title="kivi.plotting.correlation_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">correlation_chart</span></code></a>(matrix, *[, ax])</p></td>
+<td><p>把相关系数矩阵绘制成热力图，并在每个单元格中标出数值。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.plotting.roc_chart" title="kivi.plotting.roc_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">roc_chart</span></code></a>(table, *[, ks, label, ax])</p></td>
+<td><p>绘制 ROC 曲线，并标出两个比率之间的最大差距。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.plotting.precision_recall_chart" title="kivi.plotting.precision_recall_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">precision_recall_chart</span></code></a>(table, *[, label, ax])</p></td>
+<td><p>绘制评分每个阈值下的精确率相对于召回率的变化。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.plotting.gains_chart" title="kivi.plotting.gains_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gains_chart</span></code></a>(table, *[, ks, label, ax])</p></td>
+<td><p>按评分段绘制事件与非事件的累计占比。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.plotting.distribution_chart" title="kivi.plotting.distribution_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">distribution_chart</span></code></a>(table, *[, ax])</p></td>
+<td><p>并排绘制每个分组占全部非事件和占全部事件的比例。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.plotting.calibration_chart" title="kivi.plotting.calibration_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calibration_chart</span></code></a>(table, *[, label, ax])</p></td>
+<td><p>绘制每个分组的观测事件率与其平均预测 PD 的对比。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.plotting.cutoff_chart" title="kivi.plotting.cutoff_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cutoff_chart</span></code></a>(table, *[, label, ax])</p></td>
+<td><p>绘制通过客群的事件率随通过率的变化。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.plotting.psi_chart" title="kivi.plotting.psi_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">psi_chart</span></code></a>(table, *[, ax])</p></td>
+<td><p>并排绘制每个分组的基准占比和当前占比。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.plotting.monitoring_chart" title="kivi.plotting.monitoring_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">monitoring_chart</span></code></a>(table, *[, column, kind, ...])</p></td>
+<td><p>逐期绘制监控报告中的一列。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.plotting.vintage_chart" title="kivi.plotting.vintage_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vintage_chart</span></code></a>(table, *[, ax])</p></td>
+<td><p>为每个批次绘制一条按账龄变化的累计坏账率曲线。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.plotting.survival_chart" title="kivi.plotting.survival_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">survival_chart</span></code></a>(table, *[, column, label, ax])</p></td>
+<td><p>把生存表的累计 PD 或生存曲线绘制成阶梯线。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.plotting.transition_chart" title="kivi.plotting.transition_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transition_chart</span></code></a>(table, *[, ax])</p></td>
+<td><p>把迁移矩阵绘制成热力图，并在每个单元格中标出数值。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.plotting.rule_set_chart" title="kivi.plotting.rule_set_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rule_set_chart</span></code></a>(table, *[, ax])</p></td>
+<td><p>绘制每条规则拒绝的客群占比，以及该规则之后剩余的通过率。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.plotting.profit_chart" title="kivi.plotting.profit_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">profit_chart</span></code></a>(table, *[, label, ax])</p></td>
+<td><p>绘制利润随通过率的变化，并标出利润最高的截断点。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.plotting.lgd_chart" title="kivi.plotting.lgd_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lgd_chart</span></code></a>(table, *[, ax])</p></td>
+<td><p>绘制每个分组的平均 LGD，以及零损失和全额损失的占比。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.plotting.woe_chart">
+<span class="sig-prename descclassname"><span class="pre">kivi.plotting.</span></span><span class="sig-name descname"><span class="pre">woe_chart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">line</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'event_rate'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.plotting.woe_chart" title="链接到此定义。">#</a></dt>
+<dd><p>绘制每个分组的样本占比，以及其事件率或 WOE。</p>
+<p>柱形在左侧 y 轴上表示 <code class="docutils literal notranslate"><span class="pre">total_share</span></code> ，即每个分组在样本中的占比；折线在右侧的第二个 y 轴上表示 <code class="docutils literal notranslate"><span class="pre">event_rate</span></code> 或 <code class="docutils literal notranslate"><span class="pre">woe</span></code> 。这是本模块中唯一带有两个 y 轴的图表，因此也是唯一返回两个 Axes 的图表。各分组保持表中的顺序，图例给出整张表的 IV。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>table</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>由 <cite>kivi.woe.woe_table</cite> 得到的表，或 <cite>kivi.spec.BinningSpec</cite> 中的某张表。需要包含 <code class="docutils literal notranslate"><span class="pre">total_share</span></code> 、 <code class="docutils literal notranslate"><span class="pre">iv</span></code> 列以及 <cite>line</cite> 指定的列。</p>
+</dd>
+<dt><strong>line</strong><span class="classifier">{'event_rate', 'woe'}，默认 'event_rate'</span></dt><dd><p>绘制为折线的列。</p>
+</dd>
+<dt><strong>ax</strong><span class="classifier">matplotlib.axes.Axes，可选</span></dt><dd><p>绘制柱形的 Axes。未给出时新建一个图形。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>bars</strong><span class="classifier">matplotlib.axes.Axes</span></dt><dd><p>绘制柱形的 Axes；给出 <cite>ax</cite> 时即为 <cite>ax</cite> 。</p>
+</dd>
+<dt><strong>line</strong><span class="classifier">matplotlib.axes.Axes</span></dt><dd><p>绘制折线的 Axes，是与 <cite>bars</cite> 共用 x 轴的孪生坐标轴。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ImportError</dt><dd><p>如果未安装 matplotlib。</p>
+</dd>
+<dt>ValueError</dt><dd><p>如果 <cite>table</cite> 不是 DataFrame、缺少所需的列或没有任何行，所需的列不是数值， <cite>line</cite> 既不是 <code class="docutils literal notranslate"><span class="pre">'event_rate'</span></code> 也不是 <code class="docutils literal notranslate"><span class="pre">'woe'</span></code> ，或者 <cite>ax</cite> 不是 matplotlib 的 Axes。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="woe.html#kivi.woe.woe_table" title="kivi.woe.woe_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.woe.woe_table</span></code></a></dt><dd><p>此图表所绘制的表。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.plotting.psi_chart" title="kivi.plotting.psi_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">psi_chart</span></code></a></dt><dd><p>比较两个样本在相同分组中的占比。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>刻度标签是索引中的分组标签，缺失值分组标为 <code class="docutils literal notranslate"><span class="pre">NaN</span></code> 。要按其他顺序绘制各分组，请先对表排序，例如使用 <code class="docutils literal notranslate"><span class="pre">table.sort_index()</span></code> 或 <code class="docutils literal notranslate"><span class="pre">table.sort_values(&quot;woe&quot;)</span></code> 。</p>
+<p>每个 y 轴的标签使用其所示内容的颜色，WOE 为零的点线属于右侧坐标轴。两个坐标轴都在顶部为图例留出空间，使图例不遮挡任何柱形和点。</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">woe_chart</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.woe</span><span class="w"> </span><span class="kn">import</span> <span class="n">woe_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">groups</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="s2">"a"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"c"</span><span class="p">,</span> <span class="s2">"c"</span><span class="p">,</span> <span class="s2">"c"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bars</span><span class="p">,</span> <span class="n">line</span> <span class="o">=</span> <span class="n">woe_chart</span><span class="p">(</span><span class="n">woe_table</span><span class="p">(</span><span class="n">groups</span><span class="p">,</span> <span class="n">target</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="n">label</span><span class="o">.</span><span class="n">get_text</span><span class="p">()</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">bars</span><span class="o">.</span><span class="n">get_xticklabels</span><span class="p">()]</span>
+<span class="go">['a', 'b', 'c']</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">line</span><span class="o">.</span><span class="n">get_ylabel</span><span class="p">()</span>
+<span class="go">'event_rate'</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.plotting.correlation_chart">
+<span class="sig-prename descclassname"><span class="pre">kivi.plotting.</span></span><span class="sig-name descname"><span class="pre">correlation_chart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.plotting.correlation_chart" title="链接到此定义。">#</a></dt>
+<dd><p>把相关系数矩阵绘制成热力图，并在每个单元格中标出数值。</p>
+<p>正相关显示为蓝色，负相关显示为琥珀色，越接近 1 或 -1 颜色越深，这样在拟合模型之前就能看出哪些变量对携带相同的信息。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>matrix</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>相关系数方阵，其索引和列具有相同的标签且顺序相同，例如 WOE 编码后的候选变量 <code class="docutils literal notranslate"><span class="pre">X</span></code> 的 <code class="docutils literal notranslate"><span class="pre">X.corr()</span></code> 或 <code class="docutils literal notranslate"><span class="pre">X.corr(method=&quot;spearman&quot;)</span></code> 。</p>
+</dd>
+<dt><strong>ax</strong><span class="classifier">matplotlib.axes.Axes，可选</span></dt><dd><p>用于作图的 Axes。未给出时新建一个图形，其尺寸随变量个数而定。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>matplotlib.axes.Axes</dt><dd><p>所绘制的 Axes；给出 <cite>ax</cite> 时即为 <cite>ax</cite> 。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ImportError</dt><dd><p>如果未安装 matplotlib。</p>
+</dd>
+<dt>ValueError</dt><dd><p>如果 <cite>matrix</cite> 不是 DataFrame、没有任何行、索引与列的标签不同、有非数值的列或有超出 [-1, 1] 的值（例如协方差），或者 <cite>ax</cite> 不是 matplotlib 的 Axes。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="selection.html#kivi.selection.correlation_filter" title="kivi.selection.correlation_filter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.selection.correlation_filter</span></code></a></dt><dd><p>对每一对高度相关的变量，剔除其中一个。</p>
+</dd>
+<dt><a class="reference internal" href="selection.html#kivi.selection.vif" title="kivi.selection.vif"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.selection.vif</span></code></a></dt><dd><p>每个变量的方差膨胀因子。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>无论取值如何，颜色都从 -1 覆盖到 1；缺失值（例如常数列的相关系数）所在的单元格留空。热力图即 <code class="docutils literal notranslate"><span class="pre">ax.images[0]</span></code> ，因此 <code class="docutils literal notranslate"><span class="pre">ax.figure.colorbar(ax.images[0],</span> <span class="pre">ax=ax)</span></code> 可以加上颜色条。</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">correlation_chart</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"a"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="s2">"b"</span><span class="p">:</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="s2">"c"</span><span class="p">:</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span> <span class="o">=</span> <span class="n">correlation_chart</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">corr</span><span class="p">())</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="n">label</span><span class="o">.</span><span class="n">get_text</span><span class="p">()</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_yticklabels</span><span class="p">()]</span>
+<span class="go">['a', 'b', 'c']</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span><span class="o">.</span><span class="n">texts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">get_text</span><span class="p">()</span>
+<span class="go">'0.60'</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.plotting.roc_chart">
+<span class="sig-prename descclassname"><span class="pre">kivi.plotting.</span></span><span class="sig-name descname"><span class="pre">roc_chart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">ks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.plotting.roc_chart" title="链接到此定义。">#</a></dt>
+<dd><p>绘制 ROC 曲线，并标出两个比率之间的最大差距。</p>
+<p>曲线从最严格的阈值到最宽松的阈值，绘制 <code class="docutils literal notranslate"><span class="pre">true_positive_rate</span></code> 相对于 <code class="docutils literal notranslate"><span class="pre">false_positive_rate</span></code> 的变化，旁边是随机排序评分对应的对角线。设置 <cite>ks</cite> 时，一条竖直线段标出 KS 统计量，即曲线与对角线之间的最大距离。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>table</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>由 <cite>kivi.metrics.roc_table</cite> 得到的表。需要包含 <code class="docutils literal notranslate"><span class="pre">false_positive_rate</span></code> 和 <code class="docutils literal notranslate"><span class="pre">true_positive_rate</span></code> 列。</p>
+</dd>
+<dt><strong>ks</strong><span class="classifier">bool，默认 True</span></dt><dd><p>是否标出 KS 统计量。</p>
+</dd>
+<dt><strong>label</strong><span class="classifier">str，可选</span></dt><dd><p>曲线在图例中的名称。只有当某条曲线带有标签时才绘制图例。</p>
+</dd>
+<dt><strong>ax</strong><span class="classifier">matplotlib.axes.Axes，可选</span></dt><dd><p>用于作图的 Axes。未给出时新建一个图形。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>matplotlib.axes.Axes</dt><dd><p>所绘制的 Axes；给出 <cite>ax</cite> 时即为 <cite>ax</cite> 。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ImportError</dt><dd><p>如果未安装 matplotlib。</p>
+</dd>
+<dt>ValueError</dt><dd><p>如果 <cite>table</cite> 不是 DataFrame、缺少所需的列或没有任何行，所需的列不是数值， <cite>ks</cite> 不是 True 或 False，或者 <cite>ax</cite> 不是 matplotlib 的 Axes。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="metrics.html#kivi.metrics.roc_table" title="kivi.metrics.roc_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.metrics.roc_table</span></code></a></dt><dd><p>此图表所绘制的表。</p>
+</dd>
+<dt><a class="reference internal" href="metrics.html#kivi.metrics.roc_auc" title="kivi.metrics.roc_auc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.metrics.roc_auc</span></code></a></dt><dd><p>曲线下面积。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.plotting.gains_chart" title="kivi.plotting.gains_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gains_chart</span></code></a></dt><dd><p>以样本占比为横轴展示同样的区分能力。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>曲线使用 Axes 颜色循环中的下一种颜色，因此在同一个 <cite>ax</cite> 上绘制多个评分的 ROC 曲线时，可以通过颜色和 <cite>label</cite> 区分它们。KS 线段及其数值与所属曲线颜色相同。</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">roc_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">roc_chart</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span> <span class="o">=</span> <span class="n">roc_table</span><span class="p">([</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.35</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span> <span class="o">=</span> <span class="n">roc_chart</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span><span class="o">.</span><span class="n">get_xlabel</span><span class="p">(),</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_ylabel</span><span class="p">()</span>
+<span class="go">('false_positive_rate', 'true_positive_rate')</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span><span class="o">.</span><span class="n">texts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_text</span><span class="p">()</span>
+<span class="go">'ks = 0.500'</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.plotting.precision_recall_chart">
+<span class="sig-prename descclassname"><span class="pre">kivi.plotting.</span></span><span class="sig-name descname"><span class="pre">precision_recall_chart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.plotting.precision_recall_chart" title="链接到此定义。">#</a></dt>
+<dd><p>绘制评分每个阈值下的精确率相对于召回率的变化。</p>
+<p>从最高的评分开始向下标记观测，曲线以阶梯的形式绘制 <code class="docutils literal notranslate"><span class="pre">precision</span></code> （被标记观测的事件率）相对于 <code class="docutils literal notranslate"><span class="pre">true_positive_rate</span></code> （被标记的事件占全部事件的比例，也称召回率）的变化，阶梯下的面积就是平均精确率。一条虚线标出样本的事件率，即随机排序评分的精确率。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>table</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>由 <cite>kivi.metrics.roc_table</cite> 得到的表。需要包含 <code class="docutils literal notranslate"><span class="pre">true_positive_rate</span></code> 和 <code class="docutils literal notranslate"><span class="pre">precision</span></code> 列。</p>
+</dd>
+<dt><strong>label</strong><span class="classifier">str，可选</span></dt><dd><p>曲线在图例中的名称。只有当某条曲线带有标签时才绘制图例。</p>
+</dd>
+<dt><strong>ax</strong><span class="classifier">matplotlib.axes.Axes，可选</span></dt><dd><p>用于作图的 Axes。未给出时新建一个图形。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>matplotlib.axes.Axes</dt><dd><p>所绘制的 Axes；给出 <cite>ax</cite> 时即为 <cite>ax</cite> 。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ImportError</dt><dd><p>如果未安装 matplotlib。</p>
+</dd>
+<dt>ValueError</dt><dd><p>如果 <cite>table</cite> 不是 DataFrame、缺少所需的列或没有任何行，所需的列不是数值，没有一行有精确率，或者 <cite>ax</cite> 不是 matplotlib 的 Axes。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="metrics.html#kivi.metrics.roc_table" title="kivi.metrics.roc_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.metrics.roc_table</span></code></a></dt><dd><p>此图表所绘制的表。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.plotting.roc_chart" title="kivi.plotting.roc_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">roc_chart</span></code></a></dt><dd><p>真正例率相对于假正例率的变化。</p>
+</dd>
+<dt><a class="reference internal" href="strategy.html#kivi.strategy.confusion_table" title="kivi.strategy.confusion_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.strategy.confusion_table</span></code></a></dt><dd><p>所选截断点上的精确率和召回率。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>ROC 表的第一行位于阈值 <code class="docutils literal notranslate"><span class="pre">inf</span></code> ，不标记任何观测，没有精确率。曲线从召回率 0 开始，依次经过其余各行：从一行的召回率到下一行的召回率，曲线保持在下一行的精确率上。用直线连接各行会高估它们之间的精确率 <a class="reference internal" href="#ref8fe7ebfb4a-1" id="id1">[1]</a> 。记第 n 行的召回率和精确率为 <span class="math notranslate nohighlight">\(R_n\)</span> 和 <span class="math notranslate nohighlight">\(P_n\)</span> ，并令 <span class="math notranslate nohighlight">\(R_0 = 0\)</span> ，则阶梯下的面积就是平均精确率</p>
+<div class="math notranslate nohighlight">
+\[\mathrm{AP} = \sum_n (R_n - R_{n-1})\, P_n.\]</div>
+<p>最后一行标记全部观测，其精确率就是事件率：曲线终止于虚线上，虚线左端标有该事件率。</p>
+<p>曲线使用 Axes 颜色循环中的下一种颜色，因此在同一个 <cite>ax</cite> 上绘制多个评分的曲线时，可以通过颜色和 <cite>label</cite> 区分它们。虚线为灰色，与 <cite>roc_chart</cite> 的对角线相同，并且每个所示的事件率只画一次，因此同一样本的多个评分共用一条虚线，两个样本则各有一条。</p>
+<p class="rubric">参考文献</p>
+<div role="list" class="citation-list">
+<div class="citation" id="ref8fe7ebfb4a-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>J. Davis and M. Goadrich, &quot;The Relationship Between
+Precision-Recall and ROC Curves&quot;, Proceedings of the 23rd
+International Conference on Machine Learning, 233-240, 2006.</p>
+</div>
+</div>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">roc_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">precision_recall_chart</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span> <span class="o">=</span> <span class="n">roc_table</span><span class="p">([</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.35</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span> <span class="o">=</span> <span class="n">precision_recall_chart</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span><span class="o">.</span><span class="n">get_xlabel</span><span class="p">(),</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_ylabel</span><span class="p">()</span>
+<span class="go">('true_positive_rate', 'precision')</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span><span class="o">.</span><span class="n">texts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_text</span><span class="p">()</span>
+<span class="go">'event_rate = 0.5'</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.plotting.gains_chart">
+<span class="sig-prename descclassname"><span class="pre">kivi.plotting.</span></span><span class="sig-name descname"><span class="pre">gains_chart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">ks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.plotting.gains_chart" title="链接到此定义。">#</a></dt>
+<dd><p>按评分段绘制事件与非事件的累计占比。</p>
+<p>从评分最高的评分段开始逐段向下审视，两条曲线分别表示已覆盖的事件和非事件占全部事件和全部非事件的比例，横轴是已审视的样本占比 <code class="docutils literal notranslate"><span class="pre">cum_total_share</span></code> 。设置 <cite>ks</cite> 时，一条竖直线段标出 <code class="docutils literal notranslate"><span class="pre">ks</span></code> （两条曲线之间的差距）最大的评分段。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>table</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>由 <cite>kivi.metrics.gains_table</cite> 得到的表，评分最高的评分段在前。需要包含 <code class="docutils literal notranslate"><span class="pre">cum_total_share</span></code> 、 <code class="docutils literal notranslate"><span class="pre">cum_event_share</span></code> 、 <code class="docutils literal notranslate"><span class="pre">cum_non_event_share</span></code> 和 <code class="docutils literal notranslate"><span class="pre">ks</span></code> 列。</p>
+</dd>
+<dt><strong>ks</strong><span class="classifier">bool，默认 True</span></dt><dd><p>是否标出最大的 <code class="docutils literal notranslate"><span class="pre">ks</span></code> 。</p>
+</dd>
+<dt><strong>label</strong><span class="classifier">str，可选</span></dt><dd><p>评分的名称，附加在两条曲线的图例名称之后，例如 <code class="docutils literal notranslate"><span class="pre">cum_event_share</span> <span class="pre">(label)</span></code> 。</p>
+</dd>
+<dt><strong>ax</strong><span class="classifier">matplotlib.axes.Axes，可选</span></dt><dd><p>用于作图的 Axes。未给出时新建一个图形。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>matplotlib.axes.Axes</dt><dd><p>所绘制的 Axes；给出 <cite>ax</cite> 时即为 <cite>ax</cite> 。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ImportError</dt><dd><p>如果未安装 matplotlib。</p>
+</dd>
+<dt>ValueError</dt><dd><p>如果 <cite>table</cite> 不是 DataFrame、缺少所需的列或没有任何行，所需的列不是数值， <cite>ks</cite> 不是 True 或 False，或者 <cite>ax</cite> 不是 matplotlib 的 Axes。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="metrics.html#kivi.metrics.gains_table" title="kivi.metrics.gains_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.metrics.gains_table</span></code></a></dt><dd><p>此图表所绘制的表。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.plotting.roc_chart" title="kivi.plotting.roc_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">roc_chart</span></code></a></dt><dd><p>在所有阈值上展示同样的区分能力。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>两条曲线都从原点出发（此时尚未审视任何评分段），每个评分段增加一个点。对角线是随机排序评分的 <code class="docutils literal notranslate"><span class="pre">cum_event_share</span></code> 。</p>
+<p><code class="docutils literal notranslate"><span class="pre">cum_event_share</span></code> 曲线为实线， <code class="docutils literal notranslate"><span class="pre">cum_non_event_share</span></code> 曲线为虚线，两者都使用 Axes 颜色循环中的下一种颜色，因此在同一个 <cite>ax</cite> 上绘制多个评分的增益曲线时，可以通过颜色和 <cite>label</cite> 区分它们。KS 线段及其数值也使用该颜色。图例放在遮挡点最少的位置；有多个评分时，每个评分在图例中占两项，可以用 <code class="docutils literal notranslate"><span class="pre">ax.legend(loc=...)</span></code> 移动图例。</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">gains_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">gains_chart</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">score</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span> <span class="o">=</span> <span class="n">gains_chart</span><span class="p">(</span><span class="n">gains_table</span><span class="p">(</span><span class="n">score</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">3</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span><span class="o">.</span><span class="n">get_xlabel</span><span class="p">()</span>
+<span class="go">'cum_total_share'</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span><span class="o">.</span><span class="n">texts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_text</span><span class="p">()</span>
+<span class="go">'ks = 0.800'</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.plotting.distribution_chart">
+<span class="sig-prename descclassname"><span class="pre">kivi.plotting.</span></span><span class="sig-name descname"><span class="pre">distribution_chart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.plotting.distribution_chart" title="链接到此定义。">#</a></dt>
+<dd><p>并排绘制每个分组占全部非事件和占全部事件的比例。</p>
+<p>表中的每一行，例如增益表的一个评分段或 WOE 表的一个分箱，对应一对柱形：该行占表中全部非事件的比例和占全部事件的比例，由原始的 <code class="docutils literal notranslate"><span class="pre">non_event</span></code> 和 <code class="docutils literal notranslate"><span class="pre">event</span></code> 计数算出。两个分布相距越远，评分或变量区分两类的能力越强。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>table</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>由 <cite>kivi.metrics.gains_table</cite> 或 <cite>kivi.woe.woe_table</cite> 得到的表，或 <cite>kivi.spec.BinningSpec</cite> 中的某张表。需要包含 <code class="docutils literal notranslate"><span class="pre">non_event</span></code> 和 <code class="docutils literal notranslate"><span class="pre">event</span></code> 列。</p>
+</dd>
+<dt><strong>ax</strong><span class="classifier">matplotlib.axes.Axes，可选</span></dt><dd><p>用于作图的 Axes。未给出时新建一个图形。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>matplotlib.axes.Axes</dt><dd><p>所绘制的 Axes；给出 <cite>ax</cite> 时即为 <cite>ax</cite> 。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ImportError</dt><dd><p>如果未安装 matplotlib。</p>
+</dd>
+<dt>ValueError</dt><dd><p>如果 <cite>table</cite> 不是 DataFrame、缺少所需的列或没有任何行，所需的列不是数值，某个计数为负数或不是有限值，表中没有事件或没有非事件，或者 <cite>ax</cite> 不是 matplotlib 的 Axes。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="metrics.html#kivi.metrics.gains_table" title="kivi.metrics.gains_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.metrics.gains_table</span></code></a></dt><dd><p>评分段，最高的评分段在前。</p>
+</dd>
+<dt><a class="reference internal" href="woe.html#kivi.woe.woe_table" title="kivi.woe.woe_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.woe.woe_table</span></code></a></dt><dd><p>变量的分箱或分组。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.plotting.gains_chart" title="kivi.plotting.gains_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gains_chart</span></code></a></dt><dd><p>相同评分段的累计占比。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.plotting.psi_chart" title="kivi.plotting.psi_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">psi_chart</span></code></a></dt><dd><p>两个样本在相同分组中的占比。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>柱形保持表的行顺序（增益表最高的评分段在前），并保留其中的空行，因此用相同边界分箱的两个样本的图表可以对齐。占比不做平滑，因此对于没有事件或没有非事件的分组，它们与 WOE 表的 <code class="docutils literal notranslate"><span class="pre">event_share</span></code> 和 <code class="docutils literal notranslate"><span class="pre">non_event_share</span></code> 列不同，后者给空单元格赋予平滑值。刻度标签是索引中的分组标签，缺失值分组标为 <code class="docutils literal notranslate"><span class="pre">NaN</span></code> 。</p>
+<p>非事件为蓝色，事件为红色。y 轴在顶部为图例留出空间，使图例不遮挡任何柱形。</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">gains_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">distribution_chart</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">score</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span> <span class="o">=</span> <span class="n">distribution_chart</span><span class="p">(</span><span class="n">gains_table</span><span class="p">(</span><span class="n">score</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">3</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="n">label</span><span class="o">.</span><span class="n">get_text</span><span class="p">()</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_xticklabels</span><span class="p">()]</span>
+<span class="go">['(3.0, inf]', '(2.0, 3.0]', '(-inf, 2.0]']</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">bar</span><span class="o">.</span><span class="n">get_height</span><span class="p">()</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">bar</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">patches</span><span class="p">]</span>
+<span class="go">['0.00', '0.20', '0.80', '0.67', '0.33', '0.00']</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.plotting.calibration_chart">
+<span class="sig-prename descclassname"><span class="pre">kivi.plotting.</span></span><span class="sig-name descname"><span class="pre">calibration_chart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.plotting.calibration_chart" title="链接到此定义。">#</a></dt>
+<dd><p>绘制每个分组的观测事件率与其平均预测 PD 的对比。</p>
+<p>表中的每个分组（例如一个等级或一个 PD 区间）是一个点，x 轴为 <code class="docutils literal notranslate"><span class="pre">mean_probability</span></code> ，y 轴为 <code class="docutils literal notranslate"><span class="pre">event_rate</span></code> 。位于对角线上的点是校准良好的，位于对角线上方的点事件多于预测，位于下方的点事件少于预测。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>table</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>由 <cite>kivi.calibration.calibration_table</cite> 得到的表。需要包含 <code class="docutils literal notranslate"><span class="pre">mean_probability</span></code> 和 <code class="docutils literal notranslate"><span class="pre">event_rate</span></code> 列。</p>
+</dd>
+<dt><strong>label</strong><span class="classifier">str，可选</span></dt><dd><p>这些点在图例中的名称。只有当某条线带有标签时才绘制图例。</p>
+</dd>
+<dt><strong>ax</strong><span class="classifier">matplotlib.axes.Axes，可选</span></dt><dd><p>用于作图的 Axes。未给出时新建一个图形。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>matplotlib.axes.Axes</dt><dd><p>所绘制的 Axes；给出 <cite>ax</cite> 时即为 <cite>ax</cite> 。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ImportError</dt><dd><p>如果未安装 matplotlib。</p>
+</dd>
+<dt>ValueError</dt><dd><p>如果 <cite>table</cite> 不是 DataFrame、缺少所需的列或没有任何行，所需的列不是数值，或者 <cite>ax</cite> 不是 matplotlib 的 Axes。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="calibration.html#kivi.calibration.calibration_table" title="kivi.calibration.calibration_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.calibration.calibration_table</span></code></a></dt><dd><p>此图表所绘制的表。</p>
+</dd>
+<dt><a class="reference internal" href="calibration.html#kivi.calibration.binomial_test" title="kivi.calibration.binomial_test"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.calibration.binomial_test</span></code></a></dt><dd><p>检验每个等级的违约率。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>两个坐标轴都从 0 延伸到略高于 <cite>ax</cite> 上所绘的最大比率，使对角线保持 45 度。各点按表中的顺序连接，并使用 Axes 颜色循环中的下一种颜色，因此可以在同一个 <cite>ax</cite> 上比较多个模型的 PD，或同一组 PD 校正前后的结果。</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">calibration_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">calibration_chart</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">grade</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"A"</span><span class="p">,</span> <span class="s2">"A"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"C"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">probability</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span> <span class="o">=</span> <span class="n">calibration_chart</span><span class="p">(</span><span class="n">calibration_table</span><span class="p">(</span><span class="n">grade</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">probability</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span><span class="o">.</span><span class="n">get_xlabel</span><span class="p">(),</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_ylabel</span><span class="p">()</span>
+<span class="go">('mean_probability', 'event_rate')</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.plotting.cutoff_chart">
+<span class="sig-prename descclassname"><span class="pre">kivi.plotting.</span></span><span class="sig-name descname"><span class="pre">cutoff_chart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.plotting.cutoff_chart" title="链接到此定义。">#</a></dt>
+<dd><p>绘制通过客群的事件率随通过率的变化。</p>
+<p>表中的每个截断点是一个点，x 轴为 <code class="docutils literal notranslate"><span class="pre">approval_rate</span></code> ，y 轴为通过客群的坏账率 <code class="docutils literal notranslate"><span class="pre">approved_event_rate</span></code> 。截断点越高，通过的申请人越多，放进来的事件也越多，因此这条曲线展示了通过率每提高一个百分点所付出的风险代价。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>table</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>由 <cite>kivi.strategy.cutoff_table</cite> 得到的表。需要包含 <code class="docutils literal notranslate"><span class="pre">approval_rate</span></code> 和 <code class="docutils literal notranslate"><span class="pre">approved_event_rate</span></code> 列。</p>
+</dd>
+<dt><strong>label</strong><span class="classifier">str，可选</span></dt><dd><p>曲线在图例中的名称。只有当某条曲线带有标签时才绘制图例。</p>
+</dd>
+<dt><strong>ax</strong><span class="classifier">matplotlib.axes.Axes，可选</span></dt><dd><p>用于作图的 Axes。未给出时新建一个图形。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>matplotlib.axes.Axes</dt><dd><p>所绘制的 Axes；给出 <cite>ax</cite> 时即为 <cite>ax</cite> 。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ImportError</dt><dd><p>如果未安装 matplotlib。</p>
+</dd>
+<dt>ValueError</dt><dd><p>如果 <cite>table</cite> 不是 DataFrame、缺少所需的列或没有任何行，所需的列不是数值，或者 <cite>ax</cite> 不是 matplotlib 的 Axes。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="strategy.html#kivi.strategy.cutoff_table" title="kivi.strategy.cutoff_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.strategy.cutoff_table</span></code></a></dt><dd><p>此图表所绘制的表。</p>
+</dd>
+<dt><a class="reference internal" href="strategy.html#kivi.strategy.swap_set" title="kivi.strategy.swap_set"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.strategy.swap_set</span></code></a></dt><dd><p>比较两个评分的审批决策。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>低于所有评分的截断点不通过任何申请人，其 <code class="docutils literal notranslate"><span class="pre">approved_event_rate</span></code> 缺失，因此不出现在曲线上。曲线使用 Axes 颜色循环中的下一种颜色，因此可以在同一个 <cite>ax</cite> 上比较现行评分与新评分的曲线。y 轴从 0 延伸到略高于 <cite>ax</cite> 上所绘的最大比率。</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">cutoff_chart</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.strategy</span><span class="w"> </span><span class="kn">import</span> <span class="n">cutoff_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">score</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span> <span class="o">=</span> <span class="n">cutoff_chart</span><span class="p">(</span><span class="n">cutoff_table</span><span class="p">(</span><span class="n">score</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">cutoffs</span><span class="o">=</span><span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span><span class="o">.</span><span class="n">get_xlabel</span><span class="p">(),</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_ylabel</span><span class="p">()</span>
+<span class="go">('approval_rate', 'approved_event_rate')</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.plotting.psi_chart">
+<span class="sig-prename descclassname"><span class="pre">kivi.plotting.</span></span><span class="sig-name descname"><span class="pre">psi_chart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.plotting.psi_chart" title="链接到此定义。">#</a></dt>
+<dd><p>并排绘制每个分组的基准占比和当前占比。</p>
+<p>表中的每个分组对应一对柱形，即 <code class="docutils literal notranslate"><span class="pre">reference_share</span></code> 和 <code class="docutils literal notranslate"><span class="pre">current_share</span></code> ，图例给出整张表的 PSI，因此可以直接看出哪些分组的占比变化最大。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>table</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>由 <cite>kivi.stability.psi_table</cite> 得到的表。需要包含 <code class="docutils literal notranslate"><span class="pre">reference_share</span></code> 、 <code class="docutils literal notranslate"><span class="pre">current_share</span></code> 和 <code class="docutils literal notranslate"><span class="pre">psi</span></code> 列。</p>
+</dd>
+<dt><strong>ax</strong><span class="classifier">matplotlib.axes.Axes，可选</span></dt><dd><p>用于作图的 Axes。未给出时新建一个图形。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>matplotlib.axes.Axes</dt><dd><p>所绘制的 Axes；给出 <cite>ax</cite> 时即为 <cite>ax</cite> 。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ImportError</dt><dd><p>如果未安装 matplotlib。</p>
+</dd>
+<dt>ValueError</dt><dd><p>如果 <cite>table</cite> 不是 DataFrame、缺少所需的列或没有任何行，所需的列不是数值，或者 <cite>ax</cite> 不是 matplotlib 的 Axes。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="stability.html#kivi.stability.psi_table" title="kivi.stability.psi_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.stability.psi_table</span></code></a></dt><dd><p>此图表所绘制的表。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.plotting.monitoring_chart" title="kivi.plotting.monitoring_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">monitoring_chart</span></code></a></dt><dd><p>评分在每一期的 PSI。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>图中的占比就是表中的占比，因此在平滑之下，某个样本中为空的分组会显示平滑赋予它的微小占比。刻度标签是索引中的分组标签，缺失值分组标为 <code class="docutils literal notranslate"><span class="pre">NaN</span></code> 。</p>
+<p>y 轴在顶部为图例留出空间，使图例不遮挡任何柱形。</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">psi_chart</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.stability</span><span class="w"> </span><span class="kn">import</span> <span class="n">psi_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">reference</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="s2">"a"</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"c"</span><span class="p">,</span> <span class="s2">"c"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">current</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="s2">"a"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"c"</span><span class="p">,</span> <span class="s2">"c"</span><span class="p">,</span> <span class="s2">"c"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span> <span class="o">=</span> <span class="n">psi_chart</span><span class="p">(</span><span class="n">psi_table</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">current</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span><span class="o">.</span><span class="n">get_legend</span><span class="p">()</span><span class="o">.</span><span class="n">get_title</span><span class="p">()</span><span class="o">.</span><span class="n">get_text</span><span class="p">()</span>
+<span class="go">'psi = 0.183'</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.plotting.monitoring_chart">
+<span class="sig-prename descclassname"><span class="pre">kivi.plotting.</span></span><span class="sig-name descname"><span class="pre">monitoring_chart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'psi'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kind</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'line'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">levels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.plotting.monitoring_chart" title="链接到此定义。">#</a></dt>
+<dd><p>逐期绘制监控报告中的一列。</p>
+<p>表中的各期按表的顺序沿 x 轴排列， <cite>column</cite> 按 <cite>kind</cite> 的指定绘制为折线或柱形。可以用虚线标出与该列比较的 <cite>levels</cite> ，例如 PSI 阈值或开发样本的 Gini。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>table</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>由 <cite>kivi.monitoring.monitoring_table</cite> 得到的表，或其他每期一行的表，例如 <cite>kivi.monitoring.stability_table</cite> 的结果。需要包含 <cite>column</cite> 指定的列。</p>
+</dd>
+<dt><strong>column</strong><span class="classifier">str，默认 'psi'</span></dt><dd><p>要绘制的列。</p>
+</dd>
+<dt><strong>kind</strong><span class="classifier">{'line', 'bar'}，默认 'line'</span></dt><dd><p>把该列绘制为折线，适合 <code class="docutils literal notranslate"><span class="pre">event_rate</span></code> 和 <code class="docutils literal notranslate"><span class="pre">gini</span></code> 等比率和指标，也适合在同一个 <cite>ax</cite> 上绘制多列；或者绘制为柱形，适合 <code class="docutils literal notranslate"><span class="pre">total</span></code> 等计数和单独的 <code class="docutils literal notranslate"><span class="pre">psi</span></code> 。</p>
+</dd>
+<dt><strong>label</strong><span class="classifier">str，可选</span></dt><dd><p>折线或柱形在图例中的名称。只有当 Axes 上有带标签的元素时才绘制图例。</p>
+</dd>
+<dt><strong>levels</strong><span class="classifier">float 或 float 序列，默认 ()</span></dt><dd><p>用水平虚线标出的 <cite>column</cite> 取值，例如 PSI 阈值 <code class="docutils literal notranslate"><span class="pre">[0.1,</span> <span class="pre">0.25]</span></code> 或开发样本的 Gini。每条虚线的右端标有其数值。</p>
+</dd>
+<dt><strong>ax</strong><span class="classifier">matplotlib.axes.Axes，可选</span></dt><dd><p>用于作图的 Axes。未给出时新建一个图形。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>matplotlib.axes.Axes</dt><dd><p>所绘制的 Axes；给出 <cite>ax</cite> 时即为 <cite>ax</cite> 。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ImportError</dt><dd><p>如果未安装 matplotlib。</p>
+</dd>
+<dt>ValueError</dt><dd><p>如果 <cite>table</cite> 不是 DataFrame、没有任何行或没有名为 <cite>column</cite> 的数值列， <cite>kind</cite> 既不是 <code class="docutils literal notranslate"><span class="pre">'line'</span></code> 也不是 <code class="docutils literal notranslate"><span class="pre">'bar'</span></code> ，某个水平值不是有限数，或者 <cite>ax</cite> 不是 matplotlib 的 Axes。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="monitoring.html#kivi.monitoring.monitoring_table" title="kivi.monitoring.monitoring_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.monitoring.monitoring_table</span></code></a></dt><dd><p>此图表所绘制的表。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.plotting.psi_chart" title="kivi.plotting.psi_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">psi_chart</span></code></a></dt><dd><p>某一期 PSI 背后的各分组占比。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>y 轴以 <cite>column</cite> 为标签；当 <cite>table</cite> 的列名为 <code class="docutils literal notranslate"><span class="pre">variable</span></code> 时（ <cite>kivi.monitoring.stability_table</cite> 的列就是如此，其各列是各变量的 PSI），则以 <code class="docutils literal notranslate"><span class="pre">psi</span></code> 为标签。x 轴以索引的名称为标签。</p>
+<p>缺失值（例如结果尚未可知的某一期的 <code class="docutils literal notranslate"><span class="pre">gini</span></code> ）会在折线上留下缺口，也不画柱形。要绘制多列，请对每一列各调用一次此函数：量纲不同的列画在同一图形的不同子图上，或者像稳定性表的各变量那样，各自带一个 <cite>label</cite> 画在同一个 <cite>ax</cite> 上。折线或柱形使用 Axes 颜色循环中的下一种颜色，图例位于 Axes 的右侧，不遮挡任何折线。</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.monitoring</span><span class="w"> </span><span class="kn">import</span> <span class="n">monitoring_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">monitoring_chart</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">score</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">period</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"2025-01"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">4</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"2025-02"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">4</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">report</span> <span class="o">=</span> <span class="n">monitoring_table</span><span class="p">(</span><span class="n">score</span><span class="p">,</span> <span class="n">period</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">reference_period</span><span class="o">=</span><span class="s2">"2025-01"</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span> <span class="o">=</span> <span class="n">monitoring_chart</span><span class="p">(</span><span class="n">report</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="s2">"gini"</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="n">label</span><span class="o">.</span><span class="n">get_text</span><span class="p">()</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_xticklabels</span><span class="p">()]</span>
+<span class="go">['2025-01', '2025-02']</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span><span class="o">.</span><span class="n">get_ylabel</span><span class="p">()</span>
+<span class="go">'gini'</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.plotting.vintage_chart">
+<span class="sig-prename descclassname"><span class="pre">kivi.plotting.</span></span><span class="sig-name descname"><span class="pre">vintage_chart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.plotting.vintage_chart" title="链接到此定义。">#</a></dt>
+<dd><p>为每个批次绘制一条按账龄变化的累计坏账率曲线。</p>
+<p>表中的每一行是一个批次，每一列是一个账龄月。越晚的批次蓝色越深，因此曲线比之前各批次上升得更快的批次会很醒目。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>table</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>由 <cite>kivi.vintage.vintage_table</cite> 得到的表，每个批次一行、每个账龄月一个数值列；也可以是形状相同的其他表，例如 <cite>kivi.lifetime.convert_pd</cite> 给出的累计 PD。</p>
+</dd>
+<dt><strong>ax</strong><span class="classifier">matplotlib.axes.Axes，可选</span></dt><dd><p>用于作图的 Axes。未给出时新建一个图形。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>matplotlib.axes.Axes</dt><dd><p>所绘制的 Axes；给出 <cite>ax</cite> 时即为 <cite>ax</cite> 。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ImportError</dt><dd><p>如果未安装 matplotlib。</p>
+</dd>
+<dt>ValueError</dt><dd><p>如果 <cite>table</cite> 不是 DataFrame 或没有任何行、列名不是数字、含有非数值的值，或者 <cite>ax</cite> 不是 matplotlib 的 Axes。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="vintage.html#kivi.vintage.vintage_table" title="kivi.vintage.vintage_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.vintage.vintage_table</span></code></a></dt><dd><p>此图表所绘制的表。</p>
+</dd>
+<dt><a class="reference internal" href="lifetime.html#kivi.lifetime.convert_pd" title="kivi.lifetime.convert_pd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.lifetime.convert_pd</span></code></a></dt><dd><p>把这些曲线转换为边际 PD 或条件 PD。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>批次缺失的月份（尚未到达的账龄月，或首个观测账龄月之前的月份）不画入其曲线。x 轴以列的名称为标签。</p>
+<p>图例位于 Axes 的右侧，不遮挡任何曲线，并以索引的名称为标题。批次不超过八个时，图例列出每个批次；否则列出从第一个到最后一个均匀分布的八个批次，其余批次的颜色深浅介于它们之间。在包含多个子图的图形中，请使用布局引擎（例如 <code class="docutils literal notranslate"><span class="pre">layout=&quot;constrained&quot;</span></code> ）为图例留出空间。</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">vintage_chart</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.vintage</span><span class="w"> </span><span class="kn">import</span> <span class="n">vintage_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">loan</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cohort</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"2024-01"</span><span class="p">,</span> <span class="s2">"2024-01"</span><span class="p">,</span> <span class="s2">"2024-01"</span><span class="p">,</span> <span class="s2">"2024-01"</span><span class="p">,</span> <span class="s2">"2024-01"</span><span class="p">,</span>
+<span class="gp">... </span>          <span class="s2">"2024-02"</span><span class="p">,</span> <span class="s2">"2024-02"</span><span class="p">,</span> <span class="s2">"2024-02"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">month_on_book</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bad</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span> <span class="o">=</span> <span class="n">vintage_chart</span><span class="p">(</span><span class="n">vintage_table</span><span class="p">(</span><span class="n">loan</span><span class="p">,</span> <span class="n">cohort</span><span class="p">,</span> <span class="n">month_on_book</span><span class="p">,</span> <span class="n">bad</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span><span class="o">.</span><span class="n">get_xlabel</span><span class="p">()</span>
+<span class="go">'month_on_book'</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="n">text</span><span class="o">.</span><span class="n">get_text</span><span class="p">()</span> <span class="k">for</span> <span class="n">text</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_legend</span><span class="p">()</span><span class="o">.</span><span class="n">get_texts</span><span class="p">()]</span>
+<span class="go">['2024-01', '2024-02']</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.plotting.survival_chart">
+<span class="sig-prename descclassname"><span class="pre">kivi.plotting.</span></span><span class="sig-name descname"><span class="pre">survival_chart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cumulative_pd'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.plotting.survival_chart" title="链接到此定义。">#</a></dt>
+<dd><p>把生存表的累计 PD 或生存曲线绘制成阶梯线。</p>
+<p>曲线从第 0 期开始，累计 PD 为 0，生存概率为 1，此后在每一期以阶梯形式变化，这正是 Kaplan-Meier 估计在两次观测之间的行为。当表是按竞争风险计算时，会在事件的累计发生率旁边画出竞争原因的累计发生率。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>table</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>由 <cite>kivi.lifetime.survival_table</cite> 得到的表。需要包含 <cite>column</cite> 指定的列；有竞争风险时（即表中有 <code class="docutils literal notranslate"><span class="pre">competing</span></code> 列），还需要 <code class="docutils literal notranslate"><span class="pre">at_risk</span></code> 和 <code class="docutils literal notranslate"><span class="pre">survival</span></code> 列。</p>
+</dd>
+<dt><strong>column</strong><span class="classifier">{'cumulative_pd', 'survival'}，默认 'cumulative_pd'</span></dt><dd><p>要绘制的列。 <code class="docutils literal notranslate"><span class="pre">survival</span></code> 是全部原因的生存概率，无论有无竞争风险都只有一条曲线。</p>
+</dd>
+<dt><strong>label</strong><span class="classifier">str，可选</span></dt><dd><p>曲线在图例中的名称，取代 <cite>column</cite> 。有竞争风险时，它放在每种原因名称之前，如 <code class="docutils literal notranslate"><span class="pre">'high</span> <span class="pre">cumulative_pd'</span></code> 和 <code class="docutils literal notranslate"><span class="pre">'high</span> <span class="pre">competing'</span></code> 。</p>
+</dd>
+<dt><strong>ax</strong><span class="classifier">matplotlib.axes.Axes，可选</span></dt><dd><p>用于作图的 Axes。未给出时新建一个图形。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>matplotlib.axes.Axes</dt><dd><p>所绘制的 Axes；给出 <cite>ax</cite> 时即为 <cite>ax</cite> 。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ImportError</dt><dd><p>如果未安装 matplotlib。</p>
+</dd>
+<dt>ValueError</dt><dd><p>如果 <cite>table</cite> 不是 DataFrame、缺少所需的列或没有任何行，所需的列不是数值， <cite>column</cite> 既不是 <code class="docutils literal notranslate"><span class="pre">'cumulative_pd'</span></code> 也不是 <code class="docutils literal notranslate"><span class="pre">'survival'</span></code> ，或者 <cite>ax</cite> 不是 matplotlib 的 Axes。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="lifetime.html#kivi.lifetime.survival_table" title="kivi.lifetime.survival_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.lifetime.survival_table</span></code></a></dt><dd><p>此图表所绘制的表。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.plotting.vintage_chart" title="kivi.plotting.vintage_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vintage_chart</span></code></a></dt><dd><p>按批次统计的累计坏账率。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>有竞争风险且 <code class="docutils literal notranslate"><span class="pre">column='cumulative_pd'</span></code> 时，图例中的曲线名为 <code class="docutils literal notranslate"><span class="pre">cumulative_pd</span></code> 和 <code class="docutils literal notranslate"><span class="pre">competing</span></code> 。竞争原因的累计发生率，是上一期的全部原因生存概率乘以 <code class="docutils literal notranslate"><span class="pre">competing</span></code> 除以 <code class="docutils literal notranslate"><span class="pre">at_risk</span></code> 再累加，事件的累计发生率也是这样算的，因此两条曲线加上生存概率之和为 1。最后一个有账户处于风险中的期数之后没有取值，曲线到此为止。</p>
+<p>曲线从表的第一行之前一期开始，因此表的一个切片从它自己的第一期开始；曲线画到最后一行之后一期，使最后一次变化看得见。坐标轴的范围涵盖 <cite>ax</cite> 上已画出的每条曲线，因此几张表的曲线可以各带一个 <cite>label</cite> 共用一个 <cite>ax</cite> 。没有任何取值的表，即 <cite>kivi.lifetime.survival_table</cite> 在第一期无人处于风险中时给出的表，画出的是空图：一条位于起始值的水平线。</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.lifetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">survival_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">survival_chart</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span> <span class="o">=</span> <span class="n">survival_table</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span> <span class="o">=</span> <span class="n">survival_chart</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span><span class="o">.</span><span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_ydata</span><span class="p">()</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<span class="go">[0.0, 0.2, 0.2, 0.733, 0.733, 0.733]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span><span class="o">.</span><span class="n">get_xlabel</span><span class="p">(),</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_ylabel</span><span class="p">()</span>
+<span class="go">('period', 'cumulative_pd')</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.plotting.transition_chart">
+<span class="sig-prename descclassname"><span class="pre">kivi.plotting.</span></span><span class="sig-name descname"><span class="pre">transition_chart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.plotting.transition_chart" title="链接到此定义。">#</a></dt>
+<dd><p>把迁移矩阵绘制成热力图，并在每个单元格中标出数值。</p>
+<p>行是之前的状态，列是之后的状态。单元格的深浅是其所在行中迁移到该处的占比，因此计数表和占比表看上去一样；对角线，即状态未变的个体，用琥珀色描边。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>table</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>由 <cite>kivi.vintage.transition_matrix</cite> 得到的表，可以是计数或占比（ <code class="docutils literal notranslate"><span class="pre">normalize=True</span></code> ），索引为之前的状态，列为之后的状态。缺失值对应的单元格留空。</p>
+</dd>
+<dt><strong>ax</strong><span class="classifier">matplotlib.axes.Axes，可选</span></dt><dd><p>用于作图的 Axes。未给出时新建一个图形，其尺寸随状态个数而定。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>matplotlib.axes.Axes</dt><dd><p>所绘制的 Axes；给出 <cite>ax</cite> 时即为 <cite>ax</cite> 。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ImportError</dt><dd><p>如果未安装 matplotlib。</p>
+</dd>
+<dt>ValueError</dt><dd><p>如果 <cite>table</cite> 不是 DataFrame、没有任何行或列数少于两列，含有非数值的列或负值，或者 <cite>ax</cite> 不是 matplotlib 的 Axes。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="vintage.html#kivi.vintage.transition_matrix" title="kivi.vintage.transition_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.vintage.transition_matrix</span></code></a></dt><dd><p>此图表所绘制的表。</p>
+</dd>
+<dt><a class="reference internal" href="vintage.html#kivi.vintage.roll_rates" title="kivi.vintage.roll_rates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.vintage.roll_rates</span></code></a></dt><dd><p>每个状态中迁移到下一个更差状态的比例。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.plotting.correlation_chart" title="kivi.plotting.correlation_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">correlation_chart</span></code></a></dt><dd><p>相关系数矩阵的热力图。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>当单元格的行标签与列标签相同时描边，因此之前与之后的状态不是同一组时，只有两者重合之处有描边。小于 10,000 的整数写全，占比（没有值超过 1 时）保留两位小数，其他值保留三位有效数字并加后缀 <code class="docutils literal notranslate"><span class="pre">K</span></code> 、 <code class="docutils literal notranslate"><span class="pre">M</span></code> 或 <code class="docutils literal notranslate"><span class="pre">B</span></code> ，使加权计数能放进单元格。热力图是 <code class="docutils literal notranslate"><span class="pre">ax.images[0]</span></code> 。坐标轴用索引和列的名称标注，对 <cite>kivi.vintage.transition_matrix</cite> 的输出是 <code class="docutils literal notranslate"><span class="pre">before</span></code> 和 <code class="docutils literal notranslate"><span class="pre">after</span></code> 。</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">transition_chart</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.vintage</span><span class="w"> </span><span class="kn">import</span> <span class="n">transition_matrix</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">before</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"a"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">,</span> <span class="s2">"c"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"c"</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">,</span> <span class="s2">"c"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">after</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"a"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"c"</span><span class="p">,</span> <span class="s2">"c"</span><span class="p">,</span> <span class="s2">"c"</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span> <span class="o">=</span> <span class="n">transition_chart</span><span class="p">(</span><span class="n">transition_matrix</span><span class="p">(</span><span class="n">before</span><span class="p">,</span> <span class="n">after</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="n">text</span><span class="o">.</span><span class="n">get_text</span><span class="p">()</span> <span class="k">for</span> <span class="n">text</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">texts</span><span class="p">]</span>
+<span class="go">['2', '1', '0', '0', '1', '1', '0', '1', '2']</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span><span class="o">.</span><span class="n">get_xlabel</span><span class="p">(),</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_ylabel</span><span class="p">()</span>
+<span class="go">('after', 'before')</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.plotting.rule_set_chart">
+<span class="sig-prename descclassname"><span class="pre">kivi.plotting.</span></span><span class="sig-name descname"><span class="pre">rule_set_chart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.plotting.rule_set_chart" title="链接到此定义。">#</a></dt>
+<dd><p>绘制每条规则拒绝的客群占比，以及该规则之后剩余的通过率。</p>
+<p>规则集是一道瀑布：每条规则只拒绝此前的规则都没有拒绝的申请人。柱形按表中的顺序给出每条规则的 <code class="docutils literal notranslate"><span class="pre">new_hits</span></code> 占全部行的比例，折线在同一条坐标轴上给出该规则之后的 <code class="docutils literal notranslate"><span class="pre">approval_rate</span></code> 。因此一条规则之后的通过率等于它之前的通过率减去它的柱高，第一条从 100% 开始。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>table</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>由 <cite>kivi.rules.rule_set_table</cite> 得到的表。需要包含 <code class="docutils literal notranslate"><span class="pre">new_hits</span></code> 、 <code class="docutils literal notranslate"><span class="pre">approved</span></code> 和 <code class="docutils literal notranslate"><span class="pre">approval_rate</span></code> 列。</p>
+</dd>
+<dt><strong>ax</strong><span class="classifier">matplotlib.axes.Axes，可选</span></dt><dd><p>用于作图的 Axes。未给出时新建一个图形。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>matplotlib.axes.Axes</dt><dd><p>所绘制的 Axes；给出 <cite>ax</cite> 时即为 <cite>ax</cite> 。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ImportError</dt><dd><p>如果未安装 matplotlib。</p>
+</dd>
+<dt>ValueError</dt><dd><p>如果 <cite>table</cite> 不是 DataFrame、缺少所需的列或没有任何行，所需的列不是数值，或者 <cite>ax</cite> 不是 matplotlib 的 Axes。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="rules.html#kivi.rules.rule_set_table" title="kivi.rules.rule_set_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.rules.rule_set_table</span></code></a></dt><dd><p>此图表所绘制的表。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.plotting.cutoff_chart" title="kivi.plotting.cutoff_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cutoff_chart</span></code></a></dt><dd><p>对评分而不是规则做同样的取舍。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>柱形所占的总数，是第一条规则的 <code class="docutils literal notranslate"><span class="pre">approved</span></code> 加上它的 <code class="docutils literal notranslate"><span class="pre">new_hits</span></code> ，因此它计入规则所覆盖的每一行，不论结果是否已知；表按权重计算时，它是总权重。刻度标签是索引中的规则名称。图例在 Axes 的顶部，不会遮住任何柱或点。</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">rule_set_chart</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.rules</span><span class="w"> </span><span class="kn">import</span> <span class="n">rule_set_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rules</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">{</span><span class="s2">"high_debt"</span><span class="p">:</span> <span class="p">[</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">],</span> <span class="s2">"young"</span><span class="p">:</span> <span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">]}</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span> <span class="o">=</span> <span class="n">rule_set_chart</span><span class="p">(</span><span class="n">rule_set_table</span><span class="p">(</span><span class="n">rules</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">patch</span><span class="o">.</span><span class="n">get_height</span><span class="p">())</span> <span class="k">for</span> <span class="n">patch</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">patches</span><span class="p">]</span>
+<span class="go">[0.5, 0.25]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span><span class="o">.</span><span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_ydata</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<span class="go">[0.5, 0.25]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.plotting.profit_chart">
+<span class="sig-prename descclassname"><span class="pre">kivi.plotting.</span></span><span class="sig-name descname"><span class="pre">profit_chart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.plotting.profit_chart" title="链接到此定义。">#</a></dt>
+<dd><p>绘制利润随通过率的变化，并标出利润最高的截断点。</p>
+<p>表中的每个截断点是一个点，x 轴为 <code class="docutils literal notranslate"><span class="pre">approval_rate</span></code> ，y 轴为 <code class="docutils literal notranslate"><span class="pre">profit</span></code> ，即通过客群的收入减去损失。利润最高的截断点用琥珀色标出，并标注其取值和利润，点线标出零利润。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>table</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>由 <cite>kivi.strategy.cutoff_table</cite> 得到的表，计算时需同时给出 <cite>loss</cite> 和 <cite>revenue</cite> 。需要包含 <code class="docutils literal notranslate"><span class="pre">approval_rate</span></code> 和 <code class="docutils literal notranslate"><span class="pre">profit</span></code> 列。</p>
+</dd>
+<dt><strong>label</strong><span class="classifier">str，可选</span></dt><dd><p>曲线在图例中的名称。只有当某条曲线带有标签时才绘制图例。</p>
+</dd>
+<dt><strong>ax</strong><span class="classifier">matplotlib.axes.Axes，可选</span></dt><dd><p>用于作图的 Axes。未给出时新建一个图形。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>matplotlib.axes.Axes</dt><dd><p>所绘制的 Axes；给出 <cite>ax</cite> 时即为 <cite>ax</cite> 。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ImportError</dt><dd><p>如果未安装 matplotlib。</p>
+</dd>
+<dt>ValueError</dt><dd><p>如果 <cite>table</cite> 不是 DataFrame、缺少所需的列或没有任何行，所需的列不是数值，没有一行有利润，或者 <cite>ax</cite> 不是 matplotlib 的 Axes。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="strategy.html#kivi.strategy.cutoff_table" title="kivi.strategy.cutoff_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.strategy.cutoff_table</span></code></a></dt><dd><p>此图表所绘制的表。</p>
+</dd>
+<dt><a class="reference internal" href="metrics.html#kivi.metrics.expected_maximum_profit" title="kivi.metrics.expected_maximum_profit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.metrics.expected_maximum_profit</span></code></a></dt><dd><p>在某个损失分布下最优截断点的利润。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.plotting.cutoff_chart" title="kivi.plotting.cutoff_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cutoff_chart</span></code></a></dt><dd><p>绘制事件率随通过率的变化。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>最优截断点是表顺序中利润最大的第一行，利润缺失的行不参与。其标签给出该行的索引，即截断点，保留四位有效数字。曲线使用 Axes 颜色循环中的下一种颜色，因此当前评分和新评分的表可以各带一个 <cite>label</cite> 在同一个 <cite>ax</cite> 上比较；每条曲线的最优截断点都用琥珀色标出。</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">profit_chart</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.strategy</span><span class="w"> </span><span class="kn">import</span> <span class="n">cutoff_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">score</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">loss</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span> <span class="o">=</span> <span class="n">cutoff_table</span><span class="p">(</span><span class="n">score</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">cutoffs</span><span class="o">=</span><span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">],</span> <span class="n">loss</span><span class="o">=</span><span class="n">loss</span><span class="p">,</span> <span class="n">revenue</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="mi">6</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span> <span class="o">=</span> <span class="n">profit_chart</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span><span class="o">.</span><span class="n">texts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_text</span><span class="p">()</span>
+<span class="go">'cutoff = 0.3, profit = 3'</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.plotting.lgd_chart">
+<span class="sig-prename descclassname"><span class="pre">kivi.plotting.</span></span><span class="sig-name descname"><span class="pre">lgd_chart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.plotting.lgd_chart" title="链接到此定义。">#</a></dt>
+<dd><p>绘制每个分组的平均 LGD，以及零损失和全额损失的占比。</p>
+<p>表中的每个分组画三根柱：平均 LGD <code class="docutils literal notranslate"><span class="pre">mean</span></code> ，损失为零的敞口占比 <code class="docutils literal notranslate"><span class="pre">zero_share</span></code> ，以及损失全部或更多的占比 <code class="docutils literal notranslate"><span class="pre">full_share</span></code> 。这两个占比让平均值掩盖的双峰形态一目了然。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>table</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>由 <cite>kivi.lgd.lgd_table</cite> 得到的表。需要包含 <code class="docutils literal notranslate"><span class="pre">mean</span></code> 、 <code class="docutils literal notranslate"><span class="pre">zero_share</span></code> 和 <code class="docutils literal notranslate"><span class="pre">full_share</span></code> 列。</p>
+</dd>
+<dt><strong>ax</strong><span class="classifier">matplotlib.axes.Axes，可选</span></dt><dd><p>用于作图的 Axes。未给出时新建一个图形。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>matplotlib.axes.Axes</dt><dd><p>所绘制的 Axes；给出 <cite>ax</cite> 时即为 <cite>ax</cite> 。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ImportError</dt><dd><p>如果未安装 matplotlib。</p>
+</dd>
+<dt>ValueError</dt><dd><p>如果 <cite>table</cite> 不是 DataFrame、缺少所需的列或没有任何行，所需的列不是数值，或者 <cite>ax</cite> 不是 matplotlib 的 Axes。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="lgd.html#kivi.lgd.lgd_table" title="kivi.lgd.lgd_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.lgd.lgd_table</span></code></a></dt><dd><p>此图表所绘制的表。</p>
+</dd>
+<dt><a class="reference internal" href="lgd.html#kivi.lgd.workout_lgd" title="kivi.lgd.workout_lgd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.lgd.workout_lgd</span></code></a></dt><dd><p>这些贷款的实际 LGD。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.plotting.psi_chart" title="kivi.plotting.psi_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">psi_chart</span></code></a></dt><dd><p>每个分组中并排画出的两个占比。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>三根柱共用一条百分比坐标轴，平均 LGD 低于 0 或高于 100% 时，坐标轴也随之延伸，实际 LGD 就可能如此。刻度标签是索引中的分组标签，图例在顶部，不会遮住任何柱。 <code class="docutils literal notranslate"><span class="pre">mean</span></code> 缺失的分组没有这根柱。</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.lgd</span><span class="w"> </span><span class="kn">import</span> <span class="n">lgd_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">lgd_chart</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span> <span class="o">=</span> <span class="n">lgd_table</span><span class="p">([</span><span class="s2">"a"</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span> <span class="o">=</span> <span class="n">lgd_chart</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">patch</span><span class="o">.</span><span class="n">get_height</span><span class="p">()),</span> <span class="mi">3</span><span class="p">)</span> <span class="k">for</span> <span class="n">patch</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">patches</span><span class="p">]</span>
+<span class="go">[0.25, 1.1, 0.5, 0.0, 0.0, 1.0]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="lifetime.html"
+       title="上一页">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">上一页</p>
+        <p class="prev-next-title">存续期 PD 与预期信用损失</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="datasets.html"
+       title="下一页">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">下一页</p>
+        <p class="prev-next-title">示例数据</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 当前页面
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.plotting.woe_chart"><code class="docutils literal notranslate"><span class="pre">woe_chart()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.plotting.correlation_chart"><code class="docutils literal notranslate"><span class="pre">correlation_chart()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.plotting.roc_chart"><code class="docutils literal notranslate"><span class="pre">roc_chart()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.plotting.precision_recall_chart"><code class="docutils literal notranslate"><span class="pre">precision_recall_chart()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.plotting.gains_chart"><code class="docutils literal notranslate"><span class="pre">gains_chart()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.plotting.distribution_chart"><code class="docutils literal notranslate"><span class="pre">distribution_chart()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.plotting.calibration_chart"><code class="docutils literal notranslate"><span class="pre">calibration_chart()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.plotting.cutoff_chart"><code class="docutils literal notranslate"><span class="pre">cutoff_chart()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.plotting.psi_chart"><code class="docutils literal notranslate"><span class="pre">psi_chart()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.plotting.monitoring_chart"><code class="docutils literal notranslate"><span class="pre">monitoring_chart()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.plotting.vintage_chart"><code class="docutils literal notranslate"><span class="pre">vintage_chart()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.plotting.survival_chart"><code class="docutils literal notranslate"><span class="pre">survival_chart()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.plotting.transition_chart"><code class="docutils literal notranslate"><span class="pre">transition_chart()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.plotting.rule_set_chart"><code class="docutils literal notranslate"><span class="pre">rule_set_chart()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.plotting.profit_chart"><code class="docutils literal notranslate"><span class="pre">profit_chart()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.plotting.lgd_chart"><code class="docutils literal notranslate"><span class="pre">lgd_chart()</span></code></a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    由 <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1创建。
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

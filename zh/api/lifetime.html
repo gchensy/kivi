@@ -1,0 +1,1366 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>存续期 PD 与预期信用损失 &#8212; kivi</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/kivi.css?v=d005c095" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=14f9d491"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=fd10adb8"></script>
+    <script src="../_static/translations.js?v=540d3cec"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/lifetime';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/kivi-mark.svg"/>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="next" title="图表" href="plotting.html" />
+    <link rel="prev" title="Vintage 与滚动率分析" href="vintage.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+  <meta name="docsearch:version" content="1.9.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">跳转至主要内容</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>回到顶部</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="版本警告"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="网页导航" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/kivi-mark.svg" class="logo__image only-light" alt="kivi"/>
+    <img src="../_static/kivi-mark.svg" class="logo__image only-dark pst-js-only" alt="kivi"/>
+  
+  
+    <p class="title logo__title">kivi</p>
+  
+</a></div>
+    
+      <div class="navbar-item"><span class="kivi-version" title="kivi 1.9.0">1.9.0</span></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    教程
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../../en/api/lifetime.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="当前页面" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    快速开始
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    教程
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release/index.html">
+    版本说明
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    开发
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<a class="nav-link kivi-language-switch" lang="en"
+   hreflang="en"
+   href="../../en/api/lifetime.html">
+  <i class="fa-solid fa-language" aria-hidden="true"></i>
+  <span>English</span>
+</a></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>亮色</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/gchensy/kivi" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="章节导航">
+  <p class="bd-links__title" role="heading" aria-level="1">章节导航</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="conventions.html">约定</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compatibility.html">兼容性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">术语表</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">时间窗特征</a></li>
+<li class="toctree-l1"><a class="reference internal" href="univariate.html">单变量概况</a></li>
+<li class="toctree-l1"><a class="reference internal" href="binning.html">分箱</a></li>
+<li class="toctree-l1"><a class="reference internal" href="woe.html">证据权重与信息值</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selection.html">变量筛选</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reject_inference.html">拒绝推断</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scorecard.html">评分卡</a></li>
+<li class="toctree-l1"><a class="reference internal" href="expert.html">专家评分卡</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">模型表现</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">校准</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lgd.html">LGD 与 EAD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">信贷策略</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rules.html">政策规则</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spec.html">分箱方案</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stability.html">群体稳定性指标</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">模型监控</a></li>
+<li class="toctree-l1"><a class="reference internal" href="capital.html">监管资本</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vintage.html">Vintage 与滚动率分析</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">存续期 PD 与预期信用损失</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html">图表</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">示例数据</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="初始页面">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../api.html" class="nav-link">API 参考</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">存续期 PD 与预期信用损失</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="module-kivi.lifetime">
+<span id="lifetime-pd-and-expected-credit-loss"></span><h1>存续期 PD 与预期信用损失<a class="headerlink" href="#module-kivi.lifetime" title="链接到此标题。">#</a></h1>
+<p>把 PD 期限结构转化为 IFRS 9 的预期信用损失和阶段。 <a class="reference internal" href="#kivi.lifetime.convert_pd" title="kivi.lifetime.convert_pd"><code class="xref py py-func docutils literal notranslate"><span class="pre">convert_pd()</span></code></a> 在累计、边际和条件 PD 之间转换期限结构， <a class="reference internal" href="#kivi.lifetime.transition_pd" title="kivi.lifetime.transition_pd"><code class="xref py py-func docutils literal notranslate"><span class="pre">transition_pd()</span></code></a> 由转移矩阵推算期限结构， <a class="reference internal" href="#kivi.lifetime.conditional_matrix" title="kivi.lifetime.conditional_matrix"><code class="xref py py-func docutils literal notranslate"><span class="pre">conditional_matrix()</span></code></a> 把转移矩阵移到某个情景下的经济状况， <a class="reference internal" href="#kivi.lifetime.matrix_factor" title="kivi.lifetime.matrix_factor"><code class="xref py py-func docutils literal notranslate"><span class="pre">matrix_factor()</span></code></a> 和 <a class="reference internal" href="#kivi.lifetime.matrix_correlation" title="kivi.lifetime.matrix_correlation"><code class="xref py py-func docutils literal notranslate"><span class="pre">matrix_correlation()</span></code></a> 由观察到的迁移估计其因子和相关系数， <a class="reference internal" href="#kivi.lifetime.survival_table" title="kivi.lifetime.survival_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">survival_table()</span></code></a> 由存在删失、提前还款或只从某一账龄起才被观测到的贷款估计期限结构， <a class="reference internal" href="#kivi.lifetime.expected_credit_loss" title="kivi.lifetime.expected_credit_loss"><code class="xref py py-func docutils literal notranslate"><span class="pre">expected_credit_loss()</span></code></a> 给出每个账户的 12 个月预期信用损失和整个存续期预期信用损失， <a class="reference internal" href="#kivi.lifetime.significant_increase" title="kivi.lifetime.significant_increase"><code class="xref py py-func docutils literal notranslate"><span class="pre">significant_increase()</span></code></a> 、 <a class="reference internal" href="#kivi.lifetime.assign_stages" title="kivi.lifetime.assign_stages"><code class="xref py py-func docutils literal notranslate"><span class="pre">assign_stages()</span></code></a> 和 <a class="reference internal" href="#kivi.lifetime.stage_table" title="kivi.lifetime.stage_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">stage_table()</span></code></a> 划分阶段并汇总每个阶段的损失准备。</p>
+<p>基于随包数据的示例见 <a class="reference internal" href="../user_guide/lifetime.html"><span class="doc">存续期 PD 与预期信用损失</span></a> 。</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.lifetime.convert_pd" title="kivi.lifetime.convert_pd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_pd</span></code></a>(probability, *, kind, to)</p></td>
+<td><p>在累计、边际和条件 PD 之间转换 PD 期限结构。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.lifetime.transition_pd" title="kivi.lifetime.transition_pd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transition_pd</span></code></a>(matrix, *, horizons[, ...])</p></td>
+<td><p>由转移矩阵推算每个状态的累计 PD。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.lifetime.conditional_matrix" title="kivi.lifetime.conditional_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">conditional_matrix</span></code></a>(matrix, *, correlation, ...)</p></td>
+<td><p>在单因子模型中把转移矩阵移到给定的经济状况。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.lifetime.matrix_factor" title="kivi.lifetime.matrix_factor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">matrix_factor</span></code></a>(counts, matrix, *, correlation)</p></td>
+<td><p>由一期在各状态之间的迁移估计该期的系统因子。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.lifetime.matrix_correlation" title="kivi.lifetime.matrix_correlation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">matrix_correlation</span></code></a>(counts, matrix, *[, ...])</p></td>
+<td><p>由多期的迁移估计资产相关系数。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.lifetime.survival_table" title="kivi.lifetime.survival_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">survival_table</span></code></a>(duration, event, *[, ...])</p></td>
+<td><p>由存在删失和截断的账户估计累计 PD 期限结构。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.lifetime.expected_credit_loss" title="kivi.lifetime.expected_credit_loss"><code class="xref py py-obj docutils literal notranslate"><span class="pre">expected_credit_loss</span></code></a>(probability, lgd, ead, ...)</p></td>
+<td><p>计算每个账户的 12 个月或整个存续期预期信用损失。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.lifetime.significant_increase" title="kivi.lifetime.significant_increase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">significant_increase</span></code></a>(probability, ...)</p></td>
+<td><p>标记自初始确认以来信用风险是否显著增加。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kivi.lifetime.assign_stages" title="kivi.lifetime.assign_stages"><code class="xref py py-obj docutils literal notranslate"><span class="pre">assign_stages</span></code></a>(significant_increase[, ...])</p></td>
+<td><p>把敞口划分到 IFRS 9 的三个阶段。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kivi.lifetime.stage_table" title="kivi.lifetime.stage_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stage_table</span></code></a>(stage, exposure, allowance, *[, ...])</p></td>
+<td><p>汇总每个阶段的敞口和预期信用损失。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.lifetime.convert_pd">
+<span class="sig-prename descclassname"><span class="pre">kivi.lifetime.</span></span><span class="sig-name descname"><span class="pre">convert_pd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">probability</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">kind</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.lifetime.convert_pd" title="链接到此定义。">#</a></dt>
+<dd><p>在累计、边际和条件 PD 之间转换 PD 期限结构。</p>
+<p>期限结构给出从某个起点（例如贷款发放）开始每一期的违约概率。第 <span class="math notranslate nohighlight">\(k\)</span> 期的累计 PD 是在第 1 期到第 <span class="math notranslate nohighlight">\(k\)</span> 期之间违约的概率，边际 PD 是在第 <span class="math notranslate nohighlight">\(k\)</span> 期违约的概率，条件 PD（又称风险率，hazard rate）是此前未违约的前提下在第 <span class="math notranslate nohighlight">\(k\)</span> 期违约的概率。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>probability</strong><span class="classifier">array_like 或 pandas.DataFrame</span></dt><dd><p>取值在 0 到 1 之间的 PD：一条曲线（一维），或每行一条曲线（二维），例如 <cite>kivi.vintage.vintage_table</cite> 给出的累计坏账率，每个批次一行、每个账龄一列。各期就是曲线上的位置：第一个位置是第 1 期。缺失值表示没有观测到的期，例如批次尚未达到的账龄。布尔值按 0 和 1 计。</p>
+</dd>
+<dt><strong>kind</strong><span class="classifier">{&quot;cumulative&quot;, &quot;marginal&quot;, &quot;conditional&quot;}</span></dt><dd><p><cite>probability</cite> 中 PD 的种类。</p>
+</dd>
+<dt><strong>to</strong><span class="classifier">{&quot;cumulative&quot;, &quot;marginal&quot;, &quot;conditional&quot;}</span></dt><dd><p>要返回的 PD 种类。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.DataFrame、pandas.Series 或 numpy.ndarray</dt><dd><p>种类为 <cite>to</cite> 的 PD，形状与 <cite>probability</cite> 相同，并保留其索引、列和名称。缺失值保持缺失，依赖于它们的 PD 也为缺失，详见“说明”。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果 <cite>kind</cite> 或 <cite>to</cite> 不是这三种之一， <cite>probability</cite> 不是实数数值、不是一维或二维、没有任何一期，或有取值超出 [0, 1]。此外，如果累计 PD 沿曲线下降，或一条曲线的边际 PD 之和超过 1，也会引发此异常。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.lifetime.transition_pd" title="kivi.lifetime.transition_pd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transition_pd</span></code></a></dt><dd><p>由转移矩阵得到的累计 PD。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.lifetime.expected_credit_loss" title="kivi.lifetime.expected_credit_loss"><code class="xref py py-obj docutils literal notranslate"><span class="pre">expected_credit_loss</span></code></a></dt><dd><p>由边际 PD 计算的预期信用损失。</p>
+</dd>
+<dt><a class="reference internal" href="vintage.html#kivi.vintage.vintage_table" title="kivi.vintage.vintage_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.vintage.vintage_table</span></code></a></dt><dd><p>按批次和账龄统计的累计坏账率。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>设第 <span class="math notranslate nohighlight">\(k = 1, 2, \ldots\)</span> 期的累计 PD 为 <span class="math notranslate nohighlight">\(C_k\)</span> 、边际 PD 为 <span class="math notranslate nohighlight">\(m_k\)</span> 、条件 PD 为 <span class="math notranslate nohighlight">\(h_k\)</span> ，并令 <span class="math notranslate nohighlight">\(C_0 = 0\)</span> ，则</p>
+<div class="math notranslate nohighlight">
+\[m_k = C_k - C_{k-1}, \qquad
+h_k = \frac{C_k - C_{k-1}}{1 - C_{k-1}}, \qquad
+C_k = \sum_{j \le k} m_j = 1 - \prod_{j \le k} (1 - h_j).\]</div>
+<p>在舍入误差范围内，这些转换互为逆运算。各期的标签不参与计算：从账龄 1 开始的 vintage 表各列给出月度 PD，按季度快照的各列给出相邻快照之间各季度的 PD。</p>
+<p>缺失值不会被填补。某一期的边际 PD 和条件 PD 需要该期期末和上一期期末的累计 PD，某一期的累计 PD 则需要截至该期每一期的边际或条件 PD。因此，批次尚未达到的账龄在每一种 PD 中都保持缺失，往返转换之后也是如此。曲线开头的缺失值（面板晚于放款开始时， <cite>kivi.vintage.vintage_table</cite> 会给出这样的缺失值）不影响从第二个观测期起的边际和条件 PD，但由它们无法再转换回累计 PD，因为面板开始之前的累计 PD 未知。</p>
+<p>一条曲线的累计 PD 达到 1 之后，已没有敞口可以违约，此后各期的条件 PD 为 0 / 0，取为 0，以保证这些转换仍互为逆运算。</p>
+<p><cite>kivi.vintage.vintage_table</cite> 的累计坏账率计入批次中的每一笔贷款，也包括提前还清、不会再违约的贷款。因此它的边际 PD 已经考虑了提前还款，它的条件 PD 是以未违约为条件，而不是以贷款仍在账上为条件。</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.lifetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">convert_pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cumulative</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.02</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.08</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">convert_pd</span><span class="p">(</span><span class="n">cumulative</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">"cumulative"</span><span class="p">,</span> <span class="n">to</span><span class="o">=</span><span class="s2">"marginal"</span><span class="p">)</span>
+<span class="go">array([0.02, 0.03, 0.03])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">conditional</span> <span class="o">=</span> <span class="n">convert_pd</span><span class="p">(</span><span class="n">cumulative</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">"cumulative"</span><span class="p">,</span> <span class="n">to</span><span class="o">=</span><span class="s2">"conditional"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">conditional</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">array([0.02  , 0.0306, 0.0316])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">convert_pd</span><span class="p">(</span><span class="n">conditional</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">"conditional"</span><span class="p">,</span> <span class="n">to</span><span class="o">=</span><span class="s2">"cumulative"</span><span class="p">)</span>
+<span class="go">array([0.02, 0.05, 0.08])</span>
+</pre></div>
+</div>
+<p>Vintage 表每个批次一条曲线，批次尚未达到的账龄保持缺失：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.vintage</span><span class="w"> </span><span class="kn">import</span> <span class="n">vintage_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">loan</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cohort</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"2024-01"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">6</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"2024-02"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">4</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">month_on_book</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bad</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span> <span class="o">=</span> <span class="n">vintage_table</span><span class="p">(</span><span class="n">loan</span><span class="p">,</span> <span class="n">cohort</span><span class="p">,</span> <span class="n">month_on_book</span><span class="p">,</span> <span class="n">bad</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">convert_pd</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">"cumulative"</span><span class="p">,</span> <span class="n">to</span><span class="o">=</span><span class="s2">"conditional"</span><span class="p">)</span>
+<span class="go">month_on_book    1    2    3</span>
+<span class="go">cohort</span>
+<span class="go">2024-01        0.0  0.5  0.0</span>
+<span class="go">2024-02        0.5  0.0  NaN</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.lifetime.transition_pd">
+<span class="sig-prename descclassname"><span class="pre">kivi.lifetime.</span></span><span class="sig-name descname"><span class="pre">transition_pd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">horizons</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.lifetime.transition_pd" title="链接到此定义。">#</a></dt>
+<dd><p>由转移矩阵推算每个状态的累计 PD。</p>
+<p>转移矩阵的第 <span class="math notranslate nohighlight">\(i\)</span> 行给出一期内从状态 <span class="math notranslate nohighlight">\(i\)</span> （例如某个评级或逾期档位）迁移到各个状态的概率。如果迁移服从时齐马尔可夫链，矩阵的 <span class="math notranslate nohighlight">\(h\)</span> 次幂给出 <span class="math notranslate nohighlight">\(h\)</span> 期内的迁移概率，其违约列就是每个起始状态的累计 PD。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>matrix</strong><span class="classifier">array_like 或 pandas.DataFrame</span></dt><dd><p>一期（例如一年或一个月）内各状态之间迁移概率的方阵，例如 <cite>kivi.vintage.transition_matrix</cite> 在 <code class="docutils literal notranslate"><span class="pre">normalize=True</span></code> 时的结果。每一行是取值在 0 到 1 之间、和为 1 的概率，但违约状态所在的行不会被使用。DataFrame 的状态是其索引，必须与列相同；数组的状态是位置 0、1，依此类推。</p>
+</dd>
+<dt><strong>horizons</strong><span class="classifier">int 或 array_like</span></dt><dd><p>报告累计 PD 的期数：正整数 <span class="math notranslate nohighlight">\(n\)</span> 表示从 1 到 <span class="math notranslate nohighlight">\(n\)</span> 的每一个期限，也可以是递增的正整数序列，例如 <code class="docutils literal notranslate"><span class="pre">[12,</span> <span class="pre">24,</span> <span class="pre">36]</span></code> 。</p>
+</dd>
+<dt><strong>default_state</strong><span class="classifier">可选</span></dt><dd><p>违约状态的标签。默认取最后一个状态；状态按从最好到最差排列时（如 <cite>kivi.vintage.transition_matrix</cite> ），它就是最差的状态。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.DataFrame</dt><dd><p>累计 PD，每个起始状态一行（索引名为 <code class="docutils literal notranslate"><span class="pre">state</span></code> ；状态有多个层级时，索引为 <cite>matrix</cite> 索引的各层级），每个期限一列（列名为 <code class="docutils literal notranslate"><span class="pre">horizon</span></code> ）。违约状态所在的行为 1。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果 <cite>matrix</cite> 不是由实数构成的二维方阵，DataFrame 的索引与列不同或有重复， <cite>default_state</cite> 不是其中的状态，或者其他状态所在的行含有缺失值、有取值超出 [0, 1] 或之和不为 1。此外，如果 <cite>horizons</cite> 不是正整数，也不是递增的正整数序列，也会引发此异常。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="vintage.html#kivi.vintage.transition_matrix" title="kivi.vintage.transition_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.vintage.transition_matrix</span></code></a></dt><dd><p>由观测到的迁移得到的转移矩阵。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.lifetime.convert_pd" title="kivi.lifetime.convert_pd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_pd</span></code></a></dt><dd><p>由累计 PD 得到的边际 PD 和条件 PD。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.lifetime.expected_credit_loss" title="kivi.lifetime.expected_credit_loss"><code class="xref py py-obj docutils literal notranslate"><span class="pre">expected_credit_loss</span></code></a></dt><dd><p>由边际 PD 计算的预期信用损失。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>违约状态被设为吸收态：它所在的行被替换为以概率 1 停留在违约状态的行。因此，数据中从违约状态回到正常的敞口仍算作违约，与 <cite>kivi.vintage.vintage_table</cite> 的“曾经为坏”比例一致。对于这个矩阵 <span class="math notranslate nohighlight">\(P\)</span> 和违约状态 <span class="math notranslate nohighlight">\(d\)</span> ，状态 <span class="math notranslate nohighlight">\(i\)</span> 在期限 <span class="math notranslate nohighlight">\(h\)</span> 的累计 PD 为</p>
+<div class="math notranslate nohighlight">
+\[\mathrm{PD}_i(h) = (P^h)_{id}.\]</div>
+<p>它不随期限下降，也不会超过 1。由于 <span class="math notranslate nohighlight">\(P^{a+b} = P^a P^b\)</span> ， <span class="math notranslate nohighlight">\(a + b\)</span> 期的 PD 等于 <span class="math notranslate nohighlight">\(a\)</span> 期后所到达各状态的 <span class="math notranslate nohighlight">\(b\)</span> 期 PD，以到达这些状态的概率加权。</p>
+<p>这一推算假设各状态之间的迁移概率每一期都相同，且与敞口在当前状态或在账上停留的时间无关。用一年数据估计的矩阵给出年度 PD，月度矩阵给出月度 PD。每行之和与 1 的差不得超过 1e-9；经过舍入的公开矩阵，请先把每行除以该行之和。</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.lifetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">transition_pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">states</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"A"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"D"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">matrix</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">[[</span><span class="mf">0.90</span><span class="p">,</span> <span class="mf">0.08</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.10</span><span class="p">,</span> <span class="mf">0.70</span><span class="p">,</span> <span class="mf">0.20</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.00</span><span class="p">,</span> <span class="mf">0.00</span><span class="p">,</span> <span class="mf">1.00</span><span class="p">]],</span>
+<span class="gp">... </span>    <span class="n">index</span><span class="o">=</span><span class="n">states</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">columns</span><span class="o">=</span><span class="n">states</span><span class="p">,</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">transition_pd</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">horizons</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">horizon     1      2        3</span>
+<span class="go">state</span>
+<span class="go">A        0.02  0.054  0.09596</span>
+<span class="go">B        0.20  0.342  0.44480</span>
+<span class="go">D        1.00  1.000  1.00000</span>
+</pre></div>
+</div>
+<p>两期之后，状态 A 违约的概率为 0.90 × 0.02 + 0.08 × 0.20 + 0.02 = 0.054。</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.lifetime.conditional_matrix">
+<span class="sig-prename descclassname"><span class="pre">kivi.lifetime.</span></span><span class="sig-name descname"><span class="pre">conditional_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">correlation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">factor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.lifetime.conditional_matrix" title="链接到此定义。">#</a></dt>
+<dd><p>在单因子模型中把转移矩阵移到给定的经济状况。</p>
+<p>在 Belkin、Suchower 和 Forest（1998）的单参数表示中，从每个状态出发的迁移服从一个标准正态的信用指数，按再现长期矩阵该行的阈值分箱，与 CreditMetrics 相同。所有借款人的信用指数共享一个系统因子，因此给定因子时整个矩阵一起平移：经济好时违约和降级更少、升级更多，经济差时相反。其违约列就是 <cite>kivi.capital.conditional_pd</cite> 的条件 PD。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>matrix</strong><span class="classifier">array_like 或 pandas.DataFrame</span></dt><dd><p>一期内各状态之间长期迁移概率的方阵，与 <cite>transition_pd</cite> 的要求相同，状态按信用质量从最好到最差排列。每一行是取值在 0 到 1 之间、和为 1 的概率，但违约状态所在的行不会被使用。DataFrame 的状态是其索引，必须与列相同；数组的状态是位置 0、1，依此类推。</p>
+</dd>
+<dt><strong>correlation</strong><span class="classifier">float</span></dt><dd><p>单因子模型的资产相关系数 <span class="math notranslate nohighlight">\(\rho\)</span> ，取值从 0 到小于 1。</p>
+</dd>
+<dt><strong>factor</strong><span class="classifier">float</span></dt><dd><p>该期标准正态系统因子的取值 <span class="math notranslate nohighlight">\(z\)</span> ，必须有限；正值表示经济好于平均。</p>
+</dd>
+<dt><strong>default_state</strong><span class="classifier">可选</span></dt><dd><p>违约状态的标签；无论位于何处，它都是最差的状态。默认为最后一个状态。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.DataFrame</dt><dd><p>给定因子时的矩阵，索引和列与 <cite>matrix</cite> 相同，数组则为位置。每一行之和为 1，违约状态所在的行以概率 1 停留在违约状态。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果 <cite>matrix</cite> 或 <cite>default_state</cite> 无效（与 <cite>transition_pd</cite> 相同）， <cite>correlation</cite> 不是从 0 到小于 1 的实数，或 <cite>factor</cite> 不是有限的实数。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.lifetime.matrix_factor" title="kivi.lifetime.matrix_factor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">matrix_factor</span></code></a></dt><dd><p>由一期的迁移估计该期的因子。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.lifetime.matrix_correlation" title="kivi.lifetime.matrix_correlation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">matrix_correlation</span></code></a></dt><dd><p>由多期的迁移估计相关系数。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.lifetime.transition_pd" title="kivi.lifetime.transition_pd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transition_pd</span></code></a></dt><dd><p>由转移矩阵的各次幂得到的累计 PD。</p>
+</dd>
+<dt><a class="reference internal" href="capital.html#kivi.capital.conditional_pd" title="kivi.capital.conditional_pd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.capital.conditional_pd</span></code></a></dt><dd><p>条件 PD，即结果的违约列。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>设状态从最好到最差排列、违约状态在最后，记 <span class="math notranslate nohighlight">\(C_{ij}\)</span> 为从状态 <span class="math notranslate nohighlight">\(i\)</span> 迁移到状态 <span class="math notranslate nohighlight">\(j\)</span> 或更差状态的长期概率。状态 <span class="math notranslate nohighlight">\(i\)</span> 的借款人的信用指数 <span class="math notranslate nohighlight">\(X = \sqrt{\rho}\,Z + \sqrt{1 - \rho}\,Y\)</span> 低于 <span class="math notranslate nohighlight">\(b_{ij} = \Phi^{-1}(C_{ij})\)</span> 时，落入状态 <span class="math notranslate nohighlight">\(j\)</span> 或更差的状态；给定 <span class="math notranslate nohighlight">\(Z = z\)</span> 时</p>
+<div class="math notranslate nohighlight">
+\[C_{ij}(z) = \Phi\!\left(\frac{b_{ij} - \sqrt{\rho}\,z}{\sqrt{1 - \rho}}\right).\]</div>
+<p>结果的每个元素是相邻两个 <span class="math notranslate nohighlight">\(C_{ij}(z)\)</span> 之差，由较小的尾部计算，因此 0 和 1 保持精确，很小的元素保持其相对精度。</p>
+<p>因子为 0 给出中位数经济下的矩阵，而不是 <cite>matrix</cite> ：对标准正态因子取平均时，一期的结果才是 <cite>matrix</cite> 。每期一个、相互独立的因子构成的路径同样如此，其乘积的平均是 <cite>matrix</cite> 的幂；但同一个因子保持多期时并非如此，其乘积的平均与幂不同：只有两个状态时 PD 更低，状态更多时可能有的状态更高、有的状态更低。因子和相关系数属于 <cite>matrix</cite> 的期间，例如一个月或一年。</p>
+<p>阈值的做法依据 CreditMetrics 技术文档（Gupton、Finger 和 Bhatia，1997，第 8.4 节），条件矩阵依据 Witzany（2020，式 10）。在信用质量的顺序中没有位置的退出，例如提前还款，必须先去掉，并把各行除以行和，这样得到的是不退出的贷款的迁移。</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.lifetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">conditional_matrix</span><span class="p">,</span> <span class="n">transition_pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">states</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"A"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"D"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">matrix</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">[[</span><span class="mf">0.90</span><span class="p">,</span> <span class="mf">0.08</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.10</span><span class="p">,</span> <span class="mf">0.70</span><span class="p">,</span> <span class="mf">0.20</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.00</span><span class="p">,</span> <span class="mf">0.00</span><span class="p">,</span> <span class="mf">1.00</span><span class="p">]],</span>
+<span class="gp">... </span>    <span class="n">index</span><span class="o">=</span><span class="n">states</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">columns</span><span class="o">=</span><span class="n">states</span><span class="p">,</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">shifted</span> <span class="o">=</span> <span class="n">conditional_matrix</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">correlation</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">factor</span><span class="o">=-</span><span class="mf">1.0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">shifted</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">        A       B       D</span>
+<span class="go">A  0.8456  0.1209  0.0335</span>
+<span class="go">B  0.0461  0.6641  0.2899</span>
+<span class="go">D  0.0000  0.0000  1.0000</span>
+</pre></div>
+</div>
+<p>因子比中位数低一个标准差时，状态 A 违约的概率是 0.0335 而不是 0.02，即 <code class="docutils literal notranslate"><span class="pre">conditional_pd(0.02,</span> <span class="pre">correlation=0.1,</span> <span class="pre">factor=-1.0)</span></code> ，并且更常迁移到 B，而 B 回到 A 的次数更少。这个因子保持三期时，累计 PD 为：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">transition_pd</span><span class="p">(</span><span class="n">shifted</span><span class="p">,</span> <span class="n">horizons</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">horizon       1       2       3</span>
+<span class="go">state</span>
+<span class="go">A        0.0335  0.0969  0.1740</span>
+<span class="go">B        0.2899  0.4839  0.6157</span>
+<span class="go">D        1.0000  1.0000  1.0000</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.lifetime.matrix_factor">
+<span class="sig-prename descclassname"><span class="pre">kivi.lifetime.</span></span><span class="sig-name descname"><span class="pre">matrix_factor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">counts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">correlation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.lifetime.matrix_factor" title="链接到此定义。">#</a></dt>
+<dd><p>由一期在各状态之间的迁移估计该期的系统因子。</p>
+<p>因子是使 <cite>conditional_matrix</cite> 最能解释该期迁移的取值：每个状态迁移所服从的多项分布的极大似然估计。负的因子表示该期比平均差，违约和降级多于 <cite>matrix</cite> 给出的水平。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>counts</strong><span class="classifier">array_like 或 pandas.DataFrame</span></dt><dd><p>该期在各状态之间迁移的对象数的方阵，例如不带 <code class="docutils literal notranslate"><span class="pre">normalize</span></code> 的 <cite>kivi.vintage.transition_matrix</cite> ，或频数权重之和。若 <cite>matrix</cite> 是 DataFrame，则 DataFrame 必须具有 <cite>matrix</cite> 的索引和列；数组按位置对应。计数必须非负且有限，但违约状态所在的行不会被使用。</p>
+</dd>
+<dt><strong>matrix</strong><span class="classifier">array_like 或 pandas.DataFrame</span></dt><dd><p>长期转移矩阵，与 <cite>conditional_matrix</cite> 的要求相同，状态从最好到最差排列。</p>
+</dd>
+<dt><strong>correlation</strong><span class="classifier">float</span></dt><dd><p>单因子模型的资产相关系数，严格介于 0 与 1 之间。</p>
+</dd>
+<dt><strong>default_state</strong><span class="classifier">可选</span></dt><dd><p>违约状态的标签，与 <cite>conditional_matrix</cite> 相同。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>float</dt><dd><p>估计的因子。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果 <cite>matrix</cite> 、 <cite>correlation</cite> 或 <cite>default_state</cite> 无效（与 <cite>conditional_matrix</cite> 相同），或 <cite>correlation</cite> 为 0；如果 <cite>counts</cite> 与 <cite>matrix</cite> 不匹配，在违约状态所在的行以外有负的、缺失的或无穷的计数，或者没有任何来自可以迁移到多个状态的状态的迁移；如果有对象迁移到 <cite>matrix</cite> 给出概率为 0 的格子；或者因子不是有限值，因为所有迁移都去往各自状态能到达的最好状态，或都去往最差状态。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.lifetime.conditional_matrix" title="kivi.lifetime.conditional_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">conditional_matrix</span></code></a></dt><dd><p>给定因子时的转移矩阵。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.lifetime.matrix_correlation" title="kivi.lifetime.matrix_correlation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">matrix_correlation</span></code></a></dt><dd><p>使多期的因子像 Z 一样变化的相关系数。</p>
+</dd>
+<dt><a class="reference internal" href="capital.html#kivi.capital.systematic_factor" title="kivi.capital.systematic_factor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.capital.systematic_factor</span></code></a></dt><dd><p>违约率所对应的因子。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>设有 <span class="math notranslate nohighlight">\(n_{ij}\)</span> 个对象从状态 <span class="math notranslate nohighlight">\(i\)</span> 迁移到状态 <span class="math notranslate nohighlight">\(j\)</span> ， <span class="math notranslate nohighlight">\(p_{ij}(z)\)</span> 是 <cite>conditional_matrix</cite> 的概率，因子使下式最大：</p>
+<div class="math notranslate nohighlight">
+\[\ell(z) = \sum_{i \ne d} \sum_j n_{ij} \log p_{ij}(z)\]</div>
+<p>其中 <span class="math notranslate nohighlight">\(i\)</span> 取违约状态 <span class="math notranslate nohighlight">\(d\)</span> 以外的状态。由于正态密度是对数凹的，每一项都是 <span class="math notranslate nohighlight">\(z\)</span> 的凹函数，因此最大点唯一；它通过对导数二分求得。计数乘以同一个常数得到相同的因子；只有两个状态时，因子等于 <cite>kivi.capital.systematic_factor</cite> 对该违约率给出的因子。</p>
+<p>Belkin、Suchower 和 Forest（1998）则最小化观察概率与条件概率之差的平方（据 Shao、Li 和 Li 2018 年式 1.5 的转述），每项的权重是该状态的对象数除以二项方差 <span class="math notranslate nohighlight">\(p_{ij}(z)(1 - p_{ij}(z))\)</span> 。对于罕见的迁移，这个权重没有上界：最好状态的一个对象迁移到概率为 0.00001 的状态，就能使因子移动四分之一个标准差；似然没有这么脆弱。</p>
+<p>因子吸收所有使各行一起变化的因素，包括组合结构的变化，例如账龄，因此 <cite>counts</cite> 和 <cite>matrix</cite> 应当描述可比的组合。</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.lifetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">conditional_matrix</span><span class="p">,</span> <span class="n">matrix_factor</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">states</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"A"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"D"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">matrix</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">[[</span><span class="mf">0.90</span><span class="p">,</span> <span class="mf">0.08</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.10</span><span class="p">,</span> <span class="mf">0.70</span><span class="p">,</span> <span class="mf">0.20</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.00</span><span class="p">,</span> <span class="mf">0.00</span><span class="p">,</span> <span class="mf">1.00</span><span class="p">]],</span>
+<span class="gp">... </span>    <span class="n">index</span><span class="o">=</span><span class="n">states</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">columns</span><span class="o">=</span><span class="n">states</span><span class="p">,</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">counts</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">[[</span><span class="mi">850</span><span class="p">,</span> <span class="mi">110</span><span class="p">,</span> <span class="mi">40</span><span class="p">],</span> <span class="p">[</span><span class="mi">60</span><span class="p">,</span> <span class="mi">280</span><span class="p">,</span> <span class="mi">160</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]],</span> <span class="n">index</span><span class="o">=</span><span class="n">states</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">states</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">matrix_factor</span><span class="p">(</span><span class="n">counts</span><span class="p">,</span><span class="w"> </span><span class="n">matrix</span><span class="p">,</span><span class="w"> </span><span class="n">correlation</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">-0.8425</span>
+</pre></div>
+</div>
+<p>两个状态的违约都比 <cite>matrix</cite> 给出的多，A 为 4% 对 2%，B 为 32% 对 20%，因此该期比平均差。</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.lifetime.matrix_correlation">
+<span class="sig-prename descclassname"><span class="pre">kivi.lifetime.</span></span><span class="sig-name descname"><span class="pre">matrix_correlation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">counts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.lifetime.matrix_correlation" title="链接到此定义。">#</a></dt>
+<dd><p>由多期的迁移估计资产相关系数。</p>
+<p>Belkin、Suchower 和 Forest（1998）选择这样的相关系数：各期因子的变化与模型中标准正态因子的变化一样大，即样本方差为 1。每期的因子就是 <cite>matrix_factor</cite> 给出的因子。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>counts</strong><span class="classifier">mapping、sequence 或 pandas.Series</span></dt><dd><p>各期的计数矩阵，至少两期，每期的要求同 <cite>matrix_factor</cite> ：可以是从每期的标签（例如月份）到其计数的映射或 Series，也可以是计数的列表或元组。错误信息给出出错期间的标签或位置。</p>
+</dd>
+<dt><strong>matrix</strong><span class="classifier">array_like 或 pandas.DataFrame</span></dt><dd><p>长期转移矩阵，与 <cite>conditional_matrix</cite> 的要求相同，状态从最好到最差排列。</p>
+</dd>
+<dt><strong>default_state</strong><span class="classifier">可选</span></dt><dd><p>违约状态的标签，与 <cite>conditional_matrix</cite> 相同。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>float</dt><dd><p>相关系数，严格介于 0 与 1 之间。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果 <cite>matrix</cite> 或 <cite>default_state</cite> 无效（与 <cite>conditional_matrix</cite> 相同）；如果 <cite>counts</cite> 是单个矩阵或少于两期，或某一期的计数无效（与 <cite>matrix_factor</cite> 相同）；或者在 0.99 以内没有相关系数能使因子的方差为 1，因为各期因子全部相同或变化太大。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.lifetime.matrix_factor" title="kivi.lifetime.matrix_factor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">matrix_factor</span></code></a></dt><dd><p>给定相关系数时一期的因子。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.lifetime.conditional_matrix" title="kivi.lifetime.conditional_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">conditional_matrix</span></code></a></dt><dd><p>给定因子时的转移矩阵。</p>
+</dd>
+<dt><a class="reference internal" href="capital.html#kivi.capital.vasicek_fit" title="kivi.capital.vasicek_fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.capital.vasicek_fit</span></code></a></dt><dd><p>由违约率序列得到的相关系数。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>样本方差用 <code class="docutils literal notranslate"><span class="pre">ddof=1</span></code> 计算，与 <cite>kivi.capital.vasicek_fit</cite> 相同，因子的均值不强制为 0。相关系数从 0 上升时，方差从无穷大陡然下降，在 0.5 附近趋于平缓；相关系数更高时，方差可能再次上升又下降。这一形状经过数值检验，但没有证明。结果是 0.99 以内方差为 1 的最小相关系数：先以 0.01 为步长的网格找到第一个方差不超过 1 的相关系数，再在它与前一步之间二分。相关系数高于约 0.5 时，单位方差条件不能确定相关系数，真实值可能是较大的那个根：在 Witzany（2020，表 2）的矩阵下，样本方差为 1 的六期因子在相关系数 0.6、0.7、0.8 和 0.9 下的期望计数，分别给出 0.557、0.503、0.462 和 0.431。</p>
+<p>由于估计因子的方差被设为 1，估计值约等于真实相关系数乘以各期真实因子的样本方差，因此期数少时估计很不确定。小组合的二项噪声会增大因子的方差，使估计偏高。</p>
+<p>单位方差条件来自 Belkin、Suchower 和 Forest（据 Shao、Li 和 Li 2018 年第 2 节的转述）；他们用加权最小二乘估计因子（见 <cite>matrix_factor</cite> ）。另一条路线是用 <cite>kivi.capital.vasicek_fit</cite> 由违约率序列估计相关系数，用 <cite>kivi.capital.systematic_factor</cite> 估计因子。</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.lifetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">matrix_correlation</span><span class="p">,</span> <span class="n">matrix_factor</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">states</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"A"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"D"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">matrix</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">[[</span><span class="mf">0.90</span><span class="p">,</span> <span class="mf">0.08</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.10</span><span class="p">,</span> <span class="mf">0.70</span><span class="p">,</span> <span class="mf">0.20</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.00</span><span class="p">,</span> <span class="mf">0.00</span><span class="p">,</span> <span class="mf">1.00</span><span class="p">]],</span>
+<span class="gp">... </span>    <span class="n">index</span><span class="o">=</span><span class="n">states</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">columns</span><span class="o">=</span><span class="n">states</span><span class="p">,</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">years</span> <span class="o">=</span> <span class="p">{</span>
+<span class="gp">... </span>    <span class="mi">2023</span><span class="p">:</span> <span class="p">[[</span><span class="mi">930</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span> <span class="p">[</span><span class="mi">130</span><span class="p">,</span> <span class="mi">740</span><span class="p">,</span> <span class="mi">130</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]],</span>
+<span class="gp">... </span>    <span class="mi">2024</span><span class="p">:</span> <span class="p">[[</span><span class="mi">850</span><span class="p">,</span> <span class="mi">110</span><span class="p">,</span> <span class="mi">40</span><span class="p">],</span> <span class="p">[</span><span class="mi">60</span><span class="p">,</span> <span class="mi">280</span><span class="p">,</span> <span class="mi">160</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]],</span>
+<span class="gp">... </span>    <span class="mi">2025</span><span class="p">:</span> <span class="p">[[</span><span class="mi">900</span><span class="p">,</span> <span class="mi">80</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">700</span><span class="p">,</span> <span class="mi">200</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]],</span>
+<span class="gp">... </span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">correlation</span> <span class="o">=</span> <span class="n">matrix_correlation</span><span class="p">(</span><span class="n">years</span><span class="p">,</span> <span class="n">matrix</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">correlation</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">0.0515</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">factors</span> <span class="o">=</span> <span class="p">[</span><span class="n">matrix_factor</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">matrix</span><span class="p">,</span> <span class="n">correlation</span><span class="o">=</span><span class="n">correlation</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">years</span><span class="o">.</span><span class="n">values</span><span class="p">()]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="nb">round</span><span class="p">(</span><span class="n">factor</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span> <span class="k">for</span> <span class="n">factor</span> <span class="ow">in</span> <span class="n">factors</span><span class="p">]</span>
+<span class="go">[0.8946, -1.1045, -0.0529]</span>
+</pre></div>
+</div>
+<p>这些计数是列表，按位置与 <cite>matrix</cite> 的状态对应。在这个相关系数下，三年的因子的样本方差为 1。</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.lifetime.survival_table">
+<span class="sig-prename descclassname"><span class="pre">kivi.lifetime.</span></span><span class="sig-name descname"><span class="pre">survival_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">duration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">competing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entry</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.lifetime.survival_table" title="链接到此定义。">#</a></dt>
+<dd><p>由存在删失和截断的账户估计累计 PD 期限结构。</p>
+<p>每个账户（例如一笔贷款）从某个起点（例如放款）开始逐期跟踪，直到违约、因其他原因退出（例如提前还款），或最后一次被观测到，此时该账户被删失。该表给出每期处于风险中的账户数和违约风险率；不给 <cite>competing</cite> 时给出累计 PD 的 Kaplan–Meier 估计，给出时给出违约累计发生率的 Aalen–Johansen 估计。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>duration</strong><span class="classifier">array_like</span></dt><dd><p>每个账户违约、退出或最后一次被观测的期数，为正整数，例如月度面板中该账户最后一行的账龄。</p>
+</dd>
+<dt><strong>event</strong><span class="classifier">array_like</span></dt><dd><p>账户是否在第 <cite>duration</cite> 期违约，为布尔值或 0 与 1。</p>
+</dd>
+<dt><strong>competing</strong><span class="classifier">array_like，可选</span></dt><dd><p>账户是否在第 <cite>duration</cite> 期因其他原因退出、从而不再有违约风险，例如提前还款，为布尔值或 0 与 1。在 <cite>event</cite> 为 1 的行上它不能为 1。不给出时，所有未违约的账户都视为删失。</p>
+</dd>
+<dt><strong>entry</strong><span class="classifier">array_like，可选</span></dt><dd><p>每个账户开始被观测时已经过去的期数，为 0 到该账户 <cite>duration</cite> − 1 之间的整数，默认为 0。账户从第 <code class="docutils literal notranslate"><span class="pre">entry</span> <span class="pre">+</span> <span class="pre">1</span></code> 期起处于风险中，因此在账龄 7 首次被观测到的贷款，其 entry 为 6。这用于处理左截断，例如在贷款发放之后才开始的面板。</p>
+</dd>
+<dt><strong>weights</strong><span class="classifier">array_like，可选</span></dt><dd><p>每个账户的非负频数权重。计数变为权重之和，因此整数权重与重复相应账户得到的表相同，权重为 0 的账户被排除。作为 Series 传入的输入，索引必须完全相同；否则按位置对应。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.DataFrame</dt><dd><p>从第 1 期到最大的 <cite>duration</cite> 每期一行，索引名为 <code class="docutils literal notranslate"><span class="pre">period</span></code> ，各列为 <code class="docutils literal notranslate"><span class="pre">at_risk</span></code> 、 <code class="docutils literal notranslate"><span class="pre">event</span></code> 、 <code class="docutils literal notranslate"><span class="pre">competing</span></code> （仅在给出 <cite>competing</cite> 时）、 <code class="docutils literal notranslate"><span class="pre">censored</span></code> 、 <code class="docutils literal notranslate"><span class="pre">hazard</span></code> 、 <code class="docutils literal notranslate"><span class="pre">survival</span></code> 和 <code class="docutils literal notranslate"><span class="pre">cumulative_pd</span></code> ，含义见“说明”。不给 <cite>weights</cite> 时计数为整数，给出时为权重之和。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果输入为空、不是一维、长度不同或是索引不同的 Series。此外，如果 <cite>duration</cite> 不是实数数值或含有不是正整数的值， <cite>event</cite> 或 <cite>competing</cite> 含有 0 和 1 以外的值，二者在同一行都为 1， <cite>entry</cite> 不是实数数值或含有不是 0 到该账户 duration − 1 之间整数的值，或者 <cite>weights</cite> 不是数值，或没有为每个账户给出一个有限非负、总和为正的权重，也会引发此异常。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.lifetime.convert_pd" title="kivi.lifetime.convert_pd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_pd</span></code></a></dt><dd><p>由 <code class="docutils literal notranslate"><span class="pre">cumulative_pd</span></code> 得到边际 PD 和条件 PD。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.lifetime.expected_credit_loss" title="kivi.lifetime.expected_credit_loss"><code class="xref py py-obj docutils literal notranslate"><span class="pre">expected_credit_loss</span></code></a></dt><dd><p>由边际 PD 计算的预期信用损失。</p>
+</dd>
+<dt><a class="reference internal" href="vintage.html#kivi.vintage.vintage_table" title="kivi.vintage.vintage_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.vintage.vintage_table</span></code></a></dt><dd><p>按批次和账龄统计的累计坏账率。</p>
+</dd>
+<dt><a class="reference internal" href="datasets.html#kivi.datasets.make_loan_panel" title="kivi.datasets.make_loan_panel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.datasets.make_loan_panel</span></code></a></dt><dd><p>含提前还款的合成贷款面板。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>对 duration 为 <span class="math notranslate nohighlight">\(T_i\)</span> 、entry 为 <span class="math notranslate nohighlight">\(e_i\)</span> 、权重为 <span class="math notranslate nohighlight">\(w_i\)</span> （不给 <cite>weights</cite> 时为 1）的账户 <span class="math notranslate nohighlight">\(i\)</span> ，第 <span class="math notranslate nohighlight">\(t\)</span> 期的各列为：</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">at_risk</span></code> ： <span class="math notranslate nohighlight">\(n_t = \sum_i w_i \, [e_i &lt; t \le T_i]\)</span> ，该期处于违约风险中的账户；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">event</span></code> ： <span class="math notranslate nohighlight">\(d_t\)</span> ，该期违约账户的权重；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">competing</span></code> ： <span class="math notranslate nohighlight">\(c_t\)</span> ，该期因其他原因退出的账户的权重；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">censored</span></code> ：该期最后一次被观测、既未违约也未退出的账户的权重；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">hazard</span></code> ： <span class="math notranslate nohighlight">\(h_t = d_t / n_t\)</span> ，处于风险中的账户中违约的比例；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">survival</span></code> ： <span class="math notranslate nohighlight">\(S(t) = \prod_{s \le t} (1 - (d_s + c_s) / n_s)\)</span> ，到该期末既未违约也未退出的概率，其中 <span class="math notranslate nohighlight">\(S(0) = 1\)</span> ；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cumulative_pd</span></code> ：到该期末发生违约的概率。</p></li>
+</ul>
+<p>不给 <cite>competing</cite> 时， <span class="math notranslate nohighlight">\(c_t = 0\)</span> ， <code class="docutils literal notranslate"><span class="pre">cumulative_pd</span></code> 是 Kaplan–Meier 估计</p>
+<div class="math notranslate nohighlight">
+\[F(t) = 1 - \prod_{s \le t} (1 - h_s) = 1 - S(t).\]</div>
+<p>给出 <cite>competing</cite> 时，它是违约累计发生率的 Aalen–Johansen 估计，累加此前既未违约也未退出的账户的违约：</p>
+<div class="math notranslate nohighlight">
+\[F(t) = \sum_{s \le t} S(s - 1) \, h_s.\]</div>
+<p>在某期被删失的账户在该期仍处于风险中：删失排在该期的违约和退出之后。没有账户处于风险中的期，其风险率为 NaN，从该期起 <code class="docutils literal notranslate"><span class="pre">survival</span></code> 和 <code class="docutils literal notranslate"><span class="pre">cumulative_pd</span></code> 也为 NaN，因为不知道有多少比例的账户能度过这一期。给出 <cite>entry</cite> 时，如果最初几期没有观测到任何账户，也会出现这种情况；此时后面各期的风险率给出以到达这些期为条件的 PD。</p>
+<p>提前退出的账户不会再违约。像 1 − Kaplan–Meier 那样把它计为删失，估计的是一直留在账上直到违约的账户的 PD，会高估违约账户的比例：应把提前退出作为 <cite>competing</cite> 传入。如果每个账户都从第 1 期起被观测，直到违约或退出，或直到所有账户共同的最后一期，累计发生率就是到各期为止已违约账户的比例，即 <cite>kivi.vintage.vintage_table</cite> 的累计坏账率。</p>
+<p><code class="docutils literal notranslate"><span class="pre">cumulative_pd</span></code> 是可传给 <cite>convert_pd</cite> 的累计期限结构。不给 <cite>competing</cite> 时，它的条件 PD 就是风险率。给出 <cite>competing</cite> 时，条件 PD 以此前未违约为条件，与 vintage 表一样也计入已退出的账户，而风险率以账户仍在账上为条件。</p>
+<p class="rubric">参考文献</p>
+<div role="list" class="citation-list">
+<div class="citation" id="rf493e469072c-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<p>E. L. Kaplan and P. Meier, &quot;Nonparametric estimation from
+incomplete observations&quot;, Journal of the American Statistical
+Association, 53(282), pp. 457-481, 1958.</p>
+</div>
+<div class="citation" id="rf493e469072c-2" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></span>
+<p>O. O. Aalen and S. Johansen, &quot;An empirical transition matrix for
+non-homogeneous Markov chains based on censored observations&quot;,
+Scandinavian Journal of Statistics, 5(3), pp. 141-150, 1978.</p>
+</div>
+</div>
+<p class="rubric">示例</p>
+<p>八笔贷款、三个月：三笔违约，两笔提前还款，三笔在观测结束时仍在账上。</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.lifetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">survival_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">duration</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">event</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">repaid</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">survival_table</span><span class="p">(</span><span class="n">duration</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">competing</span><span class="o">=</span><span class="n">repaid</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">        at_risk  event  competing  censored  hazard  survival  cumulative_pd</span>
+<span class="go">period</span>
+<span class="go">1             8      1          1         0  0.1250    0.7500         0.1250</span>
+<span class="go">2             6      1          1         1  0.1667    0.5000         0.2500</span>
+<span class="go">3             3      1          0         2  0.3333    0.3333         0.4167</span>
+</pre></div>
+</div>
+<p>第三个月时还有一半贷款在账上，其中三分之一违约：0.25 + 0.5 × 1/3 = 0.4167。把提前还款计为删失，得到的 Kaplan–Meier 估计 1 − (7/8)(5/6)(2/3) 更高：</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">survival_table</span><span class="p">(</span><span class="n">duration</span><span class="p">,</span> <span class="n">event</span><span class="p">)[</span><span class="s2">"cumulative_pd"</span><span class="p">]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">period</span>
+<span class="go">1    0.1250</span>
+<span class="go">2    0.2708</span>
+<span class="go">3    0.5139</span>
+<span class="go">Name: cumulative_pd, dtype: float64</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.lifetime.expected_credit_loss">
+<span class="sig-prename descclassname"><span class="pre">kivi.lifetime.</span></span><span class="sig-name descname"><span class="pre">expected_credit_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">probability</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lgd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ead</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">horizon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.lifetime.expected_credit_loss" title="链接到此定义。">#</a></dt>
+<dd><p>计算每个账户的 12 个月或整个存续期预期信用损失。</p>
+<p>IFRS 9 的预期信用损失对报告日之后的各期求和：每一期的违约概率乘以该期的违约损失率和违约风险敞口，再按实际利率折现到报告日。把 12 个月对应的期数作为 <cite>horizon</cite> 传入，得到第一阶段的 12 个月预期信用损失；不传则得到第二、三阶段的整个存续期预期信用损失。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>probability</strong><span class="classifier">array_like 或 pandas.DataFrame</span></dt><dd><p>边际 PD，每个账户一行，报告日之后每一期一列：第 <span class="math notranslate nohighlight">\(t\)</span> 列是在报告日看来该账户在第 <span class="math notranslate nohighlight">\(t\)</span> 期违约的概率。每行之和至多为 1。 <cite>convert_pd</cite> 可由累计或条件期限结构得到边际 PD。布尔值按 0 和 1 计。</p>
+</dd>
+<dt><strong>lgd</strong><span class="classifier">float、array_like 或 pandas.DataFrame</span></dt><dd><p>违约损失率，即占违约风险敞口的比例，取值在 0 到 1 之间：可以是适用于所有账户和各期的一个值，每个账户一个值的一维 array_like，或每个账户每期一个值的二维计划表。二维数组也可以只有一行（适用于所有账户）或只有一列（适用于各期）。</p>
+</dd>
+<dt><strong>ead</strong><span class="classifier">float、array_like 或 pandas.DataFrame</span></dt><dd><p>违约风险敞口，须为有限非负值，形式与 <cite>lgd</cite> 相同：一个值，每个账户一个值（例如报告日的余额），或计划表（例如每期预计的余额）。账户到期之后的各期，敞口请设为 0。每个账户一行的 Series 和 DataFrame 必须具有相同的索引，每期一列的 DataFrame 必须具有相同的列。只有一行或一列的输入会被广播，因此只有一个账户或一期时，只使用 <cite>probability</cite> 的标签。</p>
+</dd>
+<dt><strong>rate</strong><span class="classifier">float 或 array_like</span></dt><dd><p>用于折现损失的每期实际利率，须大于 -1，可以是一个值，也可以每个账户一个值。按月分期、年利率为 <span class="math notranslate nohighlight">\(r\)</span> 时，传入 <span class="math notranslate nohighlight">\((1 + r)^{1/12} - 1\)</span> 。传入 0 表示不折现。</p>
+</dd>
+<dt><strong>horizon</strong><span class="classifier">int，可选</span></dt><dd><p>从第 1 期起求和的期数：按月分期时为 12，按年分期时为 1，得到 12 个月预期信用损失。默认取 <cite>probability</cite> 的全部期数，得到整个存续期预期信用损失。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.Series 或 numpy.ndarray</dt><dd><p>每个账户的预期信用损失，单位与 <cite>ead</cite> 相同。如果 <cite>probability</cite> 是 DataFrame，或在有多个账户时另一个每个账户一行的输入是 pandas 对象，返回名为 <code class="docutils literal notranslate"><span class="pre">expected_credit_loss</span></code> 、具有其索引的 Series；否则返回数组。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果 <cite>probability</cite> 不是至少有一个账户和一期的二维输入，某个输入不是实数数值或不具有上述任何一种形状，或 pandas 输入的索引或列不同。此外，如果 <cite>probability</cite> 或 <cite>lgd</cite> 有取值超出 [0, 1]， <cite>probability</cite> 某一行之和超过 1， <cite>ead</cite> 含有负值或无穷值， <cite>rate</cite> 为无穷值、不大于 -1 或使折现因子溢出，或者 <cite>horizon</cite> 不是不超过期数的正整数，也会引发此异常。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.lifetime.convert_pd" title="kivi.lifetime.convert_pd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_pd</span></code></a></dt><dd><p>由累计或条件 PD 得到的边际 PD。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.lifetime.transition_pd" title="kivi.lifetime.transition_pd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transition_pd</span></code></a></dt><dd><p>由转移矩阵得到的累计 PD。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.lifetime.assign_stages" title="kivi.lifetime.assign_stages"><code class="xref py py-obj docutils literal notranslate"><span class="pre">assign_stages</span></code></a></dt><dd><p>每个账户的阶段，它决定了求和的期限。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.lifetime.stage_table" title="kivi.lifetime.stage_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stage_table</span></code></a></dt><dd><p>按阶段汇总的敞口和预期信用损失。</p>
+</dd>
+<dt><a class="reference internal" href="strategy.html#kivi.strategy.expected_loss" title="kivi.strategy.expected_loss"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.strategy.expected_loss</span></code></a></dt><dd><p>单一期限内的预期损失。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>对于第 <span class="math notranslate nohighlight">\(t\)</span> 期边际 PD 为 <span class="math notranslate nohighlight">\(m_t\)</span> 、违约损失率为 <span class="math notranslate nohighlight">\(\mathrm{LGD}_t\)</span> 、违约风险敞口为 <span class="math notranslate nohighlight">\(\mathrm{EAD}_t\)</span> ，每期实际利率为 <span class="math notranslate nohighlight">\(r\)</span> 的账户，</p>
+<div class="math notranslate nohighlight">
+\[\mathrm{ECL} = \sum_{t=1}^{H} m_t \, \mathrm{LGD}_t \,
+               \mathrm{EAD}_t \, (1 + r)^{-t},\]</div>
+<p>其中 <span class="math notranslate nohighlight">\(H\)</span> 为 <cite>horizon</cite> 或期数。约定如下：</p>
+<ul class="simple">
+<li><p>第 1 期从报告日开始，一期后结束；第 <span class="math notranslate nohighlight">\(t\)</span> 期在报告日之后 <span class="math notranslate nohighlight">\(t\)</span> 期结束。</p></li>
+<li><p>第 <span class="math notranslate nohighlight">\(t\)</span> 期的违约视为发生在该期期末，因此其损失折现 <span class="math notranslate nohighlight">\(t\)</span> 期。</p></li>
+<li><p>边际 PD 不以存续为条件：它们是在报告日看来的概率，之和等于累计 PD。对于截至报告日未违约的账户，请把其期限结构中从报告日时的账龄开始的条件 PD 用 <code class="docutils literal notranslate"><span class="pre">kind=&quot;conditional&quot;</span></code> 和 <code class="docutils literal notranslate"><span class="pre">to=&quot;marginal&quot;</span></code> 转换。</p></li>
+<li><p>各列必须覆盖期限最长的账户的剩余存续期。在求和期限内到期的账户，到期后的敞口为 0，因此其 12 个月预期信用损失与整个存续期预期信用损失相等。</p></li>
+</ul>
+<p>报告日已经违约的敞口在报告日就已违约，而不是在某一期期末。请为其设置第 1 期边际 PD 为 1、利率为 0，使其预期信用损失等于 LGD 乘以 EAD：已违约敞口的 LGD 通常已经对回收款做了折现。</p>
+<p>若求和的某一期 PD、LGD 或 EAD 缺失，或者利率缺失，该账户的预期信用损失为缺失，与 <cite>kivi.strategy.expected_loss</cite> 一致。 <cite>horizon</cite> 之后各期的缺失值不会被使用。</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.lifetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">expected_credit_loss</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">marginal</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">0.02</span><span class="p">,</span> <span class="mf">0.03</span><span class="p">,</span> <span class="mf">0.03</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.10</span><span class="p">,</span> <span class="mf">0.08</span><span class="p">,</span> <span class="mf">0.06</span><span class="p">]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">schedule</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">1000.0</span><span class="p">,</span> <span class="mf">700.0</span><span class="p">,</span> <span class="mf">400.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">500.0</span><span class="p">,</span> <span class="mf">250.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">expected_credit_loss</span><span class="p">(</span><span class="n">marginal</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">schedule</span><span class="p">,</span> <span class="n">rate</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">array([24.23, 32.88])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">expected_credit_loss</span><span class="p">(</span><span class="n">marginal</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">schedule</span><span class="p">,</span> <span class="n">rate</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">horizon</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">array([ 9.52, 23.81])</span>
+</pre></div>
+</div>
+<p>第一个账户在第 1 期损失 0.02 × 0.5 × 1000 / 1.05 = 9.52，在第 2 期损失 0.03 × 0.5 × 700 / 1.05² = 9.52，在第 3 期损失 0.03 × 0.5 × 400 / 1.05³ = 5.18。</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.lifetime.significant_increase">
+<span class="sig-prename descclassname"><span class="pre">kivi.lifetime.</span></span><span class="sig-name descname"><span class="pre">significant_increase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">probability</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">origination_probability</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">relative</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">absolute</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.lifetime.significant_increase" title="链接到此定义。">#</a></dt>
+<dd><p>标记自初始确认以来信用风险是否显著增加。</p>
+<p>当敞口的信用风险自初始确认以来显著增加时，IFRS 9 将其划入第二阶段。常见的定量测试比较报告日的 PD 与发放时预期的 PD，可以看比率、差值或两者兼看。阈值是报告主体的政策，而不是准则规定的数值，因此没有默认值。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>probability</strong><span class="classifier">array_like</span></dt><dd><p>每笔敞口在报告日的 PD，取值在 0 到 1 之间。</p>
+</dd>
+<dt><strong>origination_probability</strong><span class="classifier">array_like</span></dt><dd><p>每笔敞口在初始确认时对同一期间预期的 PD，取值在 0 到 1 之间。如果两个输入都是 Series，二者的索引必须完全相同；否则按位置对应。</p>
+</dd>
+<dt><strong>relative</strong><span class="classifier">float 或 None</span></dt><dd><p>如果 <cite>probability</cite> 超过 <cite>origination_probability</cite> 的 <cite>relative</cite> 倍，即为显著增加，因此 2 会标记 PD 增加到两倍以上的敞口。必须大于 1。传入 None 表示不做这项测试。</p>
+</dd>
+<dt><strong>absolute</strong><span class="classifier">float 或 None</span></dt><dd><p>如果 <cite>probability</cite> 比 <cite>origination_probability</cite> 高出 <cite>absolute</cite> 以上（以 PD 为单位），即为显著增加，因此 0.01 会标记 PD 上升超过一个百分点的敞口。必须介于 0 和 1 之间。传入 None 表示不做这项测试。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.Series 或 numpy.ndarray</dt><dd><p>布尔值，信用风险显著增加时为 True。如果某个输入是 Series，返回名为 <code class="docutils literal notranslate"><span class="pre">significant_increase</span></code> 、具有其索引的 Series；否则返回数组。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果输入为空、不是一维、长度不同、是索引不同的 Series、不是实数数值，或含有缺失值或 [0, 1] 以外的值。此外，如果 <cite>relative</cite> 既不是 None 也不是大于 1 的数， <cite>absolute</cite> 既不是 None 也不是介于 0 和 1 之间的数，或者两者都是 None，也会引发此异常。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.lifetime.assign_stages" title="kivi.lifetime.assign_stages"><code class="xref py py-obj docutils literal notranslate"><span class="pre">assign_stages</span></code></a></dt><dd><p>由这些标记和逾期天数确定阶段。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.lifetime.convert_pd" title="kivi.lifetime.convert_pd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_pd</span></code></a></dt><dd><p>由期限结构得到剩余存续期内的累计 PD。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.lifetime.transition_pd" title="kivi.lifetime.transition_pd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transition_pd</span></code></a></dt><dd><p>由转移矩阵得到的累计 PD。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>设报告日的 PD 为 <span class="math notranslate nohighlight">\(p\)</span> ，发放时预期的 PD 为 <span class="math notranslate nohighlight">\(p_0\)</span> ，测试为</p>
+<div class="math notranslate nohighlight">
+\[p &gt; \mathrm{relative} \cdot p_0 \qquad \text{且} \qquad
+p - p_0 &gt; \mathrm{absolute}.\]</div>
+<p>两项比较都是严格的；PD 在浮点数舍入误差范围内（与 PD 的末位相差几个单位以内）等于阈值时，视为恰好等于阈值：在浮点运算中 <code class="docutils literal notranslate"><span class="pre">0.04</span> <span class="pre">-</span> <span class="pre">0.03</span></code> 大于 <code class="docutils literal notranslate"><span class="pre">0.01</span></code> ， <code class="docutils literal notranslate"><span class="pre">1.5</span> <span class="pre">*</span> <span class="pre">0.30</span></code> 小于 <code class="docutils literal notranslate"><span class="pre">0.45</span></code> ，但这两对都不会被标记。</p>
+<p>同时给出两个阈值时，只有两项测试都通过才算显著增加，这样绝对阈值可以避免低 PD 的微小变化被计入。若规则只要求通过任一项测试，请分别用一个阈值调用两次，再用 <code class="docutils literal notranslate"><span class="pre">|</span></code> 合并。定性标准（例如关注名单或债务重组）也以同样的方式与这些标记合并。</p>
+<p>IFRS 9 评估的是敞口在预计存续期内违约风险的变化；若未来 12 个月的违约风险能给出合理的近似，也允许使用它。请比较相同期限的 PD：对于存续期 PD，应与发放时对同一剩余存续期预期的 PD 比较。</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.lifetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">significant_increase</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">probability</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.004</span><span class="p">,</span> <span class="mf">0.012</span><span class="p">,</span> <span class="mf">0.03</span><span class="p">,</span> <span class="mf">0.09</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">origination_probability</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.001</span><span class="p">,</span> <span class="mf">0.010</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">significant_increase</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">probability</span><span class="p">,</span> <span class="n">origination_probability</span><span class="p">,</span> <span class="n">relative</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">absolute</span><span class="o">=</span><span class="kc">None</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="go">array([ True, False,  True, False])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">significant_increase</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">probability</span><span class="p">,</span> <span class="n">origination_probability</span><span class="p">,</span> <span class="n">relative</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">absolute</span><span class="o">=</span><span class="mf">0.01</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="go">array([False, False,  True, False])</span>
+</pre></div>
+</div>
+<p>第一个 PD 增加到四倍，但只上升了 0.3 个百分点；最后一个上升了 4 个百分点，但没有翻倍。</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.lifetime.assign_stages">
+<span class="sig-prename descclassname"><span class="pre">kivi.lifetime.</span></span><span class="sig-name descname"><span class="pre">assign_stages</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">significant_increase</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">days_past_due</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">defaulted</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">stage_2_days</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stage_3_days</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">90</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.lifetime.assign_stages" title="链接到此定义。">#</a></dt>
+<dd><p>把敞口划分到 IFRS 9 的三个阶段。</p>
+<p>第一阶段包括自初始确认以来信用风险没有显著增加的敞口，第二阶段包括信用风险已显著增加的敞口，第三阶段包括已发生信用减值的敞口。逾期天数作为兜底标准：逾期超过 <cite>stage_2_days</cite> 天的敞口至少处于第二阶段，逾期至少 <cite>stage_3_days</cite> 天或被标记为违约的敞口处于第三阶段。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>significant_increase</strong><span class="classifier">array_like</span></dt><dd><p>每笔敞口的信用风险自初始确认以来是否显著增加，取布尔值或 0 和 1，例如函数 <cite>significant_increase</cite> 的结果，也可以与定性标准合并。</p>
+</dd>
+<dt><strong>days_past_due</strong><span class="classifier">array_like，可选</span></dt><dd><p>每笔敞口在报告日的逾期天数，须为有限非负值。不传入时不适用兜底标准。</p>
+</dd>
+<dt><strong>defaulted</strong><span class="classifier">array_like，可选</span></dt><dd><p>每笔敞口是否已发生信用减值（通常是因为按主体的违约定义处于违约状态），取布尔值或 0 和 1。这些敞口处于第三阶段。</p>
+</dd>
+<dt><strong>stage_2_days</strong><span class="classifier">float，默认 30</span></dt><dd><p>逾期超过该天数的敞口至少处于第二阶段。默认值依据 IFRS 9 第 5.5.11 段的可推翻假设：合同付款逾期超过 30 天时，信用风险已显著增加。</p>
+</dd>
+<dt><strong>stage_3_days</strong><span class="classifier">float，默认 90</span></dt><dd><p>逾期达到或超过该天数的敞口处于第三阶段。默认值依据 IFRS 9 第 B5.5.37 段的可推翻假设：违约的发生不晚于金融资产逾期 90 天之时。必须大于 <cite>stage_2_days</cite> 。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.Series 或 numpy.ndarray</dt><dd><p>每笔敞口的阶段，取整数 1、2 或 3。如果某个输入是 Series，返回名为 <code class="docutils literal notranslate"><span class="pre">stage</span></code> 、具有其索引的 Series；否则返回数组。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果输入为空、不是一维、长度不同或是索引不同的 Series， <cite>significant_increase</cite> 或 <cite>defaulted</cite> 含有 0 和 1 以外的值，或者 <cite>days_past_due</cite> 不是实数数值或含有缺失值、负值或无穷值。此外，如果 <cite>stage_2_days</cite> 或 <cite>stage_3_days</cite> 不是有限的非负数，或 <cite>stage_3_days</cite> 不大于 <cite>stage_2_days</cite> ，也会引发此异常。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.lifetime.significant_increase" title="kivi.lifetime.significant_increase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">significant_increase</span></code></a></dt><dd><p>信用风险显著增加的定量测试。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.lifetime.stage_table" title="kivi.lifetime.stage_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stage_table</span></code></a></dt><dd><p>按阶段汇总的敞口和预期信用损失。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.lifetime.expected_credit_loss" title="kivi.lifetime.expected_credit_loss"><code class="xref py py-obj docutils literal notranslate"><span class="pre">expected_credit_loss</span></code></a></dt><dd><p>12 个月和整个存续期的预期信用损失。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>敞口已违约或逾期至少 <cite>stage_3_days</cite> 天时处于第三阶段；否则，若 <cite>significant_increase</cite> 为真或逾期超过 <cite>stage_2_days</cite> 天，处于第二阶段；其余处于第一阶段。因此按默认值，恰好逾期 30 天的敞口仍处于第一阶段，而恰好逾期 90 天的敞口处于第三阶段，与两项假设的表述一致。</p>
+<p>IFRS 9 按对预计现金流量产生不利影响的事件来界定已发生信用减值的敞口，例如违约或借款人发生重大财务困难。实务中，主体通常使其与自身的违约定义保持一致。阈值、违约定义以及回到正常的处理都是报告主体的政策。观察期（敞口不再满足某项标准后仍留在原阶段的期间）需要每笔敞口的历史，此处不予处理。</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.lifetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">assign_stages</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">increase</span> <span class="o">=</span> <span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">days_past_due</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">defaulted</span> <span class="o">=</span> <span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">assign_stages</span><span class="p">(</span><span class="n">increase</span><span class="p">,</span> <span class="n">days_past_due</span><span class="p">,</span> <span class="n">defaulted</span><span class="p">)</span>
+<span class="go">array([1, 2, 2, 3, 3])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kivi.lifetime.stage_table">
+<span class="sig-prename descclassname"><span class="pre">kivi.lifetime.</span></span><span class="sig-name descname"><span class="pre">stage_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stage</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exposure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allowance</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="仅关键字参数分隔符 (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kivi.lifetime.stage_table" title="链接到此定义。">#</a></dt>
+<dd><p>汇总每个阶段的敞口和预期信用损失。</p>
+<p>每行汇总一个阶段的敞口和损失准备，并给出二者之比，即银行按阶段披露的覆盖率。</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>stage</strong><span class="classifier">array_like</span></dt><dd><p>每笔敞口的阶段，取 1、2 或 3，例如 <cite>assign_stages</cite> 的结果。</p>
+</dd>
+<dt><strong>exposure</strong><span class="classifier">array_like</span></dt><dd><p>每个账户在报告日的敞口，例如其账面余额，须为有限非负值。</p>
+</dd>
+<dt><strong>allowance</strong><span class="classifier">array_like</span></dt><dd><p>每个账户的损失准备，须为有限非负值：第一阶段为其 12 个月预期信用损失，第二、三阶段为其整个存续期预期信用损失。作为 Series 传入的输入，索引必须完全相同；否则按位置对应。</p>
+</dd>
+<dt><strong>weights</strong><span class="classifier">array_like，可选</span></dt><dd><p>每笔敞口的非负权重，例如其抽样比例的倒数，对应方式与 <cite>exposure</cite> 相同。计数、敞口和损失准备都变为加权和，因此整数权重与重复相应行得到的表相同。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">返回值<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.DataFrame</dt><dd><p>阶段 1、2、3 各占一行（索引名为 <code class="docutils literal notranslate"><span class="pre">stage</span></code> ），没有敞口的阶段也保留，各列含义见“说明”。</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">异常<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>如果输入为空、不是一维、长度不同或是索引不同的 Series，或不是实数数值。此外，如果 <cite>stage</cite> 含有 1、2、3 以外的值， <cite>exposure</cite> 或 <cite>allowance</cite> 含有缺失值、负值或无穷值，或者 <cite>weights</cite> 不是数值，或没有为每笔敞口给出一个有限非负、总和为正的权重，也会引发此异常。</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">参见</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#kivi.lifetime.assign_stages" title="kivi.lifetime.assign_stages"><code class="xref py py-obj docutils literal notranslate"><span class="pre">assign_stages</span></code></a></dt><dd><p>每笔敞口的阶段。</p>
+</dd>
+<dt><a class="reference internal" href="#kivi.lifetime.expected_credit_loss" title="kivi.lifetime.expected_credit_loss"><code class="xref py py-obj docutils literal notranslate"><span class="pre">expected_credit_loss</span></code></a></dt><dd><p>12 个月和整个存续期的预期信用损失。</p>
+</dd>
+<dt><a class="reference internal" href="strategy.html#kivi.strategy.expected_loss_table" title="kivi.strategy.expected_loss_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kivi.strategy.expected_loss_table</span></code></a></dt><dd><p>按等级汇总的敞口和预期损失。</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">说明</p>
+<p>对于一个阶段中的敞口 <span class="math notranslate nohighlight">\(i\)</span> ，权重为 <span class="math notranslate nohighlight">\(w_i\)</span> （不传 <cite>weights</cite> 时为 1），各列为：</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">total</span></code>：敞口数， <span class="math notranslate nohighlight">\(\sum_i w_i\)</span>；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">exposure</span></code> ： <span class="math notranslate nohighlight">\(\sum_i w_i E_i\)</span> ，其中 <span class="math notranslate nohighlight">\(E_i\)</span> 为敞口；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">exposure_share</span></code> ：该阶段占全部阶段敞口的比例；总敞口为 0 时，每个阶段均为 NaN；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">expected_credit_loss</span></code> ： <span class="math notranslate nohighlight">\(\sum_i w_i L_i\)</span> ，其中 <span class="math notranslate nohighlight">\(L_i\)</span> 为损失准备；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">coverage</span></code> ： <code class="docutils literal notranslate"><span class="pre">expected_credit_loss</span></code> 除以 <code class="docutils literal notranslate"><span class="pre">exposure</span></code> ，没有敞口的阶段为 NaN。</p></li>
+</ul>
+<p>资产组合的敞口和损失准备分别是 <code class="docutils literal notranslate"><span class="pre">exposure</span></code> 列和 <code class="docutils literal notranslate"><span class="pre">expected_credit_loss</span></code> 列之和，其覆盖率是后者之和除以前者之和。</p>
+<p class="rubric">示例</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">kivi.lifetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">stage_table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stage</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">exposure</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1000.0</span><span class="p">,</span> <span class="mf">2000.0</span><span class="p">,</span> <span class="mf">1000.0</span><span class="p">,</span> <span class="mf">800.0</span><span class="p">,</span> <span class="mf">200.0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">allowance</span> <span class="o">=</span> <span class="p">[</span><span class="mf">5.0</span><span class="p">,</span> <span class="mf">8.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">40.0</span><span class="p">,</span> <span class="mf">90.0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stage_table</span><span class="p">(</span><span class="n">stage</span><span class="p">,</span> <span class="n">exposure</span><span class="p">,</span> <span class="n">allowance</span><span class="p">)</span>
+<span class="go">       total  exposure  exposure_share  expected_credit_loss  coverage</span>
+<span class="go">stage</span>
+<span class="go">1          3    4000.0            0.80                  16.0     0.004</span>
+<span class="go">2          1     800.0            0.16                  40.0     0.050</span>
+<span class="go">3          1     200.0            0.04                  90.0     0.450</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="vintage.html"
+       title="上一页">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">上一页</p>
+        <p class="prev-next-title">Vintage 与滚动率分析</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="plotting.html"
+       title="下一页">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">下一页</p>
+        <p class="prev-next-title">图表</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 当前页面
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.lifetime.convert_pd"><code class="docutils literal notranslate"><span class="pre">convert_pd()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.lifetime.transition_pd"><code class="docutils literal notranslate"><span class="pre">transition_pd()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.lifetime.conditional_matrix"><code class="docutils literal notranslate"><span class="pre">conditional_matrix()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.lifetime.matrix_factor"><code class="docutils literal notranslate"><span class="pre">matrix_factor()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.lifetime.matrix_correlation"><code class="docutils literal notranslate"><span class="pre">matrix_correlation()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.lifetime.survival_table"><code class="docutils literal notranslate"><span class="pre">survival_table()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.lifetime.expected_credit_loss"><code class="docutils literal notranslate"><span class="pre">expected_credit_loss()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.lifetime.significant_increase"><code class="docutils literal notranslate"><span class="pre">significant_increase()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.lifetime.assign_stages"><code class="docutils literal notranslate"><span class="pre">assign_stages()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kivi.lifetime.stage_table"><code class="docutils literal notranslate"><span class="pre">stage_table()</span></code></a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Chensy.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    由 <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1创建。
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
